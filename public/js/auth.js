@@ -1,4 +1,4 @@
-const backendUrl = "https://www.simplesurvivalcollectibles.site";
+const backendUrl = "https://simplesurvivalcollectibles.site";
 
 document.getElementById("registerForm").addEventListener("submit", async function (e) {
   e.preventDefault();

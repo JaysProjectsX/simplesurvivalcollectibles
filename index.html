@@ -138,14 +138,22 @@
         <p class="toggle-text">Don't have an account? <a href="#" onclick="toggleForm()">Register here</a></p>
 
         <form id="registerForm" style="display: none;">
-          <input type="email" placeholder="Email" required />
-          <input type="password" placeholder="Password" required />
+          <input type="text" placeholder="Username" id="registerUsername" required />
+          <input type="email" placeholder="Email" id="registerEmail" required />
+          <input type="password" placeholder="Password" id="registerPassword" required />
           <button type="submit">Register</button>
         </form>
         <p class="toggle-text" style="display: none;">Already have an account? <a href="#" onclick="toggleForm()">Login here</a></p>
       </div>
     </div>
 
+    <div id="registrationConfirmation" class="modal" style="display:none;">
+      <div class="modal-content">
+        <span class="close" onclick="document.getElementById('registrationConfirmation').style.display='none'">&times;</span>
+        <h2>Check Your Email</h2>
+        <p>We've sent a verification link to your email address. Please check your inbox to verify your account.</p>
+      </div>
+    </div>
 
     <footer>
       <div class="footer-creator">
@@ -192,37 +200,6 @@
         showSlide(0);
       });
     </script>
-    <script>
-    function toggleModal() {
-      const modal = document.getElementById("authModal");
-      modal.style.display = modal.style.display === "block" ? "none" : "block";
-    }
-
-    function toggleForm() {
-      const loginForm = document.getElementById("loginForm");
-      const registerForm = document.getElementById("registerForm");
-      const toggleTexts = document.querySelectorAll(".toggle-text");
-
-      if (loginForm.style.display === "none") {
-        loginForm.style.display = "block";
-        registerForm.style.display = "none";
-        toggleTexts[0].style.display = "block";
-        toggleTexts[1].style.display = "none";
-      } else {
-        loginForm.style.display = "none";
-        registerForm.style.display = "block";
-        toggleTexts[0].style.display = "none";
-        toggleTexts[1].style.display = "block";
-      }
-    }
-
-    // Optional: Close modal on outside click
-    window.onclick = function (event) {
-      const modal = document.getElementById("authModal");
-      if (event.target === modal) {
-        modal.style.display = "none";
-      }
-    };
-  </script>
+    <script src="/js/auth.js"></script>
   </body>
 </html>

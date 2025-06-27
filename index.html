@@ -204,48 +204,5 @@
         showSlide(0);
       });
     </script>
-    <script>
-      // Example: simulate logged-in user (replace this with your actual login check logic)
-      const user = JSON.parse(localStorage.getItem("user")); // e.g., { username, email, role, verified }
-
-      const loginItem = document.getElementById("loginItem");
-      if (user) {
-        loginItem.innerHTML = `
-          <div class="user-dropdown">
-            <span onclick="toggleDropdown()" class="username-link">${user.username}</span>
-            <div class="dropdown-content" id="userDropdown">
-              <a href="#" onclick="openAccountModal()">Account Options</a>
-              ${user.role === 'admin' ? '<a href="admin.html">Admin Panel</a>' : '<a href="collections.html">Collections List</a>'}
-              <a href="#" onclick="logout()">Log Out</a>
-            </div>
-          </div>
-        `;
-      }
-
-      function toggleDropdown() {
-        const dropdown = document.getElementById("userDropdown");
-        dropdown.classList.toggle("show");
-      }
-
-      function logout() {
-        localStorage.removeItem("user");
-        window.location.reload();
-      }
-
-      function openAccountModal() {
-        // You can open a styled modal here later
-        alert(`Username: ${user.username}\nEmail: ${user.email}\nRole: ${user.role}\nVerified: ${user.verified}`);
-      }
-
-      // Close dropdown if clicked outside
-      window.onclick = function (event) {
-        if (!event.target.matches('.username-link')) {
-          const dropdowns = document.getElementsByClassName("dropdown-content");
-          for (let i = 0; i < dropdowns.length; i++) {
-            dropdowns[i].classList.remove("show");
-          }
-        }
-      }
-    </script>
   </body>
 </html>

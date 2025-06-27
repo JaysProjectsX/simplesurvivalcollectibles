@@ -114,15 +114,33 @@ function updateNavUI() {
   }
 }
 
-function logout() {
+async function logout() {
+  const token = localStorage.getItem("token");
+
+  if (token) {
+    try {
+      await fetch(`${backendUrl}/logout`, {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${token}`,
+        },
+      });
+    } catch (err) {
+      console.error("Logout request failed:", err);
+    }
+  }
+
+  // Clear local storage regardless
   localStorage.removeItem("token");
   localStorage.removeItem("username");
   localStorage.removeItem("email");
   localStorage.removeItem("role");
   localStorage.removeItem("verified");
+
   updateNavUI();
   showToast("You have been logged out.", "success");
 }
+
 
 function goToCollections() {
   window.location.href = "/collections.html";

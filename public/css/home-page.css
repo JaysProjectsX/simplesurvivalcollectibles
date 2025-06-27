@@ -118,6 +118,53 @@ nav {
     transition: width 0.3s ease;
   }
 
+/* Push login to far right absolutely */
+.nav-login {
+  position: absolute;
+  right: 30px;
+  list-style: none;
+}
+
+.nav-login a {
+  color: #fff;
+  text-decoration: none;
+  font-size: large;
+  font-weight: bold;
+  transition: color 0.3s;
+  position: relative;
+}
+
+.nav-login li a {
+  position: relative;
+  color: #fff;
+  text-decoration: none;
+  font-size: large;
+  font-weight: bold;
+  padding-bottom: 8px;
+  transition: color 0.3s;
+}
+
+.nav-login a:hover {
+  color: #6ea8ff;
+}
+
+/* Underline animation on hover */
+.nav-login li a::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  transform: translateX(-50%);
+  width: 0%;
+  height: 2px;
+  background-color: #6ea8ff;
+  transition: width 0.3s ease;
+}
+
+.nav-login li a:hover::after {
+  width: 40%;
+}
+
   /* Show underline on hover */
 .nav-links li a:hover::after {
   width: 40%;

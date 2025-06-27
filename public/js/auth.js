@@ -114,6 +114,13 @@ function updateNavUI() {
   }
 }
 
+window.toggleDropdown = function () {
+  const dropdown = document.getElementById("userDropdown");
+  if (dropdown) {
+    dropdown.classList.toggle("show");
+  }
+};
+
 async function logout() {
   const token = localStorage.getItem("token");
 

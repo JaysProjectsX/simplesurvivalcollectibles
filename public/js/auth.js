@@ -1,68 +1,63 @@
-const backendUrl = import.meta.env?.VITE_BACKEND_URL || "http://localhost:3001";
+const backendUrl = "http://3.143.3.173:3001";
 
-document
-  .getElementById("registerForm")
-  .addEventListener("submit", async function (e) {
-    e.preventDefault();
+document.getElementById("registerForm").addEventListener("submit", async function (e) {
+  e.preventDefault();
 
-    const username = document.getElementById("registerUsername").value.trim();
-    const email = document.getElementById("registerEmail").value.trim();
-    const password = document.getElementById("registerPassword").value;
+  const username = document.getElementById("registerUsername").value.trim();
+  const email = document.getElementById("registerEmail").value.trim();
+  const password = document.getElementById("registerPassword").value;
 
-    try {
-      const res = await fetch(`${backendUrl}/register`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username, email, password }),
-      });
+  try {
+    const res = await fetch(`${backendUrl}/register`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ username, email, password }),
+    });
 
-      const data = await res.json();
+    const data = await res.json();
 
-      if (res.ok) {
-        document.getElementById("authModal").style.display = "none";
-        document.getElementById("registrationConfirmation").style.display =
-          "block";
-      } else {
-        alert(data.error || "Registration failed.");
-      }
-    } catch (err) {
-      alert("Registration request failed.");
-      console.error(err);
+    if (res.ok) {
+      document.getElementById("authModal").style.display = "none";
+      document.getElementById("registrationConfirmation").style.display = "block";
+    } else {
+      alert(data.error || "Registration failed.");
     }
-  });
+  } catch (err) {
+    alert("Registration request failed.");
+    console.error(err);
+  }
+});
 
-document
-  .getElementById("loginForm")
-  .addEventListener("submit", async function (e) {
-    e.preventDefault();
-    const email = this.querySelector('input[type="text"]').value;
-    const password = this.querySelector('input[type="password"]').value;
+document.getElementById("loginForm").addEventListener("submit", async function (e) {
+  e.preventDefault();
+  const email = this.querySelector('input[type="text"]').value;
+  const password = this.querySelector('input[type="password"]').value;
 
-    try {
-      const res = await fetch(`${backendUrl}/login`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
-      });
-      const data = await res.json();
-      if (data.token) {
-        alert(`Welcome ${data.username}!`);
-      } else {
-        alert(data.error || "Login failed");
-      }
-    } catch (err) {
-      alert("Login request failed");
-      console.error(err);
+  try {
+    const res = await fetch(`${backendUrl}/login`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password }),
+    });
+    const data = await res.json();
+    if (data.token) {
+      alert(`Welcome ${data.username}!`);
+    } else {
+      alert(data.error || "Login failed");
     }
-  });
+  } catch (err) {
+    alert("Login request failed");
+    console.error(err);
+  }
+});
 
-// Modal toggle logic
-function toggleModal() {
+// Make toggleModal and toggleForm global
+window.toggleModal = function () {
   const modal = document.getElementById("authModal");
   modal.style.display = modal.style.display === "block" ? "none" : "block";
-}
+};
 
-function toggleForm() {
+window.toggleForm = function () {
   const loginForm = document.getElementById("loginForm");
   const registerForm = document.getElementById("registerForm");
   const toggleTexts = document.querySelectorAll(".toggle-text");
@@ -78,9 +73,8 @@ function toggleForm() {
     toggleTexts[0].style.display = "none";
     toggleTexts[1].style.display = "block";
   }
-}
+};
 
-// Close modal when clicking outside it
 window.onclick = function (event) {
   const modal = document.getElementById("authModal");
   if (event.target === modal) {

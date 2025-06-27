@@ -1,0 +1,671 @@
+* { 
+    margin: 0; 
+    padding: 0; 
+    box-sizing: border-box; 
+  }
+
+html{
+    scroll-behavior: smooth;
+  }
+  
+  body { 
+    font-family: 'Poppins', sans-serif; 
+    overflow-x: hidden; 
+    background: radial-gradient(circle at top, #1a1a40, #000); 
+    color: #fff; 
+  }
+
+/* Sticky header for crate instructions + dropdown */
+.sticky-header {
+    position: sticky;
+    top: 0; /* Stick to the top */
+    background-color: var(--body-color); /* Match background to avoid overlap */
+    padding: 1rem;
+    z-index: 100; /* Make sure it stays above tables */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2); /* Subtle shadow for depth */
+}
+
+/* Dark mode adjustment */
+body.dark .sticky-header {
+    background-color: var(--sidebar-color); /* Or whatever fits better */
+}
+
+/* Paragraph text */
+p {
+    color: var(--paragraph-color);
+    font-size: 1rem;
+    line-height: 1.5;
+}
+
+/* Sidebar styles */
+
+.search-bar {
+    display: flex;
+    align-items: center;
+    padding: 0.5rem 1rem;
+    border-bottom: 1px solid #3a3a3a;
+}
+
+.search-bar input {
+    flex: 1;
+    padding: 0.5rem;
+    border: none;
+    border-radius: 5px;
+    outline: none;
+    background-color: #2a2a2a;
+    color: #ffffff;
+}
+
+.search-bar i {
+    margin-left: 0.5rem;
+    color: #ffffff;
+}
+
+/* Toggle Switch Styles */
+.dark-mode-toggle {
+    position: relative;
+    width: 40px;
+    height: 20px;
+    background-color: var(--toggle-color);
+    border-radius: 10px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.dark-mode-toggle .switch {
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 16px;
+    height: 16px;
+    background-color: var(--sidebar-color);
+    border-radius: 50%;
+    transition: left 0.3s ease;
+}
+
+body.dark .dark-mode-toggle {
+    background-color: var(--primary-color);
+}
+
+body.dark .dark-mode-toggle .switch {
+    left: 22px;
+}
+
+/* Hamburger button */
+
+
+
+
+
+
+
+/* Main content styles */
+.container {
+    display: flex;
+    margin-left: 0;
+    transition: margin-left 0.3s ease;
+}
+
+.container
+
+.main-content {
+    flex: 1;
+    padding: 2rem;
+    text-align: center;
+}
+
+/* Modern table styling */
+.crate-table {
+    width: 100%; /* This is fine now */
+    max-width: 100%; /* Prevent table from exceeding its container */
+    border-collapse: collapse;
+    margin-top: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+}
+
+.crate-table th, .crate-table td {
+    padding: 15px;
+    text-align: left;
+    font-size: 0.9rem;
+    color: var(--text-color);
+}
+
+.crate-table th {
+    background-color: var(--primary-color);
+    color: #fff;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.crate-table tr:nth-child(even) {
+    background-color: var(--sidebar-color);
+}
+
+.crate-table tr:hover {
+    background-color: rgba(0, 0, 0, 0.05); /* Light hover effect */
+    transition: background-color 0.3s ease;
+}
+
+.crate-table img {
+    width: 40px;
+    height: 40px;
+    object-fit: contain;
+    border-radius: 5px;
+}
+
+/* Dark mode adjustments for the table */
+body.dark .crate-table {
+    background-color: #2a2a2a; /* Slightly lighter background for the table */
+}
+
+body.dark .crate-table th {
+    background-color: #3c3c3c; /* Lighter header background */
+    color: #ffffff; /* White text for better contrast */
+}
+
+body.dark .crate-table tr:nth-child(even) {
+    background-color: #333333; /* Lighter alternating row color */
+}
+
+body.dark .crate-table tr:nth-child(odd) {
+    background-color: #2a2a2a; /* Match the table background for odd rows */
+}
+
+body.dark .crate-table tr:hover {
+    background-color: #444444; /* Slightly lighter hover effect */
+}
+
+body.dark .crate-table td {
+    color: #e0e0e0; /* Lighter text for better readability */
+}
+
+/* Center content */
+.home {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    text-align: center;
+    min-height: auto;
+    padding: 2rem;
+}
+
+/* Footer centering fix */
+.footer-centered {
+    text-align: center;
+    margin-left: 0;
+    padding: 1rem;
+    background-color: #1e1e1e;
+    color: #ffffff;
+}
+
+/* Modern dropdown styling */
+#crate-dropdown {
+    width: 100%;
+    max-width: 300px;
+    padding: 10px 15px;
+    margin: 15px 0;
+    font-size: 1rem;
+    color: var(--text-color);
+    background-color: var(--body-color);
+    border: 1px solid var(--primary-color);
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    appearance: none; /* Remove default dropdown arrow */
+    background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg xmlns%3D%22http://www.w3.org/2000/svg%22 viewBox%3D%220 0 4 5%22%3E%3Cpath fill%3D%22%23aaa%22 d%3D%22M2 0L0 2h4z%22/%3E%3C/svg%3E');
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    background-size: 10px;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+#crate-dropdown:focus {
+    border-color: var(--primary-color-dark);
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
+    outline: none;
+}
+
+#crate-content {
+    width: 100%;
+    max-width: 1200px; /* Looks nice on wide screens */
+    margin: 0 auto; /* Center it horizontally */
+}
+
+/* Dark mode adjustments */
+body.dark #crate-dropdown {
+    background-color: var(--sidebar-color-dark);
+    color: var(--text-color);
+    border-color: var(--primary-color-dark);
+}
+
+/* Grid layout for multiple tables */
+.crate-tables-grid {
+    display: flex;
+    flex-direction: column; /* Stack vertically */
+    gap: 40px; /* More breathing room between each table */
+    margin-top: 20px;
+    width: 100%;
+    padding-bottom: 100px;
+}
+
+/* Wrapper for each table */
+.crate-table-wrapper {
+    width: 100%;
+    background-color: var(--body-color);
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Table label styling */
+.table-label {
+    font-size: 1.2rem;
+    font-weight: bold;
+    margin-bottom: 10px;
+    color: var(--text-color);
+}
+
+/* Adjustments for dark mode */
+body.dark .crate-table-wrapper {
+    background-color: #2a2a2a; /* Slightly lighter background for dark mode */
+}
+
+body.dark .table-label {
+    color: #e0e0e0; /* Lighter text for better readability in dark mode */
+}
+
+/* Tag style inside tables */
+.tag {
+    display: inline-block;
+    background-color: #4caf50; /* Green background */
+    color: white;
+    font-size: 0.75rem;
+    padding: 2px 8px;
+    border-radius: 12px;
+    margin: 2px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+body.dark .tag {
+    background-color: #66bb6a; /* Slightly lighter green for dark mode */
+}
+
+/* Tooltip styling for table rows */
+tr[data-tooltip] {
+    position: relative;
+    cursor: help; /* Show help cursor when hovering */
+}
+
+/* Base tooltip (hidden by default) */
+tr[data-tooltip]::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translate(-50%, 10px);
+    background-color: var(--tooltip-background);
+    color: var(--tooltip-text);
+    padding: 6px 10px;
+    border-radius: 5px;
+    white-space: nowrap;
+    font-size: 0.85rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    z-index: 10;
+}
+
+/* On hover, fade in and slide upward */
+tr[data-tooltip]:hover::after {
+    opacity: 1;
+    transform: translate(-50%, 0);
+}
+
+/* Only show tooltip if data-tooltip attribute exists and has content */
+tr:not([data-tooltip])::after,
+tr[data-tooltip=""]::after {
+    display: none;
+}
+
+.changelog-section {
+    padding: 10px 20px 20px; /* Top padding reduced from 20px */
+    margin-top: 0;
+    background-color: var(--body-color);
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  
+  .changelog-entry {
+    border-bottom: 1px solid #ccc;
+    padding: 10px 0;
+    color: var(--text-color);
+  }
+
+  .changelog-entry p,
+  .changelog-entry strong {
+    font-size: 0.85rem !important; /* Force smaller text */
+    line-height: 1.4;
+  }  
+  
+  .changelog-entry:last-child {
+    border-bottom: none;
+  }
+  
+  body.dark .changelog-section {
+    background-color: #2a2a2a;
+  }
+  
+  body.dark .changelog-entry {
+    border-color: #444;
+    color: var(--text-color);
+  }
+  
+  .changelog-divider {
+    border: none;
+    height: 2px;
+    background-color: var(--primary-color);
+    margin: 15px 0;
+  }
+  
+  body.dark .changelog-divider {
+    background-color: #444;
+  }
+  
+  .crate-layout {
+    display: grid;
+    grid-template-columns: 3fr 1fr;
+    gap: 2rem;
+    width: 100%;
+    max-width: 1200px;
+    margin: 2rem auto;
+    align-items: flex-start; /* Add this to stop full-height stretching */
+  }  
+  
+  .crate-main {
+    background-color: var(--body-color);
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 2rem;
+  }
+  
+  .crate-sidebar {
+    background-color: transparent;
+    padding: 0;
+    box-shadow: none;
+    border-radius: 8px;
+    margin-bottom: 3rem;
+  }
+  
+  body.dark .crate-main,
+  body.dark .crate-sidebar {
+    background-color: #2a2a2a;
+  }
+  
+  /* Style dropdown for dark mode */
+  body.dark select,
+  body.dark select option {
+      background-color: #2a2a2a;
+      color: #f0f0f0;
+      border: 1px solid #444;
+  }
+
+  /* Optional: Remove native styling on some browsers */
+  select {
+      appearance: none;
+      -webkit-appearance: none;
+      -moz-appearance: none;
+  }
+
+  /* Optional: Custom arrow */
+  select {
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 140 140' xmlns='http://www.w3.org/2000/svg'%3E%3Cpolygon fill='%23aaa' points='70,100 25,40 115,40'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 10px center;
+      background-size: 12px;
+  }
+
+  .filter-search-section {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+  }
+  
+  .filter-controls,
+  .search-controls {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .filter-controls select {
+    padding: 10px 15px;
+    font-size: 1rem;
+    min-width: 160px;
+  }
+
+  .filter-controls label {
+    font-size: 0.85rem;
+    margin-right: 0.5rem;
+    white-space: nowrap;
+  }
+  
+  #tag-filter {
+    padding: 6px 10px;
+    font-size: 0.85rem;
+    max-width: 140px;
+  }
+  
+  .search-controls {
+    position: relative;
+    width: 100%;
+  }
+  
+  .search-controls input {
+    width: 100%;
+    padding: 8px 35px 8px 10px;
+    border-radius: 5px;
+    border: 1px solid var(--primary-color);
+    background-color: var(--body-color);
+    color: var(--text-color);
+  }
+  
+  .search-controls .search-icon {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 1.1rem;
+    color: var(--text-color);
+    pointer-events: none;
+  }
+  
+  .no-results {
+    margin-top: 20px;
+    font-size: 1rem;
+    color: var(--text-color);
+    text-align: center;
+  }
+  
+  body.dark .search-controls input {
+    background-color: var(--sidebar-color);
+    color: var(--text-color);
+  }
+  
+  .changelog-wrapper {
+    background-color: var(--body-color);
+    border-radius: 8px;
+    padding-top: 1rem;
+    padding-bottom: 2rem;
+  }
+  
+  .filter-section-wrapper {
+    background-color: var(--body-color);
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 2rem;
+    box-shadow: none;        /* REMOVE the shadow that causes the line */
+  }
+
+  body.dark .filter-section-wrapper {
+    background-color: #2a2a2a;
+    padding: 20px;
+  }
+
+  /* Specifically separate them */
+  .filter-section-wrapper {
+    margin-bottom: 2rem;
+  }
+
+  
+
+/* Integrated from home-page.css */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;600&display=swap');
+
+body, html {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    font-family: 'Poppins', sans-serif;
+    color: white;
+    text-align: center;
+    background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+    overflow: hidden;
+}
+
+/* Particles Background */
+#particles-js {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    z-index: 0;
+}
+
+/* HERO SECTION */
+.hero {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    z-index: 1;
+    text-align: center;
+    padding: 0 20px;
+    opacity: 0;
+    animation: revealHero 2s ease-out forwards;
+    gap: 10px; /* Reduced gap to make the elements closer */
+}
+
+/* Text Animation */
+.hero h1,
+.hero p,
+.cta-button {
+    opacity: 0;
+    transform: scale(0.5);
+    clip-path: inset(0 0 0 100%);
+    animation: reconstruct 1s ease forwards;
+}
+
+/* Staggered Animation Delay */
+.hero h1 {
+    animation-delay: 0.5s;
+    font-size: 2.5rem;
+    margin-bottom: 10px; /* Reduced margin between the heading and paragraph */
+}
+
+.hero p {
+    animation-delay: 1s;
+    font-size: 0.9rem;
+    margin-bottom: 10px; /* Reduced margin between the paragraph and button */
+}
+
+.cta-button {
+    animation-delay: 1.5s;
+}
+
+/* Reveal Text Animation */
+@keyframes reconstruct {
+    0% {
+        opacity: 0;
+        transform: scale(0.5);
+        clip-path: inset(0 0 0 100%);
+    }
+    50% {
+        opacity: 1;
+        transform: scale(1.1);
+        clip-path: inset(0 0 0 0);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1);
+        clip-path: inset(0 0 0 0);
+    }
+}
+
+/* Button Hover Effect */
+.cta-button {
+    padding: 15px 30px;
+    background: linear-gradient(45deg, #ff4081, #ff8c00);
+    color: white;
+    text-decoration: none;
+    border-radius: 50px;
+    font-size: 1.2rem;
+    transition: background 0.3s ease, transform 0.2s ease;
+    border: none;
+}
+
+.cta-button:hover {
+    background: linear-gradient(45deg, #e60073, #ff5700);
+    transform: scale(1.05);
+}
+
+/* Keyframes for Hero Reveal */
+@keyframes revealHero {
+    0% {
+        opacity: 0;
+    }
+    100% {
+        opacity: 1;
+    }
+}
+
+
+/* Sticky top navigation */
+.main-nav {
+  position: sticky;
+  top: 0;
+  background-color: #1e1e1e;
+  padding: 1rem 2rem;
+  z-index: 1000;
+  text-align: center;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+}
+
+.main-nav ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+}
+
+.main-nav a {
+  color: white;
+  text-decoration: none;
+  font-weight: bold;
+  transition: color 0.3s ease;
+}
+
+.main-nav a:hover {
+  color: #00ff00;
+}

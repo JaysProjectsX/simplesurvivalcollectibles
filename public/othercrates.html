@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Crates - SimpleSurvival Collectibles</title>
+    <link rel="stylesheet" href="/css/home-page.css" />
+    <link
+      href="https://unpkg.com/boxicons@2.1.1/css/boxicons.min.css"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <nav>
+      <div class="nav-content">
+        <div class="nav-logo">
+          <a href="/index.html">
+            <img src="/assets/Logo.png" alt="SimpleSurvival Collectibles Logo" />
+          </a>
+        </div>
+        <ul class="nav-links">
+          <li><a href="/index.html">Home</a></li>
+          <li><a href="/info.html">About</a></li>
+          <li><a href="/crates.html">Cosmetic Crates</a></li>
+          <li><a href="/othercrates.html" class="active">Other Crates</a></li>
+          <li><a href="/eventitems.html">Event Items</a></li>
+        </ul>
+      </div>
+    </nav>
+
+    <main>
+      <section class="home">
+        <div class="text">Other Crates</div>
+        <div class="crate-layout">
+          <div class="crate-main">
+            <div id="crate-content">
+              <div class="sticky-header">
+                <p>Select a crate from the dropdown to view its contents.</p>
+                <div class="custom-dropdown" id="crate-dropdown-container">
+                  <div class="selected-option">
+                    Select a crate
+                    <span class="dropdown-arrow">&#9662;</span>
+                  </div>
+                  <ul class="dropdown-options"></ul>
+                </div>
+              </div>
+              <div id="crate-table-container">
+                <!-- The table will be dynamically inserted here -->
+              </div>
+            </div>
+          </div>
+          <div class="crate-sidebar-wrapper">
+            <aside class="filter-section-wrapper">
+              <div class="filter-search-section">
+                <div class="filter-controls">
+                  <label for="tag-filter" class="filterText"
+                    >Filter by Tag:</label
+                  >
+                  <div class="custom-dropdown" id="tag-dropdown-container">
+                    <div class="selected-option">
+                      All Tags
+                      <span class="dropdown-arrow">&#9662;</span>
+                    </div>
+                    <ul class="dropdown-options"></ul>
+                  </div>
+                </div>
+                <div class="search-controls">
+                  <input
+                    type="text"
+                    id="item-search"
+                    placeholder="Search item by name..."
+                  />
+                  <i class="bx bx-search search-icon"></i>
+                </div>
+              </div>
+            </aside>
+
+            <div class="changelog-modal-overlay" id="changelog-modal-overlay">
+              <div class="changelog-modal">
+                <div class="modal-header">
+                  <h2>Full Change Log</h2>
+                  <button id="close-changelog" class="close-btn">&times;</button>
+                </div>
+                <div class="modal-body" id="full-changelog"></div>
+              </div>
+            </div>
+  
+            <aside class="changelog-wrapper">
+              <section class="changelog-section">
+                <h2>Change Log</h2>
+                <hr class="changelog-divider" />
+                <div id="changelog"></div>
+            
+              </section>
+            </aside>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <div id="global-tooltip" style="
+      position: absolute;
+      background-color: rgb(37, 37, 37);
+      color: white;
+      padding: 6px 10px;
+      border-radius: 5px;
+      white-space: normal;
+      font-size: 0.85rem;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+      max-width: 320px;
+      display: none;
+      z-index: 9999;
+      pointer-events: none;
+    "></div>
+
+    <footer>
+      <div class="footer-creator">
+        <p>Created by YooEm</p>
+      </div>
+      <div class="footer-links">
+        <p><strong>Disclaimer:</strong> This is a fan-made website and is not affiliated with or endorsed by the SimpleSurvival Minecraft server or its owners.</p>
+        <p><a href="privacy.html">Privacy Policy</a> | <a href="terms.html">Terms of Use</a></p>
+      </div>
+    </footer>
+    <script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
+    <script src="/js/othercrates.js"></script>
+  </body>
+</html>

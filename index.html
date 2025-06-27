@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Home - SimpleSurvival Collectibles</title>
+    <link rel="stylesheet" href="/css/home-page.css" />
+    <link
+      href="https://unpkg.com/boxicons@2.1.1/css/boxicons.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+    />
+  </head>
+  <body>
+    <nav>
+      <div class="nav-content">
+        <div class="nav-logo">
+          <a href="/index.html">
+            <img src="/assets/Logo.png" alt="SimpleSurvival Collectibles Logo" />
+          </a>
+        </div>
+        <ul class="nav-links">
+          <li><a href="/index.html" class="active">Home</a></li>
+          <li><a href="/info.html">About</a></li>
+          <li><a href="/crates.html">Cosmetic Crates</a></li>
+          <li><a href="/othercrates.html">Other Crates</a></li>
+          <li><a href="/othercrates.html">Event Items</a></li>
+          <li><a href="#" onclick="toggleModal()">Login</a></li>
+        </ul>
+      </div>
+    </nav>
+
+    <div id="particles-js"></div>
+    <section class="hero">
+      <img
+        src="/assets/simplesurvival-logo.png"
+        alt="Simple Survival Logo"
+        class="logo"
+      />
+      <h1>Welcome to SimpleSurvival Collectibles!</h1>
+      <p>
+        Explore a comprehensive collection of cosmetic crates and unique in-game items from the SimpleSurvival Minecraft server.
+      </p>
+      <p>
+        Use this platform to browse and track all available collectibles within the community.
+      </p>
+      <a href="#knowledge" class="cta-button">Explore Collectibles</a>
+    </section>
+
+    <section class="knowledge-section" id="knowledge">
+      <div class="section-heading">
+        <div class="line"></div>
+        <h2>Features</h2>
+        <div class="line1"></div>
+      </div>
+      <div class="timeline">
+        <div class="timeline-line"></div>
+
+        <div class="knowledge-card">
+          <div class="icon">
+            <i class="fa-brands fa-google-drive"></i>
+          </div>
+          <div class="info">
+            <h3>Price Calculator</h3>
+            <p>Estimate the market value of various cosmetic and collectible items with our intuitive pricing tool.</p>
+          </div>
+        </div>
+
+        <div class="knowledge-card" onclick="window.open('/crates.html')">
+          <div class="icon">
+            <i class="fa-solid fa-key"></i>
+          </div>
+          <div class="info">
+            <h3>Cosmetic Items</h3>
+            <p>Explore our curated collection of exclusive cosmetic items available on the SimpleSurvival server.</p>
+          </div>
+        </div>
+
+        <div class="knowledge-card" onclick="window.open('/othercrates.html')">
+          <div class="icon">
+            <i class="fa-solid fa-money-bill"></i>
+          </div>
+          <div class="info">
+            <h3>Legendary Items</h3>
+            <p>Browse a detailed archive of past and present legendary crate items, featuring some of the rarest finds.</p>
+          </div>
+        </div>
+
+        <div class="knowledge-card">
+          <div class="icon">
+            <i class="fa-solid fa-wand-sparkles"></i>
+          </div>
+          <div class="info">
+            <h3>Event Items</h3>
+            <p>Discover limited-time items released during seasonal events.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="projects-container" id="projects">
+      <div class="section-heading">
+        <div class="line"></div>
+        <h2>Current Cosmetics</h2>
+        <div class="line1"></div>
+      </div>
+      <div class="slider-container">
+        <div class="slider" id="slider">
+          <div class="slide"><img src="/assets/slider1.PNG" alt="Easter Crate Page 1"><div class="caption"><h3>Easter Crate</h3><p>Page 1</p></div></div>
+          <div class="slide"><img src="/assets/slider2.PNG" alt="Easter Crate Page 2"><div class="caption"><h3>Easter Crate</h3><p>Page 2</p></div></div>
+          <div class="slide"><img src="/assets/slider3.PNG" alt="Easter Crate Page 3"><div class="caption"><h3>Easter Crate</h3><p>Page 3</p></div></div>
+          <div class="slide"><img src="/assets/slider4.PNG" alt="Easter Crate Page 4"><div class="caption"><h3>Easter Crate</h3><p>Page 4</p></div></div>
+          <div class="slide"><img src="/assets/slider5.PNG" alt="Easter Crate Page 5"><div class="caption"><h3>Easter Crate</h3><p>Page 5</p></div></div>
+        </div>
+        <button class="imgslider prev" onclick="moveSlide(-1)"><i class="fas fa-chevron-left"></i></button>
+        <button class="imgslider next" onclick="moveSlide(1)"><i class="fas fa-chevron-right"></i></button>
+      </div>
+      <div class="dots" id="dots"></div>
+    </section>
+
+    <!-- Login/Register Modal -->
+    <div id="authModal" class="modal">
+      <div class="modal-content">
+        <span class="close" onclick="toggleModal()">&times;</span>
+        <h2>Login to Your Account</h2>
+        <form id="loginForm">
+          <input type="text" placeholder="Email" required />
+          <input type="password" placeholder="Password" required />
+          <button type="submit">Login</button>
+        </form>
+        <p class="toggle-text">Don't have an account? <a href="#" onclick="toggleForm()">Register here</a></p>
+
+        <form id="registerForm" style="display: none;">
+          <input type="email" placeholder="Email" required />
+          <input type="password" placeholder="Password" required />
+          <button type="submit">Register</button>
+        </form>
+        <p class="toggle-text" style="display: none;">Already have an account? <a href="#" onclick="toggleForm()">Login here</a></p>
+      </div>
+    </div>
+
+
+    <footer>
+      <div class="footer-creator">
+        <p>Created by YooEm</p>
+      </div>
+      <div class="footer-links">
+        <p><strong>Disclaimer:</strong> This is a fan-made website and is not affiliated with or endorsed by the SimpleSurvival Minecraft server or its owners.</p>
+        <p><a href="privacy.html">Privacy Policy</a> | <a href="terms.html">Terms of Use</a></p>
+      </div>
+    </footer>
+    <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+    <script src="/js/scripts.js"></script>
+    <script>
+      let currentIndex = 0;
+      const slides = document.querySelectorAll('.slide');
+      const slider = document.getElementById('slider');
+      const dotsContainer = document.getElementById('dots');
+
+      function showSlide(index) {
+        if (index >= slides.length) currentIndex = 0;
+        else if (index < 0) currentIndex = slides.length - 1;
+        else currentIndex = index;
+
+        slider.style.transform = `translateX(-${currentIndex * 100}%)`;
+        updateDots();
+      }
+
+      function moveSlide(step) {
+        showSlide(currentIndex + step);
+      }
+
+      function updateDots() {
+        dotsContainer.innerHTML = '';
+        slides.forEach((_, i) => {
+          const dot = document.createElement('span');
+          dot.classList.toggle('active', i === currentIndex);
+          dot.addEventListener('click', () => showSlide(i));
+          dotsContainer.appendChild(dot);
+        });
+      }
+
+      setInterval(() => moveSlide(1), 6000); // Automatic sliding
+      window.addEventListener('DOMContentLoaded', () => {
+        showSlide(0);
+      });
+    </script>
+    <script>
+    function toggleModal() {
+      const modal = document.getElementById("authModal");
+      modal.style.display = modal.style.display === "block" ? "none" : "block";
+    }
+
+    function toggleForm() {
+      const loginForm = document.getElementById("loginForm");
+      const registerForm = document.getElementById("registerForm");
+      const toggleTexts = document.querySelectorAll(".toggle-text");
+
+      if (loginForm.style.display === "none") {
+        loginForm.style.display = "block";
+        registerForm.style.display = "none";
+        toggleTexts[0].style.display = "block";
+        toggleTexts[1].style.display = "none";
+      } else {
+        loginForm.style.display = "none";
+        registerForm.style.display = "block";
+        toggleTexts[0].style.display = "none";
+        toggleTexts[1].style.display = "block";
+      }
+    }
+
+    // Optional: Close modal on outside click
+    window.onclick = function (event) {
+      const modal = document.getElementById("authModal");
+      if (event.target === modal) {
+        modal.style.display = "none";
+      }
+    };
+  </script>
+  </body>
+</html>

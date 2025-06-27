@@ -1,4 +1,4 @@
-const backendUrl = "http://3.143.3.173:3001";
+const backendUrl = "https://simplesurvivalcollectibles.site";
 
 document.getElementById("registerForm").addEventListener("submit", async function (e) {
   e.preventDefault();

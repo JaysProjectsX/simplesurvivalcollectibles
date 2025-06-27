@@ -1,14 +1,38 @@
 const backendUrl = "https://simplesurvivalcollectibles.site";
 
 // Toast Notification Function
-const showToast = (msg, type = 'success', duration = 4000) => {
-  const toast = document.getElementById("toast");
-  toast.textContent = msg;
-  toast.className = `toast show ${type}`;
+const showToast = (msg, type = "success", duration = 3000) => {
+  const container = document.getElementById("toastContainer");
+  if (!container) return;
+
+  const toast = document.createElement("div");
+  toast.className = "styled-toast show";
+
+  const message = document.createElement("span");
+  message.textContent = msg;
+
+  const closeBtn = document.createElement("span");
+  closeBtn.className = "toast-close";
+  closeBtn.innerHTML = "&times;";
+  closeBtn.onclick = () => container.removeChild(toast);
+
+  const progress = document.createElement("div");
+  progress.className = "toast-progress";
+  progress.style.animationDuration = `${duration}ms`;
+
+  toast.appendChild(message);
+  toast.appendChild(closeBtn);
+  toast.appendChild(progress);
+  container.appendChild(toast);
+
   setTimeout(() => {
-    toast.className = 'toast hidden';
+    toast.classList.remove("show");
+    setTimeout(() => {
+      if (toast.parentNode === container) container.removeChild(toast);
+    }, 300);
   }, duration);
 };
+
 
 document.getElementById("registerForm").addEventListener("submit", async function (e) {
   e.preventDefault();
@@ -116,9 +140,7 @@ function updateNavUI() {
 
 window.toggleDropdown = function () {
   const dropdown = document.getElementById("userDropdown");
-  if (dropdown) {
-    dropdown.classList.toggle("show");
-  }
+  if (dropdown) dropdown.classList.toggle("show");
 };
 
 async function logout() {
@@ -162,8 +184,21 @@ function openAccountModal() {
   const email = localStorage.getItem("email");
   const role = localStorage.getItem("role");
   const verified = localStorage.getItem("verified");
-  alert(`Username: ${username}\nEmail: ${email}\nRole: ${role}\nVerified: ${verified}`);
+
+  const modal = document.getElementById("accountModal");
+  const content = document.getElementById("accountModalContent");
+
+  content.innerHTML = `
+    <h2>Account Details</h2>
+    <p><strong>Username:</strong> ${username}</p>
+    <p><strong>Email:</strong> ${email}</p>
+    <p><strong>Role:</strong> ${role}</p>
+    <p><strong>Verified:</strong> ${verified}</p>
+    <button onclick="document.getElementById('accountModal').style.display='none'">Close</button>
+  `;
+  modal.style.display = "block";
 }
+
 
 window.toggleModal = function () {
   const modal = document.getElementById("authModal");
@@ -189,10 +224,11 @@ window.toggleForm = function () {
 };
 
 window.onclick = function (event) {
-  const modal = document.getElementById("authModal");
-  if (event.target === modal) {
-    modal.style.display = "none";
-  }
+  const authModal = document.getElementById("authModal");
+  const accountModal = document.getElementById("accountModal");
+
+  if (event.target === authModal) authModal.style.display = "none";
+  if (event.target === accountModal) accountModal.style.display = "none";
 };
 
 window.addEventListener("DOMContentLoaded", fetchAccountInfo);

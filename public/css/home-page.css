@@ -619,6 +619,14 @@ nav {
     }
     
     /* Toast Notification */
+
+    #toastContainer {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 9999;
+    }
+
     .styled-toast {
       position: fixed;
       top: 20px;

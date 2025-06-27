@@ -1247,7 +1247,51 @@ nav {
   cursor: pointer;
 }
 
+.user-dropdown {
+  position: relative;
+  display: inline-block;
+}
 
+.username-link {
+  cursor: pointer;
+  font-weight: bold;
+  color: #fff;
+  padding-bottom: 8px;
+  display: inline-block;
+}
+
+.username-link:hover {
+  color: #6ea8ff;
+}
+
+.dropdown-content {
+  display: none;
+  position: absolute;
+  right: 0;
+  background: rgba(30, 30, 30, 1);
+  border-radius: 8px;
+  min-width: 160px;
+  box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+  z-index: 1000;
+  text-align: left;
+  padding: 10px 0;
+}
+
+.dropdown-content a {
+  color: white;
+  padding: 10px 16px;
+  text-decoration: none;
+  display: block;
+  font-size: 0.95rem;
+}
+
+.dropdown-content a:hover {
+  background-color: rgba(255,255,255,0.1);
+}
+
+.dropdown-content.show {
+  display: block;
+}
   /* Styling for footer */
   footer { 
     text-align: center; 

@@ -12,21 +12,25 @@
   <body>
     <div id="particles-js" style="position: fixed; width: 100%; height: 100%; z-index: 0; top: 0; left: 0; pointer-events: none;"></div>
     <nav>
-        <div class="nav-content">
-          <div class="nav-logo">
-            <a href="/index.html">
-              <img src="/assets/Logo.png" alt="SimpleSurvival Collectibles Logo" />
-            </a>
-          </div>
-          <ul class="nav-links">
-            <li><a href="/index.html">Home</a></li>
-            <li><a href="/info.html">About</a></li>
-            <li><a href="/crates.html">Cosmetic Crates</a></li>
-            <li><a href="/othercrates.html">Other Crates</a></li>
-            <li><a href="/othercrates.html">Event Items</a></li>
-          </ul>
+      <div class="nav-content">
+        <div class="nav-logo">
+          <a href="/index.html">
+            <img src="/assets/Logo.png" alt="SimpleSurvival Collectibles Logo" />
+          </a>
         </div>
-      </nav>
+        <ul class="nav-links">
+          <li><a href="/index.html" class="active">Home</a></li>
+          <li><a href="/info.html">About</a></li>
+          <li><a href="/crates.html">Cosmetic Crates</a></li>
+          <li><a href="/othercrates.html">Other Crates</a></li>
+          <li><a href="/othercrates.html">Event Items</a></li>
+        </ul>
+        <ul class="nav-login" id="navLogin">
+          <!-- This will be dynamically updated -->
+          <li id="loginItem"><a href="#" onclick="toggleModal()">Login</a></li>
+        </ul>
+      </div>
+    </nav>
 
     <div style="margin-top: 120px; padding: 20px;">
         <div data-aos="fade-up">
@@ -76,13 +80,6 @@
       });
     </script>
     <script>
-        function copyDiscordUsername() {
-          const username = "unreal_zeus";
-          navigator.clipboard.writeText(username).then(() => {
-            showToast("Username copied to clipboard!");
-          });
-        }
-      
         function showToast(message) {
           const toast = document.createElement("div");
           toast.className = "styled-toast";

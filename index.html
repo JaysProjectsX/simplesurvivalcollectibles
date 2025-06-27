@@ -33,8 +33,9 @@
           <li><a href="/othercrates.html">Other Crates</a></li>
           <li><a href="/othercrates.html">Event Items</a></li>
         </ul>
-        <ul class="nav-login">
-          <li><a href="#" onclick="toggleModal()">Login</a></li>
+        <ul class="nav-login" id="navLogin">
+          <!-- This will be dynamically updated -->
+          <li id="loginItem"><a href="#" onclick="toggleModal()">Login</a></li>
         </ul>
       </div>
     </nav>
@@ -153,7 +154,7 @@
       <div class="modal-content">
         <span class="close" onclick="document.getElementById('registrationConfirmation').style.display='none'">&times;</span>
         <h2>Check Your Email</h2>
-        <p>We've sent a verification link to your email address. Please check your inbox to verify your account.</p>
+        <p>We've sent a verification link to your email address. Please check your inbox/spam folders to verify your account.</p>
       </div>
     </div>
 
@@ -202,6 +203,49 @@
       window.addEventListener('DOMContentLoaded', () => {
         showSlide(0);
       });
+    </script>
+    <script>
+      // Example: simulate logged-in user (replace this with your actual login check logic)
+      const user = JSON.parse(localStorage.getItem("user")); // e.g., { username, email, role, verified }
+
+      const loginItem = document.getElementById("loginItem");
+      if (user) {
+        loginItem.innerHTML = `
+          <div class="user-dropdown">
+            <span onclick="toggleDropdown()" class="username-link">${user.username}</span>
+            <div class="dropdown-content" id="userDropdown">
+              <a href="#" onclick="openAccountModal()">Account Options</a>
+              ${user.role === 'admin' ? '<a href="admin.html">Admin Panel</a>' : '<a href="collections.html">Collections List</a>'}
+              <a href="#" onclick="logout()">Log Out</a>
+            </div>
+          </div>
+        `;
+      }
+
+      function toggleDropdown() {
+        const dropdown = document.getElementById("userDropdown");
+        dropdown.classList.toggle("show");
+      }
+
+      function logout() {
+        localStorage.removeItem("user");
+        window.location.reload();
+      }
+
+      function openAccountModal() {
+        // You can open a styled modal here later
+        alert(`Username: ${user.username}\nEmail: ${user.email}\nRole: ${user.role}\nVerified: ${user.verified}`);
+      }
+
+      // Close dropdown if clicked outside
+      window.onclick = function (event) {
+        if (!event.target.matches('.username-link')) {
+          const dropdowns = document.getElementsByClassName("dropdown-content");
+          for (let i = 0; i < dropdowns.length; i++) {
+            dropdowns[i].classList.remove("show");
+          }
+        }
+      }
     </script>
   </body>
 </html>

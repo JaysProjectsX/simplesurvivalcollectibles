@@ -12,82 +12,94 @@
     <div id="result" class="result hidden">
       <div id="icon" class="icon"></div>
       <h2 id="message">Verifying...</h2>
-    <div id="redirect-msg" class="redirect-message">Redirecting in <span id="countdown">4</span> seconds...</div>
-    <div><a href="index.html" class="manual-link">Click here if you are not redirected.</a></div>
+      <div id="redirect-msg" class="redirect-message">Redirecting in <span id="countdown">4</span> seconds...</div>
+      <div><a href="index.html" class="manual-link">Click here if you are not redirected.</a></div>
     </div>
   </div>
 
   <div id="toast" class="toast hidden">
-  <span id="toast-message"></span>
-    </div>
+    <span id="toast-message"></span>
+  </div>
 
+  <script>
+    const loader = document.getElementById('loader');
+    const result = document.getElementById('result');
+    const icon = document.getElementById('icon');
+    const message = document.getElementById('message');
+    const countdown = document.getElementById('countdown');
+    const toast = document.getElementById('toast');
+    const toastMessage = document.getElementById('toast-message');
 
-<script type="module">
-  const loader = document.getElementById('loader');
-  const result = document.getElementById('result');
-  const icon = document.getElementById('icon');
-  const message = document.getElementById('message');
-  const countdown = document.getElementById('countdown');
-  const toast = document.getElementById('toast');
-  const toastMessage = document.getElementById('toast-message');
+    // 🔧 Replace with your real backend URL
+    const backendUrl = 'http://3.143.3.173:3001';
 
-  // Get the token from the URL
-  const token = window.location.pathname.split('/').pop();
+    // ✅ Get token from URL query string
+    const urlParams = new URLSearchParams(window.location.search);
+    const token = urlParams.get('token');
 
-  // Toast display function
-  const showToast = (msg, type = 'success', duration = 4000) => {
-    toastMessage.textContent = msg;
-    toast.className = `toast show ${type}`;
-    setTimeout(() => {
-      toast.className = 'toast hidden';
-    }, duration);
-  };
+    // Toast function
+    const showToast = (msg, type = 'success', duration = 4000) => {
+      toastMessage.textContent = msg;
+      toast.className = `toast show ${type}`;
+      setTimeout(() => {
+        toast.className = 'toast hidden';
+      }, duration);
+    };
 
-  // Countdown before redirect
-  const startCountdown = (seconds) => {
-    let remaining = seconds;
-    countdown.textContent = remaining;
-    const interval = setInterval(() => {
-      remaining--;
+    // Countdown function
+    const startCountdown = (seconds) => {
+      let remaining = seconds;
       countdown.textContent = remaining;
-      if (remaining <= 0) clearInterval(interval);
-    }, 1000);
-  };
+      const interval = setInterval(() => {
+        remaining--;
+        countdown.textContent = remaining;
+        if (remaining <= 0) clearInterval(interval);
+      }, 1000);
+    };
 
-  const redirectToHome = () => {
-    window.location.href = '/index.html';
-  };
+    const redirectToHome = () => {
+      window.location.href = '/index.html';
+    };
 
-  // Perform the token verification
-  fetch(`${import.meta.env.VITE_BACKEND_URL || 'http://localhost:3001'}/verify/${token}`)
-    .then(res => res.json())
-    .then(data => {
-      loader.style.display = 'none';
-      result.classList.remove('hidden');
-
-      if (data.success) {
-        icon.textContent = '✅';
-        message.textContent = 'Verification successful!';
-        showToast('Your account has been successfully verified!', 'success');
-      } else {
-        icon.textContent = '❌';
-        message.textContent = 'Verification failed.';
-        showToast('Verification failed or token expired.', 'error');
-      }
-
-      startCountdown(4);
-      setTimeout(redirectToHome, 4000);
-    })
-    .catch(() => {
+    if (!token) {
       loader.style.display = 'none';
       result.classList.remove('hidden');
       icon.textContent = '❌';
-      message.textContent = 'Server error occurred.';
-      showToast('An error occurred during verification.', 'error');
-
+      message.textContent = 'Invalid verification link.';
+      showToast('Missing token in URL.', 'error');
       startCountdown(4);
       setTimeout(redirectToHome, 4000);
-    });
-</script>
+    } else {
+      fetch(`${backendUrl}/verify/${token}`)
+        .then(res => res.json())
+        .then(data => {
+          loader.style.display = 'none';
+          result.classList.remove('hidden');
+
+          if (data.success) {
+            icon.textContent = '✅';
+            message.textContent = 'Verification successful!';
+            showToast('Your account has been successfully verified!', 'success');
+          } else {
+            icon.textContent = '❌';
+            message.textContent = 'Verification failed.';
+            showToast('Verification failed or token expired.', 'error');
+          }
+
+          startCountdown(4);
+          setTimeout(redirectToHome, 4000);
+        })
+        .catch(() => {
+          loader.style.display = 'none';
+          result.classList.remove('hidden');
+          icon.textContent = '❌';
+          message.textContent = 'Server error occurred.';
+          showToast('An error occurred during verification.', 'error');
+
+          startCountdown(4);
+          setTimeout(redirectToHome, 4000);
+        });
+    }
+  </script>
 </body>
 </html>

@@ -254,10 +254,33 @@ window.toggleForm = function () {
   }
 };
 
+document.addEventListener("DOMContentLoaded", () => {
+  const toggleCheckbox = document.getElementById("togglePassword");
+  if (toggleCheckbox) {
+    toggleCheckbox.addEventListener("change", () => {
+      const inputs = [
+        document.getElementById("currentPassword"),
+        document.getElementById("newPassword"),
+        document.getElementById("confirmPassword"),
+      ];
+      inputs.forEach((input) => {
+        if (input) {
+          input.type = toggleCheckbox.checked ? "text" : "password";
+        }
+      });
+    });
+  }
+});
+
 window.onclick = function (event) {
   const authModal = document.getElementById("authModal");
   const accountModal = document.getElementById("accountModal");
+  const dropdown = document.getElementById("userDropdown");
 
   if (event.target === authModal) authModal.style.display = "none";
   if (event.target === accountModal) accountModal.style.display = "none";
+
+  if (dropdown && !event.target.closest('.user-dropdown')) {
+    dropdown.classList.remove("show");
+  }
 };

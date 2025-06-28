@@ -1344,16 +1344,17 @@ nav {
   align-items: center;
 }
 
-#passwordChangeForm input[type="password"] {
-  width: 90%;
+#passwordChangeForm input[type="password"],
+#passwordChangeForm input[type="text"] {
+  width: 100%;
   padding: 10px 12px;
   margin-bottom: 12px;
   border: 1px solid #444;
   border-radius: 6px;
-  background-color: #2b2b2b;
+  background-color: #2b2b2b !important;
   color: #fff;
   font-size: 0.95rem;
-  box-sizing: border-box;
+  align-items: center;
 }
 
 #passwordChangeForm input::placeholder {
@@ -1378,14 +1379,14 @@ nav {
   background-color: #1f4ab1;
 }
 
-/* Show Password Checkbox Section */
+/* Align show password checkbox + label */
 #passwordChangeForm .toggle-password {
   display: flex;
   align-items: center;
-  justify-content: center;
   gap: 8px;
-  margin: 10px 0;
-  width: 90%;
+  margin-bottom: 16px;
+  font-size: 0.95rem;
+  color: #ccc;
 }
 
 #passwordChangeForm .toggle-password input[type="checkbox"] {

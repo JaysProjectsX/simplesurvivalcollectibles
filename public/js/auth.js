@@ -255,19 +255,13 @@ window.toggleForm = function () {
 };
 
 document.addEventListener("DOMContentLoaded", () => {
+  // Show/Hide Passwords Toggle
   const toggleCheckbox = document.getElementById("togglePassword");
   if (toggleCheckbox) {
-    toggleCheckbox.addEventListener("change", () => {
-      const inputs = [
-        document.getElementById("currentPassword"),
-        document.getElementById("newPassword"),
-        document.getElementById("confirmPassword"),
-      ];
-      inputs.forEach((input) => {
-        if (input) {
-          input.type = toggleCheckbox.checked ? "text" : "password";
-        }
-      });
+    toggleCheckbox.addEventListener("change", function () {
+      const type = this.checked ? "text" : "password";
+      document.querySelectorAll("#passwordChangeForm input[type='password'], #passwordChangeForm input[type='text']")
+        .forEach(input => input.type = type);
     });
   }
 });

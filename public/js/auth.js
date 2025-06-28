@@ -276,11 +276,19 @@ window.onclick = function (event) {
   const authModal = document.getElementById("authModal");
   const accountModal = document.getElementById("accountModal");
   const dropdown = document.getElementById("userDropdown");
+  const usernameLink = document.querySelector(".username-link");
 
+  // Close modals when clicking outside
   if (event.target === authModal) authModal.style.display = "none";
   if (event.target === accountModal) accountModal.style.display = "none";
 
-  if (dropdown && !event.target.closest('.user-dropdown')) {
+  // Close dropdown if clicking outside of it
+  if (
+    dropdown &&
+    !dropdown.contains(event.target) &&
+    usernameLink &&
+    event.target !== usernameLink
+  ) {
     dropdown.classList.remove("show");
   }
 };

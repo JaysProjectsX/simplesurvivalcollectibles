@@ -1311,10 +1311,12 @@ nav {
   color: #fff;
   font-family: 'Segoe UI', sans-serif;
   position: relative;
+  box-sizing: border-box;
 }
 
 /* Section spacing */
-.account-section, .password-section {
+.account-section,
+.password-section {
   margin-bottom: 25px;
 }
 
@@ -1325,36 +1327,25 @@ nav {
   font-size: 1.4rem;
   border-bottom: 1px solid #444;
   padding-bottom: 6px;
+  text-align: center;
 }
 
 .account-section p,
 .password-section p {
   font-size: 0.95rem;
   margin-bottom: 10px;
-  text-align: left;
-}
-
-/* Password form layout */
-#accountModal form {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 0 10px;
-}
-
-#passwordChangeForm {
-  width: 100%;
-  max-width: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+  text-align: center;
 }
 
 /* Password form fields */
-#passwordChangeForm input[type="password"],
-#passwordChangeForm input[type="text"] {
-  width: 100%;
-  max-width: 400px;
+#passwordChangeForm {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+#passwordChangeForm input[type="password"] {
+  width: 90%;
   padding: 10px 12px;
   margin-bottom: 12px;
   border: 1px solid #444;
@@ -1371,8 +1362,7 @@ nav {
 
 /* Submit Button */
 #passwordChangeForm button {
-  width: 100%;
-  max-width: 400px;
+  width: 90%;
   background-color: #2966d8;
   color: white;
   padding: 10px 12px;
@@ -1381,28 +1371,34 @@ nav {
   font-weight: bold;
   cursor: pointer;
   transition: background-color 0.3s ease;
+  margin-top: 10px;
 }
 
 #passwordChangeForm button:hover {
   background-color: #1f4ab1;
 }
 
-/* Show password toggle */
-#accountModal form .toggle-password {
+/* Show Password Checkbox Section */
+#passwordChangeForm .toggle-password {
   display: flex;
   align-items: center;
-  justify-content: flex-start;
-  width: 100%;
-  max-width: 400px;
-  margin: -4px 0 15px 0;
-  color: #ccc;
-  font-size: 0.9rem;
+  justify-content: center;
+  gap: 8px;
+  margin: 10px 0;
+  width: 90%;
 }
 
-#accountModal form .toggle-password input[type="checkbox"] {
-  margin-right: 8px;
+#passwordChangeForm .toggle-password input[type="checkbox"] {
   transform: scale(1.1);
+  cursor: pointer;
 }
+
+#passwordChangeForm .toggle-password label {
+  font-size: 0.9rem;
+  color: #ccc;
+  cursor: pointer;
+}
+
 
 
 @media (max-width: 480px) {

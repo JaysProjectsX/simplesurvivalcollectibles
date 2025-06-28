@@ -1,16 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Privacy Policy - SimpleSurvival Collectibles</title>
-    <link rel="stylesheet" href="/css/home-page.css" />
-    <link href="https://unpkg.com/boxicons@2.1.1/css/boxicons.min.css" rel="stylesheet" />
-    <link href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css" rel="stylesheet" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
-  </head>
-  <body>
-    <div id="particles-js" style="position: fixed; width: 100%; height: 100%; z-index: 0; top: 0; left: 0; pointer-events: none;"></div>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin Dashboard</title>
+  <link rel="stylesheet" href="css/home-page.css" />
+  <script defer src="js/admin.js"></script>
+</head>
+<body>
     <nav>
       <div class="nav-content">
         <div class="nav-logo">
@@ -32,71 +29,51 @@
       </div>
     </nav>
 
-    <div style="margin-top: 120px; padding: 20px;">
-        <div data-aos="fade-up">
-          <h1>Privacy Policy</h1>
-          <p><strong>Last updated</strong> May 6th, 2025 | 4:00 PM</p>
-        </div>
-  
-        <div class="styled-card" data-aos="fade-up">
-          <h2>Information We Collect</h2>
-          <p>This website does not collect, store, or share any personal data from visitors. We do not use cookies, analytics tools, or tracking mechanisms.</p>
-        </div>
-  
-        <div class="styled-card" data-aos="fade-up">
-          <h2>External Links</h2>
-          <p>We may provide links to external sites such as Google Drive or GitHub. We are not responsible for the privacy practices or content of these third-party websites.</p>
-        </div>
-  
-        <div class="styled-card" data-aos="fade-up">
-          <h2>Contact Us</h2>
-          <p>If you have any questions or concerns about this privacy policy, you may contact YooEm on Discord: </p>
-          <div class="discord-button-container">
-            <button class="discord-button" onclick="copyDiscordUsername()" title="Click to copy">
-              <i class="fab fa-discord"></i>
-              <span>unreal_zeus</span>
-            </button>
-          </div>
-        </div>
-      </div>
+  <div class="admin-dashboard">
+    <h1 class="dashboard-title">Admin Dashboard</h1>
 
-    <footer>
-        <div class="footer-creator">
-          <p>Created by YooEm</p>
-        </div>
-      <div class="footer-links">
-        <p><strong>Disclaimer:</strong> This is a fan-made website and is not affiliated with or endorsed by the SimpleSurvival Minecraft server or its owners.</p>
-        <p><a href="privacy.html">Privacy Policy</a> | <a href="terms.html">Terms of Use</a></p>
-      </div>
-    </footer>
-    <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
-    <script src="/js/scripts.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
-    <script>
-      AOS.init({
-        duration: 800,      // animation duration in ms
-        once: true,         // whether animation should happen only once
-        offset: 100         // trigger point from the bottom
-      });
-    </script>
-    <script>
-        function showToast(message) {
-          const toast = document.createElement("div");
-          toast.className = "styled-toast";
-          toast.innerHTML = `
-            <span>${message}</span>
-            <span class="toast-close" onclick="this.parentElement.remove()">✖</span>
-            <div class="toast-progress"></div>
-          `;
-          document.body.appendChild(toast);
-      
-          setTimeout(() => toast.classList.add("show"), 10);
-      
-          setTimeout(() => {
-            toast.classList.remove("show");
-            setTimeout(() => toast.remove(), 300);
-          }, 3000);
-        }
-      </script>
-  </body>
+    <div class="tab-container">
+      <button class="tab-btn" data-tab="usersTab">Active Users</button>
+      <button class="tab-btn" data-tab="dbTab">Database Config</button>
+      <button class="tab-btn" data-tab="accountsTab" id="sysadminTab" style="display: none;">Account Management</button>
+      <button class="tab-btn" data-tab="rolesTab" id="roleTab" style="display: none;">Role Management</button>
+    </div>
+
+    <div class="tab-content" id="usersTab">
+      <h2>Currently Logged In Users</h2>
+      <ul id="activeUserList"></ul>
+    </div>
+
+    <div class="tab-content" id="dbTab" style="display: none;">
+      <h2>Database Configuration</h2>
+      <p>Coming soon: manage crate data from the database instead of JSON.</p>
+    </div>
+
+    <div class="tab-content" id="accountsTab" style="display: none;">
+      <h2>User Account Management</h2>
+      <div id="accountList">Loading accounts...</div>
+    </div>
+
+    <div class="tab-content" id="rolesTab" style="display: none;">
+      <h2>Role Management</h2>
+      <table id="roleTable">
+        <thead>
+          <tr>
+            <th>Username</th>
+            <th>Email</th>
+            <th>Current Role</th>
+            <th>Change Role</th>
+          </tr>
+        </thead>
+        <tbody id="roleTableBody">
+          <!-- Dynamically filled -->
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div id="toastContainer"></div>
+  <script src="/js/scripts.js"></script>
+  <script src="/js/auth.js"></script>
+</body>
 </html>

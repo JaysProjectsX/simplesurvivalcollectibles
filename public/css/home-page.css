@@ -1281,7 +1281,7 @@ nav {
   min-width: 160px;
   box-shadow: 0 8px 16px rgba(0,0,0,0.2);
   z-index: 1000;
-  text-align: left;
+  text-align: center;
   padding: 10px 0;
 }
 
@@ -1290,7 +1290,7 @@ nav {
   padding: 10px 16px;
   text-decoration: none;
   display: block;
-  font-size: 0.95rem;
+  font-size: 0.70rem;
 }
 
 .dropdown-content a:hover {
@@ -1312,6 +1312,7 @@ nav {
   font-family: 'Segoe UI', sans-serif;
   position: relative;
   box-sizing: border-box;
+  overflow-y: hidden;
 }
 
 /* Section spacing */
@@ -1422,6 +1423,118 @@ nav {
     max-width: 90%;
   }
 }
+
+/* Admin Dashboard Styling */
+.admin-dashboard {
+  padding: 2rem;
+  max-width: 1000px;
+  margin: auto;
+  background-color: rgba(255, 255, 255, 0.03);
+  border-radius: 16px;
+  box-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
+  color: #fff;
+  backdrop-filter: blur(10px);
+}
+
+.dashboard-title {
+  text-align: center;
+  font-size: 2rem;
+  margin-bottom: 2rem;
+  color: #ffffff;
+}
+
+/* Admin Dashboard Tabs */
+.tab-container {
+  display: flex;
+  gap: 1rem;
+  margin: 1.5rem 0;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.tab-btn {
+  background-color: #222;
+  color: white;
+  border: 1px solid #555;
+  padding: 0.5rem 1.5rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.tab-btn:hover,
+.tab-btn.active {
+  background-color: #2d7df4;
+}
+
+.tab-content {
+  display: none;
+  background-color: #1a1a1a;
+  border-radius: 8px;
+  padding: 1rem;
+  margin-top: 1rem;
+}
+
+.tab-content.active {
+  display: block;
+}
+
+/* Role Management Table */
+#roleTable {
+  width: 100%;
+  border-collapse: collapse;
+  color: white;
+  margin-top: 1rem;
+}
+
+#roleTable th,
+#roleTable td {
+  padding: 0.75rem;
+  border: 1px solid #444;
+  text-align: left;
+}
+
+#roleTable select {
+  background-color: #222;
+  color: white;
+  border: 1px solid #555;
+  border-radius: 4px;
+  padding: 0.25rem;
+}
+
+/* Account List / User List */
+#accountList, #activeUserList {
+  list-style: none;
+  padding: 0;
+}
+
+#accountList li, #activeUserList li {
+  background-color: #2b2b2b;
+  margin: 0.5rem 0;
+  padding: 1rem;
+  border-radius: 8px;
+  color: #fff;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+#accountList button {
+  margin-left: 0.5rem;
+  padding: 0.4rem 0.8rem;
+  font-size: 0.9rem;
+  border: none;
+  border-radius: 6px;
+  background-color: #6c63ff;
+  color: #fff;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+#accountList button:hover {
+  background-color: #574fd6;
+}
+
 
   /* Styling for footer */
   footer { 

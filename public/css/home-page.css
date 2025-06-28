@@ -1427,6 +1427,7 @@ nav {
 /* Admin Dashboard Styling */
 .admin-dashboard {
   padding: 2rem;
+  margin-top: 4rem;
   max-width: 1000px;
   margin: auto;
   background-color: rgba(255, 255, 255, 0.03);

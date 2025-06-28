@@ -1351,7 +1351,7 @@ nav {
   margin-bottom: 12px;
   border: 1px solid #444;
   border-radius: 6px;
-  background-color: #2b2b2b !important;
+  background-color: #2b2b2b;
   color: #fff;
   font-size: 0.95rem;
   align-items: center;
@@ -1360,6 +1360,7 @@ nav {
 #passwordChangeForm input::placeholder {
   color: #999;
 }
+
 
 /* Submit Button */
 #passwordChangeForm button {
@@ -1380,6 +1381,17 @@ nav {
 }
 
 /* Align show password checkbox + label */
+
+.toggle-password-container {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+  font-size: 0.95rem;
+  color: #ccc;
+  justify-content: center;
+}
+
 #passwordChangeForm .toggle-password {
   display: flex;
   align-items: center;

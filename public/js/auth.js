@@ -83,7 +83,7 @@ document.addEventListener("DOMContentLoaded", () => {
         localStorage.setItem("token", data.token);
         await fetchAccountInfo();
         document.getElementById("authModal").style.display = "none";
-        showToast(`Welcome ${localStorage.getItem("username")}!`, "success");
+        showToast(`Logged in as: ${localStorage.getItem("username")}`, "success");
       } else {
         showToast(data.error || "Login failed", "error");
       }

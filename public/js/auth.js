@@ -79,7 +79,7 @@ document.getElementById("loginForm").addEventListener("submit", async function (
       localStorage.setItem("token", data.token);
       fetchAccountInfo(); // 🔄 NEW: fetch user info securely
       document.getElementById("authModal").style.display = "none";
-      showToast(`Welcome ${data.username}!`, "success");
+      showToast(`Logged in successfully as: ${data.username}`, "success");
     } else {
       showToast(data.error || "Login failed", "error");
     }
@@ -103,6 +103,7 @@ async function fetchAccountInfo() {
       localStorage.setItem("email", data.email);
       localStorage.setItem("role", data.role);
       localStorage.setItem("verified", data.verified);
+      localStorage.setItem("created_at", data.created_at); // Add this line
       updateNavUI();
     } else {
       logout();
@@ -180,24 +181,52 @@ function goToAdmin() {
 }
 
 function openAccountModal() {
-  const username = localStorage.getItem("username");
-  const email = localStorage.getItem("email");
-  const role = localStorage.getItem("role");
-  const verified = localStorage.getItem("verified");
+  document.getElementById("accUsername").textContent = localStorage.getItem("username");
+  document.getElementById("accEmail").textContent = localStorage.getItem("email");
+  document.getElementById("accRole").textContent = localStorage.getItem("role");
+  document.getElementById("accVerified").textContent = localStorage.getItem("verified");
+  document.getElementById("accCreated").textContent = localStorage.getItem("created_at"); // Save this during login
 
-  const modal = document.getElementById("accountModal");
-  const content = document.getElementById("accountModalContent");
-
-  content.innerHTML = `
-    <h2>Account Details</h2>
-    <p><strong>Username:</strong> ${username}</p>
-    <p><strong>Email:</strong> ${email}</p>
-    <p><strong>Role:</strong> ${role}</p>
-    <p><strong>Verified:</strong> ${verified}</p>
-    <button onclick="document.getElementById('accountModal').style.display='none'">Close</button>
-  `;
-  modal.style.display = "block";
+  document.getElementById("accountModal").style.display = "block";
 }
+
+// Handle password change
+document.getElementById("passwordChangeForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+
+  const current = document.getElementById("currentPassword").value;
+  const newPass = document.getElementById("newPassword").value;
+  const confirm = document.getElementById("confirmPassword").value;
+
+  if (newPass !== confirm) {
+    showToast("New passwords do not match.", "error");
+    return;
+  }
+
+  try {
+    const res = await fetch(`${backendUrl}/change-password`, {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${localStorage.getItem("token")}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ currentPassword: current, newPassword: newPass }),
+    });
+
+    const data = await res.json();
+
+    if (res.ok) {
+      showToast("Password changed successfully!", "success");
+      document.getElementById("passwordChangeForm").reset();
+    } else {
+      showToast(data.error || "Password change failed.", "error");
+    }
+  } catch (err) {
+    console.error("Password change error:", err);
+    showToast("Server error.", "error");
+  }
+});
+
 
 
 window.toggleModal = function () {

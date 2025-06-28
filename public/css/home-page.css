@@ -1385,12 +1385,14 @@ nav {
 .toggle-password-container {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 8px;
-  margin-bottom: 12px;
   font-size: 0.95rem;
   color: #ccc;
-  justify-content: center;
+  margin-bottom: 16px;
+  white-space: nowrap;
 }
+
 
 #passwordChangeForm .toggle-password {
   display: flex;

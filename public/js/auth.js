@@ -34,6 +34,7 @@ const showToast = (msg, type = "success", duration = 3000) => {
 };
 
 document.addEventListener("DOMContentLoaded", () => {
+  updateNavUI(); // prevent flicker
   fetchAccountInfo();
 
   document.getElementById("registerForm").addEventListener("submit", async function (e) {
@@ -197,12 +198,31 @@ async function logout() {
 }
 
 function openAccountModal() {
-  document.getElementById("accUsername").textContent = localStorage.getItem("username");
-  document.getElementById("accEmail").textContent = localStorage.getItem("email");
-  document.getElementById("accRole").textContent = localStorage.getItem("role");
-  document.getElementById("accVerified").textContent = localStorage.getItem("verified");
-  document.getElementById("accCreated").textContent = localStorage.getItem("created_at");
+  const username = localStorage.getItem("username");
+  const email = localStorage.getItem("email");
+  const role = localStorage.getItem("role");
+  const verified = localStorage.getItem("verified");
+  const createdRaw = localStorage.getItem("created_at");
 
+  const createdDate = new Date(createdRaw);
+  const formattedDate = createdDate.toLocaleString("en-US", {
+    month: "2-digit",
+    day: "2-digit",
+    year: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+    hour12: true,
+  });
+
+  document.getElementById("accUsername").textContent = username;
+  document.getElementById("accEmail").textContent = email;
+  document.getElementById("accRole").textContent = role;
+
+  const verifiedElem = document.getElementById("accVerified");
+  verifiedElem.textContent = verified === "1" ? "true" : "false";
+  verifiedElem.style.color = verified === "1" ? "limegreen" : "red";
+
+  document.getElementById("accCreated").textContent = formattedDate;
   document.getElementById("accountModal").style.display = "block";
 }
 

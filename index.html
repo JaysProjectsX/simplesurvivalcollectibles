@@ -161,7 +161,24 @@
     <!-- Account Info Modal -->
     <div id="accountModal" class="modal" style="display:none;">
       <div class="modal-content" id="accountModalContent">
-        <!-- Filled by JS -->
+        <div class="account-section">
+          <h2>Account Details</h2>
+          <p><strong>Username:</strong> <span id="accUsername"></span></p>
+          <p><strong>Email:</strong> <span id="accEmail"></span></p>
+          <p><strong>Role:</strong> <span id="accRole"></span></p>
+          <p><strong>Email Verified:</strong> <span id="accVerified"></span></p>
+          <p><strong>Account Created:</strong> <span id="accCreated"></span></p>
+        </div>
+
+        <div class="password-section">
+          <h3>Change Password</h3>
+          <form id="passwordChangeForm">
+            <input type="password" id="currentPassword" placeholder="Current Password" required />
+            <input type="password" id="newPassword" placeholder="New Password" required />
+            <input type="password" id="confirmPassword" placeholder="Confirm New Password" required />
+            <button type="submit">Change Password</button>
+          </form>
+        </div>
       </div>
     </div>
 

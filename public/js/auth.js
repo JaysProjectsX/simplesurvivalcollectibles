@@ -33,60 +33,100 @@ const showToast = (msg, type = "success", duration = 3000) => {
   }, duration);
 };
 
+document.addEventListener("DOMContentLoaded", () => {
+  fetchAccountInfo();
 
-document.getElementById("registerForm").addEventListener("submit", async function (e) {
-  e.preventDefault();
+  document.getElementById("registerForm").addEventListener("submit", async function (e) {
+    e.preventDefault();
 
-  const username = document.getElementById("registerUsername").value.trim();
-  const email = document.getElementById("registerEmail").value.trim();
-  const password = document.getElementById("registerPassword").value;
+    const username = document.getElementById("registerUsername").value.trim();
+    const email = document.getElementById("registerEmail").value.trim();
+    const password = document.getElementById("registerPassword").value;
 
-  try {
-    const res = await fetch(`${backendUrl}/register`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ username, email, password }),
-    });
+    try {
+      const res = await fetch(`${backendUrl}/register`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username, email, password }),
+      });
 
-    const data = await res.json();
+      const data = await res.json();
 
-    if (res.ok) {
-      document.getElementById("authModal").style.display = "none";
-      document.getElementById("registrationConfirmation").style.display = "block";
-      showToast("Registered successfully! Check your email for verification.", "success");
-    } else {
-      showToast(data.error || "Registration failed.", "error");
+      if (res.ok) {
+        document.getElementById("authModal").style.display = "none";
+        document.getElementById("registrationConfirmation").style.display = "block";
+        showToast("Registered successfully! Check your email for verification.", "success");
+      } else {
+        showToast(data.error || "Registration failed.", "error");
+      }
+    } catch (err) {
+      showToast("Registration request failed.", "error");
+      console.error(err);
     }
-  } catch (err) {
-    showToast("Registration request failed.", "error");
-    console.error(err);
-  }
-});
+  });
 
-document.getElementById("loginForm").addEventListener("submit", async function (e) {
-  e.preventDefault();
-  const email = this.querySelector('input[type="text"]').value;
-  const password = this.querySelector('input[type="password"]').value;
+  document.getElementById("loginForm").addEventListener("submit", async function (e) {
+    e.preventDefault();
+    const email = this.querySelector('input[type="text"]').value;
+    const password = this.querySelector('input[type="password"]').value;
 
-  try {
-    const res = await fetch(`${backendUrl}/login`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, password }),
-    });
-    const data = await res.json();
-    if (data.token) {
-      localStorage.setItem("token", data.token);
-      fetchAccountInfo(); // 🔄 NEW: fetch user info securely
-      document.getElementById("authModal").style.display = "none";
-      showToast(`Logged in successfully as: ${data.username}`, "success");
-    } else {
-      showToast(data.error || "Login failed", "error");
+    try {
+      const res = await fetch(`${backendUrl}/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const data = await res.json();
+      if (data.token) {
+        localStorage.setItem("token", data.token);
+        await fetchAccountInfo();
+        document.getElementById("authModal").style.display = "none";
+        showToast(`Welcome ${localStorage.getItem("username")}!`, "success");
+      } else {
+        showToast(data.error || "Login failed", "error");
+      }
+    } catch (err) {
+      showToast("Login request failed", "error");
+      console.error(err);
     }
-  } catch (err) {
-    showToast("Login request failed", "error");
-    console.error(err);
-  }
+  });
+
+  document.getElementById("passwordChangeForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const current = document.getElementById("currentPassword").value;
+    const newPass = document.getElementById("newPassword").value;
+    const confirm = document.getElementById("confirmPassword").value;
+
+    if (newPass !== confirm) {
+      showToast("New passwords do not match.", "error");
+      return;
+    }
+
+    try {
+      const res = await fetch(`${backendUrl}/change-password`, {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${localStorage.getItem("token")}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ currentPassword: current, newPassword: newPass }),
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        showToast("Password changed successfully!", "success");
+        document.getElementById("passwordChangeForm").reset();
+      } else {
+        showToast(data.error || "Password change failed.", "error");
+      }
+    } catch (err) {
+      console.error("Password change error:", err);
+      showToast("Server error.", "error");
+    }
+  });
 });
 
 async function fetchAccountInfo() {
@@ -103,7 +143,7 @@ async function fetchAccountInfo() {
       localStorage.setItem("email", data.email);
       localStorage.setItem("role", data.role);
       localStorage.setItem("verified", data.verified);
-      localStorage.setItem("created_at", data.created_at); // Add this line
+      localStorage.setItem("created_at", data.created_at);
       updateNavUI();
     } else {
       logout();
@@ -114,14 +154,10 @@ async function fetchAccountInfo() {
   }
 }
 
-// Update Navigation UI after login
 function updateNavUI() {
-  const loginLink = document.getElementById("navLogin");
   const loginItem = document.getElementById("loginItem");
   const username = localStorage.getItem("username");
-  const email = localStorage.getItem("email");
   const role = localStorage.getItem("role");
-  const verified = localStorage.getItem("verified");
 
   if (username) {
     loginItem.innerHTML = `
@@ -139,11 +175,6 @@ function updateNavUI() {
   }
 }
 
-window.toggleDropdown = function () {
-  const dropdown = document.getElementById("userDropdown");
-  if (dropdown) dropdown.classList.toggle("show");
-};
-
 async function logout() {
   const token = localStorage.getItem("token");
 
@@ -160,24 +191,9 @@ async function logout() {
     }
   }
 
-  // Clear local storage regardless
-  localStorage.removeItem("token");
-  localStorage.removeItem("username");
-  localStorage.removeItem("email");
-  localStorage.removeItem("role");
-  localStorage.removeItem("verified");
-
+  localStorage.clear();
   updateNavUI();
   showToast("You have been logged out.", "success");
-}
-
-
-function goToCollections() {
-  window.location.href = "/collections.html";
-}
-
-function goToAdmin() {
-  window.location.href = "/admin-dashboard.html";
 }
 
 function openAccountModal() {
@@ -185,53 +201,19 @@ function openAccountModal() {
   document.getElementById("accEmail").textContent = localStorage.getItem("email");
   document.getElementById("accRole").textContent = localStorage.getItem("role");
   document.getElementById("accVerified").textContent = localStorage.getItem("verified");
-  document.getElementById("accCreated").textContent = localStorage.getItem("created_at"); // Save this during login
+  document.getElementById("accCreated").textContent = localStorage.getItem("created_at");
 
   document.getElementById("accountModal").style.display = "block";
 }
 
-// Handle password change
-document.getElementById("passwordChangeForm").addEventListener("submit", async (e) => {
-  e.preventDefault();
-
-  const current = document.getElementById("currentPassword").value;
-  const newPass = document.getElementById("newPassword").value;
-  const confirm = document.getElementById("confirmPassword").value;
-
-  if (newPass !== confirm) {
-    showToast("New passwords do not match.", "error");
-    return;
-  }
-
-  try {
-    const res = await fetch(`${backendUrl}/change-password`, {
-      method: "POST",
-      headers: {
-        "Authorization": `Bearer ${localStorage.getItem("token")}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ currentPassword: current, newPassword: newPass }),
-    });
-
-    const data = await res.json();
-
-    if (res.ok) {
-      showToast("Password changed successfully!", "success");
-      document.getElementById("passwordChangeForm").reset();
-    } else {
-      showToast(data.error || "Password change failed.", "error");
-    }
-  } catch (err) {
-    console.error("Password change error:", err);
-    showToast("Server error.", "error");
-  }
-});
-
-
-
 window.toggleModal = function () {
   const modal = document.getElementById("authModal");
   modal.style.display = modal.style.display === "block" ? "none" : "block";
+};
+
+window.toggleDropdown = function () {
+  const dropdown = document.getElementById("userDropdown");
+  if (dropdown) dropdown.classList.toggle("show");
 };
 
 window.toggleForm = function () {
@@ -259,5 +241,3 @@ window.onclick = function (event) {
   if (event.target === authModal) authModal.style.display = "none";
   if (event.target === accountModal) accountModal.style.display = "none";
 };
-
-window.addEventListener("DOMContentLoaded", fetchAccountInfo);

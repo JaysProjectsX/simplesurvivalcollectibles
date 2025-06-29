@@ -16,6 +16,7 @@
   display: flex;
   gap: 1.5rem;
   padding: 2rem;
+  margin-top: 120px;
   background-color: var(--background-primary);
   color: var(--text-primary);
 }

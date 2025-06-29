@@ -13,41 +13,36 @@ document.addEventListener("DOMContentLoaded", () => {
   // Tab switching logic
   tabButtons.forEach(btn => {
     btn.addEventListener("click", () => {
-      // Hide all tabs
       tabContents.forEach(tab => tab.style.display = "none");
       tabButtons.forEach(b => b.classList.remove("active"));
 
-      // Show selected
       const target = document.getElementById(btn.dataset.tab);
       if (target) target.style.display = "block";
       btn.classList.add("active");
     });
   });
 
-  // Set default active tab (first visible tab)
-  const firstVisibleTabBtn = Array.from(tabButtons).find(btn => btn.style.display !== "none");
-  if (firstVisibleTabBtn && !document.querySelector(".tab-btn.active")) {
-    firstVisibleTabBtn.classList.add("active");
-    const defaultTabId = firstVisibleTabBtn.dataset.tab;
-    const defaultTab = document.getElementById(defaultTabId);
-    if (defaultTab) defaultTab.style.display = "block";
+  // Force default "Active Users" tab on load
+  tabContents.forEach(tab => tab.style.display = "none");
+  tabButtons.forEach(b => b.classList.remove("active"));
+  const activeUsersBtn = document.querySelector('[data-tab="usersTab"]');
+  const activeUsersTab = document.getElementById("usersTab");
+  if (activeUsersBtn && activeUsersTab) {
+    activeUsersBtn.classList.add("active");
+    activeUsersTab.style.display = "block";
   }
 
-  // Show SysAdmin-only sections
+  // Enable SysAdmin-only buttons
   if (role === "SysAdmin") {
     const sysadminTab = document.getElementById("sysadminTab");
-    const accountsTab = document.getElementById("accountsTab");
-    const rolesTab = document.getElementById("rolesTab");
     const rolesTabBtn = document.getElementById("rolesTabBtn");
     const auditTabBtn = document.getElementById("auditTabBtn");
 
     if (sysadminTab) sysadminTab.style.display = "inline-block";
-    if (accountsTab) accountsTab.style.display = "block";
-    if (rolesTab) rolesTab.style.display = "block";
     if (rolesTabBtn) rolesTabBtn.style.display = "inline-block";
     if (auditTabBtn) auditTabBtn.style.display = "inline-block";
 
-    // Load Audit Logs
+    // Fetch Audit Logs
     fetch("https://simplesurvivalcollectibles.site/admin/audit-logs", {
       headers: { Authorization: `Bearer ${token}` }
     })
@@ -155,11 +150,14 @@ function verifyUser(userId) {
       "Content-Type": "application/json"
     },
     body: JSON.stringify({ userId })
-  }).then(() => location.reload());
+  }).then(() => {
+    showToast("User verified successfully ✅");
+    setTimeout(() => location.reload(), 1000);
+  });
 }
 
 function deleteUser(userId) {
-  if (!confirm("Are you sure?")) return;
+  if (!confirm("Are you sure you want to delete this user?")) return;
   fetch("https://simplesurvivalcollectibles.site/admin/delete-user", {
     method: "DELETE",
     headers: {
@@ -167,7 +165,10 @@ function deleteUser(userId) {
       "Content-Type": "application/json"
     },
     body: JSON.stringify({ userId })
-  }).then(() => location.reload());
+  }).then(() => {
+    showToast("User deleted successfully 🗑️");
+    setTimeout(() => location.reload(), 1000);
+  });
 }
 
 function changeRole(userId) {
@@ -182,8 +183,18 @@ function changeRole(userId) {
   })
     .then(res => res.json())
     .then(() => {
-      alert("Role updated successfully");
-      location.reload();
+      showToast("User role updated successfully 🛠️");
+      setTimeout(() => location.reload(), 1000);
     })
-    .catch(() => alert("Failed to update role"));
+    .catch(() => showToast("❌ Failed to update user role"));
+}
+
+// Toast Notification Helper
+function showToast(message) {
+  const container = document.getElementById("toastContainer");
+  const toast = document.createElement("div");
+  toast.className = "toast";
+  toast.textContent = message;
+  container.appendChild(toast);
+  setTimeout(() => toast.remove(), 3000);
 }

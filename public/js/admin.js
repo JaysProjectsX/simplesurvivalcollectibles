@@ -7,23 +7,33 @@ document.addEventListener("DOMContentLoaded", () => {
     return;
   }
 
-  // Tab switching
-  document.querySelectorAll(".tab-btn").forEach(btn => {
+  const tabButtons = document.querySelectorAll(".tab-btn");
+  const tabContents = document.querySelectorAll(".tab-content");
+
+  // Tab switching logic
+  tabButtons.forEach(btn => {
     btn.addEventListener("click", () => {
-      document.querySelectorAll(".tab-content").forEach(tab => tab.style.display = "none");
-      const selectedTab = document.getElementById(btn.dataset.tab);
-      if (selectedTab) selectedTab.style.display = "block";
+      // Hide all tabs
+      tabContents.forEach(tab => tab.style.display = "none");
+      tabButtons.forEach(b => b.classList.remove("active"));
+
+      // Show selected
+      const target = document.getElementById(btn.dataset.tab);
+      if (target) target.style.display = "block";
+      btn.classList.add("active");
     });
   });
 
-  document.querySelectorAll(".tab-btn").forEach(btn => {
-    btn.addEventListener("click", () => {
-    document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
-    btn.classList.add("active");
-    });
-   });
+  // Set default active tab (first visible tab)
+  const firstVisibleTabBtn = Array.from(tabButtons).find(btn => btn.style.display !== "none");
+  if (firstVisibleTabBtn && !document.querySelector(".tab-btn.active")) {
+    firstVisibleTabBtn.classList.add("active");
+    const defaultTabId = firstVisibleTabBtn.dataset.tab;
+    const defaultTab = document.getElementById(defaultTabId);
+    if (defaultTab) defaultTab.style.display = "block";
+  }
 
-  // Show SysAdmin-only tabs safely
+  // Show SysAdmin-only sections
   if (role === "SysAdmin") {
     const sysadminTab = document.getElementById("sysadminTab");
     const accountsTab = document.getElementById("accountsTab");

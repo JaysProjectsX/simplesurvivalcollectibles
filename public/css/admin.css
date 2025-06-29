@@ -1,70 +1,94 @@
-.admin-dashboard-wrapper {
-  display: flex;
-  margin-top: 120px;
-  padding: 2rem;
-  gap: 2rem;
+:root {
+  --background-primary: #121212;
+  --background-secondary: #1e1e2f;
+  --background-hover: #2a2a3d;
+  --text-primary: #ffffff;
+  --text-secondary: #cccccc;
+  --primary-text: #00aaff;
+  --font-weight-heavy: 700;
+  --font-weight-medium: 500;
+  --font-weight-bold: 600;
+  --border: 1px solid #2a2a3d;
 }
 
+/* Dashboard wrapper */
+.admin-dashboard-wrapper {
+  display: flex;
+  gap: 1.5rem;
+  padding: 2rem;
+  background-color: var(--background-primary);
+  color: var(--text-primary);
+}
+
+/* Sidebar Styling */
 .admin-sidebar {
-  background: rgba(0, 0, 0, 0.6);
-  padding: 1.5rem;
-  border-radius: 1rem;
-  min-width: 220px;
-  height: fit-content;
+  background-color: var(--background-secondary);
+  border-radius: 12px;
+  padding: 1rem;
+  width: 250px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
 }
 
 .admin-sidebar h2 {
-  color: white;
-  font-size: 1.4rem;
-  margin-bottom: 1.5rem;
+  font-size: 1.25rem;
+  font-weight: var(--font-weight-heavy);
   text-align: center;
+  margin-bottom: 1rem;
 }
 
-.admin-sidebar button {
-  display: block;
-  width: 100%;
-  background: linear-gradient(to right, #303030, #1c1c1c);
-  color: white;
+/* Nav Button Styling - mimic vertical nav */
+.tab-btn {
+  background: none;
   border: none;
-  padding: 0.75rem 1rem;
-  margin-bottom: 0.75rem;
+  text-align: left;
+  padding: 0.6rem 0.75rem;
+  font-size: 0.95rem;
+  font-weight: var(--font-weight-medium);
+  color: var(--text-secondary);
+  border-left: 3px solid transparent;
   border-radius: 8px;
-  font-size: 1rem;
-  transition: all 0.3s ease;
+  transition: background 0.25s ease, padding 0.25s ease;
   cursor: pointer;
 }
 
-.admin-sidebar button:hover {
-  background: linear-gradient(to right, #444, #222);
-  transform: translateY(-2px);
+.tab-btn:hover {
+  background-color: var(--background-hover);
+  padding-left: 1rem;
+  color: var(--text-primary);
 }
 
+.tab-btn.active,
+.tab-btn:focus {
+  background-color: var(--background-hover);
+  border-left: 3px solid var(--primary-text);
+  color: var(--text-primary);
+  font-weight: var(--font-weight-bold);
+}
+
+/* Main content styling */
 .admin-main {
   flex-grow: 1;
-  background: rgba(0, 0, 0, 0.6);
-  border-radius: 1rem;
+  background-color: var(--background-secondary);
+  border-radius: 12px;
   padding: 2rem;
-  color: white;
 }
 
 .admin-main h1 {
-  text-align: center;
-  font-size: 2rem;
+  font-size: 1.75rem;
+  font-weight: var(--font-weight-heavy);
   margin-bottom: 0.25rem;
 }
 
 .admin-main p {
-  text-align: center;
-  font-size: 1rem;
-  margin-bottom: 2rem;
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+  margin-bottom: 1.5rem;
 }
 
-.tab-content h2 {
-  font-size: 1.5rem;
-  margin-bottom: 1rem;
-}
-
-/* Table Style */
+/* Table container */
 .admin-table-container {
   overflow-x: auto;
 }
@@ -72,56 +96,45 @@
 .admin-table {
   width: 100%;
   border-collapse: collapse;
-  margin-top: 1rem;
-  background-color: rgba(255, 255, 255, 0.03);
+  background-color: #1a1a2a;
   border-radius: 12px;
   overflow: hidden;
-}
-
-.admin-table thead {
-  background-color: #1e1e1e;
+  font-size: 0.9rem;
 }
 
 .admin-table th,
 .admin-table td {
   padding: 0.75rem 1rem;
+  border-bottom: var(--border);
   text-align: left;
-  border-bottom: 1px solid #333;
+  color: var(--text-primary);
 }
 
 .admin-table th {
-  font-weight: 600;
-  color: #bcbcbc;
+  background-color: #252538;
+  font-weight: var(--font-weight-bold);
 }
 
-.admin-table td {
-  color: #fff;
+.admin-table tr:hover {
+  background-color: var(--background-hover);
 }
 
+/* Action buttons */
 .admin-action-btn {
-  margin-right: 0.5rem;
-  padding: 0.4rem 0.75rem;
+  padding: 0.35rem 0.75rem;
+  margin: 0 0.25rem;
+  font-size: 0.85rem;
   border: none;
-  border-radius: 8px;
-  font-size: 0.9rem;
+  border-radius: 6px;
   cursor: pointer;
-  transition: background 0.2s ease;
 }
 
 .admin-action-btn.verify {
-  background-color: #5cb85c;
+  background-color: #6c63ff;
   color: white;
-}
-
-.admin-action-btn.verify:hover {
-  background-color: #4cae4c;
 }
 
 .admin-action-btn.delete {
-  background-color: #d9534f;
+  background-color: #ff5c5c;
   color: white;
-}
-
-.admin-action-btn.delete:hover {
-  background-color: #c9302c;
 }

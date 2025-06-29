@@ -16,6 +16,13 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
+  document.querySelectorAll(".tab-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+    document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+    });
+   });
+
   // Show SysAdmin-only tabs safely
   if (role === "SysAdmin") {
     const sysadminTab = document.getElementById("sysadminTab");

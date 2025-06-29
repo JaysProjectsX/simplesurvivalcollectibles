@@ -29,48 +29,58 @@
       </div>
     </nav>
 
-  <div class="admin-dashboard">
-    <h1 class="dashboard-title">Admin Dashboard</h1>
+    <div class="admin-dashboard">
+      <!-- Sidebar -->
+      <div class="dashboard-sidebar">
+        <h2>Admin Menu</h2>
+        <button class="sidebar-tab active" data-tab="usersTab">Active Users</button>
+        <button class="sidebar-tab" data-tab="dbTab">Database Config</button>
+        <button class="sidebar-tab" data-tab="accountsTab" id="sysadminTab">Account Management</button>
+        <button class="sidebar-tab" data-tab="roleTab" id="roleTab" style="display: none;">Role Management</button>
+      </div>
 
-    <div class="tab-container">
-      <button class="tab-btn" data-tab="usersTab">Active Users</button>
-      <button class="tab-btn" data-tab="dbTab">Database Config</button>
-      <button class="tab-btn" data-tab="accountsTab" id="sysadminTab" style="display: none;">Account Management</button>
-      <button class="tab-btn" data-tab="rolesTab" id="roleTab" style="display: none;">Role Management</button>
+      <!-- Content -->
+      <div class="dashboard-content">
+        <div class="dashboard-header">
+          <h1>Admin Dashboard</h1>
+          <p>View and manage system users and configuration</p>
+        </div>
+
+        <div id="usersTab" class="tab-section active">
+          <h2>Currently Logged In Users</h2>
+          <ul id="activeUserList"></ul>
+        </div>
+
+        <div id="dbTab" class="tab-section">
+          <h2>Database Configuration</h2>
+          <p>Coming soon: manage crate data from the database instead of JSON.</p>
+        </div>
+
+        <div id="accountsTab" class="tab-section">
+          <h2>User Account Management</h2>
+          <div id="accountList">Loading accounts...</div>
+        </div>
+
+        <div id="roleTab" class="tab-section">
+          <h2>Role Management</h2>
+          <table class="user-table" id="roleTable">
+            <thead>
+              <tr>
+                <th>Username</th>
+                <th>Email</th>
+                <th>Current Role</th>
+                <th>Change Role</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              <!-- Populated via JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
 
-    <div class="tab-content" id="usersTab">
-      <h2>Currently Logged In Users</h2>
-      <ul id="activeUserList"></ul>
-    </div>
-
-    <div class="tab-content" id="dbTab" style="display: none;">
-      <h2>Database Configuration</h2>
-      <p>Coming soon: manage crate data from the database instead of JSON.</p>
-    </div>
-
-    <div class="tab-content" id="accountsTab" style="display: none;">
-      <h2>User Account Management</h2>
-      <div id="accountList">Loading accounts...</div>
-    </div>
-
-    <div class="tab-content" id="rolesTab" style="display: none;">
-      <h2>Role Management</h2>
-      <table id="roleTable">
-        <thead>
-          <tr>
-            <th>Username</th>
-            <th>Email</th>
-            <th>Current Role</th>
-            <th>Change Role</th>
-          </tr>
-        </thead>
-        <tbody id="roleTableBody">
-          <!-- Dynamically filled -->
-        </tbody>
-      </table>
-    </div>
-  </div>
 
   <!-- Login/Register Modal -->
     <div id="authModal" class="modal">
@@ -131,7 +141,7 @@
     </div>
 
   <div id="toastContainer"></div>
-  
+
   <script src="/js/scripts.js"></script>
   <script src="/js/auth.js"></script>
 </body>

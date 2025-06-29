@@ -2,24 +2,25 @@ document.addEventListener("DOMContentLoaded", () => {
   const token = localStorage.getItem("token");
   const role = localStorage.getItem("role");
 
-  // Redirect to 404 if unauthorized
   if (!token || (role !== "Admin" && role !== "SysAdmin")) {
     window.location.href = "404.html";
     return;
   }
 
-  // Enable tab behavior
-  document.querySelectorAll(".tab-btn").forEach(btn => {
+  // Sidebar tab switching logic
+  document.querySelectorAll(".sidebar-tab").forEach(btn => {
     btn.addEventListener("click", () => {
-      document.querySelectorAll(".tab-content").forEach(tab => tab.style.display = "none");
-      document.getElementById(btn.dataset.tab).style.display = "block";
+      document.querySelectorAll(".sidebar-tab").forEach(b => b.classList.remove("active"));
+      document.querySelectorAll(".tab-section").forEach(section => section.classList.remove("active"));
+
+      btn.classList.add("active");
+      document.getElementById(btn.dataset.tab).classList.add("active");
     });
   });
 
-  // Reveal sysadmin-only tab if needed
   if (role === "SysAdmin") {
-    document.getElementById("sysadminTab").style.display = "inline-block";
-    document.getElementById("accountsTab").style.display = "block";
+    document.getElementById("sysadminTab").style.display = "block";
+    document.getElementById("roleTab").style.display = "block";
   }
 
   // Load active users
@@ -30,7 +31,7 @@ document.addEventListener("DOMContentLoaded", () => {
     .then(data => {
       const list = document.getElementById("activeUserList");
       list.innerHTML = "";
-      data.users.forEach(user => {
+      data.forEach(user => {
         const li = document.createElement("li");
         li.textContent = role === "SysAdmin"
           ? `${user.username} (IP: ${user.last_ip}, Location: ${user.last_location})`
@@ -39,7 +40,7 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     });
 
-  // Load accounts if SysAdmin
+  // Load account management list
   if (role === "SysAdmin") {
     fetch("https://simplesurvivalcollectibles.site/admin/users", {
       headers: { Authorization: `Bearer ${token}` },
@@ -47,13 +48,43 @@ document.addEventListener("DOMContentLoaded", () => {
       .then(res => res.json())
       .then(data => {
         const container = document.getElementById("accountList");
-        container.innerHTML = data.users.map(user => `
+        container.innerHTML = data.map(user => `
           <div class="account-entry">
             <strong>${user.username}</strong> - ${user.email} - Verified: ${user.verified}
             <button onclick="verifyUser(${user.id})">Verify</button>
             <button onclick="deleteUser(${user.id})">Delete</button>
           </div>
         `).join("");
+      });
+
+    // Load Role Management table
+    fetch("https://simplesurvivalcollectibles.site/admin/users", {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+      .then(res => res.json())
+      .then(data => {
+        const tbody = document.querySelector("#roleTable tbody");
+        tbody.innerHTML = "";
+
+        data.forEach(user => {
+          const tr = document.createElement("tr");
+
+          tr.innerHTML = `
+            <td>${user.username}</td>
+            <td>${user.email}</td>
+            <td>${user.role}</td>
+            <td>
+              <select class="role-select" id="role-${user.id}">
+                <option value="User" ${user.role === 'User' ? 'selected' : ''}>User</option>
+                <option value="Admin" ${user.role === 'Admin' ? 'selected' : ''}>Admin</option>
+                <option value="SysAdmin" ${user.role === 'SysAdmin' ? 'selected' : ''}>SysAdmin</option>
+              </select>
+            </td>
+            <td><button onclick="changeRole(${user.id})">Update</button></td>
+          `;
+
+          tbody.appendChild(tr);
+        });
       });
   }
 });
@@ -76,4 +107,22 @@ function deleteUser(userId) {
       Authorization: `Bearer ${localStorage.getItem("token")}`,
     }
   }).then(() => location.reload());
+}
+
+function changeRole(userId) {
+  const newRole = document.getElementById(`role-${userId}`).value;
+  fetch("https://simplesurvivalcollectibles.site/admin/change-role", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${localStorage.getItem("token")}`,
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({ userId, newRole })
+  })
+    .then(res => res.json())
+    .then(() => {
+      alert("Role updated successfully");
+      location.reload();
+    })
+    .catch(() => alert("Failed to update role"));
 }

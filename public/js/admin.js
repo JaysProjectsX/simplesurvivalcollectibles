@@ -42,7 +42,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Load account management list
   if (role === "SysAdmin") {
-    fetch("https://simplesurvivalcollectibles.site/admin/users", {
+    fetch("https://simplesurvivalcollectibles.site/admin/all-users", {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then(res => res.json())
@@ -101,13 +101,16 @@ function verifyUser(userId) {
 
 function deleteUser(userId) {
   if (!confirm("Are you sure?")) return;
-  fetch(`https://simplesurvivalcollectibles.site/admin/delete-user/${userId}`, {
+  fetch("https://simplesurvivalcollectibles.site/admin/delete-user", {
     method: "DELETE",
     headers: {
       Authorization: `Bearer ${localStorage.getItem("token")}`,
-    }
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({ userId })
   }).then(() => location.reload());
 }
+
 
 function changeRole(userId) {
   const newRole = document.getElementById(`role-${userId}`).value;

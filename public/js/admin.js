@@ -92,6 +92,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const tableBody = document.getElementById("accountList");
         tableBody.innerHTML = data.map(user => `
           <tr>
+            <td>${user.id}</td>
             <td>${user.username}</td>
             <td>${user.email}</td>
             <td>${user.verified ? "Yes" : "No"}</td>

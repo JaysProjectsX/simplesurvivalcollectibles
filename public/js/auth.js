@@ -166,7 +166,9 @@ function updateNavUI() {
         <span onclick="toggleDropdown()" class="username-link">${username}</span>
         <div class="dropdown-content" id="userDropdown">
           <a href="#" onclick="openAccountModal()">Account Options</a>
-          ${role === 'Admin' ? '<a href="admin.html">Admin Panel</a>' : '<a href="collections.html">Collections List</a>'}
+          ${role === 'Admin' || role === 'SysAdmin' 
+            ? '<a href="admin-dashboard.html">Admin Dashboard</a>' 
+            : '<a href="collections.html">Collections List</a>'}
           <a href="#" onclick="logout()">Log Out</a>
         </div>
       </div>

@@ -1261,15 +1261,34 @@ nav {
 }
 
 .username-link {
+  position: relative;
   cursor: pointer;
+  color: #86b9ff;
   font-weight: bold;
-  color: #fff;
-  padding-bottom: 8px;
+  transition: color 0.3s;
   display: inline-block;
 }
 
 .username-link:hover {
   color: #6ea8ff;
+}
+
+.username-link::after {
+  content: "";
+  position: absolute;
+  width: 100%;
+  transform: scaleX(0);
+  height: 2px;
+  bottom: -4px;
+  left: 0;
+  background-color: #86b9ff;
+  transform-origin: bottom right;
+  transition: transform 0.3s ease-out;
+}
+
+.username-link:hover::after {
+  transform: scaleX(1);
+  transform-origin: bottom left;
 }
 
 .dropdown-content {

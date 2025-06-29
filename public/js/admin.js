@@ -58,7 +58,7 @@ document.addEventListener("DOMContentLoaded", () => {
       });
 
     // Load Role Management table
-    fetch("https://simplesurvivalcollectibles.site/admin/users", {
+    fetch("https://simplesurvivalcollectibles.site/admin/all-users", {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then(res => res.json())

@@ -1233,7 +1233,7 @@ nav {
 .modal-content button {
   width: 95%;
   padding: 12px;
-  background-color: #4caf50;
+  background-color: #6c63ff;
   color: white;
   font-weight: bold;
   border: none;
@@ -1243,7 +1243,7 @@ nav {
 }
 
 .modal-content button:hover {
-  background-color: #388e3c;
+  background-color: #574fd6;
 }
 
 .toggle-text {

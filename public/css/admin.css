@@ -168,7 +168,7 @@
 
 #accountList li,
 #activeUserList li {
-  background-color: #2b2b2b;
+  background-color: var(--background-primary);
   margin: 0.5rem 0;
   padding: 1rem;
   border-radius: 8px;

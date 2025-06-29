@@ -7,25 +7,56 @@ document.addEventListener("DOMContentLoaded", () => {
     return;
   }
 
-  // Sidebar tab switching logic
-  document.querySelectorAll(".sidebar-tab").forEach(btn => {
+  // Tab switching
+  document.querySelectorAll(".tab-btn").forEach(btn => {
     btn.addEventListener("click", () => {
-      document.querySelectorAll(".sidebar-tab").forEach(b => b.classList.remove("active"));
-      document.querySelectorAll(".tab-section").forEach(section => section.classList.remove("active"));
-
-      btn.classList.add("active");
-      document.getElementById(btn.dataset.tab).classList.add("active");
+      document.querySelectorAll(".tab-content").forEach(tab => tab.style.display = "none");
+      document.getElementById(btn.dataset.tab).style.display = "block";
     });
   });
 
+  // Show SysAdmin-only tabs
   if (role === "SysAdmin") {
-    document.getElementById("sysadminTab").style.display = "block";
-    document.getElementById("roleTab").style.display = "block";
+    document.getElementById("sysadminTab").style.display = "inline-block";
+    document.getElementById("accountsTab").style.display = "block";
+    document.getElementById("rolesTab").style.display = "block";
+    document.getElementById("rolesTabBtn").style.display = "inline-block";
+    document.getElementById("auditTabBtn").style.display = "inline-block";
+
+    // Load Audit Logs
+    fetch("https://simplesurvivalcollectibles.site/admin/audit-logs", {
+      headers: { Authorization: `Bearer ${token}` }
+    })
+      .then(res => res.json())
+      .then(data => {
+        const tbody = document.getElementById("auditLogTable");
+        tbody.innerHTML = "";
+
+        if (data.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="3">No audit logs found.</td></tr>';
+          return;
+        }
+
+        data.forEach(log => {
+          const tr = document.createElement("tr");
+          const formattedDate = new Date(log.timestamp).toLocaleString();
+          tr.innerHTML = `
+            <td>${log.user_id}</td>
+            <td>${log.action}</td>
+            <td>${formattedDate}</td>
+          `;
+          tbody.appendChild(tr);
+        });
+      })
+      .catch(err => {
+        console.error("Failed to load audit logs:", err);
+        document.getElementById("auditLogTable").innerHTML = '<tr><td colspan="3">Failed to load logs.</td></tr>';
+      });
   }
 
-  // Load active users
+  // Load Active Users
   fetch("https://simplesurvivalcollectibles.site/admin/active-users", {
-    headers: { Authorization: `Bearer ${token}` },
+    headers: { Authorization: `Bearer ${token}` }
   })
     .then(res => res.json())
     .then(data => {
@@ -40,36 +71,36 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     });
 
-  // Load account management list
+  // Load Account Management Table
   if (role === "SysAdmin") {
     fetch("https://simplesurvivalcollectibles.site/admin/all-users", {
-      headers: { Authorization: `Bearer ${token}` },
+      headers: { Authorization: `Bearer ${token}` }
     })
       .then(res => res.json())
       .then(data => {
-        const container = document.getElementById("accountList");
-        container.innerHTML = data.map(user => `
-          <div class="account-entry">
-            <strong>${user.username}</strong> - ${user.email} - Verified: ${user.verified}
-            <button onclick="verifyUser(${user.id})">Verify</button>
-            <button onclick="deleteUser(${user.id})">Delete</button>
-          </div>
+        const tableBody = document.getElementById("accountList");
+        tableBody.innerHTML = data.map(user => `
+          <tr>
+            <td>${user.username}</td>
+            <td>${user.email}</td>
+            <td>${user.verified ? "Yes" : "No"}</td>
+            <td>
+              <button class="admin-action-btn verify" onclick="verifyUser(${user.id})">Verify</button>
+              <button class="admin-action-btn delete" onclick="deleteUser(${user.id})">Delete</button>
+            </td>
+          </tr>
         `).join("");
       });
 
-    // Load Role Management table
+    // Load Role Management Table
     fetch("https://simplesurvivalcollectibles.site/admin/all-users", {
-      headers: { Authorization: `Bearer ${token}` },
+      headers: { Authorization: `Bearer ${token}` }
     })
       .then(res => res.json())
       .then(data => {
-        const tbody = document.querySelector("#roleTable tbody");
-        tbody.innerHTML = "";
-
-        data.forEach(user => {
-          const tr = document.createElement("tr");
-
-          tr.innerHTML = `
+        const roleList = document.getElementById("roleManagementList");
+        roleList.innerHTML = data.map(user => `
+          <tr>
             <td>${user.username}</td>
             <td>${user.email}</td>
             <td>${user.role}</td>
@@ -80,22 +111,21 @@ document.addEventListener("DOMContentLoaded", () => {
                 <option value="SysAdmin" ${user.role === 'SysAdmin' ? 'selected' : ''}>SysAdmin</option>
               </select>
             </td>
-            <td><button onclick="changeRole(${user.id})">Update</button></td>
-          `;
-
-          tbody.appendChild(tr);
-        });
+            <td><button class="admin-action-btn verify" onclick="changeRole(${user.id})">Update</button></td>
+          </tr>
+        `).join("");
       });
   }
 });
 
 function verifyUser(userId) {
-  fetch(`https://simplesurvivalcollectibles.site/admin/verify-user/${userId}`, {
+  fetch("https://simplesurvivalcollectibles.site/admin/verify-user", {
     method: "POST",
     headers: {
       Authorization: `Bearer ${localStorage.getItem("token")}`,
       "Content-Type": "application/json"
-    }
+    },
+    body: JSON.stringify({ userId })
   }).then(() => location.reload());
 }
 
@@ -110,7 +140,6 @@ function deleteUser(userId) {
     body: JSON.stringify({ userId })
   }).then(() => location.reload());
 }
-
 
 function changeRole(userId) {
   const newRole = document.getElementById(`role-${userId}`).value;

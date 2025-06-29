@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Admin Dashboard</title>
   <link rel="stylesheet" href="css/home-page.css" />
+  <link rel="stylesheet" href="css/admin.css" />
   <script defer src="js/admin.js"></script>
 </head>
 <body>
@@ -29,58 +30,91 @@
       </div>
     </nav>
 
-    <div class="admin-dashboard">
-      <!-- Sidebar -->
-      <div class="dashboard-sidebar">
-        <h2>Admin Menu</h2>
-        <button class="sidebar-tab active" data-tab="usersTab">Active Users</button>
-        <button class="sidebar-tab" data-tab="dbTab">Database Config</button>
-        <button class="sidebar-tab" data-tab="accountsTab" id="sysadminTab">Account Management</button>
-        <button class="sidebar-tab" data-tab="roleTab" id="roleTab" style="display: none;">Role Management</button>
-      </div>
+      <div class="admin-dashboard-wrapper">
+        <div class="admin-sidebar">
+          <h2>Admin Menu</h2>
+          <button class="tab-btn" data-tab="usersTab">Active Users</button>
+          <button class="tab-btn" data-tab="dbTab">Database Config</button>
+          <button class="tab-btn" data-tab="accountsTab" id="sysadminTab" style="display: none;">Account Management</button>
+          <button class="tab-btn" data-tab="rolesTab" id="rolesTabBtn" style="display: none;">Role Management</button>
+          <button class="tab-btn" data-tab="auditTab" id="auditTabBtn" style="display: none;">Audit Logs</button>
+        </div>
 
-      <!-- Content -->
-      <div class="dashboard-content">
-        <div class="dashboard-header">
+        <div class="admin-main">
           <h1>Admin Dashboard</h1>
           <p>View and manage system users and configuration</p>
-        </div>
 
-        <div id="usersTab" class="tab-section active">
-          <h2>Currently Logged In Users</h2>
-          <ul id="activeUserList"></ul>
-        </div>
+          <!-- Active Users -->
+          <div class="tab-content" id="usersTab">
+            <h2>Currently Logged In Users</h2>
+            <ul id="activeUserList"></ul>
+          </div>
 
-        <div id="dbTab" class="tab-section">
-          <h2>Database Configuration</h2>
-          <p>Coming soon: manage crate data from the database instead of JSON.</p>
-        </div>
+          <!-- Database Config -->
+          <div class="tab-content" id="dbTab" style="display: none;">
+            <h2>Database Configuration</h2>
+            <p>Coming soon...</p>
+          </div>
 
-        <div id="accountsTab" class="tab-section">
-          <h2>User Account Management</h2>
-          <div id="accountList">Loading accounts...</div>
-        </div>
+          <!-- Account Management -->
+          <div class="tab-content" id="accountsTab" style="display: none;">
+            <h2>User Account Management</h2>
+            <div class="admin-table-container">
+              <table class="admin-table">
+                <thead>
+                  <tr>
+                    <th>Username</th>
+                    <th>Email</th>
+                    <th>Verified</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="accountList">
+                  <!-- Filled by admin.js -->
+                </tbody>
+              </table>
+            </div>
+          </div>
 
-        <div id="roleTab" class="tab-section">
-          <h2>Role Management</h2>
-          <table class="user-table" id="roleTable">
-            <thead>
-              <tr>
-                <th>Username</th>
-                <th>Email</th>
-                <th>Current Role</th>
-                <th>Change Role</th>
-                <th>Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              <!-- Populated via JS -->
-            </tbody>
-          </table>
+          <!-- Role Management -->
+          <div class="tab-content" id="rolesTab" style="display: none;">
+            <h2>Role Management</h2>
+            <div class="admin-table-container">
+              <table class="admin-table">
+                <thead>
+                  <tr>
+                    <th>Username</th>
+                    <th>Email</th>
+                    <th>Current Role</th>
+                    <th>Change Role</th>
+                  </tr>
+                </thead>
+                <tbody id="roleManagementList">
+                  <!-- Filled dynamically via JS -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <!-- Audit Logs -->
+          <div class="tab-content" id="auditTab" style="display: none;">
+            <h2>Audit Logs</h2>
+            <div class="admin-table-container">
+              <table class="admin-table">
+                <thead>
+                  <tr>
+                    <th>User ID</th>
+                    <th>Action</th>
+                    <th>Timestamp</th>
+                  </tr>
+                </thead>
+                <tbody id="auditLogTable">
+                  <!-- Filled dynamically via JS -->
+                </tbody>
+              </table>
+            </div>
+          </div>
         </div>
       </div>
-    </div>
-
 
   <!-- Login/Register Modal -->
     <div id="authModal" class="modal">

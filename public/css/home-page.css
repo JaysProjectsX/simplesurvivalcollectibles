@@ -1263,7 +1263,7 @@ nav {
 .username-link {
   position: relative;
   cursor: pointer;
-  color: #86b9ff;
+  color: #fff;
   font-weight: bold;
   transition: color 0.3s;
   display: inline-block;
@@ -1274,21 +1274,15 @@ nav {
 }
 
 .username-link::after {
-  content: "";
-  position: absolute;
-  width: 100%;
-  transform: scaleX(0);
-  height: 2px;
-  bottom: -4px;
-  left: 0;
-  background-color: #86b9ff;
-  transform-origin: bottom right;
-  transition: transform 0.3s ease-out;
-}
-
-.username-link:hover::after {
-  transform: scaleX(1);
-  transform-origin: bottom left;
+    content: "";
+    position: absolute;
+    left: 50%;
+    bottom: 0;
+    transform: translateX(-50%);
+    width: 0%;
+    height: 2px;
+    background-color: #6ea8ff;
+    transition: width 0.3s ease;
 }
 
 .dropdown-content {

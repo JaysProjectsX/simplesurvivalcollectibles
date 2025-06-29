@@ -11,17 +11,24 @@ document.addEventListener("DOMContentLoaded", () => {
   document.querySelectorAll(".tab-btn").forEach(btn => {
     btn.addEventListener("click", () => {
       document.querySelectorAll(".tab-content").forEach(tab => tab.style.display = "none");
-      document.getElementById(btn.dataset.tab).style.display = "block";
+      const selectedTab = document.getElementById(btn.dataset.tab);
+      if (selectedTab) selectedTab.style.display = "block";
     });
   });
 
-  // Show SysAdmin-only tabs
+  // Show SysAdmin-only tabs safely
   if (role === "SysAdmin") {
-    document.getElementById("sysadminTab").style.display = "inline-block";
-    document.getElementById("accountsTab").style.display = "block";
-    document.getElementById("rolesTab").style.display = "block";
-    document.getElementById("rolesTabBtn").style.display = "inline-block";
-    document.getElementById("auditTabBtn").style.display = "inline-block";
+    const sysadminTab = document.getElementById("sysadminTab");
+    const accountsTab = document.getElementById("accountsTab");
+    const rolesTab = document.getElementById("rolesTab");
+    const rolesTabBtn = document.getElementById("rolesTabBtn");
+    const auditTabBtn = document.getElementById("auditTabBtn");
+
+    if (sysadminTab) sysadminTab.style.display = "inline-block";
+    if (accountsTab) accountsTab.style.display = "block";
+    if (rolesTab) rolesTab.style.display = "block";
+    if (rolesTabBtn) rolesTabBtn.style.display = "inline-block";
+    if (auditTabBtn) auditTabBtn.style.display = "inline-block";
 
     // Load Audit Logs
     fetch("https://simplesurvivalcollectibles.site/admin/audit-logs", {
@@ -30,6 +37,7 @@ document.addEventListener("DOMContentLoaded", () => {
       .then(res => res.json())
       .then(data => {
         const tbody = document.getElementById("auditLogTable");
+        if (!tbody) return;
         tbody.innerHTML = "";
 
         if (data.length === 0) {
@@ -50,7 +58,10 @@ document.addEventListener("DOMContentLoaded", () => {
       })
       .catch(err => {
         console.error("Failed to load audit logs:", err);
-        document.getElementById("auditLogTable").innerHTML = '<tr><td colspan="3">Failed to load logs.</td></tr>';
+        const tbody = document.getElementById("auditLogTable");
+        if (tbody) {
+          tbody.innerHTML = '<tr><td colspan="3">Failed to load logs.</td></tr>';
+        }
       });
   }
 

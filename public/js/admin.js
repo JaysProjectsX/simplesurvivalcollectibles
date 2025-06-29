@@ -188,13 +188,3 @@ function changeRole(userId) {
     })
     .catch(() => showToast("❌ Failed to update user role"));
 }
-
-// Toast Notification Helper
-function showToast(message) {
-  const container = document.getElementById("toastContainer");
-  const toast = document.createElement("div");
-  toast.className = "toast";
-  toast.textContent = message;
-  container.appendChild(toast);
-  setTimeout(() => toast.remove(), 3000);
-}

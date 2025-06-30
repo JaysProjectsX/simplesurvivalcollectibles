@@ -161,16 +161,49 @@ function updateNavUI() {
   const role = localStorage.getItem("role");
 
   if (username) {
+    // Determine role tag color
+    let roleTagColor = 'gray';
+    if (role === 'Admin') roleTagColor = 'red';
+    if (role === 'SysAdmin') roleTagColor = 'var(--primary-color)';
+
+    // Header with username and role tag
+    const headerHTML = `
+      <div class="dropdown-header">
+        ${username}
+        <span class="role-tag" style="background-color: ${roleTagColor}; color: white; margin-left: 0.5rem; padding: 2px 6px; font-size: 0.7rem; border-radius: 0.25rem; vertical-align: middle;">
+          ${role}
+        </span>
+      </div>
+    `;
+
+    // Dynamic divider position
+    const dividerHTML = `<div class="dropdown-divider"></div>`;
+
+    // Role-specific links
+    let roleLinks = '';
+    if (role === 'Admin' || role === 'SysAdmin') {
+      roleLinks = `
+        <a href="/admin-dashboard" class="dropdown-item">Admin Dashboard</a>
+        ${dividerHTML}
+      `;
+    } else {
+      roleLinks = `
+        <a href="/collections" class="dropdown-item">Collections List</a>
+        ${dividerHTML}
+      `;
+    }
+
     loginItem.innerHTML = `
       <div class="user-dropdown">
-        <span onclick="toggleDropdown()" class="username-link">${username} <i class="fas fa-caret-down"></i></span>
+        <span onclick="toggleDropdown()" class="username-link">${username}</span>
         <div class="dropdown-content" id="userDropdown">
-          <a href="#" onclick="openAccountModal()">Account Options</a>
-          <a href="/collections">Collections List</a>
+          ${headerHTML}
+          <a href="#" onclick="openAccountModal()" class="dropdown-item">Account Options</a>
           ${role === 'Admin' || role === 'SysAdmin' 
-            ? '<a href="/admin-dashboard">Admin Dashboard</a>' 
+            ? '<a href="/collections" class="dropdown-item">Collections List</a>' 
             : ''}
-          <a href="#" onclick="logout()">Log Out</a>
+          ${roleLinks}
+          <a href="#" onclick="logout()" class="dropdown-item">Log Out</a>
         </div>
       </div>
     `;
@@ -178,6 +211,7 @@ function updateNavUI() {
     loginItem.innerHTML = `<a href="#" onclick="toggleModal()">Login</a>`;
   }
 }
+
 
 async function logout() {
   const token = localStorage.getItem("token");
@@ -236,7 +270,7 @@ window.toggleModal = function () {
 
 window.toggleDropdown = function () {
   const dropdown = document.getElementById("userDropdown");
-  if (dropdown) dropdown.classList.toggle("show");
+  if (dropdown) dropdown.classList.toggle("open");
 };
 
 window.toggleForm = function () {

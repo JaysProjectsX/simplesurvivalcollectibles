@@ -3,9 +3,12 @@ document.addEventListener("DOMContentLoaded", () => {
   const role = localStorage.getItem("role");
 
   if (!token || (role !== "Admin" && role !== "SysAdmin")) {
-    window.location.href = "404.html";
+    document.body.innerHTML = ""; // Prevents flicker
+    window.location.href = "404";
     return;
   }
+
+  document.getElementById("adminContent").style.display = "block";
 
   const tabButtons = document.querySelectorAll(".tab-btn");
   const tabContents = document.querySelectorAll(".tab-content");
@@ -183,8 +186,11 @@ function changeRole(userId) {
   })
     .then(res => res.json())
     .then(() => {
-      showToast("User role updated successfully 🛠️");
-      setTimeout(() => location.reload(), 1000);
+      showToast("User role updated successfully!");
+ 
+          const row = document.getElementById(`role-${userId}`).closest("tr");
+          row.style.backgroundColor = "#2a2a2a";
+          setTimeout(() => (row.style.backgroundColor = ""), 1000);
     })
-    .catch(() => showToast("❌ Failed to update user role"));
+    .catch(() => showToast("Failed to update user role"));
 }

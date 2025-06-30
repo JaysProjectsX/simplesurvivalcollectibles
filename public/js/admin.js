@@ -1,3 +1,6 @@
+let currentPage = 1;
+const logsPerPage = 10;
+
 document.addEventListener("DOMContentLoaded", () => {
   const token = localStorage.getItem("token");
   const role = localStorage.getItem("role");
@@ -13,19 +16,16 @@ document.addEventListener("DOMContentLoaded", () => {
   const tabButtons = document.querySelectorAll(".tab-btn");
   const tabContents = document.querySelectorAll(".tab-content");
 
-  // Tab switching logic
   tabButtons.forEach(btn => {
     btn.addEventListener("click", () => {
       tabContents.forEach(tab => tab.style.display = "none");
       tabButtons.forEach(b => b.classList.remove("active"));
-
       const target = document.getElementById(btn.dataset.tab);
       if (target) target.style.display = "block";
       btn.classList.add("active");
     });
   });
 
-  // Force default "Active Users" tab on load
   tabContents.forEach(tab => tab.style.display = "none");
   tabButtons.forEach(b => b.classList.remove("active"));
   const activeUsersBtn = document.querySelector('[data-tab="usersTab"]');
@@ -35,7 +35,6 @@ document.addEventListener("DOMContentLoaded", () => {
     activeUsersTab.style.display = "block";
   }
 
-  // Enable SysAdmin-only buttons
   if (role === "SysAdmin") {
     const sysadminTab = document.getElementById("sysadminTab");
     const rolesTabBtn = document.getElementById("rolesTabBtn");
@@ -45,39 +44,8 @@ document.addEventListener("DOMContentLoaded", () => {
     if (rolesTabBtn) rolesTabBtn.style.display = "inline-block";
     if (auditTabBtn) auditTabBtn.style.display = "inline-block";
 
-    // Fetch Audit Logs
-    fetch("https://simplesurvivalcollectibles.site/admin/audit-logs", {
-      headers: { Authorization: `Bearer ${token}` }
-    })
-      .then(res => res.json())
-      .then(data => {
-        const tbody = document.getElementById("auditLogTable");
-        if (!tbody) return;
-        tbody.innerHTML = "";
-
-        if (data.length === 0) {
-          tbody.innerHTML = '<tr><td colspan="3">No audit logs found.</td></tr>';
-          return;
-        }
-
-        data.forEach(log => {
-          const tr = document.createElement("tr");
-          const formattedDate = new Date(log.timestamp).toLocaleString();
-          tr.innerHTML = `
-            <td>${log.user_id}</td>
-            <td>${log.action}</td>
-            <td>${formattedDate}</td>
-          `;
-          tbody.appendChild(tr);
-        });
-      })
-      .catch(err => {
-        console.error("Failed to load audit logs:", err);
-        const tbody = document.getElementById("auditLogTable");
-        if (tbody) {
-          tbody.innerHTML = '<tr><td colspan="3">Failed to load logs.</td></tr>';
-        }
-      });
+    // Load paginated audit logs
+    loadAuditLogs(currentPage);
   }
 
   // Load Active Users
@@ -97,7 +65,6 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     });
 
-  // Load Account Management Table
   if (role === "SysAdmin") {
     fetch("https://simplesurvivalcollectibles.site/admin/all-users", {
       headers: { Authorization: `Bearer ${token}` }
@@ -119,7 +86,6 @@ document.addEventListener("DOMContentLoaded", () => {
         `).join("");
       });
 
-    // Load Role Management Table
     fetch("https://simplesurvivalcollectibles.site/admin/all-users", {
       headers: { Authorization: `Bearer ${token}` }
     })
@@ -144,6 +110,88 @@ document.addEventListener("DOMContentLoaded", () => {
       });
   }
 });
+
+function loadAuditLogs(page = 1) {
+  const token = localStorage.getItem("token");
+
+  fetch(`https://simplesurvivalcollectibles.site/admin/audit-logs?page=${page}&limit=10`, {
+    headers: { Authorization: `Bearer ${token}` }
+  })
+    .then(res => res.json())
+    .then(({ logs, total }) => {
+      const tbody = document.getElementById("auditLogTable");
+      const pagination = document.getElementById("auditPagination");
+      tbody.innerHTML = "";
+
+      if (logs.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="4">No audit logs found.</td></tr>';
+        pagination.innerHTML = "";
+        return;
+      }
+
+      logs.forEach(log => {
+        const tr = document.createElement("tr");
+        const formattedDate = new Date(log.timestamp).toLocaleString();
+        tr.innerHTML = `
+          <td>${log.user_id}</td>
+          <td>${log.action}</td>
+          <td>${formattedDate}</td>
+          <td><button class="delete-log-btn" onclick="deleteLog(${log.id})">🗑</button></td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      const totalPages = Math.ceil(total / logsPerPage);
+      pagination.innerHTML = "";
+
+      if (totalPages > 1) {
+        for (let i = 1; i <= totalPages; i++) {
+          const btn = document.createElement("button");
+          btn.textContent = i;
+          btn.className = "page-btn";
+          btn.disabled = i === page;
+          btn.onclick = () => {
+            currentPage = i;
+            loadAuditLogs(currentPage);
+          };
+          pagination.appendChild(btn);
+        }
+      }
+    })
+    .catch(err => {
+      console.error("Failed to load audit logs:", err);
+      document.getElementById("auditLogTable").innerHTML =
+        '<tr><td colspan="4">Failed to load logs.</td></tr>';
+    });
+}
+
+function deleteLog(logId) {
+  if (!confirm("Delete this audit log entry?")) return;
+
+  fetch(`https://simplesurvivalcollectibles.site/admin/audit-logs/${logId}`, {
+    method: "DELETE",
+    headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
+  })
+    .then(() => {
+      showToast("Log entry deleted.");
+      loadAuditLogs(currentPage);
+    })
+    .catch(() => showToast("Failed to delete log entry"));
+}
+
+function clearAuditLogs() {
+  if (!confirm("Clear the entire audit log? This cannot be undone.")) return;
+
+  fetch("https://simplesurvivalcollectibles.site/admin/audit-logs", {
+    method: "DELETE",
+    headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
+  })
+    .then(() => {
+      showToast("Audit log cleared.");
+      loadAuditLogs(1);
+    })
+    .catch(() => showToast("Failed to clear audit log"));
+}
 
 function verifyUser(userId) {
   fetch("https://simplesurvivalcollectibles.site/admin/verify-user", {
@@ -187,10 +235,49 @@ function changeRole(userId) {
     .then(res => res.json())
     .then(() => {
       showToast("User role updated successfully!");
- 
-          const row = document.getElementById(`role-${userId}`).closest("tr");
-          row.style.backgroundColor = "#2a2a2a";
-          setTimeout(() => (row.style.backgroundColor = ""), 1000);
+      const row = document.getElementById(`role-${userId}`).closest("tr");
+      row.style.backgroundColor = "#2a2a2a";
+      setTimeout(() => (row.style.backgroundColor = ""), 1000);
     })
     .catch(() => showToast("Failed to update user role"));
+}
+
+function exportAuditLogsAsCSV() {
+  const token = localStorage.getItem("token");
+
+  fetch("https://simplesurvivalcollectibles.site/admin/audit-logs?page=1&limit=10000", {
+    headers: { Authorization: `Bearer ${token}` }
+  })
+    .then(res => res.json())
+    .then(({ logs }) => {
+      if (!logs || logs.length === 0) {
+        showToast("No logs to export.");
+        return;
+      }
+
+      const csvRows = [
+        ["User ID", "Action", "Timestamp"]
+      ];
+
+      logs.forEach(log => {
+        csvRows.push([
+          `"${log.user_id}"`,
+          `"${log.action}"`,
+          `"${new Date(log.timestamp).toLocaleString()}"`
+        ]);
+      });
+
+      const csvContent = csvRows.map(row => row.join(",")).join("\n");
+      const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = `audit-logs-${new Date().toISOString().split("T")[0]}.csv`;
+      link.style.display = "none";
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      showToast("CSV exported successfully ✅");
+    })
+    .catch(() => showToast("Failed to export CSV ❌"));
 }

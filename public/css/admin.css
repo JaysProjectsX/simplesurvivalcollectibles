@@ -195,3 +195,52 @@
 #activeUserList button:hover {
   background-color: #574fd6;
 }
+
+/* Pagination Buttons */
+.page-btn {
+  background-color: #1e1e1e;
+  color: #fff;
+  border: 1px solid #444;
+  margin: 0 4px;
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.page-btn:hover:not(:disabled) {
+  background-color: #2a2a2a;
+}
+
+.page-btn:disabled {
+  background-color: #444;
+  color: #bbb;
+  cursor: default;
+}
+
+/* Delete log entry button */
+.delete-log-btn {
+  background: #ff4d4d;
+  color: white;
+  border: none;
+  padding: 6px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  transition: background 0.2s ease;
+}
+
+.delete-log-btn:hover {
+  background: #e60000;
+}
+
+/* Clear All Button (assume it has .admin-action-btn.delete class already) */
+.admin-action-btn.delete {
+  background-color: #d63031;
+  color: white;
+}
+
+.admin-action-btn.delete:hover {
+  background-color: #b71c1c;
+}
+

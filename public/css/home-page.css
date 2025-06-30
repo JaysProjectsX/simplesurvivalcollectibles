@@ -1278,14 +1278,15 @@ nav {
 }
 
 .username-link::after {
-  content: '';
-  position: absolute;
-  left: 0;
-  bottom: 0;
-  height: 2px;
-  width: 0;
-  background-color: currentColor;
-  transition: width 0.3s ease;
+    content: "";
+    position: absolute;
+    left: 50%;
+    bottom: 0;
+    transform: translateX(-50%);
+    width: 0%;
+    height: 2px;
+    background-color: #6ea8ff;
+    transition: width 0.3s ease;
 }
 
 .dropdown-content {

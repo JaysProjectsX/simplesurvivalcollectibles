@@ -168,6 +168,18 @@
   vertical-align: middle;
 }
 
+.role-tag.Admin {
+  background-color: #dc3545;
+}
+
+.role-tag.SysAdmin {
+  background-color: #6ea8ff;
+}
+
+.role-tag.User {
+  background-color: #6c757d;
+}
+
 /* Account and active user list cards */
 #accountList,
 #activeUserList {

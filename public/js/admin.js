@@ -59,8 +59,8 @@ document.addEventListener("DOMContentLoaded", () => {
       data.forEach(user => {
         const li = document.createElement("li");
         li.textContent = role === "SysAdmin"
-          ? `${user.username} (IP: ${user.last_ip}, Location: ${user.last_location})`
-          : user.username;
+        ? `${user.username} <span class="role-tag">${user.role}</span> (IP: ${user.last_ip}, Location: ${user.last_location})`
+        : `${user.username} <span class="role-tag">${user.role}</span>`;
         list.appendChild(li);
       });
     });

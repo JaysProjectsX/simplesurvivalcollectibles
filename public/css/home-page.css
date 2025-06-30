@@ -1351,6 +1351,10 @@ nav {
   animation: fadeIn 0.2s ease-in-out;
 }
 
+#userDropdown.show {
+  display: block;
+}
+
 #userDropdown a {
   display: block;
   width: 100%;
@@ -1376,10 +1380,6 @@ nav {
   margin: 0.5rem 0;
   background-color: rgba(255, 255, 255, 0.1);
   border: none;
-}
-
-.user-dropdown.open #userDropdown {
-  display: block;
 }
 
 /* Optional header at top of dropdown */

@@ -1369,6 +1369,32 @@ nav {
   }
 }
 
+/* Role Badge Styling */
+.role-badge {
+  display: inline-block;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 2px 6px;
+  margin-left: 6px;
+  border-radius: 12px;
+  color: #fff;
+  vertical-align: middle;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.role-badge.user {
+  background-color: #6c757d; /* Gray */
+}
+
+.role-badge.admin {
+  background-color: #dc3545; /* Bootstrap-style red */
+}
+
+.role-badge.sysadmin {
+  background-color: var(--primary-color); /* Use your site's main color */
+}
+
 /* Account Modal - General */
 #accountModal .modal-content {
   background-color: #1e1e1e;

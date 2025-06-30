@@ -166,7 +166,7 @@ function updateNavUI() {
     if (role === 'Admin') roleTagColor = 'red';
     if (role === 'SysAdmin') roleTagColor = 'var(--primary-color)';
 
-    // Header with username and role tag
+    // Dropdown header with role badge
     const headerHTML = `
       <div class="dropdown-header">
         ${username}
@@ -176,32 +176,28 @@ function updateNavUI() {
       </div>
     `;
 
-    // Dynamic divider position
-    const dividerHTML = `<div class="dropdown-divider"></div>`;
-
-    // Role-specific links
+    // Role-specific links and divider
     let roleLinks = '';
     if (role === 'Admin' || role === 'SysAdmin') {
       roleLinks = `
         <a href="/admin-dashboard" class="dropdown-item">Admin Dashboard</a>
-        ${dividerHTML}
+        <a href="/collections" class="dropdown-item">Collections List</a>
+        <div class="dropdown-divider"></div>
       `;
     } else {
       roleLinks = `
         <a href="/collections" class="dropdown-item">Collections List</a>
-        ${dividerHTML}
+        <div class="dropdown-divider"></div>
       `;
     }
 
+    // Full menu
     loginItem.innerHTML = `
       <div class="user-dropdown">
         <span onclick="toggleDropdown()" class="username-link">${username}</span>
         <div class="dropdown-content" id="userDropdown">
           ${headerHTML}
           <a href="#" onclick="openAccountModal()" class="dropdown-item">Account Options</a>
-          ${role === 'Admin' || role === 'SysAdmin' 
-            ? '<a href="/collections" class="dropdown-item">Collections List</a>' 
-            : ''}
           ${roleLinks}
           <a href="#" onclick="logout()" class="dropdown-item">Log Out</a>
         </div>
@@ -211,6 +207,7 @@ function updateNavUI() {
     loginItem.innerHTML = `<a href="#" onclick="toggleModal()">Login</a>`;
   }
 }
+
 
 
 async function logout() {

@@ -163,7 +163,7 @@ function updateNavUI() {
   if (username) {
     loginItem.innerHTML = `
       <div class="user-dropdown">
-        <span onclick="toggleDropdown()" class="username-link">${username}</span>
+        <span onclick="toggleDropdown()" class="username-link">${username} <i class="fas fa-caret-down"></i></span>
         <div class="dropdown-content" id="userDropdown">
           <a href="#" onclick="openAccountModal()">Account Options</a>
           <a href="/collections">Collections List</a>
@@ -235,7 +235,7 @@ window.toggleModal = function () {
 };
 
 window.toggleDropdown = function () {
-  const dropdown = document.getElementById("userDropdown");
+  const dropdown = document.querySelector("user-dropdown");
   if (dropdown) dropdown.classList.toggle("show");
 };
 

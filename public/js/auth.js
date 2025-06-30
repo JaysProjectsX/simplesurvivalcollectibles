@@ -156,7 +156,6 @@ async function fetchAccountInfo() {
 }
 
 function updateNavUI() {
-  console.log("🔧 updateNavUI called");
 
   const loginItem = document.getElementById("loginItem");
   const username = localStorage.getItem("username");
@@ -165,7 +164,7 @@ function updateNavUI() {
   if (username) {
     let roleTagColor = 'gray';
     if (role === 'Admin') roleTagColor = 'red';
-    if (role === 'SysAdmin') roleTagColor = 'var(--primary-color)';
+    if (role === 'SysAdmin') roleTagColor = '#6ea8ff';
 
     const headerHTML = `
       <div class="dropdown-header">
@@ -202,27 +201,11 @@ function updateNavUI() {
       </div>
     `;
 
-    // Confirm dropdown injected
-    console.log("✅ Injected dropdown HTML");
-    console.log(document.getElementById("userDropdown"));
-
     // Define dropdown toggle behavior
     window.toggleDropdown = function () {
-      console.log("🧩 toggleDropdown triggered");
 
       const dropdown = document.getElementById("userDropdown");
-      if (!dropdown) {
-        console.warn("❌ userDropdown element not found");
-        return;
-      }
-
       dropdown.classList.toggle("show");
-
-      if (dropdown.classList.contains("show")) {
-        console.log("✅ Dropdown menu is now visible");
-      } else {
-        console.log("ℹ️ Dropdown menu is now hidden");
-      }
     };
   } else {
     loginItem.innerHTML = `<a href="#" onclick="toggleModal()">Login</a>`;

@@ -1,3 +1,5 @@
+const backendUrl = "https://simplesurvivalcollectibles.site";
+
 if (document.getElementById("particles-js")) {
   particlesJS("particles-js", {
     particles: {
@@ -43,14 +45,14 @@ let crateList = []; // { id, crate_name }
 let currentItems = [];
 
 if (dropdownContainer && crateTableContainer) {
-  fetch("/api/crates")
+  fetch(`${backendUrl}/api/crates`)
     .then(res => res.json())
     .then(crates => {
       crateList = crates;
       populateCrateDropdown(crateList);
     });
 
-  fetch("/api/tags")
+  fetch(`${backendUrl}/api/tags`)
     .then(res => res.json())
     .then(tags => {
       populateTagDropdown(tags);
@@ -73,7 +75,7 @@ if (dropdownContainer && crateTableContainer) {
         li.classList.add("active");
         dropdownContainer.classList.remove("open");
 
-        fetch(`/api/crates/${crate.id}/items`)
+        fetch(`${backendUrl}/api/crates/${crate.id}/items`)
           .then(res => res.json())
           .then(items => {
             currentItems = items;
@@ -221,7 +223,7 @@ if (dropdownContainer && crateTableContainer) {
 }
 
 // 🎯 Replaces GitHub changelog with backend-powered audit changelog
-fetch("/api/changelog")
+fetch(`${backendUrl}/api/changelog`)
   .then(res => res.json())
   .then(entries => {
     const changelogContainer = document.getElementById("changelog");
@@ -235,7 +237,9 @@ fetch("/api/changelog")
 
     changelogContainer.innerHTML = limited.map(entry => `
       <div class="changelog-entry">
-        <p><strong>${entry.username || "Admin"}</strong> – ${new Date(entry.timestamp).toLocaleString()}</p>
+        <p><strong>${entry.username || "Admin"}</strong> 
+          <span class="role-tag ${entry.role}">${entry.role}</span> – 
+          ${new Date(entry.timestamp).toLocaleString()}</p>
         <p>${entry.message || entry.action}</p>
       </div>
     `).join("");

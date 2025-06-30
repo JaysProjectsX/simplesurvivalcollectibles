@@ -235,7 +235,7 @@ window.toggleModal = function () {
 };
 
 window.toggleDropdown = function () {
-  const dropdown = document.querySelector("user-dropdown");
+  const dropdown = document.getElementById("userDropdown");
   if (dropdown) dropdown.classList.toggle("show");
 };
 

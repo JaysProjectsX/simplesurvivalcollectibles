@@ -156,17 +156,17 @@ async function fetchAccountInfo() {
 }
 
 function updateNavUI() {
+  console.log("🔧 updateNavUI called");
+
   const loginItem = document.getElementById("loginItem");
   const username = localStorage.getItem("username");
   const role = localStorage.getItem("role");
 
   if (username) {
-    // Determine role tag color
     let roleTagColor = 'gray';
     if (role === 'Admin') roleTagColor = 'red';
     if (role === 'SysAdmin') roleTagColor = 'var(--primary-color)';
 
-    // Dropdown header with role badge
     const headerHTML = `
       <div class="dropdown-header">
         ${username}
@@ -176,7 +176,6 @@ function updateNavUI() {
       </div>
     `;
 
-    // Role-specific links and divider
     let roleLinks = '';
     if (role === 'Admin' || role === 'SysAdmin') {
       roleLinks = `
@@ -191,7 +190,6 @@ function updateNavUI() {
       `;
     }
 
-    // Full menu
     loginItem.innerHTML = `
       <div class="user-dropdown">
         <span onclick="toggleDropdown()" class="username-link">${username}</span>
@@ -204,10 +202,28 @@ function updateNavUI() {
       </div>
     `;
 
-      window.toggleDropdown = function () {
-        const dropdown = document.getElementById("userDropdown");
-        if (dropdown) dropdown.classList.toggle("show");
-      };
+    // Confirm dropdown injected
+    console.log("✅ Injected dropdown HTML");
+    console.log(document.getElementById("userDropdown"));
+
+    // Define dropdown toggle behavior
+    window.toggleDropdown = function () {
+      console.log("🧩 toggleDropdown triggered");
+
+      const dropdown = document.getElementById("userDropdown");
+      if (!dropdown) {
+        console.warn("❌ userDropdown element not found");
+        return;
+      }
+
+      dropdown.classList.toggle("show");
+
+      if (dropdown.classList.contains("show")) {
+        console.log("✅ Dropdown menu is now visible");
+      } else {
+        console.log("ℹ️ Dropdown menu is now hidden");
+      }
+    };
   } else {
     loginItem.innerHTML = `<a href="#" onclick="toggleModal()">Login</a>`;
   }
@@ -287,7 +303,6 @@ window.toggleForm = function () {
 };
 
 document.addEventListener("DOMContentLoaded", () => {
-  // Show/Hide Passwords Toggle
   const toggleCheckbox = document.getElementById("togglePassword");
   if (toggleCheckbox) {
     toggleCheckbox.addEventListener("change", function () {
@@ -304,11 +319,9 @@ window.onclick = function (event) {
   const dropdown = document.getElementById("userDropdown");
   const usernameLink = document.querySelector(".username-link");
 
-  // Close modals when clicking outside
   if (event.target === authModal) authModal.style.display = "none";
   if (event.target === accountModal) accountModal.style.display = "none";
 
-  // Close dropdown if clicking outside of it
   if (
     dropdown &&
     !dropdown.contains(event.target) &&

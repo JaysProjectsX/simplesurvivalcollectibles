@@ -66,11 +66,11 @@ if (dropdownContainer && crateTableContainer) {
 
     crateList.forEach(crate => {
       const li = document.createElement("li");
-      li.textContent = crate.crate_name;
+      li.textContent = formatCrateName(crate.crate_name);
       li.dataset.id = crate.id;
 
       li.addEventListener("click", () => {
-        selected.querySelector("span").previousSibling.textContent = crate.crate_name + " ";
+        selected.querySelector("span").previousSibling.textContent = formatCrateName(crate.crate_name) + " ";
         optionsList.querySelectorAll("li").forEach(opt => opt.classList.remove("active"));
         li.classList.add("active");
         dropdownContainer.classList.remove("open");
@@ -140,6 +140,13 @@ if (dropdownContainer && crateTableContainer) {
       }
     });
   }
+
+  function formatCrateName(raw) {
+    return raw
+      .replace(/([A-Z])/g, " $1")
+      .replace(/^./, str => str.toUpperCase())
+      .trim();
+    }
 
   function filterItems(items, query, selectedTag) {
     return items.filter(item => {

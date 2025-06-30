@@ -1407,16 +1407,16 @@ nav {
   vertical-align: middle;
 }
 
-.role-badge.user {
-  background-color: #6c757d; /* Gray */
+.role-tag.Admin {
+  background-color: #dc3545; /* orange */
 }
 
-.role-badge.admin {
-  background-color: #dc3545; /* Bootstrap-style red */
-}
-
-.role-badge.sysadmin {
+.role-tag.SysAdmin {
   background-color: #6ea8ff;
+}
+
+.role-tag.User {
+  background-color: #6c757d; /* gray */
 }
 
 /* Account Modal - General */

@@ -208,8 +208,6 @@ function updateNavUI() {
   }
 }
 
-
-
 async function logout() {
   const token = localStorage.getItem("token");
 

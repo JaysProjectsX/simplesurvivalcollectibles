@@ -203,6 +203,11 @@ function updateNavUI() {
         </div>
       </div>
     `;
+
+      window.toggleDropdown = function () {
+        const dropdown = document.getElementById("userDropdown");
+        if (dropdown) dropdown.classList.toggle("show");
+      };
   } else {
     loginItem.innerHTML = `<a href="#" onclick="toggleModal()">Login</a>`;
   }
@@ -261,16 +266,6 @@ function openAccountModal() {
 window.toggleModal = function () {
   const modal = document.getElementById("authModal");
   modal.style.display = modal.style.display === "block" ? "none" : "block";
-};
-
-window.toggleDropdown = function () {
-  // Close other dropdowns if any
-  document.querySelectorAll(".dropdown-content.show").forEach((el) => {
-    if (el.id !== "userDropdown") el.classList.remove("show");
-  });
-
-  const dropdown = document.getElementById("userDropdown");
-  if (dropdown) dropdown.classList.toggle("show");
 };
 
 window.toggleForm = function () {

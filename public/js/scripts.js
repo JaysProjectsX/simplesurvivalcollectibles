@@ -69,7 +69,7 @@ if (dropdownContainer && crateTableContainer) {
       li.dataset.id = crate.id;
 
       li.addEventListener("click", () => {
-        selected.innerHTML = `${formatCrateName(crate.crate_name)} <span class="caret"></span>`;
+        selected.querySelector("span").previousSibling.textContent = li.textContent + " ";
         optionsList.querySelectorAll("li").forEach((opt) => opt.classList.remove("active"));
         li.classList.add("active");
         dropdownContainer.classList.remove("open");

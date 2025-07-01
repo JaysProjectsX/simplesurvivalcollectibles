@@ -207,6 +207,69 @@ function loadCratesAndItems() {
     });
 }
 
+  function editItem(itemId) {
+    const token = localStorage.getItem("token");
+    fetch(`https://simplesurvivalcollectibles.site/admin/items`, {
+      headers: { Authorization: `Bearer ${token}` }
+    })
+      .then(res => res.json())
+      .then(items => {
+        const item = items.find(i => i.id === itemId);
+        if (!item) return showToast("Item not found.");
+
+        document.getElementById("edit-item-id").value = item.id;
+        document.getElementById("edit-item-name").value = item.item_name || "";
+        document.getElementById("edit-set-name").value = item.set_name || "";
+        document.getElementById("edit-icon-url").value = item.icon_url || "";
+        document.getElementById("edit-tags").value = (item.tags || []).join(", ");
+        document.getElementById("edit-tooltip").value = item.tooltip || "";
+
+        const modal = document.getElementById("editItemModal");
+        modal.classList.remove("hidden");
+        modal.querySelector(".modal-content").classList.remove("fadeOut");
+        modal.querySelector(".modal-content").classList.add("fadeIn");
+      });
+  }
+
+  function closeEditModal() {
+    const modal = document.getElementById("editItemModal");
+    const content = modal.querySelector(".modal-content");
+    content.classList.remove("fadeIn");
+    content.classList.add("fadeOut");
+    setTimeout(() => modal.classList.add("hidden"), 300);
+  }
+
+  document.getElementById("editItemForm").addEventListener("submit", function (e) {
+    e.preventDefault();
+
+    const token = localStorage.getItem("token");
+    const id = document.getElementById("edit-item-id").value;
+    const updatedData = {
+      item_name: document.getElementById("edit-item-name").value,
+      set_name: document.getElementById("edit-set-name").value,
+      icon_url: document.getElementById("edit-icon-url").value,
+      tags: document.getElementById("edit-tags").value.split(",").map(t => t.trim()),
+      tooltip: document.getElementById("edit-tooltip").value
+    };
+
+    fetch(`https://simplesurvivalcollectibles.site/admin/items/${id}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`
+      },
+      body: JSON.stringify(updatedData)
+    })
+      .then(res => res.json())
+      .then(() => {
+        showToast("Item updated ✅");
+        closeEditModal();
+        loadCratesAndItems(); // reload updated data
+      })
+      .catch(() => showToast("Failed to update item ❌"));
+  });
+
+
   function deleteCrate(crateId) {
     if (!confirm("Delete this crate?")) return;
     fetch(`https://simplesurvivalcollectibles.site/admin/crates/${crateId}`, {

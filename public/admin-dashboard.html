@@ -243,6 +243,38 @@
       </div>
     </div>
 
+    <!-- Edit Item Modal -->
+    <div id="editItemModal" class="modal hidden">
+      <div class="modal-content fadeIn">
+        <span class="close-btn" onclick="closeEditModal()">×</span>
+        <h3>Edit Item</h3>
+        <form id="editItemForm">
+          <input type="hidden" id="edit-item-id" />
+
+          <label for="edit-item-name">Name:</label>
+          <input type="text" id="edit-item-name" class="admin-input" required />
+
+          <label for="edit-set-name">Set:</label>
+          <input type="text" id="edit-set-name" class="admin-input" required />
+
+          <label for="edit-icon-url">Icon URL:</label>
+          <input type="text" id="edit-icon-url" class="admin-input" />
+
+          <label for="edit-tags">Tags (comma-separated):</label>
+          <input type="text" id="edit-tags" class="admin-input" />
+
+          <label for="edit-tooltip">Tooltip:</label>
+          <textarea id="edit-tooltip" class="admin-textarea"></textarea>
+
+          <div class="form-actions">
+            <button type="submit" class="admin-button save-btn">Save Changes</button>
+            <button type="button" class="admin-button cancel-btn" onclick="closeEditModal()">Cancel</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+
   <div id="toastContainer"></div>
 
   <script src="/js/scripts.js"></script>

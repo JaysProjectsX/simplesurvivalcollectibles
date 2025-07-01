@@ -188,7 +188,7 @@ if (dropdownContainer && crateTableContainer) {
     });
   }
 
-  function renderGroupedTables(items, page = 1, itemsPerPage = 20) {
+  function renderGroupedTables(items, page = 1, itemsPerPage = 3) {
     const crateTableWrapper = document.getElementById("crate-table-container");
     if (!items.length) {
       crateTableWrapper.innerHTML = `<p class="no-results">No items found.</p>`;
@@ -284,7 +284,7 @@ if (dropdownContainer && crateTableContainer) {
       const query = searchInput.value.trim();
       const baseItems = currentItems.length > 0 ? currentItems : globalItems;
       const results = filterItems(baseItems, query, activeTag);
-      renderGroupedTables(results, 1, 20);
+      renderGroupedTables(results, 1, 3);
     });
   }
 }

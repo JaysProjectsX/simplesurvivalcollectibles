@@ -37,28 +37,64 @@ window.addEventListener("scroll", () => {
 const crateTableContainer = document.getElementById("crate-table-container");
 const dropdownContainer = document.getElementById("crate-dropdown-container");
 
+function showCrateDataError(customMessage = "Failed to load crate data") {
+  const crateTableContainer = document.getElementById("crate-table-container");
+
+  if (crateTableContainer) {
+    crateTableContainer.innerHTML = `
+      <div class="error-message" style="
+        padding: 20px;
+        background: rgba(255, 0, 0, 0.1);
+        border: 1px solid rgba(255, 0, 0, 0.3);
+        border-radius: 10px;
+        color: #ff5c5c;
+        font-weight: bold;
+        margin-top: 1rem;
+      ">
+        ⚠️ Error: ${customMessage}. Please contact the developer.<br>
+        <small>Diagnostic Code: <code>LOAD_FAIL_${Date.now()}</code></small>
+      </div>
+    `;
+  }
+}
+
 if (dropdownContainer && crateTableContainer) {
   fetch(`${backendUrl1}/api/crates`)
     .then((res) => res.json())
     .then((crates) => {
       populateCrateDropdown(crates);
+    })
+    .catch((error) => {
+      console.error("Failed to load crates:", error);
+      showCrateDataError("Failed to load crate list");
     });
 
   fetch(`${backendUrl1}/api/tags`)
     .then((res) => res.json())
     .then((tags) => {
       populateTagDropdown(tags);
+    })
+    .catch((error) => {
+      console.error("Failed to load tags:", error);
+      showCrateDataError("Failed to load tag list");
     });
 
   fetch(`${backendUrl1}/api/items`)
     .then((res) => res.json())
     .then((items) => {
       globalItems = items;
+      currentItems = items;
 
-      console.log("Loaded items:", globalItems);
-
-      renderGroupedTables(globalItems);
+      const activeTag = document.querySelector("#tag-dropdown-container li.active")?.dataset.value || "";
+      const query = document.getElementById("item-search").value.trim();
+      const filtered = filterItems(currentItems, query, activeTag);
+      renderGroupedTables(filtered);
+    })
+    .catch((error) => {
+      console.error("Failed to load items:", error);
+      showCrateDataError("Failed to load crate items");
     });
+
 
     function filterAndSearchItems(data, searchTerm, selectedTag) {
       const results = [];

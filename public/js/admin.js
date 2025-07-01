@@ -113,43 +113,66 @@ document.addEventListener("DOMContentLoaded", () => {
 
 function loadCratesAndItems() {
   const token = localStorage.getItem("token");
-  fetch("https://simplesurvivalcollectibles.site/admin/crates", {
-    headers: { Authorization: `Bearer ${token}` }
-  })
-    .then(res => res.json())
-    .then(crates => {
-      const tableBody = document.getElementById("crateListBody");
-      tableBody.innerHTML = crates.map(crate => `
-        <tr>
-          <td>${crate.id}</td>
-          <td>${crate.crate_name}</td>
-          <td>
-            <button class="admin-action-btn" onclick="editCrate(${crate.id})">✏️</button>
-            ${localStorage.getItem("role") === "SysAdmin" ? `<button class="admin-action-btn delete" onclick="deleteCrate(${crate.id})">🗑️</button>` : ""}
-          </td>
-        </tr>
-      `).join("");
-    });
 
-  fetch("https://simplesurvivalcollectibles.site/admin/items", {
-    headers: { Authorization: `Bearer ${token}` }
-  })
-    .then(res => res.json())
-    .then(items => {
-      const tableBody = document.getElementById("itemListBody");
-      tableBody.innerHTML = items.map(item => `
-        <tr>
-          <td>${item.id}</td>
-          <td>${item.item_name}</td>
-          <td>${item.set_name}</td>
-          <td>${item.item_type}</td>
-          <td>${(item.tags || []).map(t => `<span class='tag'>${t}</span>`).join(' ')}</td>
-          <td>
-            <button class="admin-action-btn" onclick="editItem(${item.id})">✏️</button>
-            ${localStorage.getItem("role") === "SysAdmin" ? `<button class="admin-action-btn delete" onclick="deleteItem(${item.id})">🗑️</button>` : ""}
-          </td>
-        </tr>
-      `).join("");
+  Promise.all([
+    fetch("https://simplesurvivalcollectibles.site/admin/crates", {
+      headers: { Authorization: `Bearer ${token}` }
+    }).then(res => res.json()),
+    fetch("https://simplesurvivalcollectibles.site/admin/items", {
+      headers: { Authorization: `Bearer ${token}` }
+    }).then(res => res.json())
+  ])
+    .then(([crates, items]) => {
+      const selector = document.getElementById("crate-selector");
+      const form = document.getElementById("crate-edit-form");
+
+      // Populate crate dropdown
+      selector.innerHTML = '<option disabled selected>Select a crate to edit</option>';
+      crates.forEach(crate => {
+        const option = document.createElement("option");
+        option.value = crate.id;
+        option.textContent = crate.crate_name;
+        selector.appendChild(option);
+      });
+
+      // Attach event to update view based on selected crate
+      selector.addEventListener("change", () => {
+        const selectedCrateId = parseInt(selector.value);
+        const selectedCrate = crates.find(c => c.id === selectedCrateId);
+        const relatedItems = items.filter(i => i.crate_id === selectedCrateId);
+
+        form.innerHTML = `
+          <h4>Editing Crate: ${selectedCrate.crate_name}</h4>
+          <p><strong>ID:</strong> ${selectedCrate.id}</p>
+          <div class="admin-table-container">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>ID</th><th>Name</th><th>Set</th><th>Type</th><th>Tags</th><th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${relatedItems.map(item => `
+                  <tr>
+                    <td>${item.id}</td>
+                    <td>${item.item_name}</td>
+                    <td>${item.set_name}</td>
+                    <td>${item.item_type}</td>
+                    <td>${(item.tags || []).map(t => `<span class='tag'>${t}</span>`).join(" ")}</td>
+                    <td>
+                      <button class="admin-action-btn" onclick="editItem(${item.id})">✏️</button>
+                      ${localStorage.getItem("role") === "SysAdmin" ? `<button class="admin-action-btn delete" onclick="deleteItem(${item.id})">🗑️</button>` : ""}
+                    </td>
+                  </tr>
+                `).join("")}
+              </tbody>
+            </table>
+          </div>
+        `;
+      });
+    })
+    .catch(err => {
+      console.error("Failed to load crates or items:", err);
     });
 }
 

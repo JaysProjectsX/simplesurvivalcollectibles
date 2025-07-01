@@ -54,10 +54,10 @@ if (dropdownContainer && crateTableContainer) {
     .then((res) => res.json())
     .then((items) => {
       globalItems = items;
-      const activeTag = document.querySelector("#tag-dropdown-container li.active")?.dataset.value || "";
-      const query = document.getElementById("item-search").value.trim();
-      const results = filterAndSearchItems(globalItems, query, activeTag);
-      renderGroupedTables(results);
+
+      console.log("Loaded items:", globalItems);
+
+      renderGroupedTables(globalItems);
     });
 
     function filterAndSearchItems(data, searchTerm, selectedTag) {
@@ -96,11 +96,11 @@ if (dropdownContainer && crateTableContainer) {
         fetch(`${backendUrl1}/api/crates/${crate.id}/items`)
           .then((res) => res.json())
           .then((items) => {
-            currentItems = items;
+            currentItems = items; // Store crate-specific items
             const activeTag = document.querySelector("#tag-dropdown-container li.active")?.dataset.value || "";
             const query = document.getElementById("item-search").value.trim();
-            const results = filterAndSearchItems(globalItems, query, activeTag);
-            renderGroupedTables(results);
+            const filtered = filterItems(currentItems, query, activeTag);
+            renderGroupedTables(filtered);
           });
       });
 
@@ -147,7 +147,7 @@ if (dropdownContainer && crateTableContainer) {
 
         const tag = li.dataset.value;
         const query = document.getElementById("item-search").value.trim();
-        const results = filterAndSearchItems(globalItems, query, tag);
+        const results = filterItems(currentItems, query, tag);
         renderGroupedTables(results);
       });
     });
@@ -237,15 +237,20 @@ if (dropdownContainer && crateTableContainer) {
   }
 
   const searchInput = document.getElementById("item-search");
-  if (searchInput) {
-    searchInput.addEventListener("input", () => {
-      const tagContainer = document.getElementById("tag-dropdown-container");
-      const activeTag = tagContainer.querySelector("li.active")?.dataset.value || "";
-      const query = searchInput.value.trim();
-      const results = filterAndSearchItems(globalItems, query, activeTag);
-      renderGroupedTables(results);
-    });
-  }
+    if (searchInput) {
+      searchInput.addEventListener("input", () => {
+        const tagContainer = document.getElementById("tag-dropdown-container");
+        const activeTag = tagContainer.querySelector("li.active")?.dataset.value || "";
+        const query = searchInput.value.trim();
+        const results = filterItems(currentItems, query, activeTag);
+        renderGroupedTables(results);
+      });
+    }
+
+      function closeModalWithFade() {
+        overlay.classList.add("fade-out");
+        setTimeout(() => overlay.classList.remove("active", "fade-out"), 300);
+      }
 
   // Floating tooltip logic (for long tooltips outside the table)
     const globalTooltip = document.getElementById("global-tooltip");

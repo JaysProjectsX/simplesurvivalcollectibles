@@ -141,11 +141,33 @@ function loadCratesAndItems() {
         const selectedCrate = crates.find(c => c.id === selectedCrateId);
         const relatedItems = items.filter(i => i.crate_id === selectedCrateId);
 
-        // Render selected crate info and its items
         const form = document.getElementById("crate-edit-form");
         form.innerHTML = `
-          <h4>Editing Crate: <input type="text" id="edit-crate-name" class="admin-input" value="${selectedCrate.crate_name}" /></h4>
-          <p><strong>ID:</strong> ${selectedCrate.id}</p>
+          <h4>Editing Crate: ${selectedCrate.crate_name}</h4>
+
+          <div class="admin-table-container">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Crate Name</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>${selectedCrate.id}</td>
+                  <td>${selectedCrate.crate_name}</td>
+                  <td>
+                    <button class="admin-action-btn" onclick="editCrate(${selectedCrate.id})">✏️</button>
+                    ${localStorage.getItem("role") === "SysAdmin" ? `<button class="admin-action-btn delete" onclick="deleteCrate(${selectedCrate.id})">🗑️</button>` : ""}
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <h4>Items in Crate</h4>
           <div class="admin-table-container">
             <table class="admin-table">
               <thead>

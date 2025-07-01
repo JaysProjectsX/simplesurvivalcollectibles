@@ -197,7 +197,7 @@ if (dropdownContainer && crateTableContainer) {
       const tagHTML = item.tags?.length
         ? item.tags.map(tag => `<span class="tag">${tag}</span>`).join(" ")
         : "";
-      const tooltipAttr = item.tooltip ? `data-tooltip="${item.tooltip}"` : "";
+      const tooltipAttr = item.tooltip ? `data-tooltip="${item.tooltip.replace(/^"+|"+$/g, '')}"` : "";
 
       tableHTML += `
         <tr>

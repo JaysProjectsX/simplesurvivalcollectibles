@@ -85,8 +85,6 @@ if (dropdownContainer && crateTableContainer) {
       globalItems = items;
       currentItems = items;
 
-      console.log("Loaded all crate items:", items);
-
       const activeTag = document.querySelector("#tag-dropdown-container li.active")?.dataset.value || "";
       const query = document.getElementById("item-search").value.trim();
       const filtered = filterItems(currentItems, query, activeTag);

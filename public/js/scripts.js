@@ -1,4 +1,5 @@
 const backendUrl1 = "https://simplesurvivalcollectibles.site";
+let globalItems = [];
 
 if (document.getElementById("particles-js")) {
   particlesJS("particles-js", {
@@ -56,6 +57,12 @@ if (dropdownContainer && crateTableContainer) {
     .then(res => res.json())
     .then(tags => {
       populateTagDropdown(tags);
+    });
+
+  fetch(`${backendUrl1}/api/items`)
+    .then(res => res.json())
+    .then(items => {
+      globalItems = items;
     });
 
   function populateCrateDropdown(crateList) {
@@ -125,7 +132,9 @@ if (dropdownContainer && crateTableContainer) {
 
         const tag = li.dataset.value;
         const query = document.getElementById("item-search").value.trim();
-        const results = filterItems(currentItems, query, tag);
+        const results = currentItems.length > 0
+          ? filterItems(currentItems, query, tag)
+          : filterItems(globalItems, query, tag);
         renderGroupedTables(results);
       });
     });

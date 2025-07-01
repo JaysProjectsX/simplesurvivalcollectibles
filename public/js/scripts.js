@@ -1,4 +1,4 @@
-const backendUrl = "https://simplesurvivalcollectibles.site";
+const backendUrl1 = "https://simplesurvivalcollectibles.site";
 
 if (document.getElementById("particles-js")) {
   particlesJS("particles-js", {
@@ -45,14 +45,14 @@ let crateList = []; // { id, crate_name }
 let currentItems = [];
 
 if (dropdownContainer && crateTableContainer) {
-  fetch(`${backendUrl}/api/crates`)
+  fetch(`${backendUrl1}/api/crates`)
     .then(res => res.json())
     .then(crates => {
       crateList = crates;
       populateCrateDropdown(crateList);
     });
 
-  fetch(`${backendUrl}/api/tags`)
+  fetch(`${backendUrl1}/api/tags`)
     .then(res => res.json())
     .then(tags => {
       populateTagDropdown(tags);
@@ -75,7 +75,7 @@ if (dropdownContainer && crateTableContainer) {
         li.classList.add("active");
         dropdownContainer.classList.remove("open");
 
-        fetch(`${backendUrl}/api/crates/${crate.id}/items`)
+        fetch(`${backendUrl1}/api/crates/${crate.id}/items`)
           .then(res => res.json())
           .then(items => {
             currentItems = items;
@@ -230,7 +230,7 @@ if (dropdownContainer && crateTableContainer) {
 }
 
 // 🎯 Replaces GitHub changelog with backend-powered audit changelog
-fetch(`${backendUrl}/api/changelog`)
+fetch(`${backendUrl1}/api/changelog`)
   .then(res => res.json())
   .then(entries => {
     const changelogContainer = document.getElementById("changelog");

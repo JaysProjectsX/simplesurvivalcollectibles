@@ -85,7 +85,7 @@ if (dropdownContainer && crateTableContainer) {
       li.dataset.id = crate.id;
 
       li.addEventListener("click", () => {
-        selected.querySelector("span").previousSibling.textContent = li.textContent + " ";
+        selected.querySelector("span").textContent = li.textContent;
         optionsList.querySelectorAll("li").forEach((opt) => opt.classList.remove("active"));
         li.classList.add("active");
         dropdownContainer.classList.remove("open");
@@ -96,7 +96,7 @@ if (dropdownContainer && crateTableContainer) {
             currentItems = items;
             const activeTag = document.querySelector("#tag-dropdown-container li.active")?.dataset.value || "";
             const query = document.getElementById("item-search").value.trim();
-            const results = filterItems(currentItems, query, activeTag);
+            const results = filterAndSearchItems(globalItems, query, activeTag);
             renderGroupedTables(results);
           });
       });
@@ -137,14 +137,13 @@ if (dropdownContainer && crateTableContainer) {
 
     optionsList.querySelectorAll("li").forEach((li) => {
       li.addEventListener("click", () => {
-        selected.querySelector("span").previousSibling.textContent = li.textContent + " ";
+        selected.querySelector("span").textContent = li.textContent;
         optionsList.querySelectorAll("li").forEach((opt) => opt.classList.remove("active"));
         li.classList.add("active");
         tagContainer.classList.remove("open");
 
         const tag = li.dataset.value;
         const query = document.getElementById("item-search").value.trim();
-        const baseItems = globalItems;
         const results = filterAndSearchItems(globalItems, query, tag);
         renderGroupedTables(results);
       });
@@ -240,7 +239,6 @@ if (dropdownContainer && crateTableContainer) {
       const tagContainer = document.getElementById("tag-dropdown-container");
       const activeTag = tagContainer.querySelector("li.active")?.dataset.value || "";
       const query = searchInput.value.trim();
-      const baseItems = globalItems;
       const results = filterAndSearchItems(globalItems, query, activeTag);
       renderGroupedTables(results);
     });

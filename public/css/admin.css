@@ -362,3 +362,27 @@
   border-radius: 0 6px 6px 6px;
   border-top: none;
 }
+
+#crate-selector {
+  padding: 0.5em 1em;
+  font-size: 1rem;
+  border: 1px solid #444;
+  border-radius: 0.5rem;
+  background-color: #1e1e1e;
+  color: white;
+  width: 100%;
+  max-width: 400px;
+  margin-bottom: 1em;
+}
+
+#crate-selector:focus {
+  outline: none;
+  border-color: #00bfa5;
+  box-shadow: 0 0 0 2px rgba(0, 191, 165, 0.2);
+}
+
+.item-icon {
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
+}

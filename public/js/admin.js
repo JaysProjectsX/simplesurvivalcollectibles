@@ -142,7 +142,7 @@ function loadCratesAndItems() {
         const relatedItems = items.filter(i => i.crate_id === selectedCrateId);
 
         form.innerHTML = `
-          <h4>Editing Crate: ${selectedCrate.crate_name}</h4>
+          <h4>Editing Crate: <input type="text" id="edit-crate-name" class="admin-input" value="${selectedCrate.crate_name}" /></h4>
           <p><strong>ID:</strong> ${selectedCrate.id}</p>
           <div class="admin-table-container">
             <table class="admin-table">
@@ -157,7 +157,7 @@ function loadCratesAndItems() {
                     <td>${item.id}</td>
                     <td>${item.item_name}</td>
                     <td>${item.set_name}</td>
-                    <td>${item.item_type}</td>
+                    <td><img src="${item.icon_url}" alt="icon" class="item-icon" /></td>
                     <td>${(item.tags || []).map(t => `<span class='tag'>${t}</span>`).join(" ")}</td>
                     <td>
                       <button class="admin-action-btn" onclick="editItem(${item.id})">✏️</button>

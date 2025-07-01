@@ -9,6 +9,8 @@ document.addEventListener("DOMContentLoaded", () => {
     document.body.innerHTML = ""; // Prevents flicker
     window.location.href = "404";
     return;
+  } else {
+    document.getElementById("adminContent").style.display = "block";
   }
 
   document.getElementById("adminContent").style.display = "block";

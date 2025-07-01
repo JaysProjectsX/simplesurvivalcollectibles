@@ -1,7 +1,5 @@
 const backendUrl1 = "https://simplesurvivalcollectibles.site";
 let globalItems = [];
-let currentItems = [];
-let selectedCrateId = "all";
 
 if (document.getElementById("particles-js")) {
   particlesJS("particles-js", {
@@ -11,8 +9,14 @@ if (document.getElementById("particles-js")) {
       shape: { type: "circle" },
       opacity: { value: 0.8, random: true },
       size: { value: 3, random: true },
-      move: { enable: true, speed: 1, direction: "none", out_mode: "out" },
-      line_linked: { enable: false }
+      move: {
+        enable: true,
+        speed: 1,
+        direction: "none",
+        out_mode: "out",
+        straight: false,
+      },
+      line_linked: { enable: false },
     }
   });
 }
@@ -25,27 +29,50 @@ document.addEventListener("mousemove", (event) => {
   hero.style.transform = `translate(${x}px, ${y}px)`;
 });
 
+const cards = document.querySelectorAll('.knowledge-card');
+window.addEventListener('scroll', () => {
+  cards.forEach(card => {
+    const cardTop = card.getBoundingClientRect().top;
+    if (cardTop < window.innerHeight - 100) {
+      card.classList.add('reveal');
+    }
+  });
+});
+
 const crateTableContainer = document.getElementById("crate-table-container");
 const dropdownContainer = document.getElementById("crate-dropdown-container");
-const tagContainer = document.getElementById("tag-dropdown-container");
+
+let crateList = [];
+let currentItems = [];
 
 if (dropdownContainer && crateTableContainer) {
-  Promise.all([
-    fetch(`${backendUrl1}/api/crates`).then(res => res.json()),
-    fetch(`${backendUrl1}/api/tags`).then(res => res.json()),
-    fetch(`${backendUrl1}/api/items`).then(res => res.json())
-  ]).then(([crates, tags, items]) => {
-    globalItems = items;
-    currentItems = [];
-    populateCrateDropdown(crates);
-    populateTagDropdown(tags);
-    updateAndRenderTables();
-    dropdownContainer.querySelector(".selected-option span").textContent = "All Crates";
-  });
+  fetch(`${backendUrl1}/api/crates`)
+    .then(res => res.json())
+    .then(crates => {
+      crateList = crates;
+      populateCrateDropdown(crateList);
+    });
+
+  fetch(`${backendUrl1}/api/tags`)
+    .then(res => res.json())
+    .then(tags => {
+      populateTagDropdown(tags);
+    });
+
+  fetch(`${backendUrl1}/api/items`)
+    .then(res => res.json())
+    .then(items => {
+      globalItems = items;
+      renderGroupedTables(globalItems, 1, 3);
+    });
+
+    selected.querySelector("span").textContent = "All Crates";
+    renderGroupedTables(globalItems, 1, 3);
 
   function populateCrateDropdown(crateList) {
     const selected = dropdownContainer.querySelector(".selected-option");
     const optionsList = dropdownContainer.querySelector(".dropdown-options");
+
     optionsList.innerHTML = "";
 
     const allCratesOption = document.createElement("li");
@@ -59,9 +86,12 @@ if (dropdownContainer && crateTableContainer) {
       optionsList.querySelectorAll("li").forEach(opt => opt.classList.remove("active"));
       allCratesOption.classList.add("active");
       dropdownContainer.classList.remove("open");
-      selectedCrateId = "all";
+
       currentItems = [];
-      updateAndRenderTables();
+      const activeTag = document.querySelector("#tag-dropdown-container li.active")?.dataset.value || "";
+      const query = document.getElementById("item-search").value.trim();
+      const results = filterItems(globalItems, query, activeTag);
+      renderGroupedTables(results, 1, 3);
     });
 
     crateList.forEach(crate => {
@@ -70,17 +100,19 @@ if (dropdownContainer && crateTableContainer) {
       li.dataset.id = crate.id;
 
       li.addEventListener("click", () => {
-        selected.querySelector("span").textContent = li.textContent;
+        selected.querySelector("span").previousSibling.textContent = formatCrateName(crate.crate_name) + " ";
         optionsList.querySelectorAll("li").forEach(opt => opt.classList.remove("active"));
         li.classList.add("active");
         dropdownContainer.classList.remove("open");
-        selectedCrateId = crate.id;
 
         fetch(`${backendUrl1}/api/crates/${crate.id}/items`)
           .then(res => res.json())
           .then(items => {
             currentItems = items;
-            updateAndRenderTables();
+            const activeTag = document.querySelector("#tag-dropdown-container li.active")?.dataset.value || "";
+            const query = document.getElementById("item-search").value.trim();
+            const results = filterItems(currentItems, query, activeTag);
+            renderGroupedTables(results, 1, 3);
           });
       });
 
@@ -99,6 +131,7 @@ if (dropdownContainer && crateTableContainer) {
   }
 
   function populateTagDropdown(tags) {
+    const tagContainer = document.getElementById("tag-dropdown-container");
     const selected = tagContainer.querySelector(".selected-option");
     const optionsList = tagContainer.querySelector(".dropdown-options");
 
@@ -119,11 +152,16 @@ if (dropdownContainer && crateTableContainer) {
 
     optionsList.querySelectorAll("li").forEach((li) => {
       li.addEventListener("click", () => {
-        selected.querySelector("span").textContent = li.textContent;
+        selected.querySelector("span").previousSibling.textContent = li.textContent + " ";
         optionsList.querySelectorAll("li").forEach(opt => opt.classList.remove("active"));
         li.classList.add("active");
         tagContainer.classList.remove("open");
-        updateAndRenderTables();
+
+        const tag = li.dataset.value;
+        const query = document.getElementById("item-search").value.trim();
+        const baseItems = currentItems.length > 0 ? currentItems : globalItems;
+        const results = filterItems(baseItems, query, tag);
+        renderGroupedTables(results, 1, 3);
       });
     });
 
@@ -139,29 +177,24 @@ if (dropdownContainer && crateTableContainer) {
   }
 
   function formatCrateName(raw) {
-    return raw.replace(/([A-Z])/g, " $1").replace(/^./, str => str.toUpperCase()).trim();
+    return raw
+      .replace(/([A-Z])/g, " $1")
+      .replace(/^./, str => str.toUpperCase())
+      .trim();
   }
 
-  function filterItems(items, query, tag) {
+  function filterItems(items, query, selectedTag) {
     return items.filter(item => {
-      const matchesTag = !tag || item.tags?.includes(tag);
+      const matchesTag = !selectedTag || item.tags?.includes(selectedTag);
       const matchesSearch = !query || item.item_name.toLowerCase().includes(query.toLowerCase());
       return matchesTag && matchesSearch;
     });
   }
 
-  function updateAndRenderTables(page = 1) {
-    const tag = tagContainer.querySelector("li.active")?.dataset.value || "";
-    const query = document.getElementById("item-search")?.value.trim() || "";
-    const baseItems = selectedCrateId === "all" ? globalItems : currentItems;
-    const filtered = filterItems(baseItems, query, tag);
-    renderGroupedTables(filtered, page, 3);
-  }
-
   function renderGroupedTables(items, page = 1, itemsPerPage = 3) {
-    const wrapper = document.getElementById("crate-table-container");
+    const crateTableWrapper = document.getElementById("crate-table-container");
     if (!items.length) {
-      wrapper.innerHTML = `<p class="no-results">No items found.</p>`;
+      crateTableWrapper.innerHTML = `<p class="no-results">No items found.</p>`;
       return;
     }
 
@@ -173,69 +206,167 @@ if (dropdownContainer && crateTableContainer) {
 
     const sets = Object.keys(grouped);
     const totalPages = Math.ceil(sets.length / itemsPerPage);
-    const paginated = sets.slice((page - 1) * itemsPerPage, page * itemsPerPage);
+    const start = (page - 1) * itemsPerPage;
+    const end = start + itemsPerPage;
+    const paginatedSets = sets.slice(start, end);
 
     let html = `<div class="crate-tables-grid">`;
-    for (const set of paginated) {
+    for (const set of paginatedSets) {
       html += generateTable(set, grouped[set]);
     }
-    html += `</div>` + generatePaginationControls(page, totalPages);
-    wrapper.innerHTML = html;
+    html += `</div>`;
+
+    html += generatePaginationControls(page, totalPages);
+    crateTableWrapper.innerHTML = html;
 
     document.querySelectorAll(".pagination-btn").forEach(btn => {
       btn.addEventListener("click", () => {
         const newPage = parseInt(btn.dataset.page, 10);
-        updateAndRenderTables(newPage);
+        renderGroupedTables(items, newPage, itemsPerPage);
       });
     });
   }
 
-  function generatePaginationControls(current, total) {
-    if (total <= 1) return "";
+  function generatePaginationControls(currentPage, totalPages) {
+    if (totalPages <= 1) return "";
+
     let buttons = "";
-    for (let i = 1; i <= total; i++) {
-      buttons += `<button class="pagination-btn view-all-btn${i === current ? ' active' : ''}" data-page="${i}">${i}</button>`;
+    for (let i = 1; i <= totalPages; i++) {
+      buttons += `<button class="pagination-btn${i === currentPage ? ' active' : ''}" data-page="${i}">${i}</button>`;
     }
+
     return `<div class="pagination-controls">${buttons}</div>`;
   }
 
-  function generateTable(label, items) {
-    let html = `
+  function generateTable(label, crateItems) {
+    if (!crateItems || crateItems.length === 0) return "";
+
+    let tableHTML = `
       <div class="crate-table-wrapper">
         <h3 class="table-label">${label}</h3>
         <table class="crate-table">
-          <thead><tr><th>Item Type</th><th>Item Name</th><th>Tags</th></tr></thead>
+          <thead>
+            <tr>
+              <th>Item Type</th>
+              <th>Item Name</th>
+              <th>Tags</th>
+            </tr>
+          </thead>
           <tbody>
     `;
-    items.forEach(item => {
-      const tags = item.tags?.map(tag => `<span class="tag">${tag}</span>`).join(" ") || "";
-      const tooltip = item.tooltip ? `data-tooltip="${item.tooltip.replace(/^"+|"+$/g, '')}"` : "";
-      html += `<tr><td><img src="${item.icon_url}" alt="${item.item_name}"/></td><td ${tooltip}>${item.item_name}</td><td>${tags}</td></tr>`;
+
+    crateItems.forEach(item => {
+      const tagHTML = item.tags?.length
+        ? item.tags.map(tag => `<span class="tag">${tag}</span>`).join(" ")
+        : "";
+      const tooltipAttr = item.tooltip ? `data-tooltip="${item.tooltip.replace(/^"+|"+$/g, '')}"` : "";
+
+      tableHTML += `
+        <tr>
+          <td><img src="${item.icon_url}" alt="${item.item_name}" /></td>
+          <td ${tooltipAttr}>${item.item_name}</td>
+          <td>${tagHTML}</td>
+        </tr>
+      `;
     });
-    html += `</tbody></table></div>`;
-    return html;
+
+    tableHTML += `
+          </tbody>
+        </table>
+      </div>
+    `;
+
+    return tableHTML;
   }
 
   const searchInput = document.getElementById("item-search");
   if (searchInput) {
-    searchInput.addEventListener("input", () => updateAndRenderTables(1));
+    searchInput.addEventListener("input", () => {
+      const tagContainer = document.getElementById("tag-dropdown-container");
+      const activeTag = tagContainer.querySelector("li.active")?.dataset.value || "";
+      const query = searchInput.value.trim();
+      const baseItems = currentItems.length > 0 ? currentItems : globalItems;
+      const results = filterItems(baseItems, query, activeTag);
+      renderGroupedTables(results, 1, 3);
+    });
   }
 }
 
-// Tooltip
+fetch(`${backendUrl1}/api/changelog`)
+  .then(res => res.json())
+  .then(entries => {
+    const changelogContainer = document.getElementById("changelog");
+    const overlay = document.getElementById("changelog-modal-overlay");
+    const fullContainer = document.getElementById("full-changelog");
+
+    if (!changelogContainer || !overlay || !fullContainer) return;
+
+    const limited = entries.slice(0, 3);
+    const remainder = entries.slice(3);
+
+    changelogContainer.innerHTML = limited.map(entry => `
+      <div class="changelog-entry">
+        <p><strong>${entry.username || "Admin"}</strong> 
+          <span class="role-tag ${entry.role}">${entry.role}</span> – 
+          ${new Date(entry.timestamp).toLocaleString()}</p>
+        <p>${entry.message || entry.action}</p>
+      </div>
+    `).join("");
+
+    if (remainder.length > 0) {
+      changelogContainer.insertAdjacentHTML("beforeend", `<button id="view-all-changelog" class="view-all-btn">View All</button>`);
+
+      const viewAllBtn = document.getElementById("view-all-changelog");
+      const closeBtn = document.getElementById("close-changelog");
+
+      function closeModalWithFade() {
+        overlay.classList.add("fade-out");
+        setTimeout(() => overlay.classList.remove("active", "fade-out"), 300);
+      }
+
+      viewAllBtn.addEventListener("click", () => {
+        fullContainer.innerHTML = remainder.map(entry => `
+          <div class="changelog-entry">
+            <p><strong>${entry.username || "Admin"}</strong> – ${new Date(entry.timestamp).toLocaleString()}</p>
+            <p>${entry.message || entry.action}</p>
+          </div>
+        `).join("");
+        overlay.classList.add("active");
+      });
+
+      closeBtn.addEventListener("click", closeModalWithFade);
+      overlay.addEventListener("click", e => {
+        if (e.target === overlay) closeModalWithFade();
+      });
+    }
+  })
+  .catch(err => {
+    console.error("Failed to load changelog:", err);
+  });
+
 const globalTooltip = document.getElementById("global-tooltip");
+
 document.addEventListener("mouseover", (e) => {
   const td = e.target.closest("td[data-tooltip]");
   if (!td) return;
-  globalTooltip.textContent = td.getAttribute("data-tooltip");
+
+  const tooltipText = td.getAttribute("data-tooltip");
+  if (!tooltipText) return;
+
+  globalTooltip.textContent = tooltipText;
   globalTooltip.style.display = "block";
+
   const rect = td.getBoundingClientRect();
   const scrollTop = window.scrollY || document.documentElement.scrollTop;
-  const top = Math.max(rect.top + scrollTop - 50, scrollTop);
+  const tooltipHeight = globalTooltip.offsetHeight || 40;
+  let top = rect.top + scrollTop - tooltipHeight - 10;
+  if (top < scrollTop) top = rect.bottom + scrollTop + 10;
+
   globalTooltip.style.top = `${top}px`;
   globalTooltip.style.left = `${rect.left + rect.width / 2}px`;
   globalTooltip.style.transform = "translateX(-50%)";
 });
+
 document.addEventListener("mouseout", (e) => {
   if (e.target.closest("td[data-tooltip]")) {
     globalTooltip.style.display = "none";

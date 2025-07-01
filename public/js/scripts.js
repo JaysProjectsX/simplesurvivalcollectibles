@@ -57,6 +57,22 @@ if (dropdownContainer && crateTableContainer) {
       renderGroupedTables(globalItems);
     });
 
+    function filterAndSearchItems(data, searchTerm, selectedTag) {
+      const results = [];
+
+      data.forEach((item) => {
+        const matchesTag = !selectedTag || (item.tags || []).includes(selectedTag);
+        const matchesSearch = !searchTerm || item.item_name.toLowerCase().includes(searchTerm.toLowerCase());
+
+        if (matchesTag && matchesSearch) {
+          results.push(item);
+        }
+      });
+
+      return results;
+    }
+
+
   function populateCrateDropdown(crateList) {
     const selected = dropdownContainer.querySelector(".selected-option");
     const optionsList = dropdownContainer.querySelector(".dropdown-options");
@@ -128,8 +144,8 @@ if (dropdownContainer && crateTableContainer) {
 
         const tag = li.dataset.value;
         const query = document.getElementById("item-search").value.trim();
-        const baseItems = currentItems.length > 0 ? currentItems : globalItems;
-        const results = filterItems(baseItems, query, tag);
+        const baseItems = globalItems;
+        const results = filterAndSearchItems(globalItems, query, tag);
         renderGroupedTables(results);
       });
     });
@@ -224,8 +240,8 @@ if (dropdownContainer && crateTableContainer) {
       const tagContainer = document.getElementById("tag-dropdown-container");
       const activeTag = tagContainer.querySelector("li.active")?.dataset.value || "";
       const query = searchInput.value.trim();
-      const baseItems = currentItems.length > 0 ? currentItems : globalItems;
-      const results = filterItems(baseItems, query, activeTag);
+      const baseItems = globalItems;
+      const results = filterAndSearchItems(globalItems, query, activeTag);
       renderGroupedTables(results);
     });
   }

@@ -121,7 +121,7 @@ if (dropdownContainer && crateTableContainer) {
 
     optionsList.querySelectorAll("li").forEach((li) => {
       li.addEventListener("click", () => {
-        selected.querySelector("span").textContent = li.textContent;
+        selected.querySelector("span").previousSibling.textContent = li.textContent + " ";
         optionsList.querySelectorAll("li").forEach((opt) => opt.classList.remove("active"));
         li.classList.add("active");
         tagContainer.classList.remove("open");

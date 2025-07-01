@@ -33,7 +33,7 @@ const cards = document.querySelectorAll('.knowledge-card');
 window.addEventListener('scroll', () => {
   cards.forEach(card => {
     const cardTop = card.getBoundingClientRect().top;
-    if(cardTop < window.innerHeight - 100) {
+    if (cardTop < window.innerHeight - 100) {
       card.classList.add('reveal');
     }
   });
@@ -42,7 +42,7 @@ window.addEventListener('scroll', () => {
 const crateTableContainer = document.getElementById("crate-table-container");
 const dropdownContainer = document.getElementById("crate-dropdown-container");
 
-let crateList = []; // { id, crate_name }
+let crateList = [];
 let currentItems = [];
 
 if (dropdownContainer && crateTableContainer) {
@@ -63,6 +63,7 @@ if (dropdownContainer && crateTableContainer) {
     .then(res => res.json())
     .then(items => {
       globalItems = items;
+      renderGroupedTables(globalItems, 1, 20);
     });
 
   function populateCrateDropdown(crateList) {
@@ -83,8 +84,11 @@ if (dropdownContainer && crateTableContainer) {
       allCratesOption.classList.add("active");
       dropdownContainer.classList.remove("open");
 
-      currentItems = []; // Clear current crate-specific items
-      renderGroupedTables(globalItems, 1, 20); // Show all items
+      currentItems = [];
+      const activeTag = document.querySelector("#tag-dropdown-container li.active")?.dataset.value || "";
+      const query = document.getElementById("item-search").value.trim();
+      const results = filterItems(globalItems, query, activeTag);
+      renderGroupedTables(results, 1, 20);
     });
 
     crateList.forEach(crate => {
@@ -102,7 +106,10 @@ if (dropdownContainer && crateTableContainer) {
           .then(res => res.json())
           .then(items => {
             currentItems = items;
-            renderGroupedTables(currentItems);
+            const activeTag = document.querySelector("#tag-dropdown-container li.active")?.dataset.value || "";
+            const query = document.getElementById("item-search").value.trim();
+            const results = filterItems(currentItems, query, activeTag);
+            renderGroupedTables(results, 1, 20);
           });
       });
 
@@ -130,6 +137,7 @@ if (dropdownContainer && crateTableContainer) {
     const defaultOpt = document.createElement("li");
     defaultOpt.textContent = "All Tags";
     defaultOpt.dataset.value = "";
+    defaultOpt.classList.add("active");
     optionsList.appendChild(defaultOpt);
 
     tags.forEach(tag => {
@@ -148,10 +156,9 @@ if (dropdownContainer && crateTableContainer) {
 
         const tag = li.dataset.value;
         const query = document.getElementById("item-search").value.trim();
-        const results = currentItems.length > 0
-          ? filterItems(currentItems, query, tag)
-          : filterItems(globalItems, query, tag);
-        renderGroupedTables(results);
+        const baseItems = currentItems.length > 0 ? currentItems : globalItems;
+        const results = filterItems(baseItems, query, tag);
+        renderGroupedTables(results, 1, 20);
       });
     });
 
@@ -171,7 +178,7 @@ if (dropdownContainer && crateTableContainer) {
       .replace(/([A-Z])/g, " $1")
       .replace(/^./, str => str.toUpperCase())
       .trim();
-    }
+  }
 
   function filterItems(items, query, selectedTag) {
     return items.filter(item => {
@@ -181,59 +188,52 @@ if (dropdownContainer && crateTableContainer) {
     });
   }
 
-    function renderGroupedTables(items, page = 1, itemsPerPage = 20) {
-      const crateTableWrapper = document.getElementById("crate-table-container");
-      if (!items.length) {
-        crateTableWrapper.innerHTML = `<p class="no-results">No items found.</p>`;
-        return;
-      }
-
-      const grouped = {};
-      items.forEach(item => {
-        if (!grouped[item.set_name]) grouped[item.set_name] = [];
-        grouped[item.set_name].push(item);
-      });
-
-      const sets = Object.keys(grouped);
-      const totalPages = Math.ceil(sets.length / itemsPerPage);
-      const start = (page - 1) * itemsPerPage;
-      const end = start + itemsPerPage;
-      const paginatedSets = sets.slice(start, end);
-
-      let html = `<div class="crate-tables-grid">`;
-      for (const set of paginatedSets) {
-        html += generateTable(set, grouped[set]);
-      }
-      html += `</div>`;
-
-      // Add pagination controls
-      html += generatePaginationControls(page, totalPages);
-
-      crateTableWrapper.innerHTML = html;
-
-      // Add listeners to pagination buttons
-      document.querySelectorAll(".pagination-btn").forEach(btn => {
-        btn.addEventListener("click", () => {
-          const newPage = parseInt(btn.dataset.page, 10);
-          renderGroupedTables(items, newPage, itemsPerPage);
-        });
-      });
+  function renderGroupedTables(items, page = 1, itemsPerPage = 20) {
+    const crateTableWrapper = document.getElementById("crate-table-container");
+    if (!items.length) {
+      crateTableWrapper.innerHTML = `<p class="no-results">No items found.</p>`;
+      return;
     }
 
-    function generatePaginationControls(currentPage, totalPages) {
-      if (totalPages <= 1) return "";
+    const grouped = {};
+    items.forEach(item => {
+      if (!grouped[item.set_name]) grouped[item.set_name] = [];
+      grouped[item.set_name].push(item);
+    });
 
-      let buttons = "";
-      for (let i = 1; i <= totalPages; i++) {
-        buttons += `<button class="pagination-btn${i === currentPage ? ' active' : ''}" data-page="${i}">${i}</button>`;
-      }
+    const sets = Object.keys(grouped);
+    const totalPages = Math.ceil(sets.length / itemsPerPage);
+    const start = (page - 1) * itemsPerPage;
+    const end = start + itemsPerPage;
+    const paginatedSets = sets.slice(start, end);
 
-      return `
-        <div class="pagination-controls">
-          ${buttons}
-        </div>
-      `;
+    let html = `<div class="crate-tables-grid">`;
+    for (const set of paginatedSets) {
+      html += generateTable(set, grouped[set]);
     }
+    html += `</div>`;
+
+    html += generatePaginationControls(page, totalPages);
+    crateTableWrapper.innerHTML = html;
+
+    document.querySelectorAll(".pagination-btn").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const newPage = parseInt(btn.dataset.page, 10);
+        renderGroupedTables(items, newPage, itemsPerPage);
+      });
+    });
+  }
+
+  function generatePaginationControls(currentPage, totalPages) {
+    if (totalPages <= 1) return "";
+
+    let buttons = "";
+    for (let i = 1; i <= totalPages; i++) {
+      buttons += `<button class="pagination-btn${i === currentPage ? ' active' : ''}" data-page="${i}">${i}</button>`;
+    }
+
+    return `<div class="pagination-controls">${buttons}</div>`;
+  }
 
   function generateTable(label, crateItems) {
     if (!crateItems || crateItems.length === 0) return "";
@@ -282,13 +282,13 @@ if (dropdownContainer && crateTableContainer) {
       const tagContainer = document.getElementById("tag-dropdown-container");
       const activeTag = tagContainer.querySelector("li.active")?.dataset.value || "";
       const query = searchInput.value.trim();
-      const results = filterItems(currentItems, query, activeTag);
-      renderGroupedTables(results);
+      const baseItems = currentItems.length > 0 ? currentItems : globalItems;
+      const results = filterItems(baseItems, query, activeTag);
+      renderGroupedTables(results, 1, 20);
     });
   }
 }
 
-// 🎯 Replaces GitHub changelog with backend-powered audit changelog
 fetch(`${backendUrl1}/api/changelog`)
   .then(res => res.json())
   .then(entries => {
@@ -341,7 +341,6 @@ fetch(`${backendUrl1}/api/changelog`)
     console.error("Failed to load changelog:", err);
   });
 
-// Floating tooltip
 const globalTooltip = document.getElementById("global-tooltip");
 
 document.addEventListener("mouseover", (e) => {

@@ -1542,6 +1542,28 @@ nav {
   }
 }
 
+  /* Pagination Styling */
+
+  .pagination-controls {
+    text-align: center;
+    margin-top: 20px;
+  }
+
+  .pagination-btn {
+    padding: 8px 12px;
+    margin: 0 5px;
+    border: none;
+    background-color: #eee;
+    cursor: pointer;
+    border-radius: 4px;
+    font-weight: bold;
+  }
+
+  .pagination-btn.active {
+    background-color: #444;
+    color: white;
+  }
+
   /* Styling for footer */
   footer { 
     text-align: center; 

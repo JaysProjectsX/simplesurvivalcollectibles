@@ -52,58 +52,67 @@
           </div>
 
           <!-- Database Config -->
-        <div class="tab-content" id="dbTab" style="display: none;">
-          <h2>Database Configuration</h2>
+          <div class="tab-content" id="dbTab" style="display: none;">
+            <h2>Database Configuration</h2>
 
-          <!-- View/Edit Crates and Items -->
-          <div class="admin-section" id="crate-editor-panel">
-            <h3>View & Edit Crates</h3>
-            <select id="crate-selector" class="admin-select">
-              <option disabled selected>Select a crate to edit</option>
-              <!-- JS will populate options here -->
-            </select>
-            <div id="crate-edit-form" class="admin-form">
-              <!-- JS will dynamically render editable crate and item data here -->
+            <!-- Horizontal tab buttons -->
+            <div class="db-subtabs">
+              <button class="db-subtab-btn active" data-tab="view-edit">View & Edit Crates</button>
+              <button class="db-subtab-btn" data-tab="create">Create New Crate</button>
+              <button class="db-subtab-btn" data-tab="changelog">Changelog</button>
+            </div>
+
+            <!-- View/Edit Crates -->
+            <div class="db-subtab-content" id="db-tab-view-edit">
+              <div class="admin-section" id="crate-editor-panel">
+                <h3>View & Edit Crates</h3>
+                <select id="crate-selector" class="admin-select">
+                  <option disabled selected>Select a crate to edit</option>
+                </select>
+                <div id="crate-edit-form" class="admin-form">
+                  <!-- JS will dynamically render editable crate and item data here -->
+                </div>
+              </div>
+            </div>
+
+            <!-- Create New Crate -->
+            <div class="db-subtab-content" id="db-tab-create" style="display: none;">
+              <div class="admin-section" id="crate-creation-panel">
+                <h3>Create New Crate</h3>
+                <form id="new-crate-form" class="admin-form">
+                  <label for="new-crate-name">Crate Name:</label>
+                  <input type="text" id="new-crate-name" class="admin-input" required />
+
+                  <div id="new-items-container" class="item-fields-container">
+                    <!-- JS will inject item fields here -->
+                  </div>
+
+                  <button type="button" id="add-item-btn" class="admin-button">+ Add Item</button>
+
+                  <div class="form-actions">
+                    <button type="submit" class="admin-button save-btn">Save Crate</button>
+                    <button type="reset" class="admin-button cancel-btn">Cancel</button>
+                  </div>
+                </form>
+              </div>
+            </div>
+
+            <!-- Changelog Submission -->
+            <div class="db-subtab-content" id="db-tab-changelog" style="display: none;">
+              <div class="admin-section" id="changelog-entry-panel">
+                <h3>Submit Crate Changelog</h3>
+                <form id="changelog-form" class="admin-form">
+                  <label for="changelog-message">Change Description:</label>
+                  <textarea id="changelog-message" class="admin-textarea" required></textarea>
+
+                  <div class="form-actions">
+                    <button type="submit" class="admin-button save-btn">Submit Changelog</button>
+                  </div>
+                </form>
+              </div>
             </div>
           </div>
 
-          <hr />
-
-          <!-- Create New Crate -->
-          <div class="admin-section" id="crate-creation-panel">
-            <h3>Create New Crate</h3>
-            <form id="new-crate-form" class="admin-form">
-              <label for="new-crate-name">Crate Name:</label>
-              <input type="text" id="new-crate-name" class="admin-input" required />
-
-              <div id="new-items-container" class="item-fields-container">
-                <!-- JS will inject item fields here -->
-              </div>
-
-              <button type="button" id="add-item-btn" class="admin-button">+ Add Item</button>
-
-              <div class="form-actions">
-                <button type="submit" class="admin-button save-btn">Save Crate</button>
-                <button type="reset" class="admin-button cancel-btn">Cancel</button>
-              </div>
-            </form>
-          </div>
-
-          <hr />
-
-          <!-- Changelog Submission -->
-          <div class="admin-section" id="changelog-entry-panel">
-            <h3>Submit Crate Changelog</h3>
-            <form id="changelog-form" class="admin-form">
-              <label for="changelog-message">Change Description:</label>
-              <textarea id="changelog-message" class="admin-textarea" required></textarea>
-
-              <div class="form-actions">
-                <button type="submit" class="admin-button save-btn">Submit Changelog</button>
-              </div>
-            </form>
-          </div>
-        </div>
 
           <!-- Account Management -->
           <div class="tab-content" id="accountsTab" style="display: none;">

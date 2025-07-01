@@ -318,6 +318,20 @@ function changeRole(userId) {
     .catch(() => showToast("Failed to update user role"));
 }
 
+// Horizontal subtab behavior inside Database Config tab
+document.querySelectorAll('.db-subtab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.db-subtab-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+
+    const tabId = btn.dataset.tab;
+    document.querySelectorAll('.db-subtab-content').forEach(tab => {
+      tab.style.display = (tab.id === `db-tab-${tabId}`) ? 'block' : 'none';
+    });
+  });
+});
+
+
 function exportAuditLogsAsCSV() {
   const token = localStorage.getItem("token");
 

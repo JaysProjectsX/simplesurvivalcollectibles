@@ -141,6 +141,8 @@ function loadCratesAndItems() {
         const selectedCrate = crates.find(c => c.id === selectedCrateId);
         const relatedItems = items.filter(i => i.crate_id === selectedCrateId);
 
+        // Render selected crate info and its items
+        const form = document.getElementById("crate-edit-form");
         form.innerHTML = `
           <h4>Editing Crate: <input type="text" id="edit-crate-name" class="admin-input" value="${selectedCrate.crate_name}" /></h4>
           <p><strong>ID:</strong> ${selectedCrate.id}</p>
@@ -148,7 +150,13 @@ function loadCratesAndItems() {
             <table class="admin-table">
               <thead>
                 <tr>
-                  <th>ID</th><th>Name</th><th>Set</th><th>Type</th><th>Tags</th><th>Actions</th>
+                  <th>ID</th>
+                  <th>Name</th>
+                  <th>Set</th>
+                  <th>Icon</th>
+                  <th>Tags</th>
+                  <th>Tooltip</th>
+                  <th>Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -159,6 +167,7 @@ function loadCratesAndItems() {
                     <td>${item.set_name}</td>
                     <td><img src="${item.icon_url}" alt="icon" class="item-icon" /></td>
                     <td>${(item.tags || []).map(t => `<span class='tag'>${t}</span>`).join(" ")}</td>
+                    <td>${item.tooltip || ""}</td>
                     <td>
                       <button class="admin-action-btn" onclick="editItem(${item.id})">✏️</button>
                       ${localStorage.getItem("role") === "SysAdmin" ? `<button class="admin-action-btn delete" onclick="deleteItem(${item.id})">🗑️</button>` : ""}

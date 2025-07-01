@@ -357,7 +357,7 @@
 }
 
 .db-subtab-content {
-  background-color: #1a1a1a;
+  background-color: var(--background-secondary);
   padding: 16px;
   border-radius: 0 6px 6px 6px;
   border-top: none;

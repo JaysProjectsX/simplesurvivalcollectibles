@@ -54,7 +54,10 @@ if (dropdownContainer && crateTableContainer) {
     .then((res) => res.json())
     .then((items) => {
       globalItems = items;
-      renderGroupedTables(globalItems);
+      const activeTag = document.querySelector("#tag-dropdown-container li.active")?.dataset.value || "";
+      const query = document.getElementById("item-search").value.trim();
+      const results = filterAndSearchItems(globalItems, query, activeTag);
+      renderGroupedTables(results);
     });
 
     function filterAndSearchItems(data, searchTerm, selectedTag) {

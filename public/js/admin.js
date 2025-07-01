@@ -111,6 +111,82 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 });
 
+function loadCratesAndItems() {
+  const token = localStorage.getItem("token");
+  fetch("https://simplesurvivalcollectibles.site/admin/crates", {
+    headers: { Authorization: `Bearer ${token}` }
+  })
+    .then(res => res.json())
+    .then(crates => {
+      const tableBody = document.getElementById("crateListBody");
+      tableBody.innerHTML = crates.map(crate => `
+        <tr>
+          <td>${crate.id}</td>
+          <td>${crate.crate_name}</td>
+          <td>
+            <button class="admin-action-btn" onclick="editCrate(${crate.id})">✏️</button>
+            ${localStorage.getItem("role") === "SysAdmin" ? `<button class="admin-action-btn delete" onclick="deleteCrate(${crate.id})">🗑️</button>` : ""}
+          </td>
+        </tr>
+      `).join("");
+    });
+
+  fetch("https://simplesurvivalcollectibles.site/admin/items", {
+    headers: { Authorization: `Bearer ${token}` }
+  })
+    .then(res => res.json())
+    .then(items => {
+      const tableBody = document.getElementById("itemListBody");
+      tableBody.innerHTML = items.map(item => `
+        <tr>
+          <td>${item.id}</td>
+          <td>${item.item_name}</td>
+          <td>${item.set_name}</td>
+          <td>${item.item_type}</td>
+          <td>${(item.tags || []).map(t => `<span class='tag'>${t}</span>`).join(' ')}</td>
+          <td>
+            <button class="admin-action-btn" onclick="editItem(${item.id})">✏️</button>
+            ${localStorage.getItem("role") === "SysAdmin" ? `<button class="admin-action-btn delete" onclick="deleteItem(${item.id})">🗑️</button>` : ""}
+          </td>
+        </tr>
+      `).join("");
+    });
+}
+
+  function deleteCrate(crateId) {
+    if (!confirm("Delete this crate?")) return;
+    fetch(`https://simplesurvivalcollectibles.site/admin/crates/${crateId}`, {
+      method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`
+      }
+    }).then(() => {
+      showToast("Crate deleted ✅");
+      loadCratesAndItems();
+    });
+  }
+
+  function deleteItem(itemId) {
+    if (!confirm("Delete this item?")) return;
+    fetch(`https://simplesurvivalcollectibles.site/admin/items/${itemId}`, {
+      method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`
+      }
+    }).then(() => {
+      showToast("Item deleted ✅");
+      loadCratesAndItems();
+    });
+  }
+
+  // Call loader when switching to DB tab
+  const dbTabBtn = document.querySelector('[data-tab="dbTab"]');
+  if (dbTabBtn) {
+    dbTabBtn.addEventListener("click", () => {
+      loadCratesAndItems();
+    });
+  }
+
 function loadAuditLogs(page = 1) {
   const token = localStorage.getItem("token");
 

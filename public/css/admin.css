@@ -265,3 +265,74 @@
   background-color: #b71c1c;
 }
 
+/* === Admin Dashboard: Database Config Section === */
+
+#crate-editor-panel,
+#crate-creation-panel,
+#changelog-entry-panel {
+  margin-bottom: 2rem;
+  background: #f8f8f8;
+  border: 1px solid #ddd;
+  padding: 1.5rem;
+  border-radius: 8px;
+}
+
+.admin-form label {
+  display: block;
+  margin: 0.5rem 0 0.2rem;
+  font-weight: bold;
+}
+
+.admin-input,
+.admin-select,
+.admin-textarea {
+  width: 100%;
+  padding: 0.6rem;
+  font-size: 1rem;
+  margin-bottom: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background: #fff;
+}
+
+.item-fields-container {
+  margin-bottom: 1rem;
+}
+
+.admin-button {
+  background-color: #4b7bec;
+  color: white;
+  border: none;
+  padding: 0.6rem 1.2rem;
+  border-radius: 4px;
+  font-size: 1rem;
+  cursor: pointer;
+  margin-right: 0.5rem;
+}
+
+.admin-button:hover {
+  background-color: #3867d6;
+}
+
+.form-actions {
+  margin-top: 1rem;
+  display: flex;
+  gap: 1rem;
+}
+
+.save-btn {
+  background-color: #2ecc71;
+}
+
+.save-btn:hover {
+  background-color: #27ae60;
+}
+
+.cancel-btn {
+  background-color: #e74c3c;
+}
+
+.cancel-btn:hover {
+  background-color: #c0392b;
+}
+

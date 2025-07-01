@@ -229,4 +229,40 @@ if (dropdownContainer && crateTableContainer) {
       renderGroupedTables(results);
     });
   }
+
+  // Floating tooltip logic (for long tooltips outside the table)
+    const globalTooltip = document.getElementById("global-tooltip");
+
+    document.addEventListener("mouseover", (e) => {
+      const td = e.target.closest("td[data-tooltip]");
+      if (!td) return;
+
+      const tooltipText = td.getAttribute("data-tooltip");
+      if (!tooltipText) return;
+
+      globalTooltip.textContent = tooltipText;
+      globalTooltip.style.display = "block";
+
+      const rect = td.getBoundingClientRect();
+      const scrollTop = window.scrollY || document.documentElement.scrollTop;
+
+      // Position tooltip above or below depending on space
+      const tooltipHeight = globalTooltip.offsetHeight || 40;
+      let top = rect.top + scrollTop - tooltipHeight - 10;
+      if (top < scrollTop) {
+        top = rect.bottom + scrollTop + 10;
+      }
+
+      globalTooltip.style.top = `${top}px`;
+      globalTooltip.style.left = `${rect.left + rect.width / 2}px`;
+      globalTooltip.style.transform = "translateX(-50%)";
+    });
+
+    document.addEventListener("mouseout", (e) => {
+      const td = e.target.closest("td[data-tooltip]");
+      if (td) {
+        globalTooltip.style.display = "none";
+      }
+    });
+
 }

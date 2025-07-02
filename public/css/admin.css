@@ -146,6 +146,12 @@
   color: white;
 }
 
+.admin-action-btn.add-item-btn {
+  background-color: #6c63ff;
+  color: white;
+  margin: 2rem;
+}
+
 .admin-action-btn.delete {
   background-color: #ff5c5c;
   color: white;
@@ -373,7 +379,6 @@
   color: white;
   width: 100%;
   max-width: 400px;
-  margin-bottom: 1em;
 }
 
 #crate-selector:focus {

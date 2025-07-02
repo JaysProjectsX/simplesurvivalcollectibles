@@ -226,16 +226,16 @@ function loadCratesAndItems() {
         document.getElementById("edit-tags").value = (item.tags || []).join(", ");
         document.getElementById("edit-tooltip").value = item.tooltip || "";
 
-        const modal = document.getElementById("editItemModal");
+        const modal = document.getElementById("editItemModalAdmin");
         modal.classList.remove("hidden");
-        modal.querySelector(".modal-content").classList.remove("fadeOut");
-        modal.querySelector(".modal-content").classList.add("fadeIn");
+        modal.querySelector(".modal-content-admin").classList.remove("fadeOut");
+        modal.querySelector(".modal-content-admin").classList.add("fadeIn");
       });
   }
 
   function closeEditModal() {
-    const modal = document.getElementById("editItemModal");
-    const content = modal.querySelector(".modal-content");
+    const modal = document.getElementById("editItemModalAdmin");
+    const content = modal.querySelector(".modal-content-admin");
     content.classList.remove("fadeIn");
     content.classList.add("fadeOut");
     setTimeout(() => modal.classList.add("hidden"), 300);

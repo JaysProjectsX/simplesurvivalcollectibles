@@ -235,7 +235,7 @@ function loadCratesAndItems() {
 
   function closeEditModal() {
     const modal = document.getElementById("editItemModalAdmin");
-    const content = modal.querySelector(".modal-admin");
+    const content = modal.querySelector(".modal-content-admin");
     content.classList.remove("fadeIn");
     content.classList.add("fadeOut");
     setTimeout(() => modal.classList.add("hidden"), 300);

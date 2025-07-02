@@ -431,7 +431,7 @@
   width: 95%;
   max-width: 500px;
   color: white;
-  animation: fadeInModal 0.4s ease-in-out;
+  animation: fadeIn 0.4s ease-in-out;
 }
 
 /* Close button */
@@ -496,4 +496,8 @@
 @keyframes fadeOut {
   from { opacity: 1; transform: translateY(0); }
   to   { opacity: 0; transform: translateY(-20px); }
+}
+
+.modal-content-admin.fadeOut {
+  animation: fadeOut 0.3s ease forwards;
 }

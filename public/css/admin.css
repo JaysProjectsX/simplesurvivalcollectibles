@@ -389,7 +389,7 @@
 
 /* Admin-specific modal wrapper */
 .modal-admin {
-  display: none;
+  display: block;
   position: fixed;
   z-index: 2000;
   left: 0;
@@ -399,6 +399,26 @@
   overflow: auto;
   background-color: rgba(0, 0, 0, 0.7);
   animation: fadeIn 0.3s ease-in-out;
+  align-items: center;
+}
+
+.modal-admin.hidden {
+  display: none !important;
+}
+
+#editItemModalAdmin {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.75);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 1;
+  transition: opacity 0.3s ease-in-out;
 }
 
 /* Modal content */

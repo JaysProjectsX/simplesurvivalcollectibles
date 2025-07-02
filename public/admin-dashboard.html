@@ -276,7 +276,7 @@
 
     <div id="addItemModalAdmin" class="modal-admin hidden">
       <div class="modal-content-admin fadeIn">
-        <span class="close-btn" onclick="closeEditModal()">×</span>
+        <span class="close-btn" onclick="closeAddItemModal()">×</span>
         <h3>Add New Item to Crate</h3>
         <form id="addItemForm">
           <input type="hidden" id="add-crate-id" name="crate_id" />
@@ -296,7 +296,7 @@
           <input type="text" id="add-tags" class="admin-input" required />
 
           <label for="add-tooltip">Tooltip:</label>
-          <textarea id="add-tooltip" class="admin-textarea" required></textarea>
+          <textarea id="add-tooltip" class="admin-textarea"></textarea>
 
           <div class="modal-btn-row">
             <button type="submit" class="admin-button save-btn">Add Item</button>

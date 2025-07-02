@@ -145,7 +145,7 @@ function loadCratesAndItems() {
 
         const form = document.getElementById("crate-edit-form");
         form.innerHTML = `
-          <h4>Editing Crate: ${selectedCrate.crate_name}</h4>
+          <button class="admin-action-btn add-item-btn" onclick="openAddItemModal(${selectedCrate.id})">Add New Item to Crate</button>
 
           <div class="admin-table-container">
             <table class="admin-table">
@@ -264,11 +264,60 @@ function loadCratesAndItems() {
     })
       .then(res => res.json())
       .then(() => {
-        showToast("Item updated ✅");
+        showToast("Item updated successfully");
         closeEditModal();
-        loadCratesAndItems(); // reload updated data
+        loadCratesAndItems();
       })
-      .catch(() => showToast("Failed to update item ❌"));
+      .catch(() => showToast("Failed to update item"));
+  });
+
+  function openAddItemModal(crateId) {
+    document.getElementById("add-crate-id").value = crateId;
+
+    const selector = document.getElementById("crate-selector");
+    const crateName = selector.options[selector.selectedIndex].text;
+    document.getElementById("add-item-crate-label").textContent = `Adding item to crate: ${crateName}`;
+
+    const modal = document.getElementById("addItemModalAdmin");
+    modal.classList.remove("hidden");
+    modal.querySelector(".modal-content-admin").classList.remove("fadeOut");
+    modal.querySelector(".modal-content-admin").classList.add("fadeIn");
+  }
+
+  function closeAddItemModal() {
+    const modal = document.getElementById("addItemModalAdmin");
+    const content = modal.querySelector(".modal-content-admin");
+    content.classList.remove("fadeIn");
+    content.classList.add("fadeOut");
+    setTimeout(() => modal.classList.add("hidden"), 300);
+  }
+
+  document.getElementById("addItemForm").addEventListener("submit", function (e) {
+    e.preventDefault();
+
+    const token = localStorage.getItem("token");
+    const crate_id = document.getElementById("add-crate-id").value;
+    const item_name = document.getElementById("add-item-name").value;
+    const set_name = document.getElementById("add-set-name").value;
+    const icon_url = document.getElementById("add-icon-url").value;
+    const tags = document.getElementById("add-tags").value.split(",").map(t => t.trim());
+    const tooltip = document.getElementById("add-tooltip").value;
+
+    fetch("https://simplesurvivalcollectibles.site/admin/items", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`
+      },
+      body: JSON.stringify({ crate_id, item_name, set_name, icon_url, tags, tooltip })
+    })
+      .then(res => res.json())
+      .then(() => {
+        showToast("Item added successfully!");
+        closeAddItemModal();
+        loadCratesAndItems();
+      })
+      .catch(() => showToast("Failed to add item."));
   });
 
 
@@ -280,7 +329,7 @@ function loadCratesAndItems() {
         Authorization: `Bearer ${localStorage.getItem("token")}`
       }
     }).then(() => {
-      showToast("Crate deleted ✅");
+      showToast("Crate deleted successfully");
       loadCratesAndItems();
     });
   }
@@ -293,7 +342,7 @@ function loadCratesAndItems() {
         Authorization: `Bearer ${localStorage.getItem("token")}`
       }
     }).then(() => {
-      showToast("Item deleted ✅");
+      showToast("Item deleted successfully");
       loadCratesAndItems();
     });
   }
@@ -397,7 +446,7 @@ function verifyUser(userId) {
     },
     body: JSON.stringify({ userId })
   }).then(() => {
-    showToast("User verified successfully ✅");
+    showToast("User verified successfully");
     setTimeout(() => location.reload(), 1000);
   });
 }
@@ -486,7 +535,7 @@ function exportAuditLogsAsCSV() {
       link.click();
       document.body.removeChild(link);
 
-      showToast("CSV exported successfully ✅");
+      showToast("CSV exported successfully");
     })
-    .catch(() => showToast("Failed to export CSV ❌"));
+    .catch(() => showToast("Failed to export CSV"));
 }

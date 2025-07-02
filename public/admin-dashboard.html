@@ -257,7 +257,7 @@
           <label for="edit-set-name">Set:</label>
           <input type="text" id="edit-set-name" class="admin-input" required />
 
-          <label for="edit-icon-url">Icon URL:</label>
+          <label for="edit-icon-url">Icon:</label>
           <input type="text" id="edit-icon-url" class="admin-input" />
 
           <label for="edit-tags">Tags (comma-separated):</label>
@@ -269,6 +269,37 @@
           <div class="form-actions">
             <button type="submit" class="admin-button save-btn">Save Changes</button>
             <button type="button" class="admin-button cancel-btn" onclick="closeEditModal()">Cancel</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <div id="addItemModalAdmin" class="modal-admin hidden">
+      <div class="modal-content-admin fadeIn">
+        <h3>Add New Item to Crate</h3>
+        <form id="addItemForm">
+          <input type="hidden" id="add-crate-id" name="crate_id" />
+
+          <p id="add-item-crate-label" style="margin-bottom: 10px; font-weight: bold; color: #ccc;"></p>
+
+          <label for="add-item-name">Item Name:</label>
+          <input type="text" id="add-item-name" class="admin-input" required />
+
+          <label for="add-set-name">Set Name:</label>
+          <input type="text" id="add-set-name" class="admin-input" required />
+
+          <label for="add-icon-url">Icon:</label>
+          <input type="text" id="add-icon-url" class="admin-input" required />
+
+          <label for="add-tags">Tags (comma-separated):</label>
+          <input type="text" id="add-tags" class="admin-input" required />
+
+          <label for="add-tooltip">Tooltip:</label>
+          <textarea id="add-tooltip" class="admin-textarea" required></textarea>
+
+          <div class="modal-btn-row">
+            <button type="submit" class="admin-button save-btn">Add Item</button>
+            <button type="button" class="admin-button cancel-btn" onclick="closeAddItemModal()">Cancel</button>
           </div>
         </form>
       </div>

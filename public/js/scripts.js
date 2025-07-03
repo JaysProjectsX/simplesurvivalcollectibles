@@ -59,7 +59,7 @@ function showCrateDataError(customMessage = "Failed to load crate data") {
 }
 
 if (dropdownContainer && crateTableContainer) {
-  fetch(`${backendUrl1}/api/crates`)
+  fetch(`${backendUrl1}/api/crates/cosmetic`)
     .then((res) => res.json())
     .then((crates) => {
       populateCrateDropdown(crates);

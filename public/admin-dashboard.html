@@ -274,6 +274,31 @@
       </div>
     </div>
 
+    <!-- Edit Crate Modal -->
+    <div id="editCrateModalAdmin" class="modal-admin hidden">
+      <div class="modal-content-admin fadeIn">
+        <h3>Edit Crate</h3>
+        <form id="editCrateForm">
+          <input type="hidden" id="edit-crate-id" />
+
+          <label for="edit-crate-name">Crate Name</label>
+          <input type="text" id="edit-crate-name" required />
+
+          <label for="edit-crate-type">Crate Type</label>
+          <select id="edit-crate-type" required>
+            <option value="1">Cosmetic</option>
+            <option value="0">Non-Cosmetic</option>
+          </select>
+
+          <div class="form-actions">
+            <button type="submit" class="admin-button save-btn">Save Changes</button>
+            <button type="button" class="admin-button cancel-btn" onclick="closeEditCrateModal()">Cancel</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+
     <div id="addItemModalAdmin" class="modal-admin hidden">
       <div class="modal-content-admin fadeIn">
         <span class="close-btn" onclick="closeAddItemModal()">×</span>
@@ -298,7 +323,7 @@
           <label for="add-tooltip">Tooltip:</label>
           <textarea id="add-tooltip" class="admin-textarea"></textarea>
 
-          <div class="modal-btn-row">
+          <div class="form-actions">
             <button type="submit" class="admin-button save-btn">Add Item</button>
             <button type="button" class="admin-button cancel-btn" onclick="closeAddItemModal()">Cancel</button>
           </div>

@@ -211,6 +211,39 @@ function loadCratesAndItems() {
     });
 }
 
+  function editCrate(crateId) {
+    const token = localStorage.getItem("token");
+
+    fetch("https://simplesurvivalcollectibles.site/admin/crates", {
+      headers: { Authorization: `Bearer ${token}` }
+    })
+      .then(res => res.json())
+      .then(crates => {
+        const crate = crates.find(c => c.id === crateId);
+        if (!crate) return showToast("Crate not found.");
+
+        // Pre-fill modal inputs
+        document.getElementById("edit-crate-id").value = crate.id;
+        document.getElementById("edit-crate-name").value = crate.crate_name;
+        document.getElementById("edit-crate-type").value = crate.is_cosmetic ? "1" : "0";
+
+        // Show modal
+        const modal = document.getElementById("editCrateModalAdmin");
+        modal.classList.remove("hidden");
+        modal.querySelector(".modal-content-admin").classList.remove("fadeOut");
+        modal.querySelector(".modal-content-admin").classList.add("fadeIn");
+      })
+      .catch(() => showToast("Failed to load crate data."));
+  }
+
+    function closeEditCrateModal() {
+      const modal = document.getElementById("editCrateModalAdmin");
+      const content = modal.querySelector(".modal-content-admin");
+      content.classList.remove("fadeIn");
+      content.classList.add("fadeOut");
+      setTimeout(() => modal.classList.add("hidden"), 300);
+    }
+
   function editItem(itemId) {
     const token = localStorage.getItem("token");
     fetch(`https://simplesurvivalcollectibles.site/admin/items`, {
@@ -242,6 +275,33 @@ function loadCratesAndItems() {
     content.classList.add("fadeOut");
     setTimeout(() => modal.classList.add("hidden"), 300);
   }
+
+  document.getElementById("editCrateForm").addEventListener("submit", function (e) {
+    e.preventDefault();
+
+    const token = localStorage.getItem("token");
+    const id = document.getElementById("edit-crate-id").value;
+    const updatedData = {
+      crate_name: document.getElementById("edit-crate-name").value,
+      is_cosmetic: parseInt(document.getElementById("edit-crate-type").value)
+    };
+
+    fetch(`https://simplesurvivalcollectibles.site/admin/crates/${id}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`
+      },
+      body: JSON.stringify(updatedData)
+    })
+      .then(res => res.json())
+      .then(() => {
+        showToast("Crate updated successfully");
+        closeEditCrateModal();
+        loadCratesAndItems();
+      })
+      .catch(() => showToast("Failed to update crate"));
+  });
 
   document.getElementById("editItemForm").addEventListener("submit", function (e) {
     e.preventDefault();
@@ -278,7 +338,7 @@ function loadCratesAndItems() {
 
     const selector = document.getElementById("crate-selector");
     const crateName = selector.options[selector.selectedIndex].text;
-    document.getElementById("add-item-crate-label").textContent = `Adding item to crate: ${crateName}`;
+    document.getElementById("add-item-crate-label").textContent = `Selected Crate: ${crateName}`;
 
     const modal = document.getElementById("addItemModalAdmin");
     modal.classList.remove("hidden");

@@ -507,3 +507,9 @@
 .modal-content-admin.fadeOut {
   animation: fadeOut 0.3s ease-out;
 }
+
+/* Regular 'Select' Dropdown Styling */
+select {
+  max-height: 200px; /* limit the height */
+  overflow-y: auto;  /* enable vertical scroll */
+}

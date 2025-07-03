@@ -153,6 +153,7 @@ function loadCratesAndItems() {
                 <tr>
                   <th>ID</th>
                   <th>Crate Name</th>
+                  <th>Crate Type</th>
                   <th>Actions</th>
                 </tr>
               </thead>
@@ -160,6 +161,7 @@ function loadCratesAndItems() {
                 <tr>
                   <td>${selectedCrate.id}</td>
                   <td>${selectedCrate.crate_name}</td>
+                  <td>${selectedCrate.is_cosmetic ? "Cosmetic" : "Non-Cosmetic"}</td>
                   <td>
                     <button class="admin-action-btn" onclick="editCrate(${selectedCrate.id})">✏️</button>
                     ${localStorage.getItem("role") === "SysAdmin" ? `<button class="admin-action-btn delete" onclick="deleteCrate(${selectedCrate.id})">🗑️</button>` : ""}

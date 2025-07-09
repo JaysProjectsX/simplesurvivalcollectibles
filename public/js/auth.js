@@ -33,6 +33,17 @@ const showToast = (msg, type = "success", duration = 3000) => {
   }, duration);
 };
 
+function isLockedOut(user) {
+  if (!user || user.failed_attempts === undefined || !user.last_failed_login) return false;
+
+  const failedAttempts = parseInt(user.failed_attempts, 10);
+  const lastFailed = new Date(user.last_failed_login);
+  const now = new Date();
+  const diff = now - lastFailed;
+
+  return failedAttempts >= 3 && diff < 10 * 60 * 1000;
+}
+
 document.addEventListener("DOMContentLoaded", () => {
   updateNavUI(); // prevent flicker
   if (document.cookie.includes("refreshToken") || localStorage.getItem("username")) {

@@ -137,13 +137,11 @@ async function fetchAccountInfo() {
     });
 
     if (res.status === 401) {
-      // Try refreshing token
       const refreshed = await refreshAccessToken();
       if (refreshed) {
-        return fetchAccountInfo(); // Retry original request
+        return fetchAccountInfo(); // retry after refresh
       } else {
-        logout();
-        return;
+        return handleUnauthenticated();
       }
     }
 
@@ -157,10 +155,27 @@ async function fetchAccountInfo() {
     updateNavUI();
   } catch (err) {
     console.error("Failed to fetch account info", err);
-    logout();
+    await handleUnauthenticated();
   }
 }
 
+async function handleUnauthenticated() {
+  const wasLoggedIn = localStorage.getItem("username");
+  localStorage.clear();
+  updateNavUI();
+
+  if (wasLoggedIn) {
+    showToast("You have been logged out.", "success");
+    try {
+      await fetch(`${backendUrl}/logout`, {
+        method: "POST",
+        credentials: "include",
+      });
+    } catch (err) {
+      // Optional: log error silently
+    }
+  }
+}
 
 async function refreshAccessToken() {
   try {

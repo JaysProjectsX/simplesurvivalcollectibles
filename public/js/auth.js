@@ -81,6 +81,14 @@ document.addEventListener("DOMContentLoaded", () => {
         body: JSON.stringify({ email, password }),
       });
 
+      if (res.status === 429) {
+        const data = await res.json();
+        if (data.lockoutRemaining) {
+          showLockoutModal(data.lockoutRemaining);
+          return;
+        }
+      }
+
       const data = await res.json();
       if (res.ok) {
         await fetchAccountInfo();
@@ -268,6 +276,34 @@ async function logout() {
   updateNavUI();
   showToast("You have been logged out.", "success");
 }
+
+function showLockoutModal(secondsRemaining) {
+  const modal = document.getElementById("lockoutModal");
+  const timerSpan = document.getElementById("lockoutTimer");
+  modal.style.display = "block";
+
+  let remaining = secondsRemaining;
+
+  const updateTimer = () => {
+    const minutes = Math.floor(remaining / 60).toString().padStart(2, "0");
+    const seconds = (remaining % 60).toString().padStart(2, "0");
+    timerSpan.textContent = `${minutes}:${seconds}`;
+    remaining--;
+
+    if (remaining < 0) {
+      clearInterval(interval);
+      modal.style.display = "none";
+    }
+  };
+
+  updateTimer();
+  const interval = setInterval(updateTimer, 1000);
+}
+
+function closeLockoutModal() {
+  document.getElementById("lockoutModal").style.display = "none";
+}
+
 
 function openAccountModal() {
   const username = localStorage.getItem("username");

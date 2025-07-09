@@ -92,6 +92,10 @@ function initializeAdminPanel(role) {
               <button class="admin-action-btn verify" onclick="verifyUser(${user.id})">Verify</button>
               <button class="admin-action-btn delete" onclick="deleteUser(${user.id})">Delete</button>
             </td>
+            <td>
+              ${isLockedOut ? `<span class="lockout-timer" data-seconds="${lockoutRemaining}">${formatCountdown(lockoutRemaining)}</span>` : ''}
+              ${user.role !== 'SysAdmin' && isLockedOut ? `<button onclick="forceUnlock(${user.id})">Unlock</button>` : ''}
+            </td>
           </tr>
         `).join("");
       });
@@ -607,6 +611,31 @@ document.querySelectorAll(".db-subtab-btn").forEach((btn) => {
   });
 });
 
+function startLockoutTimers() {
+  const timers = document.querySelectorAll('.lockout-timer');
+
+  timers.forEach(timer => {
+    let remaining = parseInt(timer.getAttribute('data-seconds'));
+
+    const interval = setInterval(() => {
+      remaining -= 1;
+      if (remaining <= 0) {
+        timer.textContent = "Unlocked";
+        clearInterval(interval);
+        timer.parentElement.querySelector('button')?.remove();
+        return;
+      }
+      timer.textContent = formatCountdown(remaining);
+    }, 1000);
+  });
+}
+
+function formatCountdown(seconds) {
+  const minutes = Math.floor(seconds / 60);
+  const secs = seconds % 60;
+  return `${minutes}:${secs < 10 ? '0' : ''}${secs}`;
+}
+
 function exportAuditLogsAsCSV() {
   fetch(
     "https://simplesurvivalcollectibles.site/admin/audit-logs?page=1&limit=10000",
@@ -647,3 +676,27 @@ function exportAuditLogsAsCSV() {
     })
     .catch(() => showToast("Failed to export CSV"));
 }
+
+document.addEventListener("click", function (e) {
+  if (e.target.classList.contains("unlock-btn")) {
+    const userId = e.target.getAttribute("data-user-id");
+    fetch(`${backendUrl}/admin/unlock-user/${userId}`, {
+      method: "POST",
+      credentials: "include"
+    })
+    .then(res => res.json())
+    .then(data => {
+      if (data.success) {
+        showToast("User unlocked successfully.");
+        e.target.parentElement.querySelector('.lockout-timer').textContent = '';
+        e.target.remove();
+      } else {
+        showToast(data.error || "Failed to unlock user.", "error");
+      }
+    })
+    .catch(err => {
+      showToast("Request failed.", "error");
+      console.error(err);
+    });
+  }
+});

@@ -136,22 +136,49 @@ async function fetchAccountInfo() {
       credentials: "include",
     });
 
-    const data = await res.json();
-    if (res.ok) {
-      localStorage.setItem("username", data.username);
-      localStorage.setItem("email", data.email);
-      localStorage.setItem("role", data.role);
-      localStorage.setItem("verified", data.verified);
-      localStorage.setItem("created_at", data.created_at);
-      updateNavUI();
-    } else {
-      logout();
+    if (res.status === 401) {
+      // Try refreshing token
+      const refreshed = await refreshAccessToken();
+      if (refreshed) {
+        return fetchAccountInfo(); // Retry original request
+      } else {
+        logout();
+        return;
+      }
     }
+
+    const text = await res.text();
+    const data = JSON.parse(text);
+    localStorage.setItem("username", data.username);
+    localStorage.setItem("email", data.email);
+    localStorage.setItem("role", data.role);
+    localStorage.setItem("verified", data.verified);
+    localStorage.setItem("created_at", data.created_at);
+    updateNavUI();
   } catch (err) {
     console.error("Failed to fetch account info", err);
     logout();
   }
 }
+
+
+async function refreshAccessToken() {
+  try {
+    const res = await fetch(`${backendUrl}/refresh`, {
+      method: "POST",
+      credentials: "include",
+    });
+
+    if (!res.ok) throw new Error("Refresh token invalid or expired");
+
+    // Access token is now refreshed silently via cookie
+    return true;
+  } catch (err) {
+    console.error("Token refresh failed:", err);
+    return false;
+  }
+}
+
 
 function updateNavUI() {
 

@@ -1,20 +1,29 @@
 let currentPage = 1;
 const logsPerPage = 10;
 
-document.addEventListener("DOMContentLoaded", () => {
-  const token = localStorage.getItem("token");
-  const role = localStorage.getItem("role");
+document.addEventListener("DOMContentLoaded", async () => {
+  try {
+    const res = await fetch("https://simplesurvivalcollectibles.site/me", {
+      credentials: "include"
+    });
+    const data = await res.json();
 
-  if (!token || (role !== "Admin" && role !== "SysAdmin")) {
-    document.body.innerHTML = ""; // Prevents flicker
-    window.location.href = "404";
-    return;
-  } else {
+    if (!res.ok || !data.role || (data.role !== "Admin" && data.role !== "SysAdmin")) {
+      document.body.innerHTML = ""; // Prevents flicker
+      window.location.href = "404";
+      return;
+    }
+
     document.getElementById("adminContent").style.display = "block";
+    initializeAdminPanel(data.role); // ✅ Pass role to the new function
+  } catch (err) {
+    console.error("Auth check failed:", err);
+    document.body.innerHTML = "";
+    window.location.href = "404";
   }
+});
 
-  document.getElementById("adminContent").style.display = "block";
-
+function initializeAdminPanel(role) {
   const tabButtons = document.querySelectorAll(".tab-btn");
   const tabContents = document.querySelectorAll(".tab-content");
 
@@ -46,13 +55,12 @@ document.addEventListener("DOMContentLoaded", () => {
     if (rolesTabBtn) rolesTabBtn.style.display = "inline-block";
     if (auditTabBtn) auditTabBtn.style.display = "inline-block";
 
-    // Load paginated audit logs
     loadAuditLogs(currentPage);
   }
 
   // Load Active Users
   fetch("https://simplesurvivalcollectibles.site/admin/active-users", {
-    headers: { Authorization: `Bearer ${token}` }
+    credentials: "include"
   })
     .then(res => res.json())
     .then(data => {
@@ -69,7 +77,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   if (role === "SysAdmin") {
     fetch("https://simplesurvivalcollectibles.site/admin/all-users", {
-      headers: { Authorization: `Bearer ${token}` }
+      credentials: "include"
     })
       .then(res => res.json())
       .then(data => {
@@ -89,7 +97,7 @@ document.addEventListener("DOMContentLoaded", () => {
       });
 
     fetch("https://simplesurvivalcollectibles.site/admin/all-users", {
-      headers: { Authorization: `Bearer ${token}` }
+      credentials: "include"
     })
       .then(res => res.json())
       .then(data => {
@@ -111,26 +119,25 @@ document.addEventListener("DOMContentLoaded", () => {
         `).join("");
       });
   }
-});
+}
 
 function loadCratesAndItems() {
-  const token = localStorage.getItem("token");
-
   Promise.all([
     fetch("https://simplesurvivalcollectibles.site/admin/crates", {
-      headers: { Authorization: `Bearer ${token}` }
-    }).then(res => res.json()),
+      credentials: "include"
+    }).then((res) => res.json()),
     fetch("https://simplesurvivalcollectibles.site/admin/items", {
-      headers: { Authorization: `Bearer ${token}` }
-    }).then(res => res.json())
+      credentials: "include"
+    }).then((res) => res.json()),
   ])
     .then(([crates, items]) => {
       const selector = document.getElementById("crate-selector");
       const form = document.getElementById("crate-edit-form");
 
       // Populate crate dropdown
-      selector.innerHTML = '<option disabled selected>Select a crate to edit</option>';
-      crates.forEach(crate => {
+      selector.innerHTML =
+        "<option disabled selected>Select a crate to edit</option>";
+      crates.forEach((crate) => {
         const option = document.createElement("option");
         option.value = crate.id;
         option.textContent = crate.crate_name;
@@ -140,12 +147,16 @@ function loadCratesAndItems() {
       // Attach event to update view based on selected crate
       selector.addEventListener("change", () => {
         const selectedCrateId = parseInt(selector.value);
-        const selectedCrate = crates.find(c => c.id === selectedCrateId);
-        const relatedItems = items.filter(i => i.crate_id === selectedCrateId);
+        const selectedCrate = crates.find((c) => c.id === selectedCrateId);
+        const relatedItems = items.filter(
+          (i) => i.crate_id === selectedCrateId
+        );
 
         const form = document.getElementById("crate-edit-form");
         form.innerHTML = `
-          <button class="admin-action-btn add-item-btn" onclick="openAddItemModal(${selectedCrate.id})">Add New Item to Crate</button>
+          <button class="admin-action-btn add-item-btn" onclick="openAddItemModal(${
+            selectedCrate.id
+          })">Add New Item to Crate</button>
 
           <div class="admin-table-container">
             <table class="admin-table">
@@ -161,10 +172,18 @@ function loadCratesAndItems() {
                 <tr>
                   <td>${selectedCrate.id}</td>
                   <td>${selectedCrate.crate_name}</td>
-                  <td>${selectedCrate.is_cosmetic ? "Cosmetic" : "Non-Cosmetic"}</td>
+                  <td>${
+                    selectedCrate.is_cosmetic ? "Cosmetic" : "Non-Cosmetic"
+                  }</td>
                   <td>
-                    <button class="admin-action-btn" onclick="editCrate(${selectedCrate.id})">✏️</button>
-                    ${localStorage.getItem("role") === "SysAdmin" ? `<button class="admin-action-btn delete" onclick="deleteCrate(${selectedCrate.id})">🗑️</button>` : ""}
+                    <button class="admin-action-btn" onclick="editCrate(${
+                      selectedCrate.id
+                    })">✏️</button>
+                    ${
+                      localStorage.getItem("role") === "SysAdmin"
+                        ? `<button class="admin-action-btn delete" onclick="deleteCrate(${selectedCrate.id})">🗑️</button>`
+                        : ""
+                    }
                   </td>
                 </tr>
               </tbody>
@@ -186,115 +205,129 @@ function loadCratesAndItems() {
                 </tr>
               </thead>
               <tbody>
-                ${relatedItems.map(item => `
+                ${relatedItems
+                  .map(
+                    (item) => `
                   <tr>
                     <td>${item.id}</td>
                     <td>${item.item_name}</td>
                     <td>${item.set_name}</td>
-                    <td><img src="${item.icon_url}" alt="icon" class="item-icon" /></td>
-                    <td>${(item.tags || []).map(t => `<span class='tag'>${t}</span>`).join(" ")}</td>
+                    <td><img src="${
+                      item.icon_url
+                    }" alt="icon" class="item-icon" /></td>
+                    <td>${(item.tags || [])
+                      .map((t) => `<span class='tag'>${t}</span>`)
+                      .join(" ")}</td>
                     <td>${item.tooltip || ""}</td>
                     <td>
-                      <button class="admin-action-btn" onclick="editItem(${item.id})">✏️</button>
-                      ${localStorage.getItem("role") === "SysAdmin" ? `<button class="admin-action-btn delete" onclick="deleteItem(${item.id})">🗑️</button>` : ""}
+                      <button class="admin-action-btn" onclick="editItem(${
+                        item.id
+                      })">✏️</button>
+                      ${
+                        localStorage.getItem("role") === "SysAdmin"
+                          ? `<button class="admin-action-btn delete" onclick="deleteItem(${item.id})">🗑️</button>`
+                          : ""
+                      }
                     </td>
                   </tr>
-                `).join("")}
+                `
+                  )
+                  .join("")}
               </tbody>
             </table>
           </div>
         `;
       });
     })
-    .catch(err => {
+    .catch((err) => {
       console.error("Failed to load crates or items:", err);
     });
 }
 
-  function editCrate(crateId) {
-    const token = localStorage.getItem("token");
+function editCrate(crateId) {
+  fetch("https://simplesurvivalcollectibles.site/admin/crates", {
+    credentials: "include"
+  })
+    .then((res) => res.json())
+    .then((crates) => {
+      const crate = crates.find((c) => c.id === crateId);
+      if (!crate) return showToast("Crate not found.");
 
-    fetch("https://simplesurvivalcollectibles.site/admin/crates", {
-      headers: { Authorization: `Bearer ${token}` }
-    })
-      .then(res => res.json())
-      .then(crates => {
-        const crate = crates.find(c => c.id === crateId);
-        if (!crate) return showToast("Crate not found.");
+      // Pre-fill modal inputs
+      document.getElementById("edit-crate-id").value = crate.id;
+      document.getElementById("edit-crate-name").value = crate.crate_name;
+      document.getElementById("edit-crate-type").value = crate.is_cosmetic
+        ? "1"
+        : "0";
 
-        // Pre-fill modal inputs
-        document.getElementById("edit-crate-id").value = crate.id;
-        document.getElementById("edit-crate-name").value = crate.crate_name;
-        document.getElementById("edit-crate-type").value = crate.is_cosmetic ? "1" : "0";
-
-        // Show modal
-        const modal = document.getElementById("editCrateModalAdmin");
-        modal.classList.remove("hidden");
-        modal.querySelector(".modal-content-admin").classList.remove("fadeOut");
-        modal.querySelector(".modal-content-admin").classList.add("fadeIn");
-      })
-      .catch(() => showToast("Failed to load crate data."));
-  }
-
-    function closeEditCrateModal() {
+      // Show modal
       const modal = document.getElementById("editCrateModalAdmin");
-      const content = modal.querySelector(".modal-content-admin");
-      content.classList.remove("fadeIn");
-      content.classList.add("fadeOut");
-      setTimeout(() => modal.classList.add("hidden"), 300);
-    }
-
-  function editItem(itemId) {
-    const token = localStorage.getItem("token");
-    fetch(`https://simplesurvivalcollectibles.site/admin/items`, {
-      headers: { Authorization: `Bearer ${token}` }
+      modal.classList.remove("hidden");
+      modal.querySelector(".modal-content-admin").classList.remove("fadeOut");
+      modal.querySelector(".modal-content-admin").classList.add("fadeIn");
     })
-      .then(res => res.json())
-      .then(items => {
-        const item = items.find(i => i.id === itemId);
-        if (!item) return showToast("Item not found.");
+    .catch(() => showToast("Failed to load crate data."));
+}
 
-        document.getElementById("edit-item-id").value = item.id;
-        document.getElementById("edit-item-name").value = item.item_name || "";
-        document.getElementById("edit-set-name").value = item.set_name || "";
-        document.getElementById("edit-icon-url").value = item.icon_url || "";
-        document.getElementById("edit-tags").value = (item.tags || []).join(", ");
-        document.getElementById("edit-tooltip").value = item.tooltip || "";
+function closeEditCrateModal() {
+  const modal = document.getElementById("editCrateModalAdmin");
+  const content = modal.querySelector(".modal-content-admin");
+  content.classList.remove("fadeIn");
+  content.classList.add("fadeOut");
+  setTimeout(() => modal.classList.add("hidden"), 300);
+}
 
-        const modal = document.getElementById("editItemModalAdmin");
-        modal.classList.remove("hidden");
-        modal.querySelector(".modal-content-admin").classList.remove("fadeOut");
-        modal.querySelector(".modal-content-admin").classList.add("fadeIn");
-      });
-  }
+function editItem(itemId) {
+  fetch(`https://simplesurvivalcollectibles.site/admin/items`, {
+    credentials: "include"
+  })
+    .then((res) => res.json())
+    .then((items) => {
+      const item = items.find((i) => i.id === itemId);
+      if (!item) return showToast("Item not found.");
 
-  function closeEditModal() {
-    const modal = document.getElementById("editItemModalAdmin");
-    const content = modal.querySelector(".modal-content-admin");
-    content.classList.remove("fadeIn");
-    content.classList.add("fadeOut");
-    setTimeout(() => modal.classList.add("hidden"), 300);
-  }
+      document.getElementById("edit-item-id").value = item.id;
+      document.getElementById("edit-item-name").value = item.item_name || "";
+      document.getElementById("edit-set-name").value = item.set_name || "";
+      document.getElementById("edit-icon-url").value = item.icon_url || "";
+      document.getElementById("edit-tags").value = (item.tags || []).join(", ");
+      document.getElementById("edit-tooltip").value = item.tooltip || "";
 
-  document.getElementById("editCrateForm").addEventListener("submit", function (e) {
+      const modal = document.getElementById("editItemModalAdmin");
+      modal.classList.remove("hidden");
+      modal.querySelector(".modal-content-admin").classList.remove("fadeOut");
+      modal.querySelector(".modal-content-admin").classList.add("fadeIn");
+    });
+}
+
+function closeEditModal() {
+  const modal = document.getElementById("editItemModalAdmin");
+  const content = modal.querySelector(".modal-content-admin");
+  content.classList.remove("fadeIn");
+  content.classList.add("fadeOut");
+  setTimeout(() => modal.classList.add("hidden"), 300);
+}
+
+document
+  .getElementById("editCrateForm")
+  .addEventListener("submit", function (e) {
     e.preventDefault();
 
-    const token = localStorage.getItem("token");
     const id = document.getElementById("edit-crate-id").value;
     const updatedData = {
       crate_name: document.getElementById("edit-crate-name").value,
-      is_cosmetic: parseInt(document.getElementById("edit-crate-type").value)
+      is_cosmetic: parseInt(document.getElementById("edit-crate-type").value),
     };
 
     fetch(`https://simplesurvivalcollectibles.site/admin/crates/${id}`, {
       method: "PUT",
+      credentials: "include",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`
       },
-      body: JSON.stringify(updatedData)
+      body: JSON.stringify(updatedData),
     })
-      .then(res => res.json())
+      .then((res) => res.json())
       .then(() => {
         showToast("Crate updated successfully");
         closeEditCrateModal();
@@ -303,28 +336,32 @@ function loadCratesAndItems() {
       .catch(() => showToast("Failed to update crate"));
   });
 
-  document.getElementById("editItemForm").addEventListener("submit", function (e) {
+document
+  .getElementById("editItemForm")
+  .addEventListener("submit", function (e) {
     e.preventDefault();
 
-    const token = localStorage.getItem("token");
     const id = document.getElementById("edit-item-id").value;
     const updatedData = {
       item_name: document.getElementById("edit-item-name").value,
       set_name: document.getElementById("edit-set-name").value,
       icon_url: document.getElementById("edit-icon-url").value,
-      tags: document.getElementById("edit-tags").value.split(",").map(t => t.trim()),
-      tooltip: document.getElementById("edit-tooltip").value
+      tags: document
+        .getElementById("edit-tags")
+        .value.split(",")
+        .map((t) => t.trim()),
+      tooltip: document.getElementById("edit-tooltip").value,
     };
 
     fetch(`https://simplesurvivalcollectibles.site/admin/items/${id}`, {
       method: "PUT",
+      credentials: "include",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`
       },
-      body: JSON.stringify(updatedData)
+      body: JSON.stringify(updatedData),
     })
-      .then(res => res.json())
+      .then((res) => res.json())
       .then(() => {
         showToast("Item updated successfully");
         closeEditModal();
@@ -333,97 +370,104 @@ function loadCratesAndItems() {
       .catch(() => showToast("Failed to update item"));
   });
 
-  function openAddItemModal(crateId) {
-    document.getElementById("add-crate-id").value = crateId;
+function openAddItemModal(crateId) {
+  document.getElementById("add-crate-id").value = crateId;
 
-    const selector = document.getElementById("crate-selector");
-    const crateName = selector.options[selector.selectedIndex].text;
-    document.getElementById("add-item-crate-label").textContent = `Selected Crate: ${crateName}`;
+  const selector = document.getElementById("crate-selector");
+  const crateName = selector.options[selector.selectedIndex].text;
+  document.getElementById(
+    "add-item-crate-label"
+  ).textContent = `Selected Crate: ${crateName}`;
 
-    const modal = document.getElementById("addItemModalAdmin");
-    modal.classList.remove("hidden");
-    modal.querySelector(".modal-content-admin").classList.remove("fadeOut");
-    modal.querySelector(".modal-content-admin").classList.add("fadeIn");
-  }
+  const modal = document.getElementById("addItemModalAdmin");
+  modal.classList.remove("hidden");
+  modal.querySelector(".modal-content-admin").classList.remove("fadeOut");
+  modal.querySelector(".modal-content-admin").classList.add("fadeIn");
+}
 
-  function closeAddItemModal() {
-    const modal = document.getElementById("addItemModalAdmin");
-    const content = modal.querySelector(".modal-content-admin");
-    content.classList.remove("fadeIn");
-    content.classList.add("fadeOut");
-    setTimeout(() => modal.classList.add("hidden"), 300);
-  }
+function closeAddItemModal() {
+  const modal = document.getElementById("addItemModalAdmin");
+  const content = modal.querySelector(".modal-content-admin");
+  content.classList.remove("fadeIn");
+  content.classList.add("fadeOut");
+  setTimeout(() => modal.classList.add("hidden"), 300);
+}
 
-  document.getElementById("addItemForm").addEventListener("submit", function (e) {
-    e.preventDefault();
+document.getElementById("addItemForm").addEventListener("submit", function (e) {
+  e.preventDefault();
 
-    const token = localStorage.getItem("token");
-    const crate_id = document.getElementById("add-crate-id").value;
-    const item_name = document.getElementById("add-item-name").value;
-    const set_name = document.getElementById("add-set-name").value;
-    const icon_url = document.getElementById("add-icon-url").value;
-    const tags = document.getElementById("add-tags").value.split(",").map(t => t.trim());
-    const tooltip = document.getElementById("add-tooltip").value;
+  const crate_id = document.getElementById("add-crate-id").value;
+  const item_name = document.getElementById("add-item-name").value;
+  const set_name = document.getElementById("add-set-name").value;
+  const icon_url = document.getElementById("add-icon-url").value;
+  const tags = document
+    .getElementById("add-tags")
+    .value.split(",")
+    .map((t) => t.trim());
+  const tooltip = document.getElementById("add-tooltip").value;
 
-    fetch("https://simplesurvivalcollectibles.site/admin/items", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`
-      },
-      body: JSON.stringify({ crate_id, item_name, set_name, icon_url, tags, tooltip })
+  fetch("https://simplesurvivalcollectibles.site/admin/items", {
+    method: "POST",
+    credentials: "include",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      crate_id,
+      item_name,
+      set_name,
+      icon_url,
+      tags,
+      tooltip,
+    }),
+  })
+    .then((res) => res.json())
+    .then(() => {
+      showToast("Item added successfully!");
+      closeAddItemModal();
+      loadCratesAndItems();
     })
-      .then(res => res.json())
-      .then(() => {
-        showToast("Item added successfully!");
-        closeAddItemModal();
-        loadCratesAndItems();
-      })
-      .catch(() => showToast("Failed to add item."));
+    .catch(() => showToast("Failed to add item."));
+});
+
+function deleteCrate(crateId) {
+  if (!confirm("Delete this crate?")) return;
+  fetch(`https://simplesurvivalcollectibles.site/admin/crates/${crateId}`, {
+    method: "DELETE",
+    credentials: "include"
+  }).then(() => {
+    showToast("Crate deleted successfully");
+    loadCratesAndItems();
   });
+}
 
+function deleteItem(itemId) {
+  if (!confirm("Delete this item?")) return;
+  fetch(`https://simplesurvivalcollectibles.site/admin/items/${itemId}`, {
+    method: "DELETE",
+    credentials: "include"
+  }).then(() => {
+    showToast("Item deleted successfully");
+    loadCratesAndItems();
+  });
+}
 
-  function deleteCrate(crateId) {
-    if (!confirm("Delete this crate?")) return;
-    fetch(`https://simplesurvivalcollectibles.site/admin/crates/${crateId}`, {
-      method: "DELETE",
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("token")}`
-      }
-    }).then(() => {
-      showToast("Crate deleted successfully");
-      loadCratesAndItems();
-    });
-  }
-
-  function deleteItem(itemId) {
-    if (!confirm("Delete this item?")) return;
-    fetch(`https://simplesurvivalcollectibles.site/admin/items/${itemId}`, {
-      method: "DELETE",
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("token")}`
-      }
-    }).then(() => {
-      showToast("Item deleted successfully");
-      loadCratesAndItems();
-    });
-  }
-
-  // Call loader when switching to DB tab
-  const dbTabBtn = document.querySelector('[data-tab="dbTab"]');
-  if (dbTabBtn) {
-    dbTabBtn.addEventListener("click", () => {
-      loadCratesAndItems();
-    });
-  }
+// Call loader when switching to DB tab
+const dbTabBtn = document.querySelector('[data-tab="dbTab"]');
+if (dbTabBtn) {
+  dbTabBtn.addEventListener("click", () => {
+    loadCratesAndItems();
+  });
+}
 
 function loadAuditLogs(page = 1) {
-  const token = localStorage.getItem("token");
-
-  fetch(`https://simplesurvivalcollectibles.site/admin/audit-logs?page=${page}&limit=10`, {
-    headers: { Authorization: `Bearer ${token}` }
-  })
-    .then(res => res.json())
+  fetch(
+    `https://simplesurvivalcollectibles.site/admin/audit-logs?page=${page}&limit=10`,
+    {
+      credentials: "include",
+    }
+  )
+    .then((res) => res.json())
     .then(({ logs, total }) => {
       const tbody = document.getElementById("auditLogTable");
       const pagination = document.getElementById("auditPagination");
@@ -435,7 +479,7 @@ function loadAuditLogs(page = 1) {
         return;
       }
 
-      logs.forEach(log => {
+      logs.forEach((log) => {
         const tr = document.createElement("tr");
         const formattedDate = new Date(log.timestamp).toLocaleString();
         tr.innerHTML = `
@@ -464,7 +508,7 @@ function loadAuditLogs(page = 1) {
         }
       }
     })
-    .catch(err => {
+    .catch((err) => {
       console.error("Failed to load audit logs:", err);
       document.getElementById("auditLogTable").innerHTML =
         '<tr><td colspan="4">Failed to load logs.</td></tr>';
@@ -476,7 +520,7 @@ function deleteLog(logId) {
 
   fetch(`https://simplesurvivalcollectibles.site/admin/audit-logs/${logId}`, {
     method: "DELETE",
-    headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
+    credentials: "include"
   })
     .then(() => {
       showToast("Log entry deleted.");
@@ -490,7 +534,7 @@ function clearAuditLogs() {
 
   fetch("https://simplesurvivalcollectibles.site/admin/audit-logs", {
     method: "DELETE",
-    headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
+    credentials: "include"
   })
     .then(() => {
       showToast("Audit log cleared.");
@@ -502,11 +546,11 @@ function clearAuditLogs() {
 function verifyUser(userId) {
   fetch("https://simplesurvivalcollectibles.site/admin/verify-user", {
     method: "POST",
+    credentials: "include",
     headers: {
-      Authorization: `Bearer ${localStorage.getItem("token")}`,
-      "Content-Type": "application/json"
+      "Content-Type": "application/json",
     },
-    body: JSON.stringify({ userId })
+    body: JSON.stringify({ userId }),
   }).then(() => {
     showToast("User verified successfully");
     setTimeout(() => location.reload(), 1000);
@@ -517,11 +561,11 @@ function deleteUser(userId) {
   if (!confirm("Are you sure you want to delete this user?")) return;
   fetch("https://simplesurvivalcollectibles.site/admin/delete-user", {
     method: "DELETE",
+    credentials: "include",
     headers: {
-      Authorization: `Bearer ${localStorage.getItem("token")}`,
-      "Content-Type": "application/json"
+      "Content-Type": "application/json",
     },
-    body: JSON.stringify({ userId })
+    body: JSON.stringify({ userId }),
   }).then(() => {
     showToast("User deleted successfully 🗑️");
     setTimeout(() => location.reload(), 1000);
@@ -532,13 +576,13 @@ function changeRole(userId) {
   const newRole = document.getElementById(`role-${userId}`).value;
   fetch("https://simplesurvivalcollectibles.site/admin/change-role", {
     method: "POST",
+    credentials: "include",
     headers: {
-      Authorization: `Bearer ${localStorage.getItem("token")}`,
-      "Content-Type": "application/json"
+      "Content-Type": "application/json",
     },
-    body: JSON.stringify({ userId, newRole })
+    body: JSON.stringify({ userId, newRole }),
   })
-    .then(res => res.json())
+    .then((res) => res.json())
     .then(() => {
       showToast("User role updated successfully!");
       const row = document.getElementById(`role-${userId}`).closest("tr");
@@ -549,49 +593,51 @@ function changeRole(userId) {
 }
 
 // Horizontal subtab behavior inside Database Config tab
-document.querySelectorAll('.db-subtab-btn').forEach(btn => {
-  btn.addEventListener('click', () => {
-    document.querySelectorAll('.db-subtab-btn').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
+document.querySelectorAll(".db-subtab-btn").forEach((btn) => {
+  btn.addEventListener("click", () => {
+    document
+      .querySelectorAll(".db-subtab-btn")
+      .forEach((b) => b.classList.remove("active"));
+    btn.classList.add("active");
 
     const tabId = btn.dataset.tab;
-    document.querySelectorAll('.db-subtab-content').forEach(tab => {
-      tab.style.display = (tab.id === `db-tab-${tabId}`) ? 'block' : 'none';
+    document.querySelectorAll(".db-subtab-content").forEach((tab) => {
+      tab.style.display = tab.id === `db-tab-${tabId}` ? "block" : "none";
     });
   });
 });
 
-
 function exportAuditLogsAsCSV() {
-  const token = localStorage.getItem("token");
-
-  fetch("https://simplesurvivalcollectibles.site/admin/audit-logs?page=1&limit=10000", {
-    headers: { Authorization: `Bearer ${token}` }
-  })
-    .then(res => res.json())
+  fetch(
+    "https://simplesurvivalcollectibles.site/admin/audit-logs?page=1&limit=10000",
+    {
+      credentials: "include",
+    }
+  )
+    .then((res) => res.json())
     .then(({ logs }) => {
       if (!logs || logs.length === 0) {
         showToast("No logs to export.");
         return;
       }
 
-      const csvRows = [
-        ["User ID", "Action", "Timestamp"]
-      ];
+      const csvRows = [["User ID", "Action", "Timestamp"]];
 
-      logs.forEach(log => {
+      logs.forEach((log) => {
         csvRows.push([
           `"${log.user_id}"`,
           `"${log.action}"`,
-          `"${new Date(log.timestamp).toLocaleString()}"`
+          `"${new Date(log.timestamp).toLocaleString()}"`,
         ]);
       });
 
-      const csvContent = csvRows.map(row => row.join(",")).join("\n");
+      const csvContent = csvRows.map((row) => row.join(",")).join("\n");
       const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
       const link = document.createElement("a");
       link.href = URL.createObjectURL(blob);
-      link.download = `audit-logs-${new Date().toISOString().split("T")[0]}.csv`;
+      link.download = `audit-logs-${
+        new Date().toISOString().split("T")[0]
+      }.csv`;
       link.style.display = "none";
       document.body.appendChild(link);
       link.click();

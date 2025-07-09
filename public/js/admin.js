@@ -23,6 +23,29 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 });
 
+function isLockedOut(user) {
+  if (!user || user.failed_attempts === undefined || !user.last_failed_login) return false;
+
+  const failedAttempts = parseInt(user.failed_attempts, 10);
+  const lastFailed = new Date(user.last_failed_login);
+  const now = new Date();
+  const diff = now - lastFailed;
+
+  return failedAttempts >= 3 && diff < 10 * 60 * 1000;
+}
+
+function lockoutRemaining(user) {
+  const lastFailed = new Date(user.last_failed_login);
+  const now = new Date();
+  const elapsed = Math.floor((now - lastFailed) / 1000); // seconds
+  const remaining = Math.max(0, 10 * 60 - elapsed); // 10 min lockout
+
+  const minutes = Math.floor(remaining / 60);
+  const seconds = remaining % 60;
+  return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+}
+
+
 function initializeAdminPanel(role) {
   const tabButtons = document.querySelectorAll(".tab-btn");
   const tabContents = document.querySelectorAll(".tab-content");

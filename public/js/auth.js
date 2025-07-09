@@ -74,13 +74,13 @@ document.addEventListener("DOMContentLoaded", () => {
     try {
       const res = await fetch(`${backendUrl}/login`, {
         method: "POST",
+        credentials: "include",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
       });
 
       const data = await res.json();
-      if (data.token) {
-        localStorage.setItem("token", data.token);
+      if (res.ok) {
         await fetchAccountInfo();
         document.getElementById("authModal").style.display = "none";
         showToast(`Logged in as: ${localStorage.getItem("username")}`, "success");
@@ -108,8 +108,8 @@ document.addEventListener("DOMContentLoaded", () => {
     try {
       const res = await fetch(`${backendUrl}/change-password`, {
         method: "POST",
+        credentials: "include",
         headers: {
-          "Authorization": `Bearer ${localStorage.getItem("token")}`,
           "Content-Type": "application/json",
         },
         body: JSON.stringify({ currentPassword: current, newPassword: newPass }),
@@ -131,13 +131,11 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 async function fetchAccountInfo() {
-  const token = localStorage.getItem("token");
-  if (!token) return;
-
   try {
     const res = await fetch(`${backendUrl}/me`, {
-      headers: { Authorization: `Bearer ${token}` },
+      credentials: "include",
     });
+
     const data = await res.json();
     if (res.ok) {
       localStorage.setItem("username", data.username);
@@ -213,19 +211,13 @@ function updateNavUI() {
 }
 
 async function logout() {
-  const token = localStorage.getItem("token");
-
-  if (token) {
-    try {
-      await fetch(`${backendUrl}/logout`, {
-        method: "POST",
-        headers: {
-          "Authorization": `Bearer ${token}`,
-        },
-      });
-    } catch (err) {
-      console.error("Logout request failed:", err);
-    }
+  try {
+    await fetch(`${backendUrl}/logout`, {
+      method: "POST",
+      credentials: "include",
+    });
+  } catch (err) {
+    console.error("Logout request failed:", err);
   }
 
   localStorage.clear();

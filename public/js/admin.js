@@ -35,15 +35,20 @@ function isLockedOut(user) {
 }
 
 function lockoutRemaining(user) {
+  if (!user.last_failed_login) return "00:00";
+
   const lastFailed = new Date(user.last_failed_login);
+  if (isNaN(lastFailed.getTime())) return "00:00"; // invalid date
+
   const now = new Date();
   const elapsed = Math.floor((now - lastFailed) / 1000); // seconds
   const remaining = Math.max(0, 10 * 60 - elapsed); // 10 min lockout
 
   const minutes = Math.floor(remaining / 60);
   const seconds = remaining % 60;
-  return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+  return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
 }
+
 
 
 function initializeAdminPanel(role) {
@@ -105,22 +110,28 @@ function initializeAdminPanel(role) {
       .then(res => res.json())
       .then(data => {
         const tableBody = document.getElementById("accountList");
-        tableBody.innerHTML = data.map(user => `
-          <tr>
-            <td>${user.id}</td>
-            <td>${user.username}</td>
-            <td>${user.email}</td>
-            <td>${user.verified ? "Yes" : "No"}</td>
-            <td>
-              <button class="admin-action-btn verify" onclick="verifyUser(${user.id})">Verify</button>
-              <button class="admin-action-btn delete" onclick="deleteUser(${user.id})">Delete</button>
-            </td>
-            <td>
-              ${isLockedOut ? `<span class="lockout-timer" data-seconds="${lockoutRemaining}">${formatCountdown(lockoutRemaining)}</span>` : ''}
-              ${user.role !== 'SysAdmin' && isLockedOut ? `<button onclick="forceUnlock(${user.id})">Unlock</button>` : ''}
-            </td>
-          </tr>
-        `).join("");
+        tableBody.innerHTML = data.map(user => {
+          const locked = isLockedOut(user);
+          const remainingTime = locked ? lockoutRemaining(user) : null;
+
+          return `
+            <tr>
+              <td>${user.id}</td>
+              <td>${user.username}</td>
+              <td>${user.email}</td>
+              <td>${user.verified ? "Yes" : "No"}</td>
+              <td>
+                <button class="admin-action-btn verify" onclick="verifyUser(${user.id})">Verify</button>
+                <button class="admin-action-btn delete" onclick="deleteUser(${user.id})">Delete</button>
+              </td>
+              <td>
+                ${locked ? `<span class="lockout-timer" data-seconds="${remainingTime}">${remainingTime}</span>` : ''}
+                ${locked && user.role !== 'SysAdmin' ? `<button class="unlock-btn" data-user-id="${user.id}">Unlock</button>` : ''}
+              </td>
+            </tr>
+          `;
+        }).join("");
+        startLockoutTimers();
       });
 
     fetch("https://simplesurvivalcollectibles.site/admin/all-users", {

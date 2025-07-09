@@ -35,7 +35,9 @@ const showToast = (msg, type = "success", duration = 3000) => {
 
 document.addEventListener("DOMContentLoaded", () => {
   updateNavUI(); // prevent flicker
-  fetchAccountInfo();
+  if (document.cookie.includes("refreshToken") || localStorage.getItem("username")) {
+    fetchAccountInfo();
+  }
 
   document.getElementById("registerForm").addEventListener("submit", async function (e) {
     e.preventDefault();

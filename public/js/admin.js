@@ -578,18 +578,36 @@ function loadAuditLogs(page = 1) {
 }
 
 function deleteLog(logId) {
-  if (!confirm("Delete this audit log entry?")) return;
+  const modalId = `deleteLogModal-${logId}`;
+  showGlobalModal({
+    type: "warning",
+    title: "Delete Log Entry",
+    message: "Are you sure you want to delete this audit log entry?",
+    buttons: [
+      {
+        label: "Cancel",
+        onClick: `document.getElementById('${modalId}').remove()`
+      },
+      {
+        label: "Delete",
+        onClick: `confirmDeleteLog(${logId}, '${modalId}')`
+      }
+    ],
+    id: modalId
+  });
+}
 
+function confirmDeleteLog(logId, modalId) {
   fetch(`https://simplesurvivalcollectibles.site/admin/audit-logs/${logId}`, {
     method: "DELETE",
     credentials: "include"
-  })
-    .then(() => {
-      showToast("Log entry deleted.");
-      loadAuditLogs(currentPage);
-    })
-    .catch(() => showToast("Failed to delete log entry"));
+  }).then(() => {
+    showToast("Log entry deleted.");
+    loadAuditLogs(currentPage);
+    document.getElementById(modalId).remove();
+  });
 }
+
 
 function clearAuditLogs() {
   if (!confirm("Clear the entire audit log? This cannot be undone.")) return;

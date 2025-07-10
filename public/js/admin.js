@@ -1,3 +1,4 @@
+const backendUrl = "https://simplesurvivalcollectibles.site";
 let currentPage = 1;
 const logsPerPage = 10;
 
@@ -112,7 +113,10 @@ function initializeAdminPanel(role) {
         const tableBody = document.getElementById("accountList");
         tableBody.innerHTML = data.map(user => {
           const locked = isLockedOut(user);
-          const remainingTime = locked ? lockoutRemaining(user) : null;
+          const lastFailed = new Date(user.last_failed_login);
+          const now = Date.now();
+          const diffInSeconds = Math.floor((now - lastFailed) / 1000);
+          const remainingTime = Math.max(0, 600 - diffInSeconds);
 
           return `
             <tr>

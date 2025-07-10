@@ -397,3 +397,22 @@ window.onclick = function (event) {
     dropdown.classList.remove("show");
   }
 };
+
+document.addEventListener("DOMContentLoaded", () => {
+  // Inject lockout modal if it doesn't exist
+  if (!document.getElementById("lockoutModal")) {
+    const modal = document.createElement("div");
+    modal.id = "lockoutModal";
+    modal.style.cssText = `
+      display: none; position: fixed; top: 30%; left: 50%; transform: translate(-50%, -50%);
+      background-color: #222; color: #fff; padding: 2rem; border-radius: 12px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.5); z-index: 9999;
+    `;
+    modal.innerHTML = `
+      <h2 style="margin-top:0;">⏳ Account Locked</h2>
+      <p>You’ve been locked out due to too many failed attempts.</p>
+      <p>Please wait <span id="lockoutTimer">--:--</span> before trying again.</p>
+    `;
+    document.body.appendChild(modal);
+  }
+});

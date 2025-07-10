@@ -1,4 +1,5 @@
 const backendUrl = "https://simplesurvivalcollectibles.site";
+let currentUser = null;
 
 // Toast Notification Function
 const showToast = (msg, type = "success", duration = 3000) => {
@@ -103,11 +104,21 @@ document.addEventListener("DOMContentLoaded", () => {
       const data = await res.json();
       if (res.ok) {
         await fetchAccountInfo();
+        const username = localStorage.getItem("username");
         document.getElementById("authModal").style.display = "none";
-        showToast(`Logged in as: ${localStorage.getItem("username")}`, "success");
+        if (username) {
+          showToast(`Logged in as: ${username}`, "success");
+        } else {
+          showToast("Login succeeded, but no username found", "warning");
+        }
       } else {
-        showToast(data.error || "Login failed", "error");
+        if (data.error && data.error.includes("active session")) {
+          showToast("Login failed: Active session already exists", "error");
+        } else {
+          showToast(data.error || "Login failed", "error");
+        }
       }
+
     } catch (err) {
       showToast("Login request failed", "error");
       console.error(err);

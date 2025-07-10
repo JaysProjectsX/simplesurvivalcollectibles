@@ -3,17 +3,40 @@ const logsPerPage = 10;
 
 document.addEventListener("DOMContentLoaded", async () => {
   try {
-    const res = await fetch("https://simplesurvivalcollectibles.site/me", { credentials: "include" });
-    const data = await res.json();
+    const res = await fetch("https://simplesurvivalcollectibles.site/me", {
+      credentials: "include",
+    });
 
-    if (!res.ok || !data.role || (data.role !== "Admin" && data.role !== "SysAdmin")) {
-      document.body.innerHTML = "";
-      window.location.href = "404";
-      return;
+    if (res.status === 401) {
+      // Try refreshing the token
+      const refreshRes = await fetch("https://simplesurvivalcollectibles.site/refresh", {
+        method: "POST",
+        credentials: "include",
+      });
+
+      if (refreshRes.ok) {
+        // Retry /me after refresh
+        const retry = await fetch("https://simplesurvivalcollectibles.site/me", {
+          credentials: "include",
+        });
+        const retryData = await retry.json();
+
+        if (retry.ok && retryData.role && (retryData.role === "Admin" || retryData.role === "SysAdmin")) {
+          document.getElementById("adminContent").style.display = "block";
+          initializeAdminPanel(retryData.role);
+        } else {
+          throw new Error("Retry failed or role invalid");
+        }
+      } else {
+        throw new Error("Token refresh failed");
+      }
+    } else {
+      const data = await res.json();
+      if (!data.role || (data.role !== "Admin" && data.role !== "SysAdmin")) throw new Error("Unauthorized");
+
+      document.getElementById("adminContent").style.display = "block";
+      initializeAdminPanel(data.role);
     }
-
-    document.getElementById("adminContent").style.display = "block";
-    initializeAdminPanel(data.role);
   } catch (err) {
     console.error("Auth check failed:", err);
     document.body.innerHTML = "";
@@ -126,7 +149,7 @@ function initializeAdminPanel(role) {
                 <button class="admin-action-btn delete" onclick="deleteUser(${user.id})">Delete</button>
               </td>
               <td>
-                ${locked ? `<span class="lockout-timer" data-seconds="${remainingTime}">${remainingTime}</span>` : ''}
+                ${locked ? `<span class="lockout-timer" data-seconds="${remainingTime}">${remainingTime}</span>` : 'Not locked out'}
                 ${locked && user.role !== 'SysAdmin' ? `<button class="unlock-btn" data-user-id="${user.id}">Unlock</button>` : ''}
               </td>
             </tr>

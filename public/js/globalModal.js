@@ -10,7 +10,7 @@ const iconError = `
 
 const iconWarning = `
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="icon-svg">
-  <path fill-rule="evenodd" d="M12 2.25c-.513 0-1.025.197-1.414.586L2.836 10.586A2 2 0 004.25 14h15.5a2 2 0 001.414-3.414L13.414 2.836A1.996 1.996 0 0012 2.25ZM12 9.75a.75.75 0 01.75.75v2.25a.75.75 0 01-1.5 0V10.5a.75.75 0 01.75-.75Zm0 5.25a.75.75 0 110 1.5.75.75 0 010-1.5Z" clip-rule="evenodd"/>
+  <path d="M1 21h22L12 2 1 21zM12 16v2h0v-2h0zm0-6v4h0v-4h0z"/>
 </svg>`;
 
 function showGlobalModal({ type = "success", title = "", message = "", buttons = [], id = "globalModal" }) {

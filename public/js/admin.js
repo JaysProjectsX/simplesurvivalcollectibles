@@ -493,24 +493,64 @@ document.getElementById("addItemForm").addEventListener("submit", function (e) {
 });
 
 function deleteCrate(crateId) {
-  if (!confirm("Delete this crate?")) return;
+  const modalId = `deleteCrateModal-${crateId}`;
+  showGlobalModal({
+    type: "warning",
+    title: "Delete Crate",
+    message: "Are you sure you want to permanently delete this crate?",
+    buttons: [
+      {
+        label: "Cancel",
+        onClick: `document.getElementById('${modalId}').remove()`
+      },
+      {
+        label: "Delete",
+        onClick: `confirmDeleteCrate(${crateId}, '${modalId}')`
+      }
+    ],
+    id: modalId
+  });
+}
+
+function confirmDeleteCrate(crateId, modalId) {
   fetch(`https://simplesurvivalcollectibles.site/admin/crates/${crateId}`, {
     method: "DELETE",
     credentials: "include"
   }).then(() => {
-    showToast("Crate deleted successfully");
+    showToast("Crate deleted successfully.");
     loadCratesAndItems();
+    document.getElementById(modalId).remove();
   });
 }
 
 function deleteItem(itemId) {
-  if (!confirm("Delete this item?")) return;
+  const modalId = `deleteItemModal-${itemId}`;
+  showGlobalModal({
+    type: "warning",
+    title: "Delete Item",
+    message: "Are you sure you want to permanently delete this item?",
+    buttons: [
+      {
+        label: "Cancel",
+        onClick: `document.getElementById('${modalId}').remove()`
+      },
+      {
+        label: "Delete",
+        onClick: `confirmDeleteItem(${itemId}, '${modalId}')`
+      }
+    ],
+    id: modalId
+  });
+}
+
+function confirmDeleteItem(itemId, modalId) {
   fetch(`https://simplesurvivalcollectibles.site/admin/items/${itemId}`, {
     method: "DELETE",
     credentials: "include"
   }).then(() => {
-    showToast("Item deleted successfully");
+    showToast("Item deleted successfully.");
     loadCratesAndItems();
+    document.getElementById(modalId).remove();
   });
 }
 
@@ -608,20 +648,37 @@ function confirmDeleteLog(logId, modalId) {
   });
 }
 
-
 function clearAuditLogs() {
-  if (!confirm("Clear the entire audit log? This cannot be undone.")) return;
+  const modalId = `clearAuditModal`;
+  showGlobalModal({
+    type: "warning",
+    title: "Clear Audit Logs",
+    message: "This action cannot be undone. Clear the entire audit log?",
+    buttons: [
+      {
+        label: "Cancel",
+        onClick: `document.getElementById('${modalId}').remove()`
+      },
+      {
+        label: "Confirm",
+        onClick: `confirmClearAuditLogs('${modalId}')`
+      }
+    ],
+    id: modalId
+  });
+}
 
+function confirmClearAuditLogs(modalId) {
   fetch("https://simplesurvivalcollectibles.site/admin/audit-logs", {
     method: "DELETE",
     credentials: "include"
-  })
-    .then(() => {
-      showToast("Audit log cleared.");
-      loadAuditLogs(1);
-    })
-    .catch(() => showToast("Failed to clear audit log"));
+  }).then(() => {
+    showToast("Audit log successfully cleared.");
+    loadAuditLogs(1);
+    document.getElementById(modalId).remove();
+  });
 }
+
 
 function verifyUser(userId) {
   fetch("https://simplesurvivalcollectibles.site/admin/verify-user", {
@@ -638,17 +695,37 @@ function verifyUser(userId) {
 }
 
 function deleteUser(userId) {
-  if (!confirm("Are you sure you want to delete this user?")) return;
+  const modalId = `deleteUserModal-${userId}`;
+  showGlobalModal({
+    type: "warning",
+    title: "Delete User",
+    message: "Are you sure you want to permanently delete this user?",
+    buttons: [
+      {
+        label: "Cancel",
+        onClick: `document.getElementById('${modalId}').remove()`
+      },
+      {
+        label: "Delete",
+        onClick: `confirmDeleteUser(${userId}, '${modalId}')`
+      }
+    ],
+    id: modalId
+  });
+}
+
+function confirmDeleteUser(userId, modalId) {
   fetch("https://simplesurvivalcollectibles.site/admin/delete-user", {
     method: "DELETE",
     credentials: "include",
     headers: {
-      "Content-Type": "application/json",
+      "Content-Type": "application/json"
     },
-    body: JSON.stringify({ userId }),
+    body: JSON.stringify({ userId })
   }).then(() => {
-    showToast("User deleted successfully 🗑️");
+    showToast("User deleted successfully.");
     setTimeout(() => location.reload(), 1000);
+    document.getElementById(modalId).remove();
   });
 }
 
@@ -713,26 +790,34 @@ function formatCountdown(seconds) {
 }
 
 function exportAuditLogsAsCSV() {
-  fetch(
-    "https://simplesurvivalcollectibles.site/admin/audit-logs?page=1&limit=10000",
-    {
-      credentials: "include",
-    }
-  )
+  fetch("https://simplesurvivalcollectibles.site/admin/audit-logs?page=1&limit=10000", {
+    credentials: "include"
+  })
     .then((res) => res.json())
     .then(({ logs }) => {
       if (!logs || logs.length === 0) {
-        showToast("No logs to export.");
+        const modalId = "csvExportNoneModal";
+        showGlobalModal({
+          type: "warning",
+          title: "No Logs to Export",
+          message: "There are currently no audit logs available for export.",
+          buttons: [
+            {
+              label: "Close",
+              onClick: `document.getElementById('${modalId}').remove()`
+            }
+          ],
+          id: modalId
+        });
         return;
       }
 
       const csvRows = [["User ID", "Action", "Timestamp"]];
-
       logs.forEach((log) => {
         csvRows.push([
           `"${log.user_id}"`,
           `"${log.action}"`,
-          `"${new Date(log.timestamp).toLocaleString()}"`,
+          `"${new Date(log.timestamp).toLocaleString()}"`
         ]);
       });
 
@@ -740,17 +825,41 @@ function exportAuditLogsAsCSV() {
       const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
       const link = document.createElement("a");
       link.href = URL.createObjectURL(blob);
-      link.download = `audit-logs-${
-        new Date().toISOString().split("T")[0]
-      }.csv`;
+      link.download = `audit-logs-${new Date().toISOString().split("T")[0]}.csv`;
       link.style.display = "none";
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
 
-      showToast("CSV exported successfully");
+      const modalId = "csvExportSuccessModal";
+      showGlobalModal({
+        type: "success",
+        title: "Audit Log Exported",
+        message: "Audit logs were exported successfully as a CSV file.",
+        buttons: [
+          {
+            label: "Close",
+            onClick: `document.getElementById('${modalId}').remove()`
+          }
+        ],
+        id: modalId
+      });
     })
-    .catch(() => showToast("Failed to export CSV"));
+    .catch(() => {
+      const modalId = "csvExportErrorModal";
+      showGlobalModal({
+        type: "error",
+        title: "Export Failed",
+        message: "An error occurred while exporting audit logs. Please try again later.",
+        buttons: [
+          {
+            label: "Close",
+            onClick: `document.getElementById('${modalId}').remove()`
+          }
+        ],
+        id: modalId
+      });
+    });
 }
 
 document.addEventListener("click", function (e) {

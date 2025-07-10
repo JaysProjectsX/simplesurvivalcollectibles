@@ -10,8 +10,9 @@ const iconError = `
 
 const iconWarning = `
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="icon">
-  <path d="M1 21h22L12 2 1 21zM12 16v2h0v-2h0zm0-6v4h0v-4h0z"/>
+  <path fill-rule="evenodd" d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25Zm-.75 6a.75.75 0 0 1 1.5 0v4.5a.75.75 0 0 1-1.5 0V8.25Zm.75 7.875a.75.75 0 1 0 0 1.5.75.75 0 0 0 0-1.5Z" clip-rule="evenodd" />
 </svg>`;
+
 
 function showGlobalModal({ type = "success", title = "", message = "", buttons = [], id = "globalModal" }) {
   const iconMap = {

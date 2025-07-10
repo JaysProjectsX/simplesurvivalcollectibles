@@ -51,14 +51,15 @@
   margin-bottom: 1.5em;
 }
 .global-modal .modal-body .icon {
-  width: 2.5rem;
-  height: 2.5rem;
-  min-width: 2.5rem;
-  min-height: 2.5rem;
+  width: 3rem;
   flex-shrink: 0;
   display: block;
-  aspect-ratio: 1 / 1;
-  color: white;
+}
+
+@media screen and (min-width: 540px) {
+  .global-modal .modal-body .icon {
+    width: 4rem;
+  }
 }
 .global-modal .modal-body h3 {
   font-size: 1.2rem;
@@ -72,7 +73,7 @@
 
 .global-modal .modal-footer {
   display: flex;
-  justify-content: flex-end;
+  justify-content: center;
   gap: 1em;
 }
 

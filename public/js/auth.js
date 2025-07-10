@@ -300,32 +300,48 @@ async function logout() {
 }
 
 function showLockoutModal(secondsRemaining) {
-  const modal = document.getElementById("lockoutModal");
-  const timerSpan = document.getElementById("lockoutTimer");
-  modal.style.display = "block";
-
   let remaining = secondsRemaining;
 
-  const updateTimer = () => {
+  const updateTimerText = () => {
     const minutes = Math.floor(remaining / 60).toString().padStart(2, "0");
     const seconds = (remaining % 60).toString().padStart(2, "0");
-    timerSpan.textContent = `${minutes}:${seconds}`;
+    return `${minutes}:${seconds}`;
+  };
+
+  const modalId = "lockoutGlobalModal";
+
+  // Clear existing modal if it's already open
+  const existing = document.getElementById(modalId);
+  if (existing) existing.remove();
+
+  showGlobalModal({
+    type: "warning",
+    title: "Account Temporarily Locked",
+    message: `
+      You’ve been locked out due to too many failed login attempts.<br>
+      Please wait <span id="lockoutTimer">${updateTimerText()}</span> before trying again.
+    `,
+    buttons: [
+      {
+        label: "Close",
+        onClick: `document.getElementById('${modalId}').remove()`
+      }
+    ],
+    id: modalId
+  });
+
+  const interval = setInterval(() => {
     remaining--;
+    const timerElem = document.getElementById("lockoutTimer");
+    if (timerElem) timerElem.textContent = updateTimerText();
 
     if (remaining < 0) {
       clearInterval(interval);
-      modal.style.display = "none";
+      const modal = document.getElementById(modalId);
+      if (modal) modal.remove();
     }
-  };
-
-  updateTimer();
-  const interval = setInterval(updateTimer, 1000);
+  }, 1000);
 }
-
-function closeLockoutModal() {
-  document.getElementById("lockoutModal").style.display = "none";
-}
-
 
 function openAccountModal() {
   const username = localStorage.getItem("username");
@@ -408,22 +424,3 @@ window.onclick = function (event) {
     dropdown.classList.remove("show");
   }
 };
-
-document.addEventListener("DOMContentLoaded", () => {
-  // Inject lockout modal if it doesn't exist
-  if (!document.getElementById("lockoutModal")) {
-    const modal = document.createElement("div");
-    modal.id = "lockoutModal";
-    modal.style.cssText = `
-      display: none; position: fixed; top: 30%; left: 50%; transform: translate(-50%, -50%);
-      background-color: #222; color: #fff; padding: 2rem; border-radius: 12px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.5); z-index: 9999;
-    `;
-    modal.innerHTML = `
-      <h2 style="margin-top:0;">Account Temporarily Locked</h2>
-      <p>You’ve been locked out due to too many failed attempts.</p>
-      <p>Please wait <span id="lockoutTimer">--:--</span> before trying again.</p>
-    `;
-    document.body.appendChild(modal);
-  }
-});

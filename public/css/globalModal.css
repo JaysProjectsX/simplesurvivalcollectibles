@@ -1,0 +1,95 @@
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap");
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+body {
+  font-family: "Poppins", sans-serif;
+}
+
+.global-modal-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+  position: fixed;
+  top: 0; left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.6);
+}
+
+.global-modal {
+  max-width: 600px;
+  width: 90%;
+  background: #151419;
+  color: white;
+  border-radius: 1rem;
+  box-shadow: 0.063em 0.75em 1.563em rgba(0, 0, 0, 0.78);
+  padding: 2em;
+  text-align: left;
+  position: relative;
+}
+
+.global-modal .modal-header {
+  display: flex;
+  justify-content: flex-end;
+}
+.global-modal .modal-header .close {
+  width: 1.5rem;
+  height: 1.5rem;
+  cursor: pointer;
+  fill: #d9d9d9;
+}
+
+.global-modal .modal-body {
+  display: flex;
+  align-items: flex-start;
+  gap: 1em;
+  margin-bottom: 1.5em;
+}
+.global-modal .modal-body .icon {
+  width: 3rem;
+  flex-shrink: 0;
+}
+.global-modal .modal-body h3 {
+  font-size: 1.2rem;
+  margin: 0 0 0.5em;
+  font-weight: 600;
+}
+.global-modal .modal-body p {
+  color: #cccccc;
+  font-size: 1rem;
+}
+
+.global-modal .modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1em;
+}
+
+.global-modal .btn {
+  background-color: #222127;
+  color: #fff;
+  padding: 0.6rem 1.5rem;
+  border-radius: 5px;
+  border: none;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+.global-modal .btn:hover {
+  background-color: #444;
+}
+
+.global-modal.success {
+  background: radial-gradient(ellipse at right top, #107667ed 0%, #151419 47%, #151419 100%);
+}
+.global-modal.error {
+  background: radial-gradient(ellipse at right top, #a63d2a82 0%, #151419 47%, #151419 100%);
+}
+.global-modal.warning {
+  background: radial-gradient(ellipse at right top, #ffb84d 0%, #151419 47%, #151419 100%);
+}

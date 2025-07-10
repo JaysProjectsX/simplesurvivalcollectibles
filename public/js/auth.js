@@ -420,7 +420,7 @@ document.addEventListener("DOMContentLoaded", () => {
       box-shadow: 0 0 10px rgba(0,0,0,0.5); z-index: 9999;
     `;
     modal.innerHTML = `
-      <h2 style="margin-top:0;">⏳ Account Locked</h2>
+      <h2 style="margin-top:0;">Account Temporarily Locked</h2>
       <p>You’ve been locked out due to too many failed attempts.</p>
       <p>Please wait <span id="lockoutTimer">--:--</span> before trying again.</p>
     `;

@@ -1,22 +1,19 @@
-const backendUrl = "https://simplesurvivalcollectibles.site";
 let currentPage = 1;
 const logsPerPage = 10;
 
 document.addEventListener("DOMContentLoaded", async () => {
   try {
-    const res = await fetch("https://simplesurvivalcollectibles.site/me", {
-      credentials: "include"
-    });
+    const res = await fetch("https://simplesurvivalcollectibles.site/me", { credentials: "include" });
     const data = await res.json();
 
     if (!res.ok || !data.role || (data.role !== "Admin" && data.role !== "SysAdmin")) {
-      document.body.innerHTML = ""; // Prevents flicker
+      document.body.innerHTML = "";
       window.location.href = "404";
       return;
     }
 
     document.getElementById("adminContent").style.display = "block";
-    initializeAdminPanel(data.role); // ✅ Pass role to the new function
+    initializeAdminPanel(data.role);
   } catch (err) {
     console.error("Auth check failed:", err);
     document.body.innerHTML = "";
@@ -718,7 +715,7 @@ function exportAuditLogsAsCSV() {
 document.addEventListener("click", function (e) {
   if (e.target.classList.contains("unlock-btn")) {
     const userId = e.target.getAttribute("data-user-id");
-    fetch(`${backendUrl}/admin/unlock-user/${userId}`, {
+    fetch(`https://simplesurvivalcollectibles.site/admin/unlock-user/${userId}`, {
       method: "POST",
       credentials: "include"
     })

@@ -36,6 +36,10 @@
   animation: fadeOut 0.3s ease-in-out;
 }
 
+.fadeOut {
+  animation: fadeOut 0.3s ease-in-out;
+}
+
 .global-modal {
   max-width: 600px;
   width: 90%;

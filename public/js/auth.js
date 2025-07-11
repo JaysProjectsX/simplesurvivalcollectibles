@@ -324,7 +324,7 @@ function showLockoutModal(secondsRemaining) {
     buttons: [
       {
         label: "Close",
-        onClick: `document.getElementById('${modalId}').remove()`
+        onClick: `fadeOutAndRemove('${modalId}')`
       }
     ],
     id: modalId
@@ -424,3 +424,19 @@ window.onclick = function (event) {
     dropdown.classList.remove("show");
   }
 };
+
+function fadeOutAndRemove(modalId) {
+  const modal = document.getElementById(modalId);
+  if (!modal) return;
+
+  const content = modal.querySelector(".global-modal-container");
+  if (content) {
+    content.classList.remove("fadeIn");
+    content.classList.add("fadeOut");
+    setTimeout(() => {
+      modal.remove();
+    }, 300); // Match fadeOut animation duration
+  } else {
+    modal.remove(); // Fallback
+  }
+}

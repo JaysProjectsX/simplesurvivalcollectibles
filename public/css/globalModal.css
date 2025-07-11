@@ -29,15 +29,15 @@
   width: 100vw;
   height: 100vh;
   background-color: rgba(0, 0, 0, 0.6);
-  animation: fadeIn 0.3s ease-in-out;
+  animation: fadeIn 0.3s ease-in;
 }
 
 .global-modal-container.fade-out {
-  animation: fadeOut 0.3s ease-in-out;
+  animation: fadeOut 0.3s ease-out;
 }
 
 .fadeOut {
-  animation: fadeOut 0.3s ease-in-out;
+  animation: fadeOut 0.3s ease-out;
 }
 
 .global-modal {

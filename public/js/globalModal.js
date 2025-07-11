@@ -47,5 +47,12 @@ function showGlobalModal({ type = "success", title = "", message = "", buttons =
   wrapper.innerHTML = modalHtml;
   document.body.appendChild(wrapper);
 
-  wrapper.querySelector(".close").onclick = () => wrapper.remove();
+  const container = wrapper.querySelector(".global-modal-container");
+
+  wrapper.querySelector(".close").onclick = () => {
+    container.classList.add("fade-out");
+    setTimeout(() => wrapper.remove(), 300); // Matches the CSS animation duration
+  };
 }
+
+

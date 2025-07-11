@@ -501,7 +501,7 @@ function deleteCrate(crateId) {
     buttons: [
       {
         label: "Cancel",
-        onClick: `document.getElementById('${modalId}').remove()`
+        onClick: `fadeOutAndRemove('${modalId}')`
       },
       {
         label: "Delete",
@@ -532,7 +532,7 @@ function deleteItem(itemId) {
     buttons: [
       {
         label: "Cancel",
-        onClick: `document.getElementById('${modalId}').remove()`
+        onClick: `fadeOutAndRemove('${modalId}')`
       },
       {
         label: "Delete",
@@ -626,7 +626,7 @@ function deleteLog(logId) {
     buttons: [
       {
         label: "Cancel",
-        onClick: `document.getElementById('${modalId}').remove()`
+        onClick: `fadeOutAndRemove('${modalId}')`
       },
       {
         label: "Delete",
@@ -657,7 +657,7 @@ function clearAuditLogs() {
     buttons: [
       {
         label: "Cancel",
-        onClick: `document.getElementById('${modalId}').remove()`
+        onClick: `fadeOutAndRemove('${modalId}')`
       },
       {
         label: "Confirm",
@@ -703,7 +703,7 @@ function deleteUser(userId) {
     buttons: [
       {
         label: "Cancel",
-        onClick: `document.getElementById('${modalId}').remove()`
+        onClick: `fadeOutAndRemove('${modalId}')`
       },
       {
         label: "Delete",
@@ -804,7 +804,7 @@ function exportAuditLogsAsCSV() {
           buttons: [
             {
               label: "Close",
-              onClick: `document.getElementById('${modalId}').remove()`
+              onClick: `fadeOutAndRemove('${modalId}')`
             }
           ],
           id: modalId
@@ -839,7 +839,7 @@ function exportAuditLogsAsCSV() {
         buttons: [
           {
             label: "Close",
-            onClick: `document.getElementById('${modalId}').remove()`
+            onClick: `fadeOutAndRemove('${modalId}')`
           }
         ],
         id: modalId
@@ -854,12 +854,28 @@ function exportAuditLogsAsCSV() {
         buttons: [
           {
             label: "Close",
-            onClick: `document.getElementById('${modalId}').remove()`
+            onClick: `fadeOutAndRemove('${modalId}')`
           }
         ],
         id: modalId
       });
     });
+}
+
+function fadeOutAndRemove(modalId) {
+  const modal = document.getElementById(modalId);
+  if (!modal) return;
+
+  const content = modal.querySelector(".modal-content-admin");
+  if (content) {
+    content.classList.remove("fadeIn");
+    content.classList.add("fadeOut");
+    setTimeout(() => {
+      modal.remove();
+    }, 300); // Match fadeOut animation duration
+  } else {
+    modal.remove(); // Fallback
+  }
 }
 
 document.addEventListener("click", function (e) {

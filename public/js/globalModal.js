@@ -55,4 +55,17 @@ function showGlobalModal({ type = "success", title = "", message = "", buttons =
   };
 }
 
+function fadeOutAndRemove(modalId) {
+  const modal = document.getElementById(modalId);
+  if (!modal) return;
+
+  // Add fadeOut to the entire container directly
+  modal.classList.remove("fadeIn");
+  modal.classList.add("fadeOut");
+
+  setTimeout(() => {
+    modal.remove();
+  }, 300); // Matches fadeOut duration
+}
+
 

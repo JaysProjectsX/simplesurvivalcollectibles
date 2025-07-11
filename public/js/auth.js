@@ -315,7 +315,7 @@ function showLockoutModal(secondsRemaining) {
   if (existing) existing.remove();
 
   showGlobalModal({
-    type: "warning",
+    type: "error",
     title: "Account Temporarily Locked",
     message: `
       You’ve been locked out due to too many failed login attempts.<br>

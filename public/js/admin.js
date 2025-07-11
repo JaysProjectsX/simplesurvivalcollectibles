@@ -519,7 +519,7 @@ function confirmDeleteCrate(crateId, modalId) {
   }).then(() => {
     showToast("Crate deleted successfully.");
     loadCratesAndItems();
-    document.getElementById(modalId).remove();
+    fadeOutAndRemove(modalId);
   });
 }
 
@@ -550,7 +550,7 @@ function confirmDeleteItem(itemId, modalId) {
   }).then(() => {
     showToast("Item deleted successfully.");
     loadCratesAndItems();
-    document.getElementById(modalId).remove();
+    fadeOutAndRemove(modalId);
   });
 }
 
@@ -644,7 +644,7 @@ function confirmDeleteLog(logId, modalId) {
   }).then(() => {
     showToast("Log entry deleted.");
     loadAuditLogs(currentPage);
-    document.getElementById(modalId).remove();
+    fadeOutAndRemove(modalId);
   });
 }
 
@@ -675,7 +675,7 @@ function confirmClearAuditLogs(modalId) {
   }).then(() => {
     showToast("Audit log successfully cleared.");
     loadAuditLogs(1);
-    document.getElementById(modalId).remove();
+    fadeOutAndRemove(modalId);
   });
 }
 
@@ -725,7 +725,7 @@ function confirmDeleteUser(userId, modalId) {
   }).then(() => {
     showToast("User deleted successfully.");
     setTimeout(() => location.reload(), 1000);
-    document.getElementById(modalId).remove();
+    fadeOutAndRemove(modalId);
   });
 }
 

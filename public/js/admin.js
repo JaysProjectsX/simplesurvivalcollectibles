@@ -798,7 +798,7 @@ function exportAuditLogsAsCSV() {
       if (!logs || logs.length === 0) {
         const modalId = "csvExportNoneModal";
         showGlobalModal({
-          type: "warning",
+          type: "error",
           title: "No Logs to Export",
           message: "There are currently no audit logs available for export.",
           buttons: [

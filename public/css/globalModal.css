@@ -124,7 +124,7 @@
   transition: opacity 0.3s ease;
 }
 .global-modal.warning {
-  background: radial-gradient(ellipse at right top, #ffb84d 0%, #151419 47%, #151419 100%);
+  background: radial-gradient(ellipse at right top, #db913de7 0%, #151419 47%, #151419 100%);
   opacity: 0.95;
   transition: opacity 0.3s ease;
 }

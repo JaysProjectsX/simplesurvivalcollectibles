@@ -37,7 +37,7 @@ function showGlobalModal({ type = "success", title = "", message = "", buttons =
           </div>
         </div>
         <div class="modal-footer">
-          ${buttons.map(btn => `<button class="btn" onclick="${btn.onClick}">${btn.label}</button>`).join("")}
+          ${buttons.map(btn => `<button class="btn" onclick="${btn.onClick || `fadeOutAndRemove('${id}')`}">${btn.label}</button>`).join("")}
         </div>
       </div>
     </div>

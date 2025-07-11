@@ -866,7 +866,7 @@ function fadeOutAndRemove(modalId) {
   const modal = document.getElementById(modalId);
   if (!modal) return;
 
-  const content = modal.querySelector(".modal-content-admin");
+  const content = modal.querySelector(".global-modal-container");
   if (content) {
     content.classList.remove("fadeIn");
     content.classList.add("fadeOut");

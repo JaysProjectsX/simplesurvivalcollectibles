@@ -129,7 +129,6 @@ body {
   transform-origin: 50% 50%;
   stroke-dasharray: 70;
   stroke-dashoffset: 70;
-  stroke: #e53935;
   stroke-width: 3;
   animation: stroke 0.5s ease-in-out 0.7s forwards;
 }

@@ -7,19 +7,34 @@
   <link rel="stylesheet" href="/css/verify.css" />
 </head>
 <body>
-  <div class="verify-container">
+  <div class="verify-wrapper">
     <div id="loader" class="loader"></div>
+
     <div id="result" class="result hidden">
       <div id="icon" class="icon"></div>
       <h2 id="message">Verifying...</h2>
-      <div id="redirect-msg" class="redirect-message">Redirecting in <span id="countdown">4</span> seconds...</div>
-      <div><a href="index.html" class="manual-link">Click here if you are not redirected.</a></div>
+      <div id="redirect-msg" class="redirect-message">
+        Redirecting in <span id="countdown">5</span> seconds...
+      </div>
+      <div><a href="/index.html" class="manual-link">Click here if you are not redirected.</a></div>
     </div>
   </div>
 
-  <div id="toast" class="toast hidden">
-    <span id="toast-message"></span>
-  </div>
+  <!-- ✅ Checkmark Success SVG -->
+  <template id="checkmark-svg">
+    <svg class="checkmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
+      <circle class="checkmark__circle" cx="26" cy="26" r="25" fill="none"/>
+      <path class="checkmark__check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8"/>
+    </svg>
+  </template>
+
+  <!-- ❌ Error SVG -->
+  <template id="error-svg">
+    <svg class="errormark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
+      <circle class="errormark__circle" cx="26" cy="26" r="25" fill="none"/>
+      <path class="errormark__cross" fill="none" d="M16 16 36 36 M36 16 16 36"/>
+    </svg>
+  </template>
 
   <script>
     const loader = document.getElementById('loader');
@@ -27,26 +42,13 @@
     const icon = document.getElementById('icon');
     const message = document.getElementById('message');
     const countdown = document.getElementById('countdown');
-    const toast = document.getElementById('toast');
-    const toastMessage = document.getElementById('toast-message');
+    const checkmarkTemplate = document.getElementById('checkmark-svg').content;
+    const errorTemplate = document.getElementById('error-svg').content;
 
-    // 🔧 Replace with your real backend URL
     const backendUrl = 'https://simplesurvivalcollectibles.site';
-
-    // ✅ Get token from URL query string
     const urlParams = new URLSearchParams(window.location.search);
     const token = urlParams.get('token');
 
-    // Toast function
-    const showToast = (msg, type = 'success', duration = 4000) => {
-      toastMessage.textContent = msg;
-      toast.className = `toast show ${type}`;
-      setTimeout(() => {
-        toast.className = 'toast hidden';
-      }, duration);
-    };
-
-    // Countdown function
     const startCountdown = (seconds) => {
       let remaining = seconds;
       countdown.textContent = remaining;
@@ -64,11 +66,11 @@
     if (!token) {
       loader.style.display = 'none';
       result.classList.remove('hidden');
-      icon.textContent = '❌';
+      icon.innerHTML = '';
+      icon.appendChild(errorTemplate.cloneNode(true));
       message.textContent = 'Invalid verification link.';
-      showToast('Missing token in URL.', 'error');
-      startCountdown(4);
-      setTimeout(redirectToHome, 4000);
+      startCountdown(5);
+      setTimeout(redirectToHome, 5000);
     } else {
       fetch(`${backendUrl}/verify/${token}`)
         .then(res => res.json())
@@ -77,27 +79,26 @@
           result.classList.remove('hidden');
 
           if (data.success) {
-            icon.textContent = '✅';
+            icon.innerHTML = '';
+            icon.appendChild(checkmarkTemplate.cloneNode(true));
             message.textContent = 'Verification successful!';
-            showToast('Your account has been successfully verified!', 'success');
           } else {
-            icon.textContent = '❌';
+            icon.innerHTML = '';
+            icon.appendChild(errorTemplate.cloneNode(true));
             message.textContent = 'Verification failed.';
-            showToast('Verification failed or token expired.', 'error');
           }
 
-          startCountdown(4);
-          setTimeout(redirectToHome, 4000);
+          startCountdown(5);
+          setTimeout(redirectToHome, 5000);
         })
         .catch(() => {
           loader.style.display = 'none';
           result.classList.remove('hidden');
-          icon.textContent = '❌';
+          icon.innerHTML = '';
+          icon.appendChild(errorTemplate.cloneNode(true));
           message.textContent = 'Server error occurred.';
-          showToast('An error occurred during verification.', 'error');
-
-          startCountdown(4);
-          setTimeout(redirectToHome, 4000);
+          startCountdown(5);
+          setTimeout(redirectToHome, 5000);
         });
     }
   </script>

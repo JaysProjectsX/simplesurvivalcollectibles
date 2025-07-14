@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Account Verification</title>
   <link rel="stylesheet" href="/css/verify.css" />
+  <link rel="icon" href="/favicon.png" type="image/png" />
 </head>
 <body>
   <div class="verify-wrapper">
@@ -20,7 +21,7 @@
     </div>
   </div>
 
-  <!-- ✅ Checkmark Success SVG -->
+  <!-- Checkmark Success SVG -->
   <template id="checkmark-svg">
     <svg class="checkmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
       <circle class="checkmark__circle" cx="26" cy="26" r="25" fill="none"/>
@@ -28,7 +29,7 @@
     </svg>
   </template>
 
-  <!-- ❌ Error SVG -->
+  <!-- Error SVG -->
   <template id="error-svg">
     <svg class="errormark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
       <circle class="errormark__circle" cx="26" cy="26" r="25" fill="none"/>
@@ -69,7 +70,7 @@
       result.classList.remove('hidden');
       icon.innerHTML = '';
       icon.appendChild(errorTemplate.cloneNode(true));
-      message.textContent = 'Invalid verification link.';
+      message.textContent = 'Invalid verification link';
       startCountdown(5);
       setTimeout(redirectToHome, 5000);
     } else {

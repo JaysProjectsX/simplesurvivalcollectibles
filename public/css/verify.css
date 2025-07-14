@@ -12,11 +12,8 @@ body {
 }
 
 .verify-wrapper {
-  background: rgba(255, 255, 255, 0.05);
   padding: 50px 40px;
   border-radius: 16px;
-  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.4);
-  backdrop-filter: blur(12px);
   max-width: 420px;
   width: 90%;
   text-align: center;
@@ -47,10 +44,6 @@ body {
   display: none;
 }
 
-.icon {
-  margin-bottom: 20px;
-}
-
 /* Message Text */
 #message {
   font-size: 22px;
@@ -61,6 +54,7 @@ body {
 .redirect-message {
   font-size: 14px;
   margin-top: 8px;
+  margin-bottom: 8px;
   color: #cccccc;
 }
 

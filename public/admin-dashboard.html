@@ -83,21 +83,58 @@
             <div class="db-subtab-content" id="db-tab-create" style="display: none;">
               <div class="admin-section" id="crate-creation-panel">
                 <h3>Create New Crate</h3>
-                <form id="new-crate-form" class="admin-form">
-                  <label for="new-crate-name">Crate Name:</label>
-                  <input type="text" id="new-crate-name" class="admin-input" required />
+                  <div id="newCrateWizard" class="wizard-container">
+                    <!-- Step 1: Crate Name -->
+                    <div class="wizard-step" id="step-1">
+                      <label for="crate-name">Crate Name:</label>
+                      <input type="text" id="crate-name" class="nice-input" required />
 
-                  <div id="new-items-container" class="item-fields-container">
-                    <!-- JS will inject item fields here -->
+                      <label>Crate Type:</label>
+                      <div class="crate-type-options">
+                        <label>
+                          <input type="radio" name="crate-type" value="1" checked />
+                          Cosmetic
+                        </label>
+                        <label>
+                          <input type="radio" name="crate-type" value="0" />
+                          Non-Cosmetic
+                        </label>
+                      </div>
+
+                      <button onclick="nextStep(2)">Next</button>
+                    </div>
+
+                    <!-- Step 2: Add Items -->
+                    <div class="wizard-step hidden" id="step-2">
+                      <div id="items-container"></div>
+                      <button onclick="addItem()">+ Add Item</button>
+                      <button onclick="nextStep(3)">Next</button>
+                    </div>
+
+                    <!-- Step 3: Confirm and Submit -->
+                    <div class="wizard-step hidden" id="step-3">
+                      <h3>Confirm Crate & Items</h3>
+                      <button class="crate-dropdown-btn" onclick="toggleDropdown()">
+                        <span id="crate-dropdown-title">Crate Name</span>
+                        <span class="arrow">&#x25BC;</span>
+                      </button>
+                      <div id="crate-dropdown-content" class="crate-dropdown-content hidden">
+                        <table>
+                          <thead>
+                            <tr>
+                              <th>Item Name</th>
+                              <th>Set Name</th>
+                              <th>Icon</th>
+                              <th>Tags</th>
+                              <th>Tooltip</th>
+                            </tr>
+                          </thead>
+                          <tbody id="crate-items-table-body"></tbody>
+                        </table>
+                      </div>
+                      <button onclick="submitCrate()">Submit Crate</button>
+                    </div>
                   </div>
-
-                  <button type="button" id="add-item-btn" class="admin-button">+ Add Item</button>
-
-                  <div class="form-actions">
-                    <button type="submit" class="admin-button save-btn">Save Crate</button>
-                    <button type="reset" class="admin-button cancel-btn">Cancel</button>
-                  </div>
-                </form>
               </div>
             </div>
 

@@ -554,6 +554,130 @@ function confirmDeleteItem(itemId, modalId) {
   });
 }
 
+let items = [];
+
+function nextStep(step) {
+  document.querySelectorAll('.wizard-step').forEach(el => el.classList.add('hidden'));
+  document.getElementById(`step-${step}`).classList.remove('hidden');
+
+  if (step === 3) {
+    const crateName = document.getElementById("crate-name").value;
+    document.getElementById("crate-dropdown-title").textContent = crateName;
+    const tableBody = document.getElementById("crate-items-table-body");
+    tableBody.innerHTML = "";
+
+    items.forEach(item => {
+      const row = document.createElement("tr");
+      row.innerHTML = `
+        <td>${item.name}</td>
+        <td>${item.set}</td>
+        <td>${item.icon}</td>
+        <td>${item.tags}</td>
+        <td>${item.tooltip}</td>
+      `;
+      tableBody.appendChild(row);
+    });
+  }
+}
+
+function addItem() {
+  const id = Date.now();
+  const html = `
+    <div class="item-form" data-id="${id}">
+      <label>Item Name:</label>
+      <input class="nice-input" name="itemName" />
+      <label>Set Name:</label>
+      <input class="nice-input" name="setName" />
+      <label>Icon:</label>
+      <input class="nice-input" name="icon" />
+      <label>Tags (comma-separated):</label>
+      <input class="nice-input" name="tags" />
+      <label>Tooltip:</label>
+      <textarea class="nice-input" name="tooltip"></textarea>
+      <button type="button" onclick="removeItem(${id})">Remove</button>
+    </div>
+  `;
+  document.getElementById("items-container").insertAdjacentHTML("beforeend", html);
+}
+
+function removeItem(id) {
+  document.querySelector(`.item-form[data-id="${id}"]`).remove();
+}
+
+function toggleDropdown() {
+  const content = document.getElementById("crate-dropdown-content");
+  const arrow = document.querySelector(".arrow");
+  content.classList.toggle("hidden");
+  arrow.style.transform = content.classList.contains("hidden") ? "rotate(0deg)" : "rotate(180deg)";
+}
+
+function submitCrate() {
+  const crateName = document.getElementById("crate-name").value.trim();
+  const crateType = document.querySelector('input[name="crate-type"]:checked').value;
+  const itemElements = document.querySelectorAll(".item-form");
+
+  if (!crateName || itemElements.length === 0) {
+    showToast("Please enter a crate name and at least one item.");
+    return;
+  }
+
+  items = [];
+  itemElements.forEach(el => {
+    const get = name => el.querySelector(`[name="${name}"]`).value.trim();
+    items.push({
+      name: get("itemName"),
+      set: get("setName"),
+      icon: get("icon"),
+      tags: get("tags"),
+      tooltip: get("tooltip")
+    });
+  });
+
+  // 1. Create the crate first
+  fetch("https://simplesurvivalcollectibles.site/admin/crates", {
+    method: "POST",
+    credentials: "include",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({ crate_name: crateName, is_cosmetic: parseInt(crateType) })
+  })
+    .then(res => res.json())
+    .then(crate => {
+      // 2. Add each item to the crate
+      const promises = items.map(item =>
+        fetch("https://simplesurvivalcollectibles.site/admin/items", {
+          method: "POST",
+          credentials: "include",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            crate_id: crate.id,
+            item_name: item.name,
+            set_name: item.set,
+            icon_url: item.icon,
+            tags: item.tags.split(",").map(t => t.trim()),
+            tooltip: item.tooltip
+          })
+        })
+      );
+
+      return Promise.all(promises);
+    })
+    .then(() => {
+      showToast("Crate and items created successfully!");
+      document.getElementById("crate-name").value = "";
+      document.getElementById("items-container").innerHTML = "";
+      nextStep(1);
+      loadCratesAndItems();
+    })
+    .catch(err => {
+      console.error("Crate creation failed:", err);
+      showToast("Failed to create crate or items.");
+    });
+}
+
 // Call loader when switching to DB tab
 const dbTabBtn = document.querySelector('[data-tab="dbTab"]');
 if (dbTabBtn) {

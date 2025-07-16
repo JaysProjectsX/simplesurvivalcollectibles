@@ -592,21 +592,42 @@ function prevStep(step) {
 function addItem() {
   const id = Date.now();
   const html = `
-    <div class="item-form" data-id="${id}">
-      <label>Item Name:</label>
-      <input class="nice-input" name="itemName" />
-      <label>Set Name:</label>
-      <input class="nice-input" name="setName" />
-      <label>Icon:</label>
-      <input class="nice-input" name="icon" />
-      <label>Tags (comma-separated):</label>
-      <input class="nice-input" name="tags" />
-      <label>Tooltip:</label>
-      <textarea class="nice-input" name="tooltip"></textarea>
-      <button type="button" class="modal-btn" onclick="removeItem(${id})">Remove</button>
+    <div class="item-dropdown" data-id="${id}">
+      <button class="item-dropdown-btn" onclick="toggleItemDropdown(event)">[Item Name or Placeholder]</button>
+      <div class="item-dropdown-content hidden">
+        <div class="nice-form-group">
+          <label>Item Name</label>
+          <input type="text" name="item-name" class="nice-input" />
+        </div>
+        <div class="nice-form-group">
+          <label>Set Name</label>
+          <input type="text" name="set-name" class="nice-input" />
+        </div>
+        <div class="nice-form-group">
+          <label>Icon</label>
+          <input type="text" name="icon-url" class="nice-input" />
+        </div>
+        <div class="nice-form-group">
+          <label>Tags (comma-separated)</label>
+          <input type="text" name="tags" class="nice-input" />
+        </div>
+        <div class="nice-form-group">
+          <label>Tooltip</label>
+          <textarea name="tooltip" class="nice-input"></textarea>
+        </div>
+        <button onclick="removeItem(this)" class="modal-btn">Remove</button>
+      </div>
     </div>
   `;
   document.getElementById("items-container").insertAdjacentHTML("beforeend", html);
+}
+
+function toggleItemDropdown(id, btn) {
+  const content = document.getElementById(id);
+  const arrow = btn.querySelector(".arrow");
+
+  content.classList.toggle("hidden");
+  arrow.style.transform = content.classList.contains("hidden") ? "rotate(0deg)" : "rotate(180deg)";
 }
 
 function removeItem(id) {
@@ -616,8 +637,42 @@ function removeItem(id) {
 function toggleDropdown() {
   const content = document.getElementById("crate-dropdown-content");
   const arrow = document.querySelector(".arrow");
+
+  if (!content || !arrow) return;
+
+  // Toggle visibility and animation
   content.classList.toggle("hidden");
+  content.classList.toggle("active");
+
+  // Rotate the arrow depending on visibility
   arrow.style.transform = content.classList.contains("hidden") ? "rotate(0deg)" : "rotate(180deg)";
+}
+
+function renderCrateSummaryItems(items) {
+  const container = document.getElementById("crate-items-container");
+  container.innerHTML = "";
+
+  items.forEach((item, index) => {
+    const id = `item-dropdown-${index}`;
+
+    const wrapper = document.createElement("div");
+    wrapper.classList.add("crate-item-dropdown");
+
+    wrapper.innerHTML = `
+      <button class="crate-dropdown-btn" onclick="toggleItemDropdown('${id}', this)">
+        ${item.item_name}
+        <span class="arrow">&#x25BC;</span>
+      </button>
+      <div id="${id}" class="crate-dropdown-content hidden">
+        <p><strong>Set:</strong> ${item.set_name}</p>
+        <p><strong>Icon:</strong> ${item.icon_url}</p>
+        <p><strong>Tags:</strong> ${item.tags.join(", ")}</p>
+        <p><strong>Tooltip:</strong> ${item.tooltip || "None"}</p>
+      </div>
+    `;
+
+    container.appendChild(wrapper);
+  });
 }
 
 function validateItems() {

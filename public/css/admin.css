@@ -10,6 +10,7 @@
   --font-weight-medium: 500;
   --font-weight-bold: 600;
   --border: 1px solid #2a2a3d;
+  --nf-label-color: #adb9cd;
 }
 
 /* Dashboard wrapper */
@@ -669,11 +670,12 @@ select {
 }
 .nice-form-group {
   margin-top: 0 !important;
+  --nf-label-color: #adb9cd !important;
 }
 /* Feather "gift" icon (you can use other Feather SVGs too) */
-.nice-form-group > input.icon-gift {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='%236B7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' class='feather feather-gift' viewBox='0 0 24 24'%3E%3Cpolyline points='20 12 20 22 4 22 4 12'%3E%3C/polyline%3E%3Crect x='2' y='7' width='20' height='5'%3E%3C/rect%3E%3Cline x1='12' y1='22' x2='12' y2='7'%3E%3C/line%3E%3Cpath d='M12 7a3 3 0 1 1 0-6c1.657 0 3 1.343 3 3'%3E%3C/path%3E%3Cpath d='M12 7a3 3 0 0 0 0-6c-1.657 0-3 1.343-3 3'%3E%3C/path%3E%3C/svg%3E");
-  background-repeat: no-repeat;
+.nice-form-group > input.icon-box {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='%236B7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' class='feather feather-gift' viewBox='0 0 24 24'%3E%3Cpolyline points='20 12 20 22 4 22 4 12'%3E%3C/polyline%3E%3Crect x='2' y='7' width='20' height='5'%3E%3C/rect%3E%3Cline x1='12' y1='22' x2='12' y2='7'%3E%3C/line%3E%3Cpath d='M12 7a3 3 0 1 1 0-6c1.657 0 3 1.343 3 3'%3E%3C/path%3E%3Cpath d='M12 7a3 3 0 0 0 0-6c-1.657 0-3 1.343-3 3'%3E%3C/path%3E%3C/svg%3E") !important;
+  background-repeat: no-repeat !important;
   background-position: left 0.75rem center;
   background-size: 1.25rem 1.25rem;
   padding-left: 2.5rem;
@@ -682,8 +684,14 @@ select {
   width: 80% !important;
   height: 14px !important;
 }
+.nice-form-group > label {
+  margin: 1em !important;
+}
+.nice-form-group > textarea {
+  width: 80% !important;
+}
 .hint-text {
-  font-size: 10px !important;
+  font-size: 8px !important;
 }
 .crate-dropdown-content.active {
   max-height: 1000px;

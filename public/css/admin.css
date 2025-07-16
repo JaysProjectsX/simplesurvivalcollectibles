@@ -701,6 +701,10 @@ select {
 .hint-text {
   font-size: 9px !important;
 }
+.icons-url {
+  cursor: pointer;
+  font-size: 12px;
+}
 .crate-dropdown-content.active {
   max-height: 1000px;
   opacity: 1;

@@ -628,7 +628,7 @@ function addItem() {
         <div class="nice-form-group">
           <label>Icon:</label>
           <input type="text" placeholder="Enter icon URL"/>
-          <small class="hint-text" onclick="window.open('https://mc.nerothe.com/')">To view usable item icons, click here</small>
+          <small class="hint-text icons-url" onclick="window.open('https://mc.nerothe.com/')">To view usable item icons, click here</small>
         </div>
         <div class="nice-form-group">
           <label>Tags (comma-separated):</label>

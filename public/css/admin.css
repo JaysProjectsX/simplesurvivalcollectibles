@@ -670,7 +670,6 @@ select {
 }
 .nice-form-group {
   margin-top: 0 !important;
-  --nf-label-color: #adb9cd !important;
 }
 /* Feather "gift" icon (you can use other Feather SVGs too) */
 .nice-form-group > input.icon-box {
@@ -686,6 +685,7 @@ select {
 }
 .nice-form-group > label {
   margin: 1em !important;
+  color: var(--nf-label-color) !important;
 }
 .nice-form-group > textarea {
   width: 80% !important;

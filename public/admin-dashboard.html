@@ -92,7 +92,7 @@
                           <input
                             type="text"
                             id="crate-name"
-                            class="icon-left"
+                            class="icon-left icon-box"
                             placeholder="e.g. gamesCrate"
                           />
                           <small class="hint-text">Example crate format: gamesCrate, valentinesCrate, springCrate</small>
@@ -129,7 +129,6 @@
                         <span id="crate-dropdown-title">[Crate Name]</span>
                         <span class="arrow" style="transition: transform 0.3s;">▼</span>
                       </button>
-
                       <div id="crate-dropdown-content" class="crate-dropdown-content hidden">
                         <div class="crate-item-list-scroll">
                           <table>
@@ -150,7 +149,7 @@
                       </div>
 
                       <div>
-                        <button class="modal-btn" onclick="previousStep(2)">Previous</button>
+                        <button class="modal-btn" onclick="prevStep(2)">Previous</button>
                         <button class="modal-btn primary" onclick="submitCrate()">Submit Crate</button>
                       </div>
                     </div>

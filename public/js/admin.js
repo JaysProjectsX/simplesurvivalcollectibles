@@ -558,14 +558,17 @@ let items = [];
 
 function nextStep(step) {
   document.querySelectorAll('.wizard-step').forEach(el => el.classList.add('hidden'));
-  document.getElementById(`step-${step}`).classList.remove('hidden');
+  const target = document.getElementById(`step-${step}`);
+  if (target) target.classList.remove('hidden');
 
   if (step === 3) {
+    if (!validateItems()) return;
+
     const crateName = document.getElementById("crate-name").value;
     document.getElementById("crate-dropdown-title").textContent = crateName;
+
     const tableBody = document.getElementById("crate-items-table-body");
     tableBody.innerHTML = "";
-
     items.forEach(item => {
       const row = document.createElement("tr");
       row.innerHTML = `
@@ -578,6 +581,12 @@ function nextStep(step) {
       tableBody.appendChild(row);
     });
   }
+}
+
+function prevStep(step) {
+  document.querySelectorAll('.wizard-step').forEach(el => el.classList.add('hidden'));
+  const prev = document.getElementById(`step-${step}`);
+  if (prev) prev.classList.remove('hidden');
 }
 
 function addItem() {
@@ -594,14 +603,14 @@ function addItem() {
       <input class="nice-input" name="tags" />
       <label>Tooltip:</label>
       <textarea class="nice-input" name="tooltip"></textarea>
-      <button type="button" onclick="removeItem(${id})">Remove</button>
+      <button type="button" class="modal-btn" onclick="removeItem(${id})">Remove</button>
     </div>
   `;
   document.getElementById("items-container").insertAdjacentHTML("beforeend", html);
 }
 
 function removeItem(id) {
-  document.querySelector(`.item-form[data-id="${id}"]`).remove();
+  document.querySelector(`.item-form[data-id="${id}"]`)?.remove();
 }
 
 function toggleDropdown() {
@@ -611,47 +620,78 @@ function toggleDropdown() {
   arrow.style.transform = content.classList.contains("hidden") ? "rotate(0deg)" : "rotate(180deg)";
 }
 
-function submitCrate() {
-  const crateName = document.getElementById("crate-name").value.trim();
-  const crateType = document.querySelector('input[name="crate-type"]:checked').value;
+function validateItems() {
   const itemElements = document.querySelectorAll(".item-form");
-
-  if (!crateName || itemElements.length === 0) {
-    showToast("Please enter a crate name and at least one item.");
-    return;
-  }
-
   items = [];
-  itemElements.forEach(el => {
-    const get = name => el.querySelector(`[name="${name}"]`).value.trim();
-    items.push({
+
+  for (const el of itemElements) {
+    const get = name => el.querySelector(`[name="${name}"]`)?.value.trim() || "";
+    const item = {
       name: get("itemName"),
       set: get("setName"),
       icon: get("icon"),
       tags: get("tags"),
       tooltip: get("tooltip")
-    });
-  });
+    };
 
-  // 1. Create the crate first
+    if (!item.name || !item.set || !item.icon || !item.tags) {
+      showGlobalModal({
+        type: "error",
+        title: "Incomplete Item",
+        message: "Each item must have a name, set, icon, and tags. Tooltip is optional.",
+        buttons: [{ label: "OK", onClick: "fadeOutAndRemove('modal-badItem')" }],
+        id: "modal-badItem"
+      });
+      return false;
+    }
+
+    items.push(item);
+  }
+
+  return true;
+}
+
+function submitCrate() {
+  const crateName = document.getElementById("crate-name").value.trim();
+  const crateType = document.querySelector('input[name="crate-type"]:checked')?.value;
+
+  if (!crateName) {
+    showGlobalModal({
+      type: "error",
+      title: "Missing Crate Name",
+      message: "Please enter a crate name before submitting.",
+      buttons: [{ label: "OK", onClick: "fadeOutAndRemove('modal-crateName')" }],
+      id: "modal-crateName"
+    });
+    return;
+  }
+
+  if (!crateType) {
+    showGlobalModal({
+      type: "error",
+      title: "Missing Crate Type",
+      message: "Please select a crate type.",
+      buttons: [{ label: "OK", onClick: "fadeOutAndRemove('modal-crateType')" }],
+      id: "modal-crateType"
+    });
+    return;
+  }
+
+  if (!validateItems()) return;
+
   fetch("https://simplesurvivalcollectibles.site/admin/crates", {
     method: "POST",
     credentials: "include",
-    headers: {
-      "Content-Type": "application/json"
-    },
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ crate_name: crateName, is_cosmetic: parseInt(crateType) })
   })
     .then(res => res.json())
     .then(crate => {
-      // 2. Add each item to the crate
       const promises = items.map(item =>
         fetch("https://simplesurvivalcollectibles.site/admin/items", {
           method: "POST",
           credentials: "include",
-          headers: {
-            "Content-Type": "application/json"
-          },
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             crate_id: crate.id,
             item_name: item.name,
@@ -662,11 +702,20 @@ function submitCrate() {
           })
         })
       );
-
       return Promise.all(promises);
     })
     .then(() => {
-      showToast("Crate and items created successfully!");
+      showGlobalModal({
+        type: "success",
+        title: "Crate Created",
+        message: "Your crate and items were successfully saved!",
+        buttons: [{
+          label: "Awesome!",
+          onClick: "fadeOutAndRemove('modal-crateSuccess')"
+        }],
+        id: "modal-crateSuccess"
+      });
+
       document.getElementById("crate-name").value = "";
       document.getElementById("items-container").innerHTML = "";
       nextStep(1);
@@ -674,7 +723,13 @@ function submitCrate() {
     })
     .catch(err => {
       console.error("Crate creation failed:", err);
-      showToast("Failed to create crate or items.");
+      showGlobalModal({
+        type: "error",
+        title: "Submission Failed",
+        message: "There was an error creating the crate. Please try again.",
+        buttons: [{ label: "Close", onClick: "fadeOutAndRemove('modal-submitError')" }],
+        id: "modal-submitError"
+      });
     });
 }
 

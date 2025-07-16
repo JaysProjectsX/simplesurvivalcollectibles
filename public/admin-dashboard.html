@@ -86,29 +86,34 @@
                   <div id="newCrateWizard" class="wizard-container">
                     <!-- Step 1: Crate Name -->
                     <div class="wizard-step" id="step-1">
-                      <label for="crate-name">Crate Name:</label>
-                      <input type="text" id="crate-name" class="nice-input" required />
-
-                      <label>Crate Type:</label>
-                      <div class="crate-type-options">
-                        <label>
-                          <input type="radio" name="crate-type" value="1" checked />
-                          Cosmetic
-                        </label>
-                        <label>
-                          <input type="radio" name="crate-type" value="0" />
-                          Non-Cosmetic
-                        </label>
+                      <h3>Create New Crate</h3>
+                      <div class="crate-form-grid">
+                        <div class="crate-type-group">
+                          <label>Crate Type:</label>
+                          <div class="crate-type-options">
+                            <label><input type="radio" name="crate-type" value="1" checked /> Cosmetic</label>
+                            <label><input type="radio" name="crate-type" value="0" /> Non-Cosmetic</label>
+                          </div>
+                        </div>
+                        <div class="crate-name-group">
+                          <label for="crate-name">Crate Name:</label>
+                          <input type="text" id="crate-name" class="nice-input" required />
+                        </div>
                       </div>
+                      <div class="wizard-controls">
+                        <button class="modal-btn primary" onclick="nextStep(2)" id="next-step-1">Next</button>
+                      </div>
+                  </div>
 
-                      <button onclick="nextStep(2)">Next</button>
-                    </div>
 
                     <!-- Step 2: Add Items -->
                     <div class="wizard-step hidden" id="step-2">
                       <div id="items-container"></div>
                       <button onclick="addItem()">+ Add Item</button>
-                      <button onclick="nextStep(3)">Next</button>
+                      <div class="wizard-controls">
+                        <button class="modal-btn" onclick="prevStep(1)" id="prev-step-2">Previous</button>
+                        <button class="modal-btn primary" onclick="nextStep(3)" id="next-step-2">Next</button>
+                      </div>
                     </div>
 
                     <!-- Step 3: Confirm and Submit -->
@@ -132,7 +137,10 @@
                           <tbody id="crate-items-table-body"></tbody>
                         </table>
                       </div>
-                      <button onclick="submitCrate()">Submit Crate</button>
+                      <div class="wizard-controls">
+                        <button class="modal-btn" onclick="prevStep(2)" id="prev-step-3">Previous</button>
+                        <button class="modal-btn primary" onclick="submitCrate()" id="submit-crate">Submit Crate</button>
+                      </div>
                     </div>
                   </div>
               </div>

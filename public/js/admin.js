@@ -628,7 +628,7 @@ function addItem() {
         <div class="nice-form-group">
           <label>Icon:</label>
           <input type="text" placeholder="Enter icon URL"/>
-          <small class="hint-text"><a href="https://mc.nerothe.com/">Icon list</a></small>
+          <small class="hint-text" onclick="window.open('https://mc.nerothe.com/')">To view usable item icons, click here</small>
         </div>
         <div class="nice-form-group">
           <label>Tags (comma-separated):</label>
@@ -636,7 +636,7 @@ function addItem() {
         </div>
         <div class="nice-form-group">
           <label>Tooltip:</label>
-          <textarea placeholder="Optional tooltip" class="icon-left"></textarea>
+          <textarea placeholder="Optional tooltip"></textarea>
         </div>
         <button class="modal-btn" onclick="this.closest('.item-dropdown').remove()">Remove Item</button>
       </div>

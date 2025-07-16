@@ -87,9 +87,15 @@
                     <!-- Step 1: Crate Name -->
                     <div class="wizard-step" id="step-1">
                       <div class="crate-form-grid">
-                        <div class="crate-name-group">
-                          <label for="crate-name">Crate Name:</label>
-                          <input type="text" id="crate-name" class="nice-input" required />
+                        <div class="nice-form-group">
+                          <label for="crate-name">Crate Name</label>
+                          <input
+                            type="text"
+                            id="crate-name"
+                            class="icon-left"
+                            placeholder="e.g. gamesCrate"
+                          />
+                          <small class="hint-text">Example crate format: gamesCrate, valentinesCrate, springCrate</small>
                         </div>
                         <div class="crate-type-group">
                           <label>Crate Type:</label>
@@ -117,19 +123,35 @@
 
                     <!-- Step 3: Confirm and Submit -->
                     <div class="wizard-step hidden" id="step-3">
-                      <h3>Confirm Crate & Items</h3>
+                      <h3>Step 3: Confirm Crate Details</h3>
+
                       <button class="crate-dropdown-btn" onclick="toggleDropdown()">
-                        <span id="crate-dropdown-title">Crate Name</span>
-                        <span class="arrow">&#x25BC;</span>
+                        <span id="crate-dropdown-title">[Crate Name]</span>
+                        <span class="arrow" style="transition: transform 0.3s;">▼</span>
                       </button>
+
                       <div id="crate-dropdown-content" class="crate-dropdown-content hidden">
-                        <div id="crate-items-container">
-                          <!-- JS will append .crate-item-summary blocks here -->
+                        <div class="crate-item-list-scroll">
+                          <table>
+                            <thead>
+                              <tr>
+                                <th>Item Name</th>
+                                <th>Set Name</th>
+                                <th>Icon</th>
+                                <th>Tags</th>
+                                <th>Tooltip</th>
+                              </tr>
+                            </thead>
+                            <tbody id="crate-items-table-body">
+                              <!-- Items added from Step 2 will be populated here -->
+                            </tbody>
+                          </table>
                         </div>
                       </div>
-                      <div class="wizard-controls">
-                        <button class="modal-btn" onclick="prevStep(2)" id="prev-step-3">Previous</button>
-                        <button class="modal-btn primary" onclick="submitCrate()" id="submit-crate">Submit Crate</button>
+
+                      <div>
+                        <button class="modal-btn" onclick="previousStep(2)">Previous</button>
+                        <button class="modal-btn primary" onclick="submitCrate()">Submit Crate</button>
                       </div>
                     </div>
                   </div>

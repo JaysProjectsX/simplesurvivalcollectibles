@@ -557,10 +557,22 @@ function confirmDeleteItem(itemId, modalId) {
 let items = [];
 
 function nextStep(step) {
-  document.querySelectorAll('.wizard-step').forEach(el => el.classList.add('hidden'));
-  const target = document.getElementById(`step-${step}`);
-  if (target) target.classList.remove('hidden');
+  // Step 1: Validate crate name
+  if (step === 2) {
+    const crateName = document.getElementById("crate-name").value.trim();
+    if (!crateName) {
+      showGlobalModal({
+        type: "error",
+        title: "Incomplete Item",
+        message: "Please insert a crate name before proceeding.",
+        buttons: [{ label: "OK", onClick: "fadeOutAndRemove('modal-badItem')" }],
+        id: "modal-badItem"
+      });
+      return;
+    }
+  }
 
+  // Step 2 → Step 3: Validate item entries before showing summary
   if (step === 3) {
     if (!validateItems()) return;
 
@@ -581,6 +593,11 @@ function nextStep(step) {
       tableBody.appendChild(row);
     });
   }
+
+  // Show target step
+  document.querySelectorAll(".wizard-step").forEach(el => el.classList.add("hidden"));
+  const target = document.getElementById(`step-${step}`);
+  if (target) target.classList.remove("hidden");
 }
 
 function prevStep(step) {
@@ -590,44 +607,61 @@ function prevStep(step) {
 }
 
 function addItem() {
+  const itemsContainer = document.getElementById("items-container");
   const id = Date.now();
-  const html = `
-    <div class="item-dropdown" data-id="${id}">
-      <button class="item-dropdown-btn" onclick="toggleItemDropdown(event)">[Item Name or Placeholder]</button>
-      <div class="item-dropdown-content hidden">
+
+  const itemHTML = `
+    <div class="item-dropdown">
+      <button class="crate-dropdown-btn" onclick="toggleItemDropdown(${id})">
+        <span id="item-button-text-${id}">New Item</span>
+        <span class="arrow">&#x25BC;</span>
+      </button>
+      <div class="crate-dropdown-content hidden" id="item-content-${id}">
         <div class="nice-form-group">
-          <label>Item Name</label>
-          <input type="text" name="item-name" class="nice-input" />
+          <label>Item Name:</label>
+          <input type="text" placeholder="Enter item name" class="icon-left" oninput="updateItemButtonText(${id}, this.value)" />
         </div>
         <div class="nice-form-group">
-          <label>Set Name</label>
-          <input type="text" name="set-name" class="nice-input" />
+          <label>Set Name:</label>
+          <input type="text" placeholder="Enter set name" class="icon-left" />
         </div>
         <div class="nice-form-group">
-          <label>Icon</label>
-          <input type="text" name="icon-url" class="nice-input" />
+          <label>Icon:</label>
+          <input type="text" placeholder="Enter icon URL" class="icon-left" />
         </div>
         <div class="nice-form-group">
-          <label>Tags (comma-separated)</label>
-          <input type="text" name="tags" class="nice-input" />
+          <label>Tags (comma-separated):</label>
+          <input type="text" placeholder="e.g., seasonal,rare" class="icon-left" />
         </div>
         <div class="nice-form-group">
-          <label>Tooltip</label>
-          <textarea name="tooltip" class="nice-input"></textarea>
+          <label>Tooltip:</label>
+          <textarea placeholder="Optional tooltip" class="icon-left"></textarea>
         </div>
-        <button onclick="removeItem(this)" class="modal-btn">Remove</button>
+        <button class="modal-btn" onclick="this.closest('.item-dropdown').remove()">Remove Item</button>
       </div>
     </div>
   `;
-  document.getElementById("items-container").insertAdjacentHTML("beforeend", html);
+
+  itemsContainer.insertAdjacentHTML("beforeend", itemHTML);
 }
 
-function toggleItemDropdown(id, btn) {
-  const content = document.getElementById(id);
-  const arrow = btn.querySelector(".arrow");
+function toggleItemDropdown(id) {
+  const content = document.getElementById(`item-content-${id}`);
+  const arrow = document.querySelector(`#item-button-text-${id}`).nextElementSibling;
 
-  content.classList.toggle("hidden");
-  arrow.style.transform = content.classList.contains("hidden") ? "rotate(0deg)" : "rotate(180deg)";
+  if (content.classList.contains("hidden")) {
+    content.classList.remove("hidden");
+    content.style.maxHeight = content.scrollHeight + "px";
+    arrow.style.transform = "rotate(180deg)";
+  } else {
+    content.style.maxHeight = "0";
+    arrow.style.transform = "rotate(0deg)";
+    setTimeout(() => content.classList.add("hidden"), 300);
+  }
+}
+
+function updateItemButtonText(id, value) {
+  document.getElementById(`item-button-text-${id}`).innerText = value || "New Item";
 }
 
 function removeItem(id) {
@@ -638,14 +672,15 @@ function toggleDropdown() {
   const content = document.getElementById("crate-dropdown-content");
   const arrow = document.querySelector(".arrow");
 
-  if (!content || !arrow) return;
-
-  // Toggle visibility and animation
-  content.classList.toggle("hidden");
-  content.classList.toggle("active");
-
-  // Rotate the arrow depending on visibility
-  arrow.style.transform = content.classList.contains("hidden") ? "rotate(0deg)" : "rotate(180deg)";
+  if (content.classList.contains("hidden")) {
+    content.classList.remove("hidden");
+    content.style.maxHeight = content.scrollHeight + "px";
+    arrow.style.transform = "rotate(180deg)";
+  } else {
+    content.style.maxHeight = "0";
+    arrow.style.transform = "rotate(0deg)";
+    setTimeout(() => content.classList.add("hidden"), 300); // match transition
+  }
 }
 
 function renderCrateSummaryItems(items) {
@@ -710,6 +745,7 @@ function submitCrate() {
   const crateName = document.getElementById("crate-name").value.trim();
   const crateType = document.querySelector('input[name="crate-type"]:checked')?.value;
 
+  // Validate crate name
   if (!crateName) {
     showGlobalModal({
       type: "error",
@@ -721,6 +757,7 @@ function submitCrate() {
     return;
   }
 
+  // Validate crate type
   if (!crateType) {
     showGlobalModal({
       type: "error",
@@ -732,16 +769,22 @@ function submitCrate() {
     return;
   }
 
+  // Validate items
   if (!validateItems()) return;
 
+  // Submit crate
   fetch("https://simplesurvivalcollectibles.site/admin/crates", {
     method: "POST",
     credentials: "include",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ crate_name: crateName, is_cosmetic: parseInt(crateType) })
+    body: JSON.stringify({
+      crate_name: crateName,
+      is_cosmetic: parseInt(crateType)
+    })
   })
     .then(res => res.json())
     .then(crate => {
+      // Submit all items with the returned crate ID
       const promises = items.map(item =>
         fetch("https://simplesurvivalcollectibles.site/admin/items", {
           method: "POST",
@@ -757,6 +800,7 @@ function submitCrate() {
           })
         })
       );
+
       return Promise.all(promises);
     })
     .then(() => {
@@ -771,9 +815,17 @@ function submitCrate() {
         id: "modal-crateSuccess"
       });
 
+      // Reset wizard and clear data
       document.getElementById("crate-name").value = "";
+      document.querySelector('input[name="crate-type"][value="1"]').checked = true;
       document.getElementById("items-container").innerHTML = "";
-      nextStep(1);
+      items = [];
+
+      // Go back to step 1
+      document.querySelectorAll('.wizard-step').forEach(s => s.classList.add('hidden'));
+      document.getElementById("step-1").classList.remove("hidden");
+
+      // Optional: reload UI
       loadCratesAndItems();
     })
     .catch(err => {

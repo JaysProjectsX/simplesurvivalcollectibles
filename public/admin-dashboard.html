@@ -114,7 +114,13 @@
                     <!-- Step 2: Add Items -->
                     <div class="wizard-step hidden" id="step-2">
                       <div id="items-container"></div>
-                      <button onclick="addItem()">+ Add Item</button>
+                      <button class="modal-btn icon-btn" id="add-item-btn" onclick="addItem()">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon-left" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                          <line x1="12" y1="5" x2="12" y2="19"/>
+                          <line x1="5" y1="12" x2="19" y2="12"/>
+                        </svg>
+                        Add Item
+                      </button>
                       <div class="wizard-controls">
                         <button class="modal-btn" onclick="prevStep(1)" id="prev-step-2">Previous</button>
                         <button class="modal-btn primary" onclick="nextStep(3)" id="next-step-2">Next</button>

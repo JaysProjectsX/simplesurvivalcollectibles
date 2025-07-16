@@ -619,19 +619,20 @@ function addItem() {
       <div class="crate-dropdown-content hidden" id="item-content-${id}">
         <div class="nice-form-group">
           <label>Item Name:</label>
-          <input type="text" placeholder="Enter item name" class="icon-left" oninput="updateItemButtonText(${id}, this.value)" />
+          <input type="text" placeholder="Enter item name"oninput="updateItemButtonText(${id}, this.value)" />
         </div>
         <div class="nice-form-group">
           <label>Set Name:</label>
-          <input type="text" placeholder="Enter set name" class="icon-left" />
+          <input type="text" placeholder="Enter set name"/>
         </div>
         <div class="nice-form-group">
           <label>Icon:</label>
-          <input type="text" placeholder="Enter icon URL" class="icon-left" />
+          <input type="text" placeholder="Enter icon URL"/>
+          <small class="hint-text"><a href="https://mc.nerothe.com/">Icon list</a></small>
         </div>
         <div class="nice-form-group">
           <label>Tags (comma-separated):</label>
-          <input type="text" placeholder="e.g., seasonal,rare" class="icon-left" />
+          <input type="text" placeholder="e.g., seasonal,rare"/>
         </div>
         <div class="nice-form-group">
           <label>Tooltip:</label>

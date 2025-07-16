@@ -10,7 +10,6 @@
   --font-weight-medium: 500;
   --font-weight-bold: 600;
   --border: 1px solid #2a2a3d;
-  --nf-label-color: #adb9cd;
 }
 
 /* Dashboard wrapper */
@@ -574,7 +573,6 @@ select {
 }
 .wizard-step {
   text-align: center;
-  margin-top: 20px;
 }
 .modal-btn {
   padding: 8px 18px;
@@ -586,7 +584,16 @@ select {
   margin: 10px;
   transition: background-color 0.3s ease;
 }
+.icon-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
 
+.icon-btn svg.icon-left {
+  flex-shrink: 0;
+  margin-right: 4px;
+}
 .modal-btn.primary {
   background-color: #00c6a9;
 }
@@ -604,10 +611,9 @@ select {
   flex-direction: column;
   align-items: center;
   flex-wrap: wrap;
-  gap: 40px;
-  padding: 20px;
+  gap: 20px;
   border-radius: 10px;
-  margin: 0 auto 20px auto;
+  margin: 0 auto 0 auto;
   max-width: 600px;
 }
 
@@ -685,13 +691,13 @@ select {
 }
 .nice-form-group > label {
   margin: 1em !important;
-  color: var(--nf-label-color) !important;
+  color: #adb9cd !important;
 }
 .nice-form-group > textarea {
   width: 80% !important;
 }
 .hint-text {
-  font-size: 8px !important;
+  font-size: 9px !important;
 }
 .crate-dropdown-content.active {
   max-height: 1000px;

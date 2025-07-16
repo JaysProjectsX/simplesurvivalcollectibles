@@ -703,7 +703,10 @@ select {
 }
 .icons-url {
   cursor: pointer;
-  font-size: 12px;
+  font-size: 12px !important;
+}
+.icons-url:hover {
+  color:#6ea8ff !important;
 }
 .crate-dropdown-content.active {
   max-height: 1000px;

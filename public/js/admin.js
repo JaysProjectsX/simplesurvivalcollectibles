@@ -632,7 +632,7 @@ function addItem() {
         </div>
         <div class="nice-form-group">
           <label>Tags (comma-separated):</label>
-          <input type="text" placeholder="e.g., seasonal,rare"/>
+          <input type="text" placeholder="Example: Cosmetic, Wings"/>
         </div>
         <div class="nice-form-group">
           <label>Tooltip:</label>

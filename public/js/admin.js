@@ -628,29 +628,34 @@ function addItem() {
   wrapper.className = "item-form";
   wrapper.innerHTML = `
     <button type="button" class="crate-dropdown-btn" onclick="toggleItemDropdown(${id})">
-      <span class="item-dropdown-title">[New Item]</span>
+      <span id="item-button-text-${id}">New Item</span>
       <span class="arrow">▼</span>
     </button>
     <div class="crate-dropdown-content hidden" id="item-content-${id}">
       <div class="nice-form-group">
         <label>Item Name</label>
-        <input type="text" class="item-name" placeholder="Enter item name" oninput="updateItemField(${id}, 'name', this.value)" />
+        <input type="text" class="item-name" placeholder="Enter item name" 
+          oninput="updateItemField(${id}, 'name', this.value); updateItemButtonText(${id}, this.value)" />
       </div>
       <div class="nice-form-group">
         <label>Set Name</label>
-        <input type="text" class="item-set" placeholder="Enter set name" oninput="updateItemField(${id}, 'set', this.value)" />
+        <input type="text" class="item-set" placeholder="Enter set name" 
+          oninput="updateItemField(${id}, 'set', this.value)" />
       </div>
       <div class="nice-form-group">
         <label>Icon URL</label>
-        <input type="url" class="item-icon" placeholder="Enter icon URL" oninput="updateItemField(${id}, 'icon', this.value)" />
+        <input type="url" class="item-icon" placeholder="Enter icon URL" 
+          oninput="updateItemField(${id}, 'icon', this.value)" />
       </div>
       <div class="nice-form-group">
         <label>Tags (comma-separated)</label>
-        <input type="text" class="item-tags" placeholder="Example: Cosmetic, Wings" oninput="updateItemField(${id}, 'tags', this.value)" />
+        <input type="text" class="item-tags" placeholder="Example: Cosmetic, Wings" 
+          oninput="updateItemField(${id}, 'tags', this.value)" />
       </div>
       <div class="nice-form-group">
         <label>Tooltip (optional)</label>
-        <input type="text" class="item-tooltip" placeholder="Optional tooltip" oninput="updateItemField(${id}, 'tooltip', this.value)" />
+        <input type="text" class="item-tooltip" placeholder="Optional tooltip" 
+          oninput="updateItemField(${id}, 'tooltip', this.value)" />
       </div>
     </div>
   `;
@@ -675,8 +680,12 @@ function toggleItemDropdown(id) {
 }
 
 function updateItemButtonText(id, value) {
-  document.getElementById(`item-button-text-${id}`).innerText = value || "New Item";
+  const buttonText = document.getElementById(`item-button-text-${id}`);
+  if (buttonText) {
+    buttonText.textContent = value.trim() || "New Item";
+  }
 }
+
 
 function removeItem(id) {
   document.querySelector(`.item-form[data-id="${id}"]`)?.remove();

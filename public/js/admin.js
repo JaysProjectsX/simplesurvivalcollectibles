@@ -695,6 +695,29 @@ function removeItem(id) {
   document.querySelector(`.item-form[data-id="${id}"]`)?.remove();
 }
 
+function toggleCrateDropdown() {
+  const content = document.getElementById("crate-dropdown-content-confirm");
+  const arrow = document.querySelector("#crate-dropdown-title + .arrow");
+
+  if (!content) return;
+
+  const isExpanded = !content.classList.contains("hidden") && content.style.maxHeight !== "0px";
+
+  if (isExpanded) {
+    content.style.maxHeight = "0";
+    if (arrow) arrow.style.transform = "rotate(0deg)";
+    setTimeout(() => {
+      content.classList.add("hidden");
+      content.removeAttribute("style");
+    }, 300);
+  } else {
+    content.classList.remove("hidden");
+    void content.offsetHeight; // Force reflow
+    content.style.maxHeight = content.scrollHeight + "px";
+    if (arrow) arrow.style.transform = "rotate(180deg)";
+  }
+}
+
 function toggleDropdown(button) {
   console.log("Toggling dropdown");
 

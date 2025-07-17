@@ -724,23 +724,6 @@ function toggleDropdown(button) {
   }
 }
 
-document.addEventListener("DOMContentLoaded", () => {
-  const crateToggleBtn = document.getElementById("crate-toggle-btn");
-  if (crateToggleBtn) {
-    crateToggleBtn.addEventListener("click", function () {
-      toggleDropdown(this);
-    });
-  }
-});
-
-document.addEventListener("click", function (e) {
-  const btn = e.target.closest(".crate-dropdown-btn");
-  if (btn) {
-    console.log("Crate dropdown button clicked:", btn);
-    toggleDropdown(btn);
-  }
-});
-
 function validateItems() {
   const step2 = document.getElementById("step-2");
   const itemElements = step2.querySelectorAll(".item-dropdown");

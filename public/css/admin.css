@@ -680,6 +680,24 @@ select {
   overflow: hidden;
   transition: max-height 0.5s ease;
 }
+.crate-dropdown-content.hidden {
+  display: block; /* prevents display: none from blocking height transition */
+}
+.crate-dropdown-content.active {
+  max-height: 1000px;
+  opacity: 1;
+}
+.crate-dropdown-content table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.crate-dropdown-content th,
+.crate-dropdown-content td {
+  padding: 8px;
+  border-bottom: 1px solid #333;
+  color: #fff;
+  text-align: left;
+}
 .nice-form-group {
   margin-top: 0 !important;
 }
@@ -712,23 +730,10 @@ select {
 .icons-url:hover {
   color:#6ea8ff !important;
 }
-.crate-dropdown-content.active {
-  max-height: 1000px;
-  opacity: 1;
-}
-.crate-dropdown-content table {
-  width: 100%;
-  border-collapse: collapse;
-}
-.crate-dropdown-content th,
-.crate-dropdown-content td {
-  padding: 8px;
-  border-bottom: 1px solid #333;
-  color: #fff;
-  text-align: left;
-}
 .hidden {
-  display: none;
+  visibility: hidden;
+  opacity: 0;
+  pointer-events: none;
 }
 .crate-item-list-scroll {
   max-height: 250px;

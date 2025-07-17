@@ -712,8 +712,9 @@ function toggleDropdown(button) {
   const isHidden = content.classList.contains("hidden") || content.style.maxHeight === "0px";
 
   if (isHidden) {
-    // Expand
     content.classList.remove("hidden");
+    void content.offsetHeight;
+    console.log("Calculated scrollHeight:", content.scrollHeight);
     content.style.maxHeight = content.scrollHeight + "px";
     if (arrow) arrow.style.transform = "rotate(180deg)";
   } else {

@@ -580,8 +580,6 @@ if (step === 3) {
   document.getElementById("crate-dropdown-title").textContent = crateName;
 
   const dropdownContent = document.getElementById("crate-dropdown-content");
-  dropdownContent.classList.add("hidden"); // Ensure it's hidden initially
-  dropdownContent.style.maxHeight = "0";   // Reset any leftover height
 
   const tableBody = document.getElementById("crate-items-table-body");
   tableBody.innerHTML = "";

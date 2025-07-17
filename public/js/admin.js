@@ -579,8 +579,6 @@ if (step === 3) {
   const crateName = document.getElementById("crate-name").value.trim();
   document.getElementById("crate-dropdown-title").textContent = crateName;
 
-  const dropdownContent = document.getElementById("crate-dropdown-content");
-
   const tableBody = document.getElementById("crate-items-table-body");
   tableBody.innerHTML = "";
 
@@ -696,9 +694,13 @@ function toggleDropdown(button) {
   const isExpanded = !content.classList.contains("hidden") && content.style.maxHeight !== "0px";
 
   if (isExpanded) {
+    // collapse
     content.style.maxHeight = "0";
     arrow.style.transform = "rotate(0deg)";
-    setTimeout(() => content.classList.add("hidden"), 300);
+    setTimeout(() => {
+      content.classList.add("hidden");
+      content.removeAttribute("style"); // ✅ Remove lingering max-height
+    }, 300);
   } else {
     content.classList.remove("hidden");
     void content.offsetHeight; // force reflow

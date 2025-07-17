@@ -740,6 +740,13 @@ function validateItems() {
   return true;
 }
 
+document.addEventListener("click", function (e) {
+  if (e.target.closest(".crate-dropdown-btn")) {
+    const btn = e.target.closest(".crate-dropdown-btn");
+    toggleDropdown(btn);
+  }
+});
+
 function submitCrate() {
   const crateName = document.getElementById("crate-name").value.trim();
   const crateType = document.querySelector('input[name="crate-type"]:checked')?.value;

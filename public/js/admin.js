@@ -578,8 +578,6 @@ function nextStep(step) {
 
     const crateName = document.getElementById("crate-name").value;
     document.getElementById("crate-dropdown-title").textContent = crateName;
-    document.getElementById("crate-dropdown-content").classList.add("hidden");
-    document.getElementById("crate-dropdown-content").style.maxHeight = "0";
 
     const tableBody = document.getElementById("crate-items-table-body");
     tableBody.innerHTML = "";
@@ -609,64 +607,48 @@ function prevStep(step) {
 }
 
 function addItem() {
-  const id = Date.now(); // unique ID for the item
-  const container = document.getElementById("items-container");
+  const itemsContainer = document.getElementById("items-container");
+  const id = Date.now();
 
-  // Add item with placeholder values to global items array
-  const newItem = {
-    id,
-    name: "",
-    set: "",
-    icon: "",
-    tags: "",
-    tooltip: ""
-  };
-  items.push(newItem);
-
-  // Create dropdown container
-  const wrapper = document.createElement("div");
-  wrapper.className = "item-form";
-  wrapper.innerHTML = `
-    <button type="button" class="crate-dropdown-btn" onclick="toggleItemDropdown(${id})">
-      <span id="item-button-text-${id}">New Item</span>
-      <span class="arrow">▼</span>
-    </button>
-    <div class="crate-dropdown-content hidden" id="item-content-${id}">
-      <div class="nice-form-group">
-        <label>Item Name</label>
-        <input type="text" class="item-name" placeholder="Enter item name" 
-          oninput="updateItemField(${id}, 'name', this.value); updateItemButtonText(${id}, this.value)" />
-      </div>
-      <div class="nice-form-group">
-        <label>Set Name</label>
-        <input type="text" class="item-set" placeholder="Enter set name" 
-          oninput="updateItemField(${id}, 'set', this.value)" />
-      </div>
-      <div class="nice-form-group">
-        <label>Icon URL</label>
-        <input type="url" class="item-icon" placeholder="Enter icon URL" 
-          oninput="updateItemField(${id}, 'icon', this.value)" />
-      </div>
-      <div class="nice-form-group">
-        <label>Tags (comma-separated)</label>
-        <input type="text" class="item-tags" placeholder="Example: Cosmetic, Wings" 
-          oninput="updateItemField(${id}, 'tags', this.value)" />
-      </div>
-      <div class="nice-form-group">
-        <label>Tooltip (optional)</label>
-        <input type="text" class="item-tooltip" placeholder="Optional tooltip" 
-          oninput="updateItemField(${id}, 'tooltip', this.value)" />
+  const itemHTML = `
+    <div class="item-dropdown">
+      <button class="crate-dropdown-btn" onclick="toggleItemDropdown(${id})">
+        <span id="item-button-text-${id}">New Item</span>
+        <span class="arrow">&#x25BC;</span>
+      </button>
+      <div class="crate-dropdown-content hidden" id="item-content-${id}">
+        <div class="nice-form-group">
+          <label>Item Name:</label>
+          <input type="text" placeholder="Enter item name"oninput="updateItemButtonText(${id}, this.value)" />
+        </div>
+        <div class="nice-form-group">
+          <label>Set Name:</label>
+          <input type="text" placeholder="Enter set name"/>
+        </div>
+        <div class="nice-form-group">
+          <label>Icon:</label>
+          <input type="text" placeholder="Enter icon URL"/>
+          <small class="hint-text icons-url" onclick="window.open('https://mc.nerothe.com/')">To view usable item icons, click here</small>
+        </div>
+        <div class="nice-form-group">
+          <label>Tags (comma-separated):</label>
+          <input type="text" placeholder="Example: Cosmetic, Wings"/>
+        </div>
+        <div class="nice-form-group">
+          <label>Tooltip:</label>
+          <textarea placeholder="Optional tooltip"></textarea>
+        </div>
+        <button class="modal-btn" onclick="this.closest('.item-dropdown').remove()">Remove Item</button>
       </div>
     </div>
   `;
 
-  container.appendChild(wrapper);
+  itemsContainer.insertAdjacentHTML("beforeend", itemHTML);
 }
 
 function toggleItemDropdown(id) {
   const content = document.getElementById(`item-content-${id}`);
-  const button = document.querySelector(`#item-button-text-${id}`).parentElement;
-  const arrow = button.querySelector(".arrow");
+  const arrow = document.querySelector(`#item-button-text-${id}`).nextElementSibling;
 
   if (content.classList.contains("hidden")) {
     content.classList.remove("hidden");
@@ -680,37 +662,54 @@ function toggleItemDropdown(id) {
 }
 
 function updateItemButtonText(id, value) {
-  const buttonText = document.getElementById(`item-button-text-${id}`);
-  if (buttonText) {
-    buttonText.textContent = value.trim() || "New Item";
-  }
+  document.getElementById(`item-button-text-${id}`).innerText = value || "New Item";
 }
-
 
 function removeItem(id) {
   document.querySelector(`.item-form[data-id="${id}"]`)?.remove();
 }
 
-function toggleDropdown(btn) {
-  const content = btn.nextElementSibling;
-  const arrow = btn.querySelector(".arrow");
+function toggleDropdown() {
+  const content = document.getElementById("crate-dropdown-content");
+  const arrow = document.querySelector(".arrow");
 
-  // Ensure the content is display:block before measuring height
-  content.classList.remove("hidden");
-
-  // Force a reflow so browser registers display change before height transition
-  void content.offsetHeight;
-
-  if (!content.style.maxHeight || content.style.maxHeight === "0px") {
+  if (content.classList.contains("hidden")) {
+    content.classList.remove("hidden");
     content.style.maxHeight = content.scrollHeight + "px";
     arrow.style.transform = "rotate(180deg)";
   } else {
     content.style.maxHeight = "0";
     arrow.style.transform = "rotate(0deg)";
-    setTimeout(() => content.classList.add("hidden"), 300);
+    setTimeout(() => content.classList.add("hidden"), 500); // match transition
   }
 }
 
+function renderCrateSummaryItems(items) {
+  const container = document.getElementById("crate-items-container");
+  container.innerHTML = "";
+
+  items.forEach((item, index) => {
+    const id = `item-dropdown-${index}`;
+
+    const wrapper = document.createElement("div");
+    wrapper.classList.add("crate-item-dropdown");
+
+    wrapper.innerHTML = `
+      <button class="crate-dropdown-btn" onclick="toggleItemDropdown('${id}', this)">
+        ${item.item_name}
+        <span class="arrow">&#x25BC;</span>
+      </button>
+      <div id="${id}" class="crate-dropdown-content hidden">
+        <p><strong>Set:</strong> ${item.set_name}</p>
+        <p><strong>Icon:</strong> ${item.icon_url}</p>
+        <p><strong>Tags:</strong> ${item.tags.join(", ")}</p>
+        <p><strong>Tooltip:</strong> ${item.tooltip || "None"}</p>
+      </div>
+    `;
+
+    container.appendChild(wrapper);
+  });
+}
 
 function validateItems() {
   const itemElements = document.querySelectorAll(".item-form");

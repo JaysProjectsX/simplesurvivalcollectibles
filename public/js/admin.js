@@ -709,6 +709,14 @@ function toggleDropdown(button) {
   }
 }
 
+document.addEventListener("DOMContentLoaded", () => {
+  const crateToggleBtn = document.getElementById("crate-toggle-btn");
+  if (crateToggleBtn) {
+    crateToggleBtn.addEventListener("click", function () {
+      toggleDropdown(this);
+    });
+  }
+});
 
 function validateItems() {
   const step2 = document.getElementById("step-2");

@@ -684,7 +684,9 @@ function removeItem(id) {
 }
 
 function toggleDropdown(button) {
+  console.log("Toggling dropdown");
   const content = button.nextElementSibling;
+  console.log(content);
   const arrow = button.querySelector(".arrow");
 
   if (!content) return;

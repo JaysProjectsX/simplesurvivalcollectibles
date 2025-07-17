@@ -672,7 +672,6 @@ select {
 }
 .crate-dropdown-content {
   background-color: #1c1c2e;
-  max-height: 300px;
   padding-top: 10px;
   padding-bottom: 10px;
   padding-left: 40px;

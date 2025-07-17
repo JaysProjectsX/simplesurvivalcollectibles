@@ -578,6 +578,8 @@ function nextStep(step) {
 
     const crateName = document.getElementById("crate-name").value;
     document.getElementById("crate-dropdown-title").textContent = crateName;
+    document.getElementById("crate-dropdown-content").classList.add("hidden");
+    document.getElementById("crate-dropdown-content").style.maxHeight = "0";
 
     const tableBody = document.getElementById("crate-items-table-body");
     tableBody.innerHTML = "";
@@ -673,8 +675,13 @@ function toggleDropdown(btn) {
   const content = btn.nextElementSibling;
   const arrow = btn.querySelector(".arrow");
 
-  if (content.classList.contains("hidden")) {
-    content.classList.remove("hidden");
+  // Ensure the content is display:block before measuring height
+  content.classList.remove("hidden");
+
+  // Force a reflow so browser registers display change before height transition
+  void content.offsetHeight;
+
+  if (!content.style.maxHeight || content.style.maxHeight === "0px") {
     content.style.maxHeight = content.scrollHeight + "px";
     arrow.style.transform = "rotate(180deg)";
   } else {
@@ -684,32 +691,6 @@ function toggleDropdown(btn) {
   }
 }
 
-function renderCrateSummaryItems(items) {
-  const container = document.getElementById("crate-items-container");
-  container.innerHTML = "";
-
-  items.forEach((item, index) => {
-    const id = `item-dropdown-${index}`;
-
-    const wrapper = document.createElement("div");
-    wrapper.classList.add("crate-item-dropdown");
-
-    wrapper.innerHTML = `
-      <button class="crate-dropdown-btn" onclick="toggleItemDropdown('${id}', this)">
-        ${item.item_name}
-        <span class="arrow">&#x25BC;</span>
-      </button>
-      <div id="${id}" class="crate-dropdown-content hidden">
-        <p><strong>Set:</strong> ${item.set_name}</p>
-        <p><strong>Icon:</strong> ${item.icon_url}</p>
-        <p><strong>Tags:</strong> ${item.tags.join(", ")}</p>
-        <p><strong>Tooltip:</strong> ${item.tooltip || "None"}</p>
-      </div>
-    `;
-
-    container.appendChild(wrapper);
-  });
-}
 
 function validateItems() {
   const itemElements = document.querySelectorAll(".item-form");

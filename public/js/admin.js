@@ -2,6 +2,22 @@ let currentPage = 1;
 const logsPerPage = 10;
 
 document.addEventListener("DOMContentLoaded", async () => {
+  const crateToggleBtn = document.getElementById("crate-toggle-btn");
+  if (crateToggleBtn) {
+    crateToggleBtn.addEventListener("click", function () {
+      console.log("Direct crate toggle btn clicked");
+      toggleDropdown(this);
+    });
+  }
+
+  document.addEventListener("click", function (e) {
+    const btn = e.target.closest(".crate-dropdown-btn");
+    if (btn) {
+      console.log("Crate dropdown button clicked:", btn);
+      toggleDropdown(btn);
+    }
+  });
+
   try {
     const res = await fetch("https://simplesurvivalcollectibles.site/me", {
       credentials: "include",
@@ -717,6 +733,14 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 });
 
+document.addEventListener("click", function (e) {
+  const btn = e.target.closest(".crate-dropdown-btn");
+  if (btn) {
+    console.log("Crate dropdown button clicked:", btn);
+    toggleDropdown(btn);
+  }
+});
+
 function validateItems() {
   const step2 = document.getElementById("step-2");
   const itemElements = step2.querySelectorAll(".item-dropdown");
@@ -748,14 +772,6 @@ function validateItems() {
 
   return true;
 }
-
-document.addEventListener("click", function (e) {
-  const btn = e.target.closest(".crate-dropdown-btn");
-  if (btn) {
-    console.log("Crate dropdown button clicked:", btn);
-    toggleDropdown(btn);
-  }
-});
 
 function submitCrate() {
   const crateName = document.getElementById("crate-name").value.trim();

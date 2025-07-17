@@ -741,8 +741,9 @@ function validateItems() {
 }
 
 document.addEventListener("click", function (e) {
-  if (e.target.closest(".crate-dropdown-btn")) {
-    const btn = e.target.closest(".crate-dropdown-btn");
+  const btn = e.target.closest(".crate-dropdown-btn");
+  if (btn) {
+    console.log("Crate dropdown button clicked:", btn);
     toggleDropdown(btn);
   }
 });

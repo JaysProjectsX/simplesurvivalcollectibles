@@ -609,43 +609,53 @@ function prevStep(step) {
 }
 
 function addItem() {
-  const itemsContainer = document.getElementById("items-container");
-  const id = Date.now();
+  const id = Date.now(); // unique ID for the item
+  const container = document.getElementById("items-container");
 
-  const itemHTML = `
-    <div class="item-dropdown">
-      <button class="crate-dropdown-btn" onclick="toggleItemDropdown(${id})">
-        <span id="item-button-text-${id}">New Item</span>
-        <span class="arrow">&#x25BC;</span>
-      </button>
-      <div class="crate-dropdown-content hidden" id="item-content-${id}">
-        <div class="nice-form-group">
-          <label>Item Name:</label>
-          <input type="text" placeholder="Enter item name"oninput="updateItemButtonText(${id}, this.value)" />
-        </div>
-        <div class="nice-form-group">
-          <label>Set Name:</label>
-          <input type="text" placeholder="Enter set name"/>
-        </div>
-        <div class="nice-form-group">
-          <label>Icon:</label>
-          <input type="text" placeholder="Enter icon URL"/>
-          <small class="hint-text icons-url" onclick="window.open('https://mc.nerothe.com/')">To view usable item icons, click here</small>
-        </div>
-        <div class="nice-form-group">
-          <label>Tags (comma-separated):</label>
-          <input type="text" placeholder="Example: Cosmetic, Wings"/>
-        </div>
-        <div class="nice-form-group">
-          <label>Tooltip:</label>
-          <textarea placeholder="Optional tooltip"></textarea>
-        </div>
-        <button class="modal-btn" onclick="this.closest('.item-dropdown').remove()">Remove Item</button>
+  // Add item with placeholder values to global items array
+  const newItem = {
+    id,
+    name: "",
+    set: "",
+    icon: "",
+    tags: "",
+    tooltip: ""
+  };
+  items.push(newItem);
+
+  // Create dropdown container
+  const wrapper = document.createElement("div");
+  wrapper.className = "item-form";
+  wrapper.innerHTML = `
+    <button type="button" class="crate-dropdown-btn" onclick="toggleItemDropdown(${id})">
+      <span class="item-dropdown-title">[New Item]</span>
+      <span class="arrow">▼</span>
+    </button>
+    <div class="crate-dropdown-content hidden" id="item-content-${id}">
+      <div class="nice-form-group">
+        <label>Item Name</label>
+        <input type="text" class="item-name" placeholder="Enter item name" oninput="updateItemField(${id}, 'name', this.value)" />
+      </div>
+      <div class="nice-form-group">
+        <label>Set Name</label>
+        <input type="text" class="item-set" placeholder="Enter set name" oninput="updateItemField(${id}, 'set', this.value)" />
+      </div>
+      <div class="nice-form-group">
+        <label>Icon URL</label>
+        <input type="url" class="item-icon" placeholder="Enter icon URL" oninput="updateItemField(${id}, 'icon', this.value)" />
+      </div>
+      <div class="nice-form-group">
+        <label>Tags (comma-separated)</label>
+        <input type="text" class="item-tags" placeholder="Example: Cosmetic, Wings" oninput="updateItemField(${id}, 'tags', this.value)" />
+      </div>
+      <div class="nice-form-group">
+        <label>Tooltip (optional)</label>
+        <input type="text" class="item-tooltip" placeholder="Optional tooltip" oninput="updateItemField(${id}, 'tooltip', this.value)" />
       </div>
     </div>
   `;
 
-  itemsContainer.insertAdjacentHTML("beforeend", itemHTML);
+  container.appendChild(wrapper);
 }
 
 function toggleItemDropdown(id) {

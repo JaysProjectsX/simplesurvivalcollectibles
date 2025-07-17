@@ -684,19 +684,22 @@ function removeItem(id) {
 }
 
 function toggleDropdown(button) {
-  const dropdown = button.nextElementSibling;
   const arrow = button.querySelector(".arrow");
+  const content = button.nextElementSibling;
 
-  if (dropdown.classList.contains("hidden")) {
-    dropdown.classList.remove("hidden");
-    dropdown.style.maxHeight = dropdown.scrollHeight + "px";
+  if (!content) return;
+
+  if (content.classList.contains("hidden") || content.style.maxHeight === "0px") {
+    content.classList.remove("hidden");
+    content.style.maxHeight = content.scrollHeight + "px";
     arrow.style.transform = "rotate(180deg)";
   } else {
-    dropdown.style.maxHeight = "0";
+    content.style.maxHeight = "0";
     arrow.style.transform = "rotate(0deg)";
-    setTimeout(() => dropdown.classList.add("hidden"), 500);
+    setTimeout(() => content.classList.add("hidden"), 300);
   }
 }
+
 
 function validateItems() {
   const step2 = document.getElementById("step-2");

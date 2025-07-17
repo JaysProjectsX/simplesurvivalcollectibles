@@ -624,24 +624,24 @@ function addItem() {
       <div class="crate-dropdown-content hidden" id="item-content-${id}">
         <div class="nice-form-group">
           <label>Item Name:</label>
-          <input type="text" placeholder="Enter item name"oninput="updateItemButtonText(${id}, this.value)" />
+          <input type="text" name="itemName" placeholder="Enter item name"oninput="updateItemButtonText(${id}, this.value)" />
         </div>
         <div class="nice-form-group">
           <label>Set Name:</label>
-          <input type="text" placeholder="Enter set name"/>
+          <input type="text" name="setName" placeholder="Enter set name"/>
         </div>
         <div class="nice-form-group">
           <label>Icon:</label>
-          <input type="text" placeholder="Enter icon URL"/>
+          <input type="text" name="icon" placeholder="Enter icon URL"/>
           <small class="hint-text icons-url" onclick="window.open('https://mc.nerothe.com/')">To view usable item icons, click here</small>
         </div>
         <div class="nice-form-group">
           <label>Tags (comma-separated):</label>
-          <input type="text" placeholder="Example: Cosmetic, Wings"/>
+          <input type="text" name="tags" placeholder="Example: Cosmetic, Wings"/>
         </div>
         <div class="nice-form-group">
           <label>Tooltip:</label>
-          <textarea placeholder="Optional tooltip"></textarea>
+          <textarea name="tooltip" placeholder="Optional tooltip"></textarea>
         </div>
         <button class="modal-btn" onclick="this.closest('.item-dropdown').remove()">Remove Item</button>
       </div>

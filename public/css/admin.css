@@ -680,9 +680,6 @@ select {
   overflow: hidden;
   transition: max-height 0.5s ease;
 }
-.crate-dropdown-content.hidden {
-  display: block; /* prevents display: none from blocking height transition */
-}
 .crate-dropdown-content.active {
   max-height: 1000px;
   opacity: 1;
@@ -731,9 +728,7 @@ select {
   color:#6ea8ff !important;
 }
 .hidden {
-  visibility: hidden;
-  opacity: 0;
-  pointer-events: none;
+  display: none;
 }
 .crate-item-list-scroll {
   max-height: 250px;

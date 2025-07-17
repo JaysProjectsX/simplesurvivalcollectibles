@@ -573,31 +573,31 @@ function nextStep(step) {
   }
 
   // Step 2 → Step 3: Validate item entries before showing summary
-  if (step === 3) {
-    if (!validateItems()) return;
+if (step === 3) {
+  if (!validateItems()) return;
 
-    const crateName = document.getElementById("crate-name").value;
-    document.getElementById("crate-dropdown-title").textContent = crateName;
+  const crateName = document.getElementById("crate-name").value.trim();
+  document.getElementById("crate-dropdown-title").textContent = crateName;
 
-    const dropdownContent = document.getElementById("crate-dropdown-content");
-    dropdownContent.classList.remove("hidden");
-    dropdownContent.style.maxHeight = dropdownContent.scrollHeight + "px";
+  const dropdownContent = document.getElementById("crate-dropdown-content");
+  dropdownContent.classList.remove("hidden");
+  dropdownContent.style.maxHeight = dropdownContent.scrollHeight + "px";
 
-    const tableBody = document.getElementById("crate-items-table-body");
-    tableBody.innerHTML = "";
+  const tableBody = document.getElementById("crate-items-table-body");
+  tableBody.innerHTML = "";
 
-    items.forEach(item => {
-      const row = document.createElement("tr");
-      row.innerHTML = `
-        <td>${item.name}</td>
-        <td>${item.set}</td>
-        <td>${item.icon}</td>
-        <td>${item.tags}</td>
-        <td>${item.tooltip}</td>
-      `;
-      tableBody.appendChild(row);
-    });
-  }
+  items.forEach(item => {
+    const row = document.createElement("tr");
+    row.innerHTML = `
+      <td>${item.name}</td>
+      <td>${item.set}</td>
+      <td><img src="${item.icon}" alt="icon" style="width: 20px; height: 20px;" /></td>
+      <td>${item.tags}</td>
+      <td>${item.tooltip || ""}</td>
+    `;
+    tableBody.appendChild(row);
+  });
+}
 
   // Show target step
   document.querySelectorAll(".wizard-step").forEach(el => el.classList.add("hidden"));
@@ -698,35 +698,8 @@ function toggleDropdown() {
   }
 }
 
-function renderCrateSummaryItems(items) {
-  const container = document.getElementById("crate-items-container");
-  container.innerHTML = "";
-
-  items.forEach((item, index) => {
-    const id = `item-dropdown-${index}`;
-
-    const wrapper = document.createElement("div");
-    wrapper.classList.add("crate-item-dropdown");
-
-    wrapper.innerHTML = `
-      <button class="crate-dropdown-btn" onclick="toggleItemDropdown('${id}', this)">
-        ${item.item_name}
-        <span class="arrow">&#x25BC;</span>
-      </button>
-      <div id="${id}" class="crate-dropdown-content hidden">
-        <p><strong>Set:</strong> ${item.set_name}</p>
-        <p><strong>Icon:</strong> ${item.icon_url}</p>
-        <p><strong>Tags:</strong> ${item.tags.join(", ")}</p>
-        <p><strong>Tooltip:</strong> ${item.tooltip || "None"}</p>
-      </div>
-    `;
-
-    container.appendChild(wrapper);
-  });
-}
-
 function validateItems() {
-  const itemElements = document.querySelectorAll(".item-form");
+  const itemElements = document.querySelectorAll(".item-dropdown");
   items = [];
 
   for (const el of itemElements) {

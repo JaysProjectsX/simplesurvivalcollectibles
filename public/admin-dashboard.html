@@ -113,7 +113,6 @@
 
                     <!-- Step 2: Add Items -->
                     <div class="wizard-step hidden" id="step-2">
-                      <div id="items-container"></div>
                       <button class="modal-btn icon-btn" id="add-item-btn" onclick="addItem()">
                         <svg xmlns="http://www.w3.org/2000/svg" class="icon-left" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                           <line x1="12" y1="5" x2="12" y2="19"/>
@@ -121,6 +120,7 @@
                         </svg>
                         Add Item
                       </button>
+                      <div id="items-container"></div>
                       <div class="wizard-controls">
                         <button class="modal-btn" onclick="prevStep(1)" id="prev-step-2">Previous</button>
                         <button class="modal-btn primary" onclick="nextStep(3)" id="next-step-2">Next</button>
@@ -129,11 +129,9 @@
 
                     <!-- Step 3: Confirm and Submit -->
                     <div class="wizard-step hidden" id="step-3">
-                      <h3>Step 3: Confirm Crate Details</h3>
-
-                      <button class="crate-dropdown-btn" onclick="toggleDropdown()">
+                      <button class="crate-dropdown-btn" onclick="toggleDropdown(this)">
                         <span id="crate-dropdown-title">[Crate Name]</span>
-                        <span class="arrow" style="transition: transform 0.3s;">▼</span>
+                        <span class="arrow">▼</span>
                       </button>
                       <div id="crate-dropdown-content" class="crate-dropdown-content hidden">
                         <div class="crate-item-list-scroll">

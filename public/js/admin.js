@@ -669,9 +669,9 @@ function removeItem(id) {
   document.querySelector(`.item-form[data-id="${id}"]`)?.remove();
 }
 
-function toggleDropdown() {
-  const content = document.getElementById("crate-dropdown-content");
-  const arrow = document.querySelector(".arrow");
+function toggleDropdown(btn) {
+  const content = btn.nextElementSibling;
+  const arrow = btn.querySelector(".arrow");
 
   if (content.classList.contains("hidden")) {
     content.classList.remove("hidden");
@@ -680,7 +680,7 @@ function toggleDropdown() {
   } else {
     content.style.maxHeight = "0";
     arrow.style.transform = "rotate(0deg)";
-    setTimeout(() => content.classList.add("hidden"), 300); // match transition
+    setTimeout(() => content.classList.add("hidden"), 300);
   }
 }
 

@@ -648,6 +648,10 @@ select {
 .item-dropdown {
   border: 1.5px solid #444;
   border-radius: 4px;
+  margin-top: 16px;
+}
+.arrow {
+  transition: transform 0.5s ease;
 }
 .crate-dropdown-btn {
   width: 100%;
@@ -674,7 +678,7 @@ select {
   padding-left: 40px;
   padding-right: 40px;
   overflow: hidden;
-  transition: max-height 0.3s ease;
+  transition: max-height 0.5s ease;
 }
 .nice-form-group {
   margin-top: 0 !important;

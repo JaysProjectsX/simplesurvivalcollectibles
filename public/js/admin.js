@@ -698,29 +698,32 @@ function removeItem(id) {
 function toggleDropdown(button) {
   console.log("Toggling dropdown");
 
+  // Step 1: Get the .crate-dropdown-content that is the next sibling of the button
   const content = button.nextElementSibling;
   const arrow = button.querySelector(".arrow");
 
+  // Step 2: Check for valid dropdown
   if (!content || !content.classList.contains("crate-dropdown-content")) {
-    console.warn("Dropdown content not found");
+    console.warn("Dropdown content not found or invalid");
     return;
   }
 
-  const isExpanded = !content.classList.contains("hidden") && content.style.maxHeight !== "0px";
+  // Step 3: Toggle dropdown state
+  const isHidden = content.classList.contains("hidden") || content.style.maxHeight === "0px";
 
-  if (isExpanded) {
-    // collapse
+  if (isHidden) {
+    // Expand
+    content.classList.remove("hidden");
+    content.style.maxHeight = content.scrollHeight + "px";
+    if (arrow) arrow.style.transform = "rotate(180deg)";
+  } else {
+    // Collapse
     content.style.maxHeight = "0";
-    arrow.style.transform = "rotate(0deg)";
+    if (arrow) arrow.style.transform = "rotate(0deg)";
     setTimeout(() => {
       content.classList.add("hidden");
-      content.removeAttribute("style");
-    }, 300);
-  } else {
-    content.classList.remove("hidden");
-    void content.offsetHeight; // force reflow
-    content.style.maxHeight = content.scrollHeight + "px";
-    arrow.style.transform = "rotate(180deg)";
+      content.removeAttribute("style"); // remove inline max-height
+    }, 300); // match transition duration
   }
 }
 

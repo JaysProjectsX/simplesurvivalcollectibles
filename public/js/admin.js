@@ -580,8 +580,8 @@ if (step === 3) {
   document.getElementById("crate-dropdown-title").textContent = crateName;
 
   const dropdownContent = document.getElementById("crate-dropdown-content");
-  dropdownContent.classList.remove("hidden");
-  dropdownContent.style.maxHeight = dropdownContent.scrollHeight + "px";
+  dropdownContent.classList.add("hidden"); // Ensure it's hidden initially
+  dropdownContent.style.maxHeight = "0";   // Reset any leftover height
 
   const tableBody = document.getElementById("crate-items-table-body");
   tableBody.innerHTML = "";
@@ -684,19 +684,24 @@ function removeItem(id) {
 }
 
 function toggleDropdown(button) {
-  const arrow = button.querySelector(".arrow");
   const content = button.nextElementSibling;
+  const arrow = button.querySelector(".arrow");
 
   if (!content) return;
 
-  if (content.classList.contains("hidden") || content.style.maxHeight === "0px") {
-    content.classList.remove("hidden");
-    content.style.maxHeight = content.scrollHeight + "px";
-    arrow.style.transform = "rotate(180deg)";
-  } else {
+  // Toggle state
+  const isExpanded = !content.classList.contains("hidden") && content.style.maxHeight !== "0px";
+
+  if (isExpanded) {
     content.style.maxHeight = "0";
     arrow.style.transform = "rotate(0deg)";
     setTimeout(() => content.classList.add("hidden"), 300);
+  } else {
+    content.classList.remove("hidden");
+    // Force reflow to enable transition
+    void content.offsetHeight;
+    content.style.maxHeight = content.scrollHeight + "px";
+    arrow.style.transform = "rotate(180deg)";
   }
 }
 

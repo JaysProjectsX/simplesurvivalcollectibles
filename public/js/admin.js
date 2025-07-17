@@ -685,13 +685,16 @@ function removeItem(id) {
 
 function toggleDropdown(button) {
   console.log("Toggling dropdown");
-  const content = button.nextElementSibling;
-  console.log(content);
+
+  const wrapper = button.closest(".item-dropdown");
+  const content = wrapper?.querySelector(".crate-dropdown-content");
   const arrow = button.querySelector(".arrow");
 
-  if (!content) return;
+  if (!content) {
+    console.warn("Dropdown content not found");
+    return;
+  }
 
-  // Toggle state
   const isExpanded = !content.classList.contains("hidden") && content.style.maxHeight !== "0px";
 
   if (isExpanded) {
@@ -700,8 +703,7 @@ function toggleDropdown(button) {
     setTimeout(() => content.classList.add("hidden"), 300);
   } else {
     content.classList.remove("hidden");
-    // Force reflow to enable transition
-    void content.offsetHeight;
+    void content.offsetHeight; // force reflow
     content.style.maxHeight = content.scrollHeight + "px";
     arrow.style.transform = "rotate(180deg)";
   }

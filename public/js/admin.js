@@ -579,8 +579,13 @@ function nextStep(step) {
     const crateName = document.getElementById("crate-name").value;
     document.getElementById("crate-dropdown-title").textContent = crateName;
 
+    const dropdownContent = document.getElementById("crate-dropdown-content");
+    dropdownContent.classList.remove("hidden");
+    dropdownContent.style.maxHeight = dropdownContent.scrollHeight + "px";
+
     const tableBody = document.getElementById("crate-items-table-body");
     tableBody.innerHTML = "";
+
     items.forEach(item => {
       const row = document.createElement("tr");
       row.innerHTML = `
@@ -614,7 +619,7 @@ function addItem() {
     <div class="item-dropdown">
       <button class="crate-dropdown-btn" onclick="toggleItemDropdown(${id})">
         <span id="item-button-text-${id}">New Item</span>
-        <span class="arrow">&#x25BC;</span>
+        <span class="arrow">▼</span>
       </button>
       <div class="crate-dropdown-content hidden" id="item-content-${id}">
         <div class="nice-form-group">
@@ -644,6 +649,15 @@ function addItem() {
   `;
 
   itemsContainer.insertAdjacentHTML("beforeend", itemHTML);
+
+    items.push({
+    id,
+    name: "",
+    set: "",
+    icon: "",
+    tags: "",
+    tooltip: ""
+  });
 }
 
 function toggleItemDropdown(id) {

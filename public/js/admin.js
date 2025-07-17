@@ -699,7 +699,8 @@ function toggleDropdown(button) {
 }
 
 function validateItems() {
-  const itemElements = document.querySelectorAll(".item-dropdown");
+  const step2 = document.getElementById("step-2");
+  const itemElements = step2.querySelectorAll(".item-dropdown");
   items = [];
 
   for (const el of itemElements) {

@@ -660,7 +660,8 @@ function addItem() {
 
 function toggleItemDropdown(id) {
   const content = document.getElementById(`item-content-${id}`);
-  const arrow = document.querySelector(`#item-button-text-${id}`).nextElementSibling;
+  const button = document.querySelector(`#item-button-text-${id}`).parentElement;
+  const arrow = button.querySelector(".arrow");
 
   if (content.classList.contains("hidden")) {
     content.classList.remove("hidden");

@@ -129,7 +129,8 @@
 
                     <!-- Step 3: Confirm and Submit -->
                     <div class="wizard-step hidden" id="step-3">
-                      <button class="crate-dropdown-btn" onclick="toggleDropdown()">
+                      <div class="item-dropdown">
+                      <button class="crate-dropdown-btn" onclick="toggleDropdown(this)">
                         <span id="crate-dropdown-title">[Crate Name]</span>
                         <span class="arrow">▼</span>
                       </button>
@@ -151,7 +152,7 @@
                           </table>
                         </div>
                       </div>
-
+                      </div>
                       <div>
                         <button class="modal-btn" onclick="prevStep(2)">Previous</button>
                         <button class="modal-btn primary" onclick="submitCrate()">Submit Crate</button>

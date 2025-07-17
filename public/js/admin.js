@@ -683,18 +683,18 @@ function removeItem(id) {
   document.querySelector(`.item-form[data-id="${id}"]`)?.remove();
 }
 
-function toggleDropdown() {
-  const content = document.getElementById("crate-dropdown-content");
-  const arrow = document.querySelector(".arrow");
+function toggleDropdown(button) {
+  const dropdown = button.nextElementSibling;
+  const arrow = button.querySelector(".arrow");
 
-  if (content.classList.contains("hidden")) {
-    content.classList.remove("hidden");
-    content.style.maxHeight = content.scrollHeight + "px";
+  if (dropdown.classList.contains("hidden")) {
+    dropdown.classList.remove("hidden");
+    dropdown.style.maxHeight = dropdown.scrollHeight + "px";
     arrow.style.transform = "rotate(180deg)";
   } else {
-    content.style.maxHeight = "0";
+    dropdown.style.maxHeight = "0";
     arrow.style.transform = "rotate(0deg)";
-    setTimeout(() => content.classList.add("hidden"), 500); // match transition
+    setTimeout(() => dropdown.classList.add("hidden"), 500);
   }
 }
 

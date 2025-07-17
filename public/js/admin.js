@@ -682,11 +682,10 @@ function removeItem(id) {
 function toggleDropdown(button) {
   console.log("Toggling dropdown");
 
-  const wrapper = button.closest(".item-dropdown");
-  const content = wrapper?.querySelector(".crate-dropdown-content");
+  const content = button.nextElementSibling;
   const arrow = button.querySelector(".arrow");
 
-  if (!content) {
+  if (!content || !content.classList.contains("crate-dropdown-content")) {
     console.warn("Dropdown content not found");
     return;
   }
@@ -699,7 +698,7 @@ function toggleDropdown(button) {
     arrow.style.transform = "rotate(0deg)";
     setTimeout(() => {
       content.classList.add("hidden");
-      content.removeAttribute("style"); // ✅ Remove lingering max-height
+      content.removeAttribute("style");
     }, 300);
   } else {
     content.classList.remove("hidden");

@@ -197,10 +197,11 @@
 
 #accountList li,
 #activeUserList li {
-  background-color: #1a1a2a;
+  background-color: #1a1a1a;
+  border: 1px solid #292929;
+  border-radius: 8px;
   margin: 0.5rem 0;
   padding: 1rem;
-  border-radius: 8px;
   color: #fff;
   display: flex;
   justify-content: space-between;

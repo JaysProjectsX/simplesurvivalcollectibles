@@ -24,7 +24,7 @@
 
 /* Sidebar Styling */
 .admin-sidebar {
-  background-color: var(--background-secondary);
+  background-color: #1a1a1a;
   border-radius: 12px;
   padding: 1rem;
   width: 250px;
@@ -58,14 +58,14 @@
 }
 
 .tab-btn:hover {
-  background-color: var(--background-hover);
+  background-color: #212121;
   padding-left: 1rem;
   color: var(--text-primary);
 }
 
 .tab-btn.active,
 .tab-btn:focus {
-  background-color: var(--background-hover);
+  background-color: #212121;
   border-left: 3px solid var(--primary-text);
   color: var(--text-primary);
   font-weight: var(--font-weight-bold);
@@ -74,7 +74,7 @@
 /* Main content styling */
 .admin-main {
   flex-grow: 1;
-  background-color: var(--background-secondary);
+  background-color: #1a1a1a;
   border-radius: 12px;
   padding: 2rem;
 }
@@ -279,7 +279,7 @@
 #crate-creation-panel,
 #changelog-entry-panel {
   margin-bottom: 2rem;
-  background: #1a1a2a;
+  background: #1a1a1a;
   padding: 1.5rem;
   border-radius: 8px;
 }
@@ -344,7 +344,7 @@
 .db-subtabs {
   display: flex;
   gap: 1rem;
-  margin-bottom: 1rem;
+  justify-content: center;
 }
 
 .db-subtab-btn {
@@ -364,10 +364,11 @@
 }
 
 .db-subtab-content {
-  background-color: var(--background-secondary);
-  padding: 16px;
+  background-color: #1a1a1a;
   border-radius: 0 6px 6px 6px;
   border-top: none;
+  padding-right: 16px;
+  padding-left: 16px;
 }
 
 #crate-selector {

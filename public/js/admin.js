@@ -683,7 +683,7 @@ function toggleItemDropdown(id) {
   } else {
     content.style.maxHeight = "0";
     arrow.style.transform = "rotate(0deg)";
-    setTimeout(() => content.classList.add("hidden"), 300);
+    setTimeout(() => content.classList.add("hidden"), 500);
   }
 }
 
@@ -818,7 +818,7 @@ function submitCrate() {
         title: "Crate Created",
         message: "Your crate and items were successfully saved!",
         buttons: [{
-          label: "Awesome!",
+          label: "Close",
           onClick: "fadeOutAndRemove('modal-crateSuccess')"
         }],
         id: "modal-crateSuccess"

@@ -709,45 +709,12 @@ function toggleCrateDropdown() {
     setTimeout(() => {
       content.classList.add("hidden");
       content.removeAttribute("style");
-    }, 300);
+    }, 500);
   } else {
     content.classList.remove("hidden");
     void content.offsetHeight; // Force reflow
     content.style.maxHeight = content.scrollHeight + "px";
     if (arrow) arrow.style.transform = "rotate(180deg)";
-  }
-}
-
-function toggleDropdown(button) {
-  console.log("Toggling dropdown");
-
-  // Step 1: Get the .crate-dropdown-content that is the next sibling of the button
-  const content = button.nextElementSibling;
-  const arrow = button.querySelector(".arrow");
-
-  // Step 2: Check for valid dropdown
-  if (!content || !content.classList.contains("crate-dropdown-content")) {
-    console.warn("Dropdown content not found or invalid");
-    return;
-  }
-
-  // Step 3: Toggle dropdown state
-  const isHidden = content.classList.contains("hidden") || content.style.maxHeight === "0px";
-
-  if (isHidden) {
-    content.classList.remove("hidden");
-    void content.offsetHeight;
-    console.log("Calculated scrollHeight:", content.scrollHeight);
-    content.style.maxHeight = content.scrollHeight + "px";
-    if (arrow) arrow.style.transform = "rotate(180deg)";
-  } else {
-    // Collapse
-    content.style.maxHeight = "0";
-    if (arrow) arrow.style.transform = "rotate(0deg)";
-    setTimeout(() => {
-      content.classList.add("hidden");
-      content.removeAttribute("style"); // remove inline max-height
-    }, 300); // match transition duration
   }
 }
 

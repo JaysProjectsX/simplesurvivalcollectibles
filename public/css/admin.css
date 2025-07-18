@@ -649,6 +649,7 @@ select {
   border: 1.5px solid #444;
   border-radius: 4px;
   margin-top: 16px;
+  margin-bottom: 20px;
 }
 .arrow {
   display: inline-block;
@@ -673,10 +674,6 @@ select {
 }
 .crate-dropdown-content {
   background-color: #1c1c2e;
-  padding-top: 10px;
-  padding-bottom: 10px;
-  padding-left: 40px;
-  padding-right: 40px;
   overflow: hidden;
   transition: max-height 0.5s ease;
 }
@@ -735,5 +732,4 @@ select {
   overflow-y: auto;
   border-top: 1px solid #333;
   padding-top: 10px;
-  margin-top: 10px;
 }

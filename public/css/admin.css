@@ -601,6 +601,17 @@ select {
 .wizard-step {
   text-align: center;
 }
+.tab-header {
+  width: auto;
+  margin: 0;
+}
+.divider {
+  height: 1px;
+  background-color: #444;
+  margin: 20px 0;
+  width: 100%;
+  opacity: 0.5;
+}
 .modal-btn {
   padding: 8px 18px;
   border: none;
@@ -758,5 +769,4 @@ select {
   max-height: 250px;
   overflow-y: auto;
   border-top: 1px solid #333;
-  padding-top: 10px;
 }

@@ -46,7 +46,6 @@
   background: #151419;
   color: white;
   border-radius: 1rem;
-  box-shadow: 0.063em 0.75em 1.563em rgba(0, 0, 0, 0.78);
   padding: 1em;
   text-align: left;
   position: relative;
@@ -114,18 +113,18 @@
 }
 
 .global-modal.success {
-  background: radial-gradient(ellipse at right top, #107667ed 0%, #151419 47%, #151419 100%);
-  opacity: 0.98;
+  background: radial-gradient(ellipse at right top, #107667 0%, #151419 47%, #151419 100%);
+  opacity: 1;
   transition: opacity 0.3s ease;
 }
 .global-modal.error {
-  background: radial-gradient(ellipse at right top, #a63d2a82 0%, #151419 47%, #151419 100%);
-  opacity: 0.98;
+  background: radial-gradient(ellipse at right top, #a63d2a 0%, #151419 47%, #151419 100%);
+  opacity: 1;
   transition: opacity 0.3s ease;
 }
 .global-modal.warning {
-  background: radial-gradient(ellipse at right top, #db913de7 0%, #151419 47%, #151419 100%);
-  opacity: 0.98;
+  background: radial-gradient(ellipse at right top, #db913d 0%, #151419 47%, #151419 100%);
+  opacity: 1;
   transition: opacity 0.3s ease;
 }
 .global-modal.warning .icon {

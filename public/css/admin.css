@@ -131,6 +131,31 @@
   background-color: var(--background-hover);
 }
 
+.confirmation-table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: #1a1a2a;
+  overflow: hidden;
+  font-size: 0.9rem;
+}
+
+.confirmation-table th,
+.confirmation-table td {
+  padding: 0.75rem 1rem;
+  border-bottom: var(--border);
+  text-align: left;
+  color: var(--text-primary);
+}
+
+.confirmation-table th {
+  background-color: #252538;
+  font-weight: var(--font-weight-bold);
+}
+
+.confirmation-table tr:hover {
+  background-color: var(--background-hover);
+}
+
 /* Action buttons */
 .admin-action-btn {
   padding: 0.35rem 0.75rem;
@@ -660,8 +685,8 @@ select {
 .crate-dropdown-btn {
   width: 100%;
   text-align: left;
-  background: #2a2a40;
-  border: 1px solid #2a2a40;
+  background: #1a1a1b;
+  border: 1px solid #1a1a1b;
   border-radius: 6px;
   padding: 10px 15px;
   color: #fff;
@@ -672,10 +697,10 @@ select {
   align-items: center;
 }
 .crate-dropdown-btn:hover {
-  background-color: #3c3c55;
+  background-color: #212121;
 }
 .crate-dropdown-content {
-  background-color: #1c1c2e;
+  background-color: #1a1a1a;
   overflow: hidden;
   transition: max-height 0.5s ease;
 }

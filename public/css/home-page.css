@@ -1564,7 +1564,142 @@ nav {
     color: white;
   }
 
-  /* Global Modal Styling */
+  /* About page */
+
+.about-section {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  padding: 60px 20px;
+  background: transparent;
+}
+
+.about-card {
+  display: flex;
+  flex-wrap: wrap;
+  background: linear-gradient(135deg, #2b2d42, #4b2a69);
+  border-radius: 20px;
+  padding: 40px;
+  gap: 30px;
+  max-width: 1100px;
+  width: 100%;
+  box-shadow: 0 10px 60px rgba(0, 0, 0, 0.6);
+}
+
+.profile-box {
+  flex: 1;
+  background: #1e1e2f;
+  border-radius: 16px;
+  padding: 30px 20px;
+  text-align: center;
+  color: white;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.profile-box h2 {
+  font-size: 1.6rem;
+  margin: 10px 0 5px;
+}
+
+.profile-box .role {
+  font-size: 0.9rem;
+  color: #bbb;
+  margin-bottom: 20px;
+}
+
+.profile-pic i {
+  color: #6ea8ff;
+  animation: pulseLogo 2s infinite;
+}
+
+.social-links {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  margin-top: 15px;
+}
+
+.social-links a {
+  font-size: 1.3rem;
+  color: #ccc;
+  transition: color 0.3s;
+}
+
+.social-links a:hover {
+  color: #6ea8ff;
+}
+
+.about-text {
+  flex: 2;
+  color: white;
+  padding: 20px;
+}
+
+.about-text h1 {
+  font-size: 2.5rem;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+.about-text .highlight {
+  color: #ae63f5;
+}
+
+.about-text .subheadline {
+  font-size: 1rem;
+  color: #aaa;
+  margin-bottom: 20px;
+}
+
+.about-text p {
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: #ccc;
+}
+
+.about-buttons {
+  margin: 20px 0;
+}
+
+.about-btn {
+  display: inline-block;
+  margin: 5px 10px 10px 0;
+  padding: 10px 20px;
+  font-weight: bold;
+  border-radius: 30px;
+  text-decoration: none;
+  font-size: 0.95rem;
+  transition: all 0.3s ease;
+}
+
+.about-btn {
+  background: linear-gradient(45deg, #6ea8ff, #8059ff);
+  color: white;
+}
+
+.about-btn.ghost {
+  background: none;
+  border: 2px solid #8059ff;
+  color: #ccc;
+}
+
+.about-btn.ghost:hover {
+  background: #8059ff;
+  color: white;
+}
+
+.about-btn:hover {
+  transform: scale(1.05);
+}
+
+.credits {
+  font-size: 0.85rem;
+  margin-top: 30px;
+  color: #888;
+}
 
 
   /* Styling for footer */

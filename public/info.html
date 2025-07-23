@@ -1,85 +1,150 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Info - SimpleSurvival Collectibles</title>
-  <link rel="stylesheet" href="../css/styles.css" />
-  <link href="https://unpkg.com/boxicons@2.1.1/css/boxicons.min.css" rel="stylesheet" />
-</head>
-<body>
-<nav class="main-nav">
-  <ul>
-    <li><a href="/index.html">Home</a></li>
-    <li><a href="/crates.html">Cosmetic Crates</a></li>
-    <li><a href="/info.html">About</a></li>
-    <li><a href="/othercrates.html">Other Crates</a></li>
-  </ul>
-</nav>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>About - SimpleSurvival Collectibles</title>
+    <link rel="stylesheet" href="/css/home-page.css" />
+    <link rel="stylesheet" href="/css/globalModal.css" />
+    <link
+      href="https://unpkg.com/boxicons@2.1.1/css/boxicons.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+    />
+    <link rel="icon" href="/favicon.png" type="image/png" />
+  </head>
+  <body>
+    <nav>
+      <div class="nav-content">
+        <div class="nav-logo">
+          <a href="/index.html">
+            <img src="/assets/Logo.png" alt="SimpleSurvival Collectibles Logo" />
+          </a>
+        </div>
+        <ul class="nav-links">
+          <li><a href="/index.html">Home</a></li>
+          <li><a href="/info.html" class="active">About</a></li>
+          <li><a href="/crates.html">Cosmetic Crates</a></li>
+          <li><a href="/othercrates.html">Other Crates</a></li>
+          <li><a href="/othercrates.html">Event Items</a></li>
+        </ul>
+        <ul class="nav-login" id="navLogin">
+          <li id="loginItem"><a href="#" onclick="toggleModal()">Login</a></li>
+        </ul>
+      </div>
+    </nav>
 
-<nav class="sidebar close">
-  <header>
-    <div class="image-text">
-      <span class="image">
-        <img src="../../assets/simplesurvival-logo.png" alt="Simple Survival Logo" />
-      </span>
-      <div class="text logo-text">
-        <span class="name">SimpleSurvival</span>
-        <span class="profession">Collectibles</span>
+    <div id="particles-js"></div>
+
+    <section class="about-section">
+      <div class="about-card">
+        <div class="profile-box">
+          <div class="profile-pic">
+            <i class="fas fa-user-circle fa-5x"></i>
+          </div>
+          <h2>SimpleSurvival Collectibles</h2>
+          <p class="role">Minecraft Archive Project</p>
+          <div class="social-links">
+            <a href="https://github.com/YooEm" target="_blank"><i class="fab fa-github"></i></a>
+            <a href="https://discord.gg/yourserver" target="_blank"><i class="fab fa-discord"></i></a>
+            <a href="https://twitter.com/yourhandle" target="_blank"><i class="fab fa-twitter"></i></a>
+          </div>
+        </div>
+        <div class="about-text">
+          <h1>Hello <span class="highlight">!</span></h1>
+          <p class="subheadline">Here's what this site is all about</p>
+          <div class="about-buttons">
+            <a href="/assets/SimpleSurvival-Project-Overview.pdf" class="about-btn">Project Overview</a>
+            <a href="https://github.com/YooEm/simplesurvival-crates-data" class="about-btn ghost">GitHub</a>
+          </div>
+          <p>This website is a fan-made archive that catalogs collectible crate items from the SimpleSurvival Minecraft server.</p>
+          <p>Created by passionate players, it serves as a visual reference for cosmetics, seasonal events, and special edition items over time.</p>
+          <p class="credits">Made with ❤️ by <strong>YooEm</strong></p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Login/Register Modal -->
+    <div id="authModal" class="modal">
+      <div class="modal-content">
+        <span class="close" onclick="toggleModal()">&times;</span>
+        <h2>Login to Your Account</h2>
+        <form id="loginForm">
+          <input type="text" placeholder="Email" required />
+          <input type="password" placeholder="Password" required />
+          <button type="submit">Login</button>
+        </form>
+        <p class="toggle-text">Don't have an account? <a href="#" onclick="toggleForm()">Register here</a></p>
+
+        <form id="registerForm" style="display: none;">
+          <input type="text" placeholder="Username" id="registerUsername" required />
+          <input type="email" placeholder="Email" id="registerEmail" required />
+          <input type="password" placeholder="Password" id="registerPassword" required />
+          <button type="submit">Register</button>
+        </form>
+        <p class="toggle-text" style="display: none;">Already have an account? <a href="#" onclick="toggleForm()">Login here</a></p>
       </div>
     </div>
-    <i class='bx bx-chevron-right toggle'></i>
-  </header>
-  <div class="menu-bar">
-    <div class="menu">
-      <ul class="menu-links">
-        <li class="nav-link">
-          <a href="../../index.html">
-            <i class='bx bx-home-alt icon'></i>
-            <span class="text nav-text">Home</span>
-          </a>
-        </li>
-        <li class="nav-link">
-          <a href="info.html">
-            <i class='bx bx-info-circle icon'></i>
-            <span class="text nav-text">Info</span>
-          </a>
-        </li>
-        <li class="nav-link">
-          <a href="crates.html">
-            <i class='bx bx-box icon'></i>
-            <span class="text nav-text">Cosmetic Crates</span>
-          </a>
-        </li>
-        <li class="nav-link">
-          <a href="othercrates.html">
-            <i class='bx bx-box icon'></i>
-            <span class="text nav-text">Other Crates</span>
-          </a>
-        </li>
-      </ul>
+
+    <!-- Confirmation Modal -->
+    <div id="registrationConfirmation" class="modal" style="display:none;">
+      <div class="modal-content">
+        <span class="close" onclick="document.getElementById('registrationConfirmation').style.display='none'">&times;</span>
+        <h2>Check Your Email</h2>
+        <p>We've sent a verification link to your email address. Please check your inbox/spam folders to verify your account.</p>
+      </div>
     </div>
-    <div class="bottom-content">
-      <li class="mode">
-        <div class="sun-moon">
-          <i class='bx bx-moon icon moon'></i>
-          <i class='bx bx-sun icon sun'></i>
+
+    <!-- Account Info Modal -->
+    <div id="accountModal" class="modal" style="display:none;">
+      <div class="modal-content" id="accountModalContent">
+        <div class="account-section">
+          <h2>Account Details</h2>
+          <p><strong>Username:</strong> <span id="accUsername"></span></p>
+          <p><strong>Email:</strong> <span id="accEmail"></span></p>
+          <p><strong>Role:</strong> <span id="accRole"></span></p>
+          <p><strong>Email Verified:</strong> <span id="accVerified"></span></p>
+          <p><strong>Account Created:</strong> <span id="accCreated"></span></p>
         </div>
-        <span class="mode-text text">Dark mode</span>
-        <div class="toggle-switch"><span class="switch"></span></div>
-      </li>
-      <li class="creator">
-        <span class="creator-text">Created by YooEm</span>
-      </li>
+
+        <div class="password-section">
+          <h3>Change Password</h3>
+          <form id="passwordChangeForm">
+            <input type="password" id="currentPassword" placeholder="Current Password" required />
+            <input type="password" id="newPassword" placeholder="New Password" required />
+            <input type="password" id="confirmPassword" placeholder="Confirm New Password" required />
+            <div class="toggle-password-container">
+              <input type="checkbox" id="togglePassword" />
+              <label for="togglePassword">Show Passwords</label>
+            </div>
+            <button type="submit">Change Password</button>
+          </form>
+        </div>
+      </div>
     </div>
-  </div>
-</nav>
 
-<section class="home">
-  <div class="text">Information</div>
-  <p>Welcome to the information page. Here you can learn more about SimpleSurvival Collectibles.</p>
-</section>
+    <div id="toastContainer"></div>
 
-<script src="../js/scripts.js"></script>
-</body>
+    <footer>
+      <div class="footer-creator">
+        <p>Created by YooEm</p>
+      </div>
+      <div class="footer-links">
+        <p><strong>Disclaimer:</strong> This is a fan-made website and is not affiliated with or endorsed by the SimpleSurvival Minecraft server or its owners.</p>
+        <p><a href="privacy.html">Privacy Policy</a> | <a href="terms.html">Terms of Use</a></p>
+      </div>
+    </footer>
+
+    <script defer src="/js/globalModal.js"></script>
+    <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+    <script src="/js/scripts.js"></script>
+    <script src="/js/auth.js"></script>
+  </body>
 </html>

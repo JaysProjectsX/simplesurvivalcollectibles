@@ -1602,13 +1602,23 @@ nav {
   border-bottom-left-radius: 20px;
 }
 
-.profile-pic i {
-  font-size: 5rem;
-  color: #fff;
-  margin-bottom: 1.5rem;
+.profile-pic {
+  width: 150px;
+  height: 150px;
   background: #12192c;
-  padding: 20px;
   border-radius: 50%;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+  margin-bottom: 1.5rem;
+}
+
+.profile-pic img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
 }
 
 .profile-box h2 {
@@ -1724,6 +1734,155 @@ nav {
   color: #888;
 }
 
+.contact-section {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 60px 20px 100px;
+  background: transparent;
+}
+
+.contact-form {
+  width: 100%;
+  max-width: 600px;
+  background: rgba(18, 25, 44, 0.95);
+  padding: 40px;
+  border-radius: 20px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+  color: white;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.contact-form h2 {
+  text-align: center;
+  font-size: 2rem;
+  margin-bottom: 10px;
+  background: linear-gradient(90deg, #21D4FD, #B721FF);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-group label {
+  margin-bottom: 6px;
+  font-weight: 500;
+  color: #ccc;
+}
+
+.form-group input,
+.form-group textarea {
+  padding: 12px 15px;
+  border: none;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.07);
+  color: white;
+  font-size: 1rem;
+  transition: background 0.3s ease;
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+  outline: none;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.contact-btn {
+  padding: 12px 30px;
+  border: none;
+  border-radius: 30px;
+  font-size: 1rem;
+  font-weight: bold;
+  color: white;
+  background: linear-gradient(to right, #21D4FD, #B721FF);
+  cursor: pointer;
+  transition: transform 0.2s ease;
+  align-self: center;
+}
+
+.contact-btn:hover {
+  transform: scale(1.05);
+}
+
+.contact-success-overlay {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100vw; height: 100vh;
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(6px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+.contact-success-overlay.hidden {
+  display: none;
+}
+
+.checkmark-container {
+  background: #12192c;
+  padding: 40px;
+  border-radius: 20px;
+  text-align: center;
+  box-shadow: 0 0 30px rgba(0, 0, 0, 0.4);
+}
+
+.checkmark {
+  width: 72px;
+  height: 72px;
+  stroke: #21D4FD;
+  stroke-width: 3;
+  stroke-miterlimit: 10;
+  fill: none;
+  animation: stroke 0.6s cubic-bezier(0.65, 0, 0.45, 1) forwards;
+}
+
+.checkmark-circle {
+  stroke-dasharray: 166;
+  stroke-dashoffset: 166;
+  stroke-width: 3;
+  stroke: #21D4FD;
+  animation: strokeCircle 0.6s ease-out forwards;
+}
+
+.checkmark-check {
+  stroke-dasharray: 48;
+  stroke-dashoffset: 48;
+  stroke-width: 3;
+  stroke: #21D4FD;
+  animation: strokeCheck 0.4s 0.6s ease forwards;
+}
+
+.checkmark-container p {
+  margin-top: 15px;
+  color: #fff;
+  font-size: 1rem;
+  font-weight: bold;
+}
+
+@keyframes strokeCircle {
+  100% {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes strokeCheck {
+  100% {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes stroke {
+  100% {
+    stroke-dashoffset: 0;
+  }
+}
 
   /* Styling for footer */
   footer { 

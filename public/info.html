@@ -50,7 +50,7 @@
             <i class="fas fa-user-circle fa-5x"></i>
           </div>
           <h2>SimpleSurvival Collectibles</h2>
-          <p class="role">Minecraft Archive Project</p>
+          <p class="role">SimpleSurvival Item Tracker</p>
           <div class="social-links">
             <a href="https://github.com/YooEm" target="_blank"><i class="fab fa-github"></i></a>
             <a href="https://discord.gg/yourserver" target="_blank"><i class="fab fa-discord"></i></a>
@@ -66,9 +66,41 @@
           </div>
           <p>This website is a fan-made archive that catalogs collectible crate items from the SimpleSurvival Minecraft server.</p>
           <p>Created by passionate players, it serves as a visual reference for cosmetics, seasonal events, and special edition items over time.</p>
-          <p class="credits">Made with ❤️ by <strong>YooEm</strong></p>
+          <p class="credits">Created by <strong>YooEm</strong></p>
         </div>
       </div>
+    </section>
+
+      <section class="contact-section">
+        <form name="contact" method="POST" netlify id="contactForm" onsubmit="handleContactSubmit(event)" class="contact-form">
+          <h2>Contact Me</h2>
+
+          <div class="form-group">
+            <label for="name">Name</label>
+            <input type="text" id="name" name="name" required />
+          </div>
+
+          <div class="form-group">
+            <label for="email">Email</label>
+            <input type="email" id="email" name="email" required />
+          </div>
+
+          <div class="form-group">
+            <label for="message">Message</label>
+            <textarea id="message" name="message" rows="5" required></textarea>
+          </div>
+
+          <button type="submit" class="contact-btn">Send</button>
+        </form>
+        <div id="contactSuccessOverlay" class="contact-success-overlay hidden">
+          <div class="checkmark-container">
+            <svg class="checkmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
+              <circle class="checkmark-circle" cx="26" cy="26" r="25" fill="none"/>
+              <path class="checkmark-check" fill="none" d="M14 27l7 7 16-16"/>
+            </svg>
+            <p>Message sent successfully!</p>
+          </div>
+        </div>
     </section>
 
     <!-- Login/Register Modal -->
@@ -146,5 +178,28 @@
     <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
     <script src="/js/scripts.js"></script>
     <script src="/js/auth.js"></script>
+    <script>
+      function handleContactSubmit(e) {
+        e.preventDefault();
+        const form = document.getElementById("contactForm");
+        const overlay = document.getElementById("contactSuccessOverlay");
+
+        // Simulate Netlify handling the form
+        const formData = new FormData(form);
+        fetch("/", {
+          method: "POST",
+          headers: { "Content-Type": "application/x-www-form-urlencoded" },
+          body: new URLSearchParams(formData).toString()
+        })
+        .then(() => {
+          overlay.classList.remove("hidden");
+          setTimeout(() => {
+            overlay.classList.add("hidden");
+            form.reset();
+          }, 3000);
+        })
+        .catch((err) => alert("Form submission failed"));
+      }
+    </script>
   </body>
 </html>

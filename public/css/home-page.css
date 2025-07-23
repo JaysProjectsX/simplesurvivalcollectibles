@@ -1605,14 +1605,10 @@ nav {
 .profile-pic {
   width: 150px;
   height: 150px;
-  background: #12192c;
-  border-radius: 50%;
   overflow: hidden;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
-  margin-bottom: 1.5rem;
 }
 
 .profile-pic img {
@@ -1635,28 +1631,56 @@ nav {
   text-transform: uppercase;
 }
 
-.social-links {
+.profile-tags {
   display: flex;
-  gap: 12px;
-  margin-top: 1.5rem;
-}
-
-.social-links a {
-  color: white;
-  background: #12192c;
-  width: 38px;
-  height: 38px;
-  display: flex;
-  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
   justify-content: center;
-  border-radius: 50%;
-  font-size: 1.1rem;
-  transition: background 0.3s ease, color 0.3s ease;
+  margin-top: 1rem;
 }
 
-.social-links a:hover {
-  background: #edffec;
-  color: #12192c;
+.profile-tags .tag {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid #ccc;
+  color: white;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  text-transform: uppercase;
+}
+
+.profile-links {
+  margin-top: 1.5rem;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  color: #f0f0f0;
+  font-size: 0.95rem;
+}
+
+.profile-links p {
+  margin: 0;
+  font-weight: 500;
+}
+
+.profile-links .about-btn {
+  padding: 10px 20px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  border-radius: 30px;
+  text-decoration: none;
+  background: transparent;
+  border: 2px solid #B721FF;
+  color: #B721FF;
+  transition: all 0.3s ease-in-out;
+}
+
+.profile-links .about-btn:hover {
+  background: #B721FF;
+  color: white;
 }
 
 .about-text {
@@ -1681,7 +1705,6 @@ nav {
 
 .about-text .subheadline {
   font-size: 1.1rem;
-  margin-bottom: 1.5rem;
   color: #aaa;
 }
 

@@ -1590,10 +1590,8 @@ nav {
 }
 
 .about-block {
-  background: rgba(255, 255, 255, 0.03);
   padding: 20px;
   border-radius: 12px;
-  box-shadow: 0 0 12px rgba(0, 0, 0, 0.1);
 }
 
 .about-heading {
@@ -1606,7 +1604,7 @@ nav {
 
 .about-heading h3 {
   font-size: 1.3rem;
-  background: linear-gradient(to right, #21D4FD, #B721FF);
+  background: linear-gradient(to right, #4083ff, #002fff);;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   margin: 0;
@@ -1621,7 +1619,7 @@ nav {
 .about-divider {
   border: none;
   height: 1px;
-  background: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.1), transparent);
+  background: linear-gradient(to right, transparent, rgb(87 87 87 / 60%), transparent);
   margin: 20px 0 30px;
 }
 

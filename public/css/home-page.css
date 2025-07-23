@@ -1634,7 +1634,7 @@ nav {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 3rem 2rem;
+  padding: 1rem 1rem;
   border-top-left-radius: 20px;
   border-bottom-left-radius: 20px;
 }
@@ -1722,7 +1722,7 @@ nav {
 
 .about-text {
   flex: 2;
-  padding: 2.5rem 3rem;
+  padding: 1rem 2rem;
   color: white;
   background: #12192c;
   display: flex;

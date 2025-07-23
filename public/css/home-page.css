@@ -1566,141 +1566,158 @@ nav {
 
   /* About page */
 
-.about-section {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 100vh;
-  padding: 60px 20px;
-  background: transparent;
-}
+  .about-section {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 100px 20px;
+    background: linear-gradient(19deg, #21D4FD 0%, #B721FF 100%);
+    min-height: 100vh;
+    position: relative;
+    z-index: 1;
+  }
 
-.about-card {
-  display: flex;
-  flex-wrap: wrap;
-  background: linear-gradient(135deg, #2b2d42, #4b2a69);
-  border-radius: 20px;
-  padding: 40px;
-  gap: 30px;
-  max-width: 1100px;
-  width: 100%;
-  box-shadow: 0 10px 60px rgba(0, 0, 0, 0.6);
-}
+  .about-card {
+    display: flex;
+    flex-wrap: wrap;
+    background: rgba(18, 25, 44, 0.95);
+    border-radius: 20px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+    overflow: hidden;
+    width: 100%;
+    max-width: 1000px;
+    z-index: 2;
+  }
 
-.profile-box {
-  flex: 1;
-  background: #1e1e2f;
-  border-radius: 16px;
-  padding: 30px 20px;
-  text-align: center;
-  color: white;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
+  .profile-box {
+    flex: 1;
+    min-width: 300px;
+    background: #12192c;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem 2rem;
+    color: white;
+  }
 
-.profile-box h2 {
-  font-size: 1.6rem;
-  margin: 10px 0 5px;
-}
+  .profile-pic i {
+    font-size: 5rem;
+    color: #6ea8ff;
+    margin-bottom: 1.5rem;
+  }
 
-.profile-box .role {
-  font-size: 0.9rem;
-  color: #bbb;
-  margin-bottom: 20px;
-}
+  .profile-box h2 {
+    font-size: 1.6rem;
+    margin: 0;
+  }
 
-.profile-pic i {
-  color: #6ea8ff;
-  animation: pulseLogo 2s infinite;
-}
+  .profile-box .role {
+    font-size: 0.85rem;
+    letter-spacing: 2px;
+    margin-top: 0.5rem;
+    color: #bbb;
+    text-transform: uppercase;
+  }
 
-.social-links {
-  display: flex;
-  justify-content: center;
-  gap: 15px;
-  margin-top: 15px;
-}
+  .social-links {
+    display: flex;
+    gap: 12px;
+    margin-top: 1.5rem;
+  }
 
-.social-links a {
-  font-size: 1.3rem;
-  color: #ccc;
-  transition: color 0.3s;
-}
+  .social-links a {
+    color: white;
+    background: #B721FF;
+    width: 38px;
+    height: 38px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    font-size: 1.1rem;
+    transition: background 0.3s ease, color 0.3s ease;
+  }
 
-.social-links a:hover {
-  color: #6ea8ff;
-}
+  .social-links a:hover {
+    background: #edffec;
+    color: #12192c;
+  }
 
-.about-text {
-  flex: 2;
-  color: white;
-  padding: 20px;
-}
+  .about-text {
+    flex: 2;
+    padding: 2.5rem 3rem;
+    color: white;
+    background: #12192c;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    text-align: center;
+  }
 
-.about-text h1 {
-  font-size: 2.5rem;
-  font-weight: bold;
-  margin-bottom: 10px;
-}
+  .about-text h1 {
+    font-size: 3rem;
+    margin-bottom: 0.5rem;
+  }
 
-.about-text .highlight {
-  color: #ae63f5;
-}
+  .about-text h1 .highlight {
+    color: #B721FF;
+  }
 
-.about-text .subheadline {
-  font-size: 1rem;
-  color: #aaa;
-  margin-bottom: 20px;
-}
+  .about-text .subheadline {
+    font-size: 1.1rem;
+    margin-bottom: 1.5rem;
+    color: #aaa;
+  }
 
-.about-text p {
-  font-size: 0.95rem;
-  line-height: 1.6;
-  color: #ccc;
-}
+  .about-buttons {
+    margin-bottom: 2rem;
+  }
 
-.about-buttons {
-  margin: 20px 0;
-}
+  .about-btn {
+    display: inline-block;
+    padding: 10px 24px;
+    font-weight: bold;
+    border-radius: 30px;
+    text-decoration: none;
+    font-size: 0.9rem;
+    margin: 0 0.5rem 1rem;
+    transition: all 0.3s ease-in-out;
+  }
 
-.about-btn {
-  display: inline-block;
-  margin: 5px 10px 10px 0;
-  padding: 10px 20px;
-  font-weight: bold;
-  border-radius: 30px;
-  text-decoration: none;
-  font-size: 0.95rem;
-  transition: all 0.3s ease;
-}
+  .about-btn:first-child {
+    background: #21D4FD;
+    background: linear-gradient(to right, #21D4FD, #B721FF);
+    color: white;
+    border: none;
+  }
 
-.about-btn {
-  background: linear-gradient(45deg, #6ea8ff, #8059ff);
-  color: white;
-}
+  .about-btn.ghost {
+    background: transparent;
+    border: 2px solid #B721FF;
+    color: #B721FF;
+  }
 
-.about-btn.ghost {
-  background: none;
-  border: 2px solid #8059ff;
-  color: #ccc;
-}
+  .about-btn.ghost:hover {
+    background: #B721FF;
+    color: white;
+  }
 
-.about-btn.ghost:hover {
-  background: #8059ff;
-  color: white;
-}
+  .about-btn:hover {
+    transform: scale(1.05);
+  }
 
-.about-btn:hover {
-  transform: scale(1.05);
-}
+  .about-text p {
+    font-size: 0.95rem;
+    color: #ccc;
+    line-height: 1.6;
+  }
 
-.credits {
-  font-size: 0.85rem;
-  margin-top: 30px;
-  color: #888;
-}
-
+  .credits {
+    font-size: 0.85rem;
+    margin-top: 2rem;
+    color: #888;
+  }
 
   /* Styling for footer */
   footer { 

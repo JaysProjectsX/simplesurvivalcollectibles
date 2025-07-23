@@ -1756,7 +1756,6 @@ nav {
   border-radius: 30px;
   text-decoration: none;
   font-size: 0.9rem;
-  margin: 0 0.5rem 1rem;
   transition: all 0.3s ease-in-out;
 }
 
@@ -1769,7 +1768,7 @@ nav {
 
 .about-btn.ghost {
   background: transparent;
-  border: 2px solid #002fff;
+  border: 1px solid #002fff;
   color: #002fff;
 }
 
@@ -1800,12 +1799,13 @@ nav {
   align-items: center;
   padding: 20px;
   background: transparent;
+  z-index: 1;
 }
 
 .contact-form {
   width: 100%;
   max-width: 600px;
-  background: rgba(18, 25, 44, 0.95);
+  background: rgb(18, 25, 44);
   padding: 40px;
   border-radius: 20px;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
@@ -1819,7 +1819,7 @@ nav {
   text-align: center;
   font-size: 2rem;
   margin-bottom: 10px;
-  background: linear-gradient(90deg, #21D4FD, #B721FF);
+  background: linear-gradient(to left, #4083ff, #002fff);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
@@ -1859,7 +1859,7 @@ nav {
   font-size: 1rem;
   font-weight: bold;
   color: white;
-  background: linear-gradient(to right, #21D4FD, #B721FF);
+  background: linear-gradient(to right, #4083ff, #002fff);
   cursor: pointer;
   transition: transform 0.2s ease;
   align-self: center;

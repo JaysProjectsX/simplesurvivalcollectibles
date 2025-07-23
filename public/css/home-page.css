@@ -1723,7 +1723,7 @@ nav {
   transition: all 0.3s ease-in-out;
 }
 
-.about-btn:first-child {
+.about-btn {
   background: #21D4FD;
   background: linear-gradient(to right, #21D4FD, #B721FF);
   color: white;

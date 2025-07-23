@@ -1852,6 +1852,11 @@ nav {
   background: rgba(255, 255, 255, 0.1);
 }
 
+.captcha {
+  display: flex;
+  justify-content: center;
+}
+
 .contact-btn {
   padding: 12px 30px;
   border: none;
@@ -1867,81 +1872,6 @@ nav {
 
 .contact-btn:hover {
   transform: scale(1.05);
-}
-
-.contact-success-overlay {
-  position: fixed;
-  top: 0; left: 0;
-  width: 100vw; height: 100vh;
-  background: rgba(0, 0, 0, 0.75);
-  backdrop-filter: blur(6px);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 9999;
-}
-
-.contact-success-overlay.hidden {
-  display: none;
-}
-
-.checkmark-container {
-  background: #12192c;
-  padding: 40px;
-  border-radius: 20px;
-  text-align: center;
-  box-shadow: 0 0 30px rgba(0, 0, 0, 0.4);
-}
-
-.checkmark {
-  width: 72px;
-  height: 72px;
-  stroke: #21D4FD;
-  stroke-width: 3;
-  stroke-miterlimit: 10;
-  fill: none;
-  animation: stroke 0.6s cubic-bezier(0.65, 0, 0.45, 1) forwards;
-}
-
-.checkmark-circle {
-  stroke-dasharray: 166;
-  stroke-dashoffset: 166;
-  stroke-width: 3;
-  stroke: #21D4FD;
-  animation: strokeCircle 0.6s ease-out forwards;
-}
-
-.checkmark-check {
-  stroke-dasharray: 48;
-  stroke-dashoffset: 48;
-  stroke-width: 3;
-  stroke: #21D4FD;
-  animation: strokeCheck 0.4s 0.6s ease forwards;
-}
-
-.checkmark-container p {
-  margin-top: 15px;
-  color: #fff;
-  font-size: 1rem;
-  font-weight: bold;
-}
-
-@keyframes strokeCircle {
-  100% {
-    stroke-dashoffset: 0;
-  }
-}
-
-@keyframes strokeCheck {
-  100% {
-    stroke-dashoffset: 0;
-  }
-}
-
-@keyframes stroke {
-  100% {
-    stroke-dashoffset: 0;
-  }
 }
 
   /* Styling for footer */

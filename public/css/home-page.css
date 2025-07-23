@@ -1588,6 +1588,42 @@ nav {
   z-index: 2;
 }
 
+.about-block {
+  margin-bottom: 30px;
+  background: rgba(255, 255, 255, 0.03);
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 0 12px rgba(0, 0, 0, 0.1);
+}
+
+.about-heading {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+.about-heading h3 {
+  font-size: 1.3rem;
+  background: linear-gradient(to right, #21D4FD, #B721FF);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin: 0;
+}
+
+.about-icon {
+  width: 24px;
+  height: 24px;
+  stroke: #6ea8ff;
+}
+
+.about-divider {
+  border: none;
+  height: 1px;
+  background: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.1), transparent);
+  margin: 20px 0 30px;
+}
+
 .profile-box {
   flex: 1;
   min-width: 300px;

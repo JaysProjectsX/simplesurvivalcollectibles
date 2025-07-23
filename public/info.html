@@ -191,5 +191,46 @@
     <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
     <script src="/js/scripts.js"></script>
     <script src="/js/auth.js"></script>
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        const form = document.querySelector("form[name='contact']");
+        const submitBtn = form.querySelector("button[type='submit']");
+
+        submitBtn.addEventListener("click", (e) => {
+          const name = form.querySelector("#name").value.trim();
+          const email = form.querySelector("#email").value.trim();
+          const message = form.querySelector("#message").value.trim();
+          const recaptchaResponse = document.getElementById("g-recaptcha-response")?.value;
+
+          // Validate required fields
+          if (!name || !email || !message) {
+            e.preventDefault();
+            showGlobalModal({
+              type: "error",
+              title: "Missing Fields",
+              message: "Please complete all required fields before submitting.",
+              buttons: [{ label: "OK", onClick: "fadeOutAndRemove('modal-missingFields')" }],
+              id: "modal-missingFields"
+            });
+            return;
+          }
+
+          // Validate reCAPTCHA
+          if (!recaptchaResponse) {
+            e.preventDefault();
+            showGlobalModal({
+              type: "warning",
+              title: "reCAPTCHA Required",
+              message: "Please complete the reCAPTCHA verification before submitting.",
+              buttons: [{ label: "OK", onClick: "fadeOutAndRemove('modal-recaptcha')" }],
+              id: "modal-recaptcha"
+            });
+            return;
+          }
+
+          // All good — let Netlify handle submission natively
+        });
+      });
+    </script>
   </body>
 </html>

@@ -1673,13 +1673,13 @@ nav {
   border-radius: 30px;
   text-decoration: none;
   background: transparent;
-  border: 2px solid #B721FF;
-  color: #B721FF;
+  border: 2px solid #002fff;
+  color: #002fff;
   transition: all 0.3s ease-in-out;
 }
 
 .profile-links .about-btn:hover {
-  background: #B721FF;
+  background: #002fff;
   color: white;
 }
 
@@ -1700,7 +1700,7 @@ nav {
 }
 
 .about-text h1 .highlight {
-  color: #B721FF;
+  color: #4083ff;
 }
 
 .about-text .subheadline {
@@ -1724,20 +1724,20 @@ nav {
 }
 
 .about-btn {
-  background: #21D4FD;
-  background: linear-gradient(to right, #21D4FD, #B721FF);
+  background: #4083ff;
+  background: linear-gradient(to right, #4083ff, #002fff);
   color: white;
   border: none;
 }
 
 .about-btn.ghost {
   background: transparent;
-  border: 2px solid #B721FF;
-  color: #B721FF;
+  border: 2px solid #002fff;
+  color: #002fff;
 }
 
 .about-btn.ghost:hover {
-  background: #B721FF;
+  background: #002fff;
   color: white;
 }
 

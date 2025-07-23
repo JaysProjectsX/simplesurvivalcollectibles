@@ -1570,6 +1570,7 @@ nav {
   display: flex;
   justify-content: center;
   align-items: center;
+  margin-top: 1rem;
   padding: 20px;
   min-height: 100vh;
   position: relative;
@@ -1589,7 +1590,6 @@ nav {
 }
 
 .about-block {
-  margin-bottom: 30px;
   background: rgba(255, 255, 255, 0.03);
   padding: 20px;
   border-radius: 12px;
@@ -1598,6 +1598,7 @@ nav {
 
 .about-heading {
   display: flex;
+  justify-content: center;
   align-items: center;
   gap: 10px;
   margin-bottom: 15px;

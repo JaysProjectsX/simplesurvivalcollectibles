@@ -770,3 +770,12 @@ select {
   overflow-y: auto;
   border-top: 1px solid #333;
 }
+.radio-group {
+  margin-top: 8px;
+  display: flex;
+  gap: 1rem;
+}
+.radio-group label {
+  font-size: 0.95rem;
+  cursor: pointer;
+}

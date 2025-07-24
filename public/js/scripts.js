@@ -288,6 +288,70 @@ if (dropdownContainer && crateTableContainer) {
         setTimeout(() => overlay.classList.remove("active", "fade-out"), 300);
       }
 
+  /* Changelog modal logic */
+    async function loadChangelog(page) {
+      try {
+        const res = await fetch(`/changelog?page=${page}`);
+        const logs = await res.json();
+        const sidebarContainer = document.getElementById("changelog");
+        const modalBody = document.getElementById("changelogModalBody");
+
+        if (!sidebarContainer || !modalBody) return;
+
+        sidebarContainer.innerHTML = '';
+        modalBody.innerHTML = '';
+
+        const [visible, hidden] = [logs.slice(0, 3), logs.slice(3)];
+
+        visible.forEach(entry => {
+          sidebarContainer.innerHTML += `
+            <div class="changelog-entry">
+              <p><strong>${entry.username}</strong> <span class="role-tag ${entry.role}">${entry.role}</span> – ${new Date(entry.timestamp).toLocaleString()}</p>
+              <p>${entry.message}</p>
+            </div>
+          `;
+        });
+
+        if (hidden.length > 0) {
+          const viewAllBtn = document.createElement("button");
+          viewAllBtn.className = "view-all-btn";
+          viewAllBtn.innerText = "View All";
+          viewAllBtn.onclick = openChangelogModal;
+          sidebarContainer.appendChild(viewAllBtn);
+
+          hidden.forEach(entry => {
+            modalBody.innerHTML += `
+              <div class="changelog-entry">
+                <p><strong>${entry.username}</strong> <span class="role-tag ${entry.role}">${entry.role}</span> – ${new Date(entry.timestamp).toLocaleString()}</p>
+                <p>${entry.message}</p>
+              </div>
+            `;
+          });
+        }
+      } catch (err) {
+        console.error("Failed to load changelog:", err);
+      }
+    }
+
+    function openChangelogModal() {
+      const modal = document.getElementById("changelogModal");
+      modal.classList.remove("hidden");
+      modal.querySelector(".changelog-modal-card").classList.remove("fade-out");
+      modal.querySelector(".changelog-modal-card").classList.add("fade-in");
+    }
+
+    function closeChangelogModal() {
+      const modal = document.getElementById("changelogModal");
+      const card = modal.querySelector(".changelog-modal-card");
+
+      card.classList.remove("fade-in");
+      card.classList.add("fade-out");
+
+      setTimeout(() => {
+        modal.classList.add("hidden");
+      }, 300);
+    }
+
   // Floating tooltip logic (for long tooltips outside the table)
     const globalTooltip = document.getElementById("global-tooltip");
 

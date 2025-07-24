@@ -169,21 +169,32 @@
             </div>
 
             <!-- Changelog Submission -->
-            <div class="db-subtab-content" id="db-tab-changelog" style="display: none;">
-              <div class="admin-section" id="changelog-entry-panel">
-                <h3>Submit Crate Changelog</h3>
-                <form id="changelog-form" class="admin-form">
-                  <label for="changelog-message">Change Description:</label>
-                  <textarea id="changelog-message" class="admin-textarea" required></textarea>
+            <div class="admin-section" id="changelog-entry-panel">
+              <h3>Submit Crate Changelog</h3>
+              <form id="changelog-form" class="admin-form">
+                <label for="changelog-message">Change Description:</label>
+                <textarea id="changelog-message" class="admin-textarea" required></textarea>
 
-                  <div class="form-actions">
-                    <button type="submit" class="admin-button save-btn">Submit Changelog</button>
+                <div class="form-group">
+                  <label>Select Crate Type:</label>
+                  <div class="radio-group">
+                    <label><input type="radio" name="crateType" value="cosmetic" checked /> Cosmetic</label>
+                    <label><input type="radio" name="crateType" value="noncosmetic" /> Non-Cosmetic</label>
                   </div>
-                </form>
+                </div>
+
+                <div class="form-actions">
+                  <button type="submit" class="admin-button save-btn">Submit Changelog</button>
+                </div>
+              </form>
+
+              <hr style="margin: 2rem 0;" />
+
+              <h3>Recent Changelog Entries</h3>
+              <div id="changelog-table-container">
+                <!-- JS will populate this -->
               </div>
             </div>
-          </div>
-
 
           <!-- Account Management -->
           <div class="tab-content" id="accountsTab" style="display: none;">

@@ -1874,6 +1874,82 @@ nav {
   transform: scale(1.05);
 }
 
+/* Updated changelog modal styling */
+.changelog-modal-wrapper {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.7);
+  z-index: 1000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.changelog-modal-card {
+  background-color: #12192c;
+  color: white;
+  max-width: 700px;
+  width: 90%;
+  max-height: 90vh;
+  overflow-y: auto;
+  border-radius: 12px;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.4);
+  padding: 24px;
+  position: relative;
+  animation: fadeIn 0.3s ease-in;
+}
+
+.changelog-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.changelog-modal-header h2 {
+  margin: 0;
+  font-size: 1.5rem;
+}
+
+.changelog-modal-body {
+  margin-top: 20px;
+}
+
+.changelog-entry {
+  padding: 12px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.changelog-entry:last-child {
+  border-bottom: none;
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  color: white;
+  cursor: pointer;
+}
+
+.fade-in {
+  animation: fadeIn 0.3s ease-in;
+}
+
+.fade-out {
+  animation: fadeOut 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeOut {
+  from { opacity: 1; transform: translateY(0); }
+  to { opacity: 0; transform: translateY(10px); }
+}
+
+
   /* Styling for footer */
   footer { 
     text-align: center; 

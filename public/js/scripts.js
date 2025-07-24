@@ -331,16 +331,6 @@ if (dropdownContainer && crateTableContainer) {
       }
     }
 
-    function openChangelogModal() {
-      const modal = document.getElementById("changelogModal");
-      modal.classList.remove("hidden");
-    }
-
-    function closeChangelogModal() {
-      const modal = document.getElementById("changelogModal");
-      modal.classList.add("hidden");
-    }
-
 
     function openChangelogModal() {
       const modal = document.getElementById("changelogModal");

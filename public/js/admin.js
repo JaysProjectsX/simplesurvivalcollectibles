@@ -91,6 +91,7 @@ function lockoutRemaining(user) {
 function initializeAdminPanel(role) {
   const tabButtons = document.querySelectorAll(".tab-btn");
   const tabContents = document.querySelectorAll(".tab-content");
+  window.userRole = role;
 
   tabButtons.forEach(btn => {
     btn.addEventListener("click", () => {
@@ -140,9 +141,9 @@ function initializeAdminPanel(role) {
       });
     });
 
-  const changelogTabBtn = document.querySelector('#dbTabChangelog');
+  const changelogTabBtn = document.querySelector('[data-tab="changelog-entry-panel"]');
   changelogTabBtn?.addEventListener('click', () => {
-    loadChangelogEntriesForAdmin(); // Only load when "Changelog" subtab is clicked
+    loadChangelogEntriesForAdmin(); // This now runs when the changelog subtab is clicked
   });
 
   if (role === "SysAdmin") {

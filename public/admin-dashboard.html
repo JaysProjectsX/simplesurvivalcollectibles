@@ -181,6 +181,36 @@
                   </div>
                 </form>
               </div>
+              
+              <div id="changelog-table-wrapper" class="admin-section" style="margin-top: 20px;">
+                <h3>All Crate Changelog Entries</h3>
+                <div id="changelog-controls" class="form-actions">
+                  <label>
+                    <input type="radio" name="changelog-page-filter" value="cosmetic" checked />
+                    Cosmetic
+                  </label>
+                  <label>
+                    <input type="radio" name="changelog-page-filter" value="noncosmetic" />
+                    Non-Cosmetic
+                  </label>
+                </div>
+
+                <table class="admin-table" id="changelog-table">
+                  <thead>
+                    <tr>
+                      <th>ID</th>
+                      <th>User</th>
+                      <th>Role</th>
+                      <th>Message</th>
+                      <th>Timestamp</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody id="changelog-entries-body">
+                    <!-- Entries injected via JS -->
+                  </tbody>
+                </table>
+              </div>
             </div>
           </div>
 

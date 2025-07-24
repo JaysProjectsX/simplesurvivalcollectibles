@@ -1196,3 +1196,158 @@ document.addEventListener("click", function (e) {
     });
   }
 });
+
+// ------------------- CHANGELOG MANAGEMENT -------------------
+const changelogForm = document.getElementById("changelog-form");
+const changelogTableContainer = document.getElementById("changelog-table-container");
+
+if (changelogForm && changelogTableContainer) {
+  changelogForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const message = document.getElementById("changelog-message").value.trim();
+    const page = document.querySelector('input[name="changelog-page"]:checked')?.value || "cosmetic";
+
+    if (!message) {
+      showGlobalModal({
+        type: "error",
+        title: "Missing Message",
+        message: "Please enter a changelog message.",
+        buttons: [{ label: "OK", onClick: "fadeOutAndRemove('modal-changelogEmpty')" }],
+        id: "modal-changelogEmpty"
+      });
+      return;
+    }
+
+    try {
+      const res = await fetch("https://simplesurvivalcollectibles.site/api/changelog", {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message, page })
+      });
+      if (!res.ok) throw new Error("Failed to submit changelog");
+
+      document.getElementById("changelog-message").value = "";
+      loadChangelogEntries();
+      showToast("Changelog entry submitted!");
+    } catch (err) {
+      console.error(err);
+      showToast("Error submitting changelog.");
+    }
+  });
+
+  loadChangelogEntries();
+}
+
+async function loadChangelogEntries() {
+  try {
+    const res = await fetch("https://simplesurvivalcollectibles.site/api/changelog", {
+      credentials: "include"
+    });
+    const data = await res.json();
+    renderChangelogTable(data);
+  } catch (err) {
+    console.error("Failed to load changelog entries:", err);
+    changelogTableContainer.innerHTML = "<p>Error loading changelog entries.</p>";
+  }
+}
+
+function renderChangelogTable(entries) {
+  if (!entries || entries.length === 0) {
+    changelogTableContainer.innerHTML = "<p>No changelog entries found.</p>";
+    return;
+  }
+
+  changelogTableContainer.innerHTML = `
+    <table class="admin-table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Message</th>
+          <th>Page</th>
+          <th>User</th>
+          <th>Timestamp</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${entries.map(entry => `
+          <tr>
+            <td>${entry.id}</td>
+            <td><span class="changelog-message" data-id="${entry.id}">${entry.message}</span></td>
+            <td>${entry.page}</td>
+            <td>${entry.username} <span class="role-tag ${entry.role}">${entry.role}</span></td>
+            <td>${new Date(entry.timestamp).toLocaleString()}</td>
+            <td>
+              <button class="admin-action-btn" onclick="editChangelog(${entry.id})">✏️</button>
+              <button class="admin-action-btn delete" onclick="deleteChangelog(${entry.id})">🗑️</button>
+            </td>
+          </tr>
+        `).join("")}
+      </tbody>
+    </table>
+  `;
+}
+
+function editChangelog(id) {
+  const messageSpan = document.querySelector(`.changelog-message[data-id="${id}"]`);
+  const oldMessage = messageSpan?.textContent || "";
+
+  const modalId = `editChangelogModal-${id}`;
+  showGlobalModal({
+    type: "warning",
+    title: "Edit Changelog Message",
+    message: `<textarea id="editChangelogTextarea" style="width: 100%; height: 100px;">${oldMessage}</textarea>`,
+    buttons: [
+      { label: "Cancel", onClick: `fadeOutAndRemove('${modalId}')` },
+      { label: "Save", onClick: `confirmEditChangelog(${id}, '${modalId}')` }
+    ],
+    id: modalId
+  });
+}
+
+function confirmEditChangelog(id, modalId) {
+  const updatedMessage = document.getElementById("editChangelogTextarea")?.value.trim();
+  if (!updatedMessage) return showToast("Message cannot be empty.");
+
+  fetch(`https://simplesurvivalcollectibles.site/api/changelog/${id}`, {
+    method: "PUT",
+    credentials: "include",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ message: updatedMessage })
+  })
+    .then(res => res.json())
+    .then(() => {
+      showToast("Changelog updated.");
+      fadeOutAndRemove(modalId);
+      loadChangelogEntries();
+    })
+    .catch(() => showToast("Error updating changelog."));
+}
+
+function deleteChangelog(id) {
+  const modalId = `deleteChangelogModal-${id}`;
+  showGlobalModal({
+    type: "warning",
+    title: "Delete Changelog Entry",
+    message: "Are you sure you want to permanently delete this changelog entry?",
+    buttons: [
+      { label: "Cancel", onClick: `fadeOutAndRemove('${modalId}')` },
+      { label: "Delete", onClick: `confirmDeleteChangelog(${id}, '${modalId}')` }
+    ],
+    id: modalId
+  });
+}
+
+function confirmDeleteChangelog(id, modalId) {
+  fetch(`https://simplesurvivalcollectibles.site/api/changelog/${id}`, {
+    method: "DELETE",
+    credentials: "include"
+  })
+    .then(() => {
+      showToast("Changelog deleted.");
+      fadeOutAndRemove(modalId);
+      loadChangelogEntries();
+    })
+    .catch(() => showToast("Error deleting changelog."));
+}

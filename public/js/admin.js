@@ -140,6 +140,11 @@ function initializeAdminPanel(role) {
       });
     });
 
+  const changelogTabBtn = document.querySelector('#dbTabChangelog');
+  changelogTabBtn?.addEventListener('click', () => {
+    loadChangelogEntriesForAdmin(); // Only load when "Changelog" subtab is clicked
+  });
+
   if (role === "SysAdmin") {
     fetch("https://simplesurvivalcollectibles.site/admin/all-users", {
       credentials: "include"

@@ -310,6 +310,94 @@
   border-radius: 8px;
 }
 
+#changelog-entry-panel h3 {
+  text-align: center;
+  margin-bottom: 1rem;
+  font-size: 1.3rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  background: linear-gradient(to left, #4083ff, #002fff);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+#changelog-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  align-items: center;
+}
+
+#changelog-message {
+  width: 100%;
+  min-height: 120px;
+  padding: 12px;
+  border-radius: 10px;
+  border: none;
+  background: rgba(255, 255, 255, 0.07);
+  color: white;
+  resize: vertical;
+}
+
+.radio-group {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  margin-top: 0.5rem;
+}
+
+.radio-group label {
+  font-size: 0.95rem;
+  cursor: pointer;
+  color: #ccc;
+}
+
+.admin-button.save-btn {
+  background: linear-gradient(to right, #4083ff, #002fff);
+  color: white;
+  padding: 10px 20px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  border-radius: 30px;
+  border: none;
+  transition: transform 0.2s ease;
+}
+
+.admin-button.save-btn:hover {
+  transform: scale(1.05);
+}
+
+#changelog-table-container {
+  margin-top: 2rem;
+  max-width: 900px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.changelog-row {
+  background: rgba(255, 255, 255, 0.05);
+  padding: 1rem;
+  border-radius: 12px;
+  margin-bottom: 1rem;
+  color: #eee;
+}
+
+.changelog-row button {
+  margin-right: 0.5rem;
+  background: transparent;
+  border: 1px solid #4083ff;
+  padding: 6px 12px;
+  border-radius: 20px;
+  color: #4083ff;
+  cursor: pointer;
+  font-size: 0.8rem;
+}
+
+.changelog-row button:hover {
+  background: #4083ff;
+  color: white;
+}
+
 .admin-form label {
   display: block;
   margin: 0.5rem 0 0.2rem;

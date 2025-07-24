@@ -301,6 +301,12 @@ if (dropdownContainer && crateTableContainer) {
         sidebarContainer.innerHTML = '';
         modalBody.innerHTML = '';
 
+        if (logs.length === 0) {
+          sidebarContainer.innerHTML = '<p style="color: #ccc; font-size: 0.9rem;">No changelog entries yet.</p>';
+          modalBody.innerHTML = '<p style="color: #ccc; font-size: 0.9rem;">No changelog entries available for this page.</p>';
+          return;
+        }
+
         const [visible, hidden] = [logs.slice(0, 3), logs.slice(3)];
 
         visible.forEach(entry => {
@@ -312,26 +318,29 @@ if (dropdownContainer && crateTableContainer) {
           `;
         });
 
-        if (hidden.length > 0) {
-          const viewAllBtn = document.createElement("button");
-          viewAllBtn.className = "view-all-btn";
-          viewAllBtn.innerText = "View All";
-          viewAllBtn.onclick = openChangelogModal;
-          sidebarContainer.appendChild(viewAllBtn);
-
-          hidden.forEach(entry => {
-            modalBody.innerHTML += `
-              <div class="changelog-entry">
-                <p><strong>${entry.username}</strong> <span class="role-tag ${entry.role}">${entry.role}</span> – ${new Date(entry.timestamp).toLocaleString()}</p>
-                <p>${entry.message}</p>
-              </div>
-            `;
-          });
-        }
+        logs.forEach(entry => {
+          modalBody.innerHTML += `
+            <div class="changelog-entry">
+              <p><strong>${entry.username}</strong> <span class="role-tag ${entry.role}">${entry.role}</span> – ${new Date(entry.timestamp).toLocaleString()}</p>
+              <p>${entry.message}</p>
+            </div>
+          `;
+        });
       } catch (err) {
         console.error("Failed to load changelog:", err);
       }
     }
+
+    function openChangelogModal() {
+      const modal = document.getElementById("changelogModal");
+      modal.classList.remove("hidden");
+    }
+
+    function closeChangelogModal() {
+      const modal = document.getElementById("changelogModal");
+      modal.classList.add("hidden");
+    }
+
 
     function openChangelogModal() {
       const modal = document.getElementById("changelogModal");

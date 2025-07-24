@@ -81,13 +81,14 @@
               </div>
             </aside>
 
-            <aside class="changelog-wrapper">
-              <section class="changelog-section">
-                <h2>Change Log</h2>
-                <hr class="changelog-divider" />
-                <div id="changelog"></div>
-              </section>
-            </aside>
+              <aside class="changelog-wrapper">
+                <section class="changelog-section">
+                  <h2>Change Log</h2>
+                  <hr class="changelog-divider" />
+                  <div id="changelog"></div>
+                  <button class="about-btn" onclick="openChangelogModal()">View Full Changelog</button>
+                </section>
+              </aside>
             </div>
           </div>
         </div>
@@ -169,6 +170,8 @@
 
     <div id="toastContainer"></div>
 
+
+    <!-- Global Changelog Modal -->
     <div id="changelogModal" class="changelog-modal-wrapper hidden">
       <div class="changelog-modal-card fade-in">
         <div class="changelog-modal-header">
@@ -176,6 +179,9 @@
           <button class="close-btn" onclick="closeChangelogModal()">×</button>
         </div>
         <div class="changelog-modal-body" id="changelogModalBody"></div>
+        <div style="text-align:center; margin-top: 20px;">
+          <button class="about-btn ghost" onclick="closeChangelogModal()">Close</button>
+        </div>
       </div>
     </div>
 

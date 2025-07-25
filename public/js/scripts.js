@@ -326,79 +326,34 @@ if (dropdownContainer && crateTableContainer) {
 }
 
   /* Changelog modal logic */
-    async function loadChangelog(page) {
-      try {
-        const res = await fetch(`${backendUrl1}/changelog?page=${page}`);
-        const logs = await res.json();
-        const sidebarContainer = document.getElementById("changelog");
-        const modalBody = document.getElementById("changelogModalBody");
+  function openChangelogModal() {
+    const modal = document.getElementById("changelogModal");
+    modal.classList.remove("hidden");
+    loadChangelog("cosmetic");
+  }
+  function closeChangelogModal() {
+    document.getElementById("changelogModal").classList.add("hidden");
+  }
 
-        if (!sidebarContainer || !modalBody) return;
+  async function loadChangelog(page = "cosmetic") {
+    try {
+      const res = await fetch(`https://simplesurvivalcollectibles.site/changelog?page=${page}`);
+      const logs = await res.json();
+      const modalBody = document.getElementById("changelogModalBody");
 
-        sidebarContainer.innerHTML = '';
-        modalBody.innerHTML = '';
+      if (!modalBody || !Array.isArray(logs)) return;
 
-        if (logs.length === 0) {
-          sidebarContainer.innerHTML = '<p style="color: #ccc; font-size: 0.9rem;">No changelog entries yet.</p>';
-          modalBody.innerHTML = '<p style="color: #ccc; font-size: 0.9rem;">No changelog entries available for this page.</p>';
-          return;
-        }
-
-        const [visible, hidden] = [logs.slice(0, 3), logs.slice(3)];
-
-        visible.forEach(entry => {
-          sidebarContainer.innerHTML += `
-            <div class="changelog-entry">
-              <p><strong>${entry.username}</strong> <span class="role-tag ${entry.role}">${entry.role}</span> – ${new Date(entry.timestamp).toLocaleString()}</p>
-              <p>${entry.message}</p>
-            </div>
-          `;
-        });
-
-        logs.forEach(entry => {
-          modalBody.innerHTML = `
-            <div class="panel__wrapper-icon">
-              <div class="panel__head">
-                <h4 class="font__family-montserrat font__weight-medium font__size-21">Cosmetic Crate Changelog</h4>
-                <p class="font__family-open-sans font__size-14">Latest changes made by admins and sysadmins.</p>
-              </div>
-              <ul class="panel__list">
-                ${logs.map(entry => `
-                  <li>
-                    <span class="line"></span>
-                    <i class="icon ${entry.role === 'SysAdmin' ? 'fas fa-shield-alt' : 'fas fa-user'}"></i>
-                    <strong>${entry.username}</strong> 
-                    <span class="role-tag ${entry.role}">${entry.role}</span><br>
-                    ${entry.message}<br>
-                    <small>${new Date(entry.timestamp).toLocaleString()}</small>
-                  </li>
-                `).join('')}
-              </ul>
-            </div>
-          `;
-        });
-      } catch (err) {
-        console.error("Failed to load changelog:", err);
-      }
+      modalBody.innerHTML = logs.map(entry => `
+        <li>
+          <span class="line"></span>
+          <i class="icon ${entry.role === 'SysAdmin' ? 'fas fa-shield-alt' : 'fas fa-user'}"></i>
+          <strong>${entry.username}</strong>
+          <span class="role-tag ${entry.role}">${entry.role}</span><br>
+          ${entry.message}<br>
+          <small>${new Date(entry.timestamp).toLocaleString()}</small>
+        </li>
+      `).join("");
+    } catch (err) {
+      console.error("Failed to load changelog:", err);
     }
-
-
-    function openChangelogModal() {
-      console.log("🔍 openChangelogModal was called");
-      const modal = document.getElementById("changelogModal");
-      modal.classList.remove("hidden");
-      modal.querySelector(".changelog-modal-card").classList.remove("fade-out");
-      modal.querySelector(".changelog-modal-card").classList.add("fade-in");
-    }
-
-    function closeChangelogModal() {
-      const modal = document.getElementById("changelogModal");
-      const card = modal.querySelector(".changelog-modal-card");
-
-      card.classList.remove("fade-in");
-      card.classList.add("fade-out");
-
-      setTimeout(() => {
-        modal.classList.add("hidden");
-      }, 300);
-    }
+  }

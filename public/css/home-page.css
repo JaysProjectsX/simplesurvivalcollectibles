@@ -1875,25 +1875,35 @@ nav {
 }
 
 /* Updated changelog modal styling */
-/* Modern changelog modal panel style */
-.panel__wrapper-icon {
-  margin: 30px auto;
-  max-width: 850px;
-  background: white;
-  box-shadow: 0 6px 30px rgba(0, 0, 0, 0.15);
-  border-radius: 8px;
+
+.changelog-modal-wrapper {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100vw; height: 100vh;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+.changelog-modal-wrapper.hidden {
+  display: none;
+}
+
+.changelog-modal-card {
+  background: #fff;
+  max-width: 700px;
+  width: 90%;
+  border-radius: 10px;
   overflow: hidden;
-  font-family: 'Open Sans', sans-serif;
 }
 
 .panel__head {
   background: linear-gradient(to right, #2775ff, #7202bb);
   padding: 24px 40px;
-  color: rgba(255, 255, 255, 0.9);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  flex-wrap: wrap;
+  color: #fff;
+  box-shadow: 0 6px 30px rgba(0, 0, 0, 0.1);
 }
 
 .panel__list {
@@ -1903,67 +1913,59 @@ nav {
 }
 
 .panel__list li {
-  padding: 20px 28px;
   border-bottom: 1px solid #ececec;
+  padding: 28px;
   position: relative;
-  padding-left: 110px;
-  background: #fff;
+  font-family: 'Open Sans', sans-serif;
+  font-size: 14px;
   color: #4e4e4e;
-}
-
-.panel__list li:nth-child(2n) {
   background: #f6f6f6;
 }
 
-.panel__list li:hover .line {
-  left: -15px;
-  opacity: 1;
+.panel__list li:nth-child(odd) {
+  background: #fff;
 }
 
 .panel__list li .line {
   position: absolute;
+  left: -15px;
   top: 50%;
-  transform: translateY(-50%);
-  left: 0;
   width: 3px;
   height: 40px;
   background: linear-gradient(to bottom, #2775ff, #7202bb);
+  transform: translateY(-50%);
   opacity: 0;
   transition: all 0.3s ease;
 }
 
+.panel__list li:hover .line {
+  opacity: 1;
+}
+
 .panel__list li .icon {
-  font-size: 36px;
-  color: #2775ff;
-  opacity: 0.5;
   position: absolute;
   left: 40px;
   top: 50%;
   transform: translateY(-50%);
+  font-size: 24px;
+  color: #2775ff;
+  opacity: 0.5;
 }
 
-.changelog-modal-wrapper {
-  position: fixed;
-  inset: 0;
-  background-color: rgba(0, 0, 0, 0.7);
-  z-index: 1000;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+.panel__list li .role-tag {
+  font-size: 12px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  margin-left: 8px;
+  color: #fff;
+  vertical-align: middle;
 }
 
-.changelog-modal-card {
-  background-color: #12192c;
-  color: white;
-  max-width: 700px;
-  width: 90%;
-  max-height: 90vh;
-  overflow-y: auto;
-  border-radius: 12px;
-  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.4);
-  padding: 24px;
-  position: relative;
-  animation: fadeIn 0.3s ease-in;
+.role-tag.Admin {
+  background: #5c67f2;
+}
+.role-tag.SysAdmin {
+  background: #cf4763;
 }
 
 .changelog-modal-header {

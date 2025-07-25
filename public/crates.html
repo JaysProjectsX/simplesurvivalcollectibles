@@ -170,19 +170,22 @@
     <div id="toastContainer"></div>
 
 
-    <!-- Global Changelog Modal -->
+    <!-- Cosmetic Changelog Modal -->
     <div id="changelogModal" class="changelog-modal-wrapper hidden">
-      <div class="changelog-modal-card">
-        <div class="changelog-modal-header">
-          <h2>Full Change Log</h2>
-          <button class="close-btn" onclick="closeChangelogModal()">×</button>
+      <div class="panel__wrapper-icon changelog-modal-card">
+        <div class="panel__head">
+          <h4 class="font__family-montserrat font__weight-medium font__size-21">Cosmetic Crate Changelog</h4>
+          <p class="font__family-open-sans font__size-14">Latest changes made by admins and sysadmins.</p>
         </div>
-        <div class="changelog-modal-body" id="changelogModalBody"></div>
-        <div style="text-align:center; margin-top: 20px;">
+        <ul id="changelogModalBody" class="panel__list">
+          <!-- Entries injected by JS -->
+        </ul>
+        <div style="text-align:center; margin: 20px 0;">
           <button class="about-btn ghost" onclick="closeChangelogModal()">Close</button>
         </div>
       </div>
     </div>
+
 
     <footer>
       <div class="footer-creator">
@@ -197,10 +200,5 @@
     <script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
     <script src="/js/scripts.js"></script>
     <script src="/js/auth.js"></script>
-    <script>
-      document.addEventListener("DOMContentLoaded", () => {
-        loadChangelog("cosmetic");
-      });
-    </script>
   </body>
 </html>

@@ -1916,7 +1916,7 @@ nav {
 .panel__list li {
   position: relative;
   padding: 28px;
-  padding-left: 110px;
+  padding-left: 40px;
   border-bottom: 1px solid #ececec;
   font-family: 'Open Sans', sans-serif;
   font-size: 14px;

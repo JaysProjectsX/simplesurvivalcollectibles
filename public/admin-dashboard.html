@@ -176,20 +176,22 @@
                   <label for="changelog-message">Change Description:</label>
                   <textarea id="changelog-message" class="admin-textarea" required></textarea>
 
-                  <div style="margin-top: 10px;">
+                  <div class="radio-group">
                     <label><input type="radio" name="changelog-page" value="cosmetic" checked /> Cosmetic</label>
                     <label><input type="radio" name="changelog-page" value="noncosmetic" /> Non-Cosmetic</label>
                   </div>
 
                   <div class="form-actions">
-                    <button type="submit" class="admin-button save-btn">Submit Changelog</button>
+                    <button type="submit" class="modal-btn primary">Submit Changelog</button>
                   </div>
                 </form>
               </div>
 
+              <div class="divider"></div>
+
               <div id="changelog-table-wrapper" class="admin-section" style="margin-top: 20px;">
                 <h3>All Crate Changelog Entries</h3>
-                <div id="changelog-controls" class="form-actions">
+                <div id="changelog-controls" class="radio-group entries">
                   <label>
                     <input type="radio" name="changelog-page-filter" value="cosmetic" checked />
                     Cosmetic

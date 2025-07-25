@@ -328,11 +328,25 @@ if (dropdownContainer && crateTableContainer) {
   /* Changelog modal logic */
   function openChangelogModal() {
     const modal = document.getElementById("changelogModal");
+    const card = modal.querySelector(".changelog-modal-card");
+
     modal.classList.remove("hidden");
+    card.classList.remove("fade-out");
+    card.classList.add("fade-in");
+
     loadChangelog("cosmetic");
   }
+
   function closeChangelogModal() {
-    document.getElementById("changelogModal").classList.add("hidden");
+    const modal = document.getElementById("changelogModal");
+    const card = modal.querySelector(".changelog-modal-card");
+
+    card.classList.remove("fade-in");
+    card.classList.add("fade-out");
+
+    setTimeout(() => {
+      modal.classList.add("hidden");
+    }, 300); // Match animation duration
   }
 
   async function loadChangelog(page = "cosmetic") {
@@ -344,14 +358,18 @@ if (dropdownContainer && crateTableContainer) {
       if (!modalBody || !Array.isArray(logs)) return;
 
       modalBody.innerHTML = logs.map(entry => `
-        <li>
-          <span class="line"></span>
-          <i class="icon ${entry.role === 'SysAdmin' ? 'fas fa-shield-alt' : 'fas fa-user'}"></i>
-          <strong>${entry.username}</strong>
-          <span class="role-tag ${entry.role}">${entry.role}</span><br>
-          ${entry.message}<br>
-          <small>${new Date(entry.timestamp).toLocaleString()}</small>
-        </li>
+      <li>
+        <span class="line"></span>
+        <i class="icon ${entry.role === 'SysAdmin' ? 'fas fa-shield-alt' : 'fas fa-user'}"></i>
+        <div class="changelog-text-block">
+          <div class="user-info">
+            <strong>${entry.username}</strong>
+            <span class="role-tag ${entry.role}">${entry.role}</span>
+          </div>
+          <div class="message">${entry.message}</div>
+          <small class="timestamp">${new Date(entry.timestamp).toLocaleString()}</small>
+        </div>
+      </li>
       `).join("");
     } catch (err) {
       console.error("Failed to load changelog:", err);

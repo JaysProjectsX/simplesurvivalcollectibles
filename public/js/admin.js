@@ -1320,7 +1320,7 @@ function editChangelog(id) {
     message: `
       <div class="nice-form-group" style="margin-top: 10px;">
         <label for="editChangelogTextarea">Edit Message:</label>
-        <textarea id="editChangelogTextarea" class="admin-textarea" style="height: 100px;">${oldMessage}</textarea>
+        <textarea id="editChangelogTextarea" class="admin-textarea" style="height: 100px;">${currentMsg}</textarea>
       </div>
     `,
     buttons: [

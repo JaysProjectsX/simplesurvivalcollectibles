@@ -860,8 +860,6 @@ select {
   cursor: pointer;
 }
 
-/* Specific styling for changelog edit modal */
-
 /* Only affects changelog edit modal */
 .changelog-edit-modal .modal-body {
   display: block;
@@ -872,12 +870,6 @@ select {
   display: flex;
   flex-direction: column;
   width: 100%;
-}
-
-.changelog-edit-modal .edit-label {
-  margin-bottom: 0.5rem;
-  font-weight: 500;
-  color: #ccc;
 }
 
 .changelog-edit-modal textarea#editChangelogTextarea {

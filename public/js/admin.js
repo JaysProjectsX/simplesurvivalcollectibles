@@ -1319,7 +1319,6 @@ function editChangelog(id) {
     title: "Edit Changelog",
     message: `
       <div class="changelog-edit-wrapper">
-        <label for="editChangelogTextarea" class="edit-label">Edit Message:</label>
         <textarea id="editChangelogTextarea">${currentMsg}</textarea>
       </div>
     `,
@@ -1329,6 +1328,12 @@ function editChangelog(id) {
     ],
     id: modalId
   });
+
+  // 💡 ADD THIS: apply .changelog-edit-modal to the active modal
+  const modal = document.querySelector(`#${modalId} .global-modal`);
+  if (modal) {
+    modal.classList.add("changelog-edit-modal");
+  }
 }
 
 function confirmEditChangelog(id, modalId) {

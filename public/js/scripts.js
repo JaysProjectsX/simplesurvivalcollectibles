@@ -328,7 +328,7 @@ if (dropdownContainer && crateTableContainer) {
   /* Changelog modal logic */
     async function loadChangelog(page) {
       try {
-        const res = await fetch(`/changelog?page=${page}`);
+        const res = await fetch(`${backendUrl1}/changelog?page=${page}`);
         const logs = await res.json();
         const sidebarContainer = document.getElementById("changelog");
         const modalBody = document.getElementById("changelogModalBody");
@@ -384,6 +384,7 @@ if (dropdownContainer && crateTableContainer) {
 
 
     function openChangelogModal() {
+      console.log("🔍 openChangelogModal was called");
       const modal = document.getElementById("changelogModal");
       modal.classList.remove("hidden");
       modal.querySelector(".changelog-modal-card").classList.remove("fade-out");

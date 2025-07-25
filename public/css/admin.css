@@ -859,3 +859,27 @@ select {
   font-size: 0.95rem;
   cursor: pointer;
 }
+
+/* Specific styling for changelog edit modal */
+.changelog-edit-modal .modal-body {
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.changelog-edit-modal textarea#editChangelogTextarea {
+  width: 100%;
+  min-height: 120px;
+  resize: vertical;
+  padding: 0.75em;
+  font-family: "Poppins", sans-serif;
+  border-radius: 8px;
+  border: 1px solid #444;
+  background-color: #1c1c1c;
+  color: #fff;
+}
+
+.changelog-edit-modal label[for="editChangelogTextarea"] {
+  margin-bottom: 0.5em;
+  font-weight: 500;
+  color: #ccc;
+}

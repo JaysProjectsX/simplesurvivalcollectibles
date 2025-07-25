@@ -1329,6 +1329,7 @@ function editChangelog(id) {
     ],
     id: modalId
   });
+  document.getElementById(modalId)?.classList.add("changelog-edit-modal");
 }
 
 function confirmEditChangelog(id, modalId) {

@@ -1199,19 +1199,33 @@ document.addEventListener("click", function (e) {
 
 // ------------------- CHANGELOG MANAGEMENT -------------------
 const changelogForm = document.getElementById("changelog-form");
-const changelogTableContainer = document.getElementById("changelog-table-container");
+const changelogTableBody = document.getElementById("changelog-entries-body");
+const changelogPageRadios = document.querySelectorAll('input[name="changelog-page-filter"]');
 
-if (changelogForm && changelogTableContainer) {
+let userRole = null; // Set during initializeAdminPanel
+
+// Injected during auth:
+function initializeAdminPanel(role) {
+  userRole = role; // Store for changelog permissions
+  // ...keep the rest of your code unchanged
+  setupChangelogForm();
+  loadChangelogEntries(); // load default entries
+}
+
+// Handle form submission
+function setupChangelogForm() {
+  if (!changelogForm) return;
+
   changelogForm.addEventListener("submit", async (e) => {
     e.preventDefault();
     const message = document.getElementById("changelog-message").value.trim();
-    const page = document.querySelector('input[name="changelog-page"]:checked')?.value || "cosmetic";
+    const page = document.querySelector('input[name="changelog-page"]:checked')?.value;
 
-    if (!message) {
+    if (!message || !page) {
       showGlobalModal({
         type: "error",
-        title: "Missing Message",
-        message: "Please enter a changelog message.",
+        title: "Missing Info",
+        message: "Please provide a message and select a target page.",
         buttons: [{ label: "OK", onClick: "fadeOutAndRemove('modal-changelogEmpty')" }],
         id: "modal-changelogEmpty"
       });
@@ -1219,85 +1233,96 @@ if (changelogForm && changelogTableContainer) {
     }
 
     try {
-      const res = await fetch("https://simplesurvivalcollectibles.site/api/changelog", {
+      const res = await fetch("https://simplesurvivalcollectibles.site/admin/changelog", {
         method: "POST",
         credentials: "include",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ message, page })
       });
-      if (!res.ok) throw new Error("Failed to submit changelog");
 
+      if (!res.ok) throw new Error("Failed to save entry");
       document.getElementById("changelog-message").value = "";
+      showGlobalModal({
+        type: "success",
+        title: "Changelog Added",
+        message: "Your changelog entry has been saved.",
+        buttons: [{ label: "Close", onClick: "fadeOutAndRemove('modal-changelogSuccess')" }],
+        id: "modal-changelogSuccess"
+      });
       loadChangelogEntries();
-      showToast("Changelog entry submitted!");
     } catch (err) {
       console.error(err);
-      showToast("Error submitting changelog.");
+      showGlobalModal({
+        type: "error",
+        title: "Error",
+        message: "Failed to save changelog entry.",
+        buttons: [{ label: "Close", onClick: "fadeOutAndRemove('modal-changelogFail')" }],
+        id: "modal-changelogFail"
+      });
     }
   });
-
-  loadChangelogEntries();
 }
 
+// Load changelogs based on selected page
+changelogPageRadios.forEach(radio => {
+  radio.addEventListener("change", () => {
+    loadChangelogEntries();
+  });
+});
+
 async function loadChangelogEntries() {
+  const page = document.querySelector('input[name="changelog-page-filter"]:checked')?.value || "cosmetic";
+
   try {
-    const res = await fetch("https://simplesurvivalcollectibles.site/api/changelog", {
+    const res = await fetch(`https://simplesurvivalcollectibles.site/changelog?page=${page}`, {
       credentials: "include"
     });
-    const data = await res.json();
-    renderChangelogTable(data);
+
+    const entries = await res.json();
+    renderChangelogTable(entries);
   } catch (err) {
-    console.error("Failed to load changelog entries:", err);
-    changelogTableContainer.innerHTML = "<p>Error loading changelog entries.</p>";
+    console.error("Error loading changelog entries:", err);
+    changelogTableBody.innerHTML = `<tr><td colspan="6">Failed to load changelog entries.</td></tr>`;
   }
 }
 
 function renderChangelogTable(entries) {
   if (!entries || entries.length === 0) {
-    changelogTableContainer.innerHTML = "<p>No changelog entries found.</p>";
+    changelogTableBody.innerHTML = `<tr><td colspan="6">No entries found.</td></tr>`;
     return;
   }
 
-  changelogTableContainer.innerHTML = `
-    <table class="admin-table">
-      <thead>
-        <tr>
-          <th>ID</th>
-          <th>Message</th>
-          <th>Page</th>
-          <th>User</th>
-          <th>Timestamp</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        ${entries.map(entry => `
-          <tr>
-            <td>${entry.id}</td>
-            <td><span class="changelog-message" data-id="${entry.id}">${entry.message}</span></td>
-            <td>${entry.page}</td>
-            <td>${entry.username} <span class="role-tag ${entry.role}">${entry.role}</span></td>
-            <td>${new Date(entry.timestamp).toLocaleString()}</td>
-            <td>
-              <button class="admin-action-btn" onclick="editChangelog(${entry.id})">✏️</button>
-              <button class="admin-action-btn delete" onclick="deleteChangelog(${entry.id})">🗑️</button>
-            </td>
-          </tr>
-        `).join("")}
-      </tbody>
-    </table>
-  `;
+  changelogTableBody.innerHTML = entries.map(entry => {
+    const date = new Date(entry.timestamp).toLocaleString();
+    return `
+      <tr>
+        <td>${entry.id}</td>
+        <td>${entry.username}</td>
+        <td><span class="role-tag ${entry.role}">${entry.role}</span></td>
+        <td><span class="changelog-message" data-id="${entry.id}">${entry.message}</span></td>
+        <td>${date}</td>
+        <td>
+          ${userRole === "Admin" || userRole === "SysAdmin" ? `
+            <button class="admin-action-btn" onclick="editChangelog(${entry.id})">✏️</button>
+          ` : ""}
+          ${userRole === "SysAdmin" ? `
+            <button class="admin-action-btn delete" onclick="deleteChangelog(${entry.id})">🗑️</button>
+          ` : ""}
+        </td>
+      </tr>
+    `;
+  }).join("");
 }
 
 function editChangelog(id) {
-  const messageSpan = document.querySelector(`.changelog-message[data-id="${id}"]`);
-  const oldMessage = messageSpan?.textContent || "";
+  const span = document.querySelector(`.changelog-message[data-id="${id}"]`);
+  const currentMsg = span?.textContent || "";
 
   const modalId = `editChangelogModal-${id}`;
   showGlobalModal({
     type: "warning",
-    title: "Edit Changelog Message",
-    message: `<textarea id="editChangelogTextarea" style="width: 100%; height: 100px;">${oldMessage}</textarea>`,
+    title: "Edit Changelog",
+    message: `<textarea id="editChangelogTextarea" style="width: 100%; height: 100px;">${currentMsg}</textarea>`,
     buttons: [
       { label: "Cancel", onClick: `fadeOutAndRemove('${modalId}')` },
       { label: "Save", onClick: `confirmEditChangelog(${id}, '${modalId}')` }
@@ -1307,30 +1332,44 @@ function editChangelog(id) {
 }
 
 function confirmEditChangelog(id, modalId) {
-  const updatedMessage = document.getElementById("editChangelogTextarea")?.value.trim();
-  if (!updatedMessage) return showToast("Message cannot be empty.");
+  const message = document.getElementById("editChangelogTextarea")?.value.trim();
+  if (!message) return;
 
-  fetch(`https://simplesurvivalcollectibles.site/api/changelog/${id}`, {
+  fetch(`https://simplesurvivalcollectibles.site/admin/changelog/${id}`, {
     method: "PUT",
     credentials: "include",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ message: updatedMessage })
+    body: JSON.stringify({ message })
   })
     .then(res => res.json())
     .then(() => {
-      showToast("Changelog updated.");
       fadeOutAndRemove(modalId);
+      showGlobalModal({
+        type: "success",
+        title: "Updated",
+        message: "Changelog message updated.",
+        buttons: [{ label: "Close", onClick: `fadeOutAndRemove('modal-changelogUpdated')` }],
+        id: "modal-changelogUpdated"
+      });
       loadChangelogEntries();
     })
-    .catch(() => showToast("Error updating changelog."));
+    .catch(() => {
+      showGlobalModal({
+        type: "error",
+        title: "Update Failed",
+        message: "Could not update changelog.",
+        buttons: [{ label: "Close", onClick: `fadeOutAndRemove('modal-changelogUpdateFail')` }],
+        id: "modal-changelogUpdateFail"
+      });
+    });
 }
 
 function deleteChangelog(id) {
   const modalId = `deleteChangelogModal-${id}`;
   showGlobalModal({
     type: "warning",
-    title: "Delete Changelog Entry",
-    message: "Are you sure you want to permanently delete this changelog entry?",
+    title: "Delete Entry",
+    message: "Are you sure you want to delete this changelog entry?",
     buttons: [
       { label: "Cancel", onClick: `fadeOutAndRemove('${modalId}')` },
       { label: "Delete", onClick: `confirmDeleteChangelog(${id}, '${modalId}')` }
@@ -1340,14 +1379,28 @@ function deleteChangelog(id) {
 }
 
 function confirmDeleteChangelog(id, modalId) {
-  fetch(`https://simplesurvivalcollectibles.site/api/changelog/${id}`, {
+  fetch(`https://simplesurvivalcollectibles.site/admin/changelog/${id}`, {
     method: "DELETE",
     credentials: "include"
   })
     .then(() => {
-      showToast("Changelog deleted.");
       fadeOutAndRemove(modalId);
+      showGlobalModal({
+        type: "success",
+        title: "Deleted",
+        message: "Changelog entry deleted successfully.",
+        buttons: [{ label: "Close", onClick: `fadeOutAndRemove('modal-changelogDeleted')` }],
+        id: "modal-changelogDeleted"
+      });
       loadChangelogEntries();
     })
-    .catch(() => showToast("Error deleting changelog."));
+    .catch(() => {
+      showGlobalModal({
+        type: "error",
+        title: "Delete Failed",
+        message: "Could not delete changelog entry.",
+        buttons: [{ label: "Close", onClick: `fadeOutAndRemove('modal-changelogDeleteFail')` }],
+        id: "modal-changelogDeleteFail"
+      });
+    });
 }

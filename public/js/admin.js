@@ -1318,9 +1318,9 @@ function editChangelog(id) {
     type: "warning",
     title: "Edit Changelog",
     message: `
-      <div class="nice-form-group" style="margin-top: 10px;">
-        <label for="editChangelogTextarea">Edit Message:</label>
-        <textarea id="editChangelogTextarea" class="admin-textarea" style="height: 100px;">${currentMsg}</textarea>
+      <div class="changelog-edit-wrapper">
+        <label for="editChangelogTextarea" class="edit-label">Edit Message:</label>
+        <textarea id="editChangelogTextarea">${currentMsg}</textarea>
       </div>
     `,
     buttons: [

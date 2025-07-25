@@ -1290,8 +1290,10 @@ function renderChangelogTable(entries) {
     return `
       <tr>
         <td>${entry.id}</td>
-        <td>${entry.username}</td>
-        <td><span class="role-tag ${entry.role}">${entry.role}</span></td>
+        <td>
+          ${entry.username || "Unknown"} 
+          <span class="role-tag ${entry.role}">${entry.role}</span>
+        </td>
         <td><span class="changelog-message" data-id="${entry.id}">${entry.message}</span></td>
         <td>${date}</td>
         <td>
@@ -1315,7 +1317,12 @@ function editChangelog(id) {
   showGlobalModal({
     type: "warning",
     title: "Edit Changelog",
-    message: `<textarea id="editChangelogTextarea" style="width: 100%; height: 100px;">${currentMsg}</textarea>`,
+    message: `
+      <div class="nice-form-group" style="margin-top: 10px;">
+        <label for="editChangelogTextarea">Edit Message:</label>
+        <textarea id="editChangelogTextarea" class="admin-textarea" style="height: 100px;">${oldMessage}</textarea>
+      </div>
+    `,
     buttons: [
       { label: "Cancel", onClick: `fadeOutAndRemove('${modalId}')` },
       { label: "Save", onClick: `confirmEditChangelog(${id}, '${modalId}')` }

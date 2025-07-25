@@ -866,6 +866,10 @@ select {
   padding: 0 1.5rem;
 }
 
+.changelog-edit-modal .modal-body > div {
+  flex: 1;
+}
+
 .changelog-edit-modal .changelog-edit-wrapper {
   display: flex;
   flex-direction: column;
@@ -875,6 +879,7 @@ select {
 .changelog-edit-modal textarea#editChangelogTextarea {
   width: 100%;
   min-height: 120px;
+  margin-top: 12px;
   padding: 0.75rem;
   border-radius: 8px;
   border: 1px solid #444;

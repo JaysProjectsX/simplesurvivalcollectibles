@@ -1972,7 +1972,6 @@ nav {
 }
 
 .panel__list li:hover .line {
-  left: -15px;
   opacity: 1;
 }
 

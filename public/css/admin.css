@@ -861,10 +861,6 @@ select {
 }
 
 /* Specific styling for changelog edit modal */
-.changelog-edit-modal .modal-body {
-  flex-direction: column;
-  align-items: stretch;
-}
 
 .changelog-edit-modal textarea#editChangelogTextarea {
   width: 100%;

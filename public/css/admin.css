@@ -863,7 +863,7 @@ select {
 /* Only affects changelog edit modal */
 .changelog-edit-modal .modal-body {
   display: block;
-  padding: 0 1.5rem;
+  padding-right: 0.75rem;
 }
 
 .changelog-edit-modal .modal-body > div {

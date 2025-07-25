@@ -1875,6 +1875,73 @@ nav {
 }
 
 /* Updated changelog modal styling */
+/* Modern changelog modal panel style */
+.panel__wrapper-icon {
+  margin: 30px auto;
+  max-width: 850px;
+  background: white;
+  box-shadow: 0 6px 30px rgba(0, 0, 0, 0.15);
+  border-radius: 8px;
+  overflow: hidden;
+  font-family: 'Open Sans', sans-serif;
+}
+
+.panel__head {
+  background: linear-gradient(to right, #2775ff, #7202bb);
+  padding: 24px 40px;
+  color: rgba(255, 255, 255, 0.9);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+
+.panel__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.panel__list li {
+  padding: 20px 28px;
+  border-bottom: 1px solid #ececec;
+  position: relative;
+  padding-left: 110px;
+  background: #fff;
+  color: #4e4e4e;
+}
+
+.panel__list li:nth-child(2n) {
+  background: #f6f6f6;
+}
+
+.panel__list li:hover .line {
+  left: -15px;
+  opacity: 1;
+}
+
+.panel__list li .line {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  left: 0;
+  width: 3px;
+  height: 40px;
+  background: linear-gradient(to bottom, #2775ff, #7202bb);
+  opacity: 0;
+  transition: all 0.3s ease;
+}
+
+.panel__list li .icon {
+  font-size: 36px;
+  color: #2775ff;
+  opacity: 0.5;
+  position: absolute;
+  left: 40px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
 .changelog-modal-wrapper {
   position: fixed;
   inset: 0;

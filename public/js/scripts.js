@@ -356,10 +356,24 @@ if (dropdownContainer && crateTableContainer) {
         });
 
         logs.forEach(entry => {
-          modalBody.innerHTML += `
-            <div class="changelog-entry">
-              <p><strong>${entry.username}</strong> <span class="role-tag ${entry.role}">${entry.role}</span> – ${new Date(entry.timestamp).toLocaleString()}</p>
-              <p>${entry.message}</p>
+          modalBody.innerHTML = `
+            <div class="panel__wrapper-icon">
+              <div class="panel__head">
+                <h4 class="font__family-montserrat font__weight-medium font__size-21">Cosmetic Crate Changelog</h4>
+                <p class="font__family-open-sans font__size-14">Latest changes made by admins and sysadmins.</p>
+              </div>
+              <ul class="panel__list">
+                ${logs.map(entry => `
+                  <li>
+                    <span class="line"></span>
+                    <i class="icon ${entry.role === 'SysAdmin' ? 'fas fa-shield-alt' : 'fas fa-user'}"></i>
+                    <strong>${entry.username}</strong> 
+                    <span class="role-tag ${entry.role}">${entry.role}</span><br>
+                    ${entry.message}<br>
+                    <small>${new Date(entry.timestamp).toLocaleString()}</small>
+                  </li>
+                `).join('')}
+              </ul>
             </div>
           `;
         });

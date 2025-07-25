@@ -197,6 +197,9 @@ function initializeAdminPanel(role) {
         `).join("");
       });
   }
+    userRole = role;
+    setupChangelogForm();
+    loadChangelogEntries();
 }
 
 function loadCratesAndItems() {
@@ -1201,16 +1204,6 @@ document.addEventListener("click", function (e) {
 const changelogForm = document.getElementById("changelog-form");
 const changelogTableBody = document.getElementById("changelog-entries-body");
 const changelogPageRadios = document.querySelectorAll('input[name="changelog-page-filter"]');
-
-let userRole = null; // Set during initializeAdminPanel
-
-// Injected during auth:
-function initializeAdminPanel(role) {
-  userRole = role; // Store for changelog permissions
-  // ...keep the rest of your code unchanged
-  setupChangelogForm();
-  loadChangelogEntries(); // load default entries
-}
 
 // Handle form submission
 function setupChangelogForm() {

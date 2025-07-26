@@ -2022,22 +2022,6 @@ nav {
   color: #888;
 }
 
-.changelog-scroll-wrapper {
-  max-height: 50vh;
-  overflow-y: auto;
-  padding-right: 10px;
-}
-
-/* Optional for nice scrollbar appearance */
-.changelog-scroll-wrapper::-webkit-scrollbar {
-  width: 8px;
-}
-
-.changelog-scroll-wrapper::-webkit-scrollbar-thumb {
-  background: rgba(100, 100, 100, 0.4);
-  border-radius: 4px;
-}
-
 
 .changelog-modal-header {
   display: flex;

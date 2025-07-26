@@ -172,30 +172,20 @@
 
 
     <!-- Cosmetic Changelog Modal -->
-<div id="changelogModal" class="changelog-modal-wrapper hidden">
-  <div class="panel__wrapper-icon changelog-modal-card">
-    <div class="panel__head">
-      <h4 class="font__family-montserrat font__weight-medium font__size-21">
-        Cosmetic Crate Changelog
-      </h4>
-      <p class="font__family-open-sans font__size-14">
-        Latest changes made to this page will appear here.
-      </p>
+    <div id="changelogModal" class="changelog-modal-wrapper hidden">
+      <div class="panel__wrapper-icon changelog-modal-card">
+        <div class="panel__head">
+          <h4 class="font__family-montserrat font__weight-medium font__size-21">Cosmetic Crate Changelog</h4>
+          <p class="font__family-open-sans font__size-14">Latest changes made to this page will appear here.</p>
+        </div>
+        <ul id="changelogModalBody" class="panel__list">
+          <!-- Entries injected by JS -->
+        </ul>
+        <div style="text-align:center; margin: 20px 0;">
+          <button class="about-btn ghost" onclick="closeChangelogModal()">Close</button>
+        </div>
+      </div>
     </div>
-
-    <!-- Scrollable wrapper around the UL -->
-    <div class="changelog-scroll-wrapper">
-      <ul id="changelogModalBody" class="panel__list">
-        <!-- Entries injected here -->
-      </ul>
-    </div>
-
-    <div style="text-align:center; margin: 20px 0;">
-      <button class="about-btn ghost" onclick="closeChangelogModal()">Close</button>
-    </div>
-  </div>
-</div>
-
 
 
     <footer>

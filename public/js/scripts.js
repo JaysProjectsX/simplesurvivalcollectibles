@@ -349,29 +349,49 @@ if (dropdownContainer && crateTableContainer) {
     }, 300); // Match animation duration
   }
 
-  async function loadChangelog(page = "cosmetic") {
+  async function loadChangelog(page = "cosmetic", currentPage = 1, itemsPerPage = 4) {
     try {
-      const res = await fetch(`https://simplesurvivalcollectibles.site/changelog?page=${page}`);
+      const res = await fetch(`${backendUrl1}/changelog?page=${page}`);
       const logs = await res.json();
       const modalBody = document.getElementById("changelogModalBody");
+      const pagination = document.getElementById("changelogPagination");
 
-      if (!modalBody || !Array.isArray(logs)) return;
+      if (!modalBody || !pagination || !Array.isArray(logs)) return;
 
-      modalBody.innerHTML = logs.map(entry => `
-      <li>
-        <span class="line"></span>
-        <i class="icon ${entry.role === 'SysAdmin' ? 'fas fa-shield-alt' : 'fas fa-user'}"></i>
-        <div class="changelog-text-block">
-          <div class="user-info">
-            <span class="role-tag ${entry.role}">${entry.role}</span>
-            <strong>${entry.username}</strong>
+      // Pagination logic
+      const totalPages = Math.ceil(logs.length / itemsPerPage);
+      const startIndex = (currentPage - 1) * itemsPerPage;
+      const visibleLogs = logs.slice(startIndex, startIndex + itemsPerPage);
+
+      modalBody.innerHTML = visibleLogs.map(entry => `
+        <li>
+          <span class="line"></span>
+          <i class="icon ${entry.role === 'SysAdmin' ? 'fas fa-shield-alt' : 'fas fa-user'}"></i>
+          <div class="changelog-text-block">
+            <div class="user-info">
+              <span class="role-tag ${entry.role}">${entry.role}</span>
+              <strong>${entry.username}</strong>
+            </div>
+            <div class="message">${entry.message}</div>
+            <small class="timestamp">${new Date(entry.timestamp).toLocaleString()}</small>
           </div>
-          <div class="message">${entry.message}</div>
-          <small class="timestamp">${new Date(entry.timestamp).toLocaleString()}</small>
-        </div>
-      </li>
+        </li>
       `).join("");
+
+      // Pagination buttons
+      pagination.innerHTML = '';
+      if (totalPages > 1) {
+        for (let i = 1; i <= totalPages; i++) {
+          const btn = document.createElement("button");
+          btn.className = `page-btn ${i === currentPage ? 'active' : ''}`;
+          btn.textContent = i;
+          btn.onclick = () => loadChangelog(page, i, itemsPerPage);
+          pagination.appendChild(btn);
+        }
+      }
+
     } catch (err) {
       console.error("Failed to load changelog:", err);
     }
   }
+

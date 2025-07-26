@@ -2022,6 +2022,28 @@ nav {
   color: #888;
 }
 
+.changelog-pagination .page-btn {
+  background: transparent;
+  border: 1px solid #6c63ff;
+  color: #6c63ff;
+  padding: 5px 10px;
+  margin: 0 4px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.changelog-pagination .page-btn:hover {
+  background-color: #6c63ff;
+  color: white;
+}
+
+.changelog-pagination .page-btn.active {
+  background-color: #6c63ff;
+  color: white;
+  font-weight: bold;
+}
+
 
 .changelog-modal-header {
   display: flex;

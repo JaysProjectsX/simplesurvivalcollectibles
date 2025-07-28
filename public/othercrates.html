@@ -5,10 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Crates - SimpleSurvival Collectibles</title>
     <link rel="stylesheet" href="/css/home-page.css" />
+    <link rel="stylesheet" href="/css/globalModal.css" />
     <link
       href="https://unpkg.com/boxicons@2.1.1/css/boxicons.min.css"
       rel="stylesheet"
     />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <link rel="icon" href="/favicon.png" type="image/png" />
   </head>
   <body>
@@ -24,7 +26,11 @@
           <li><a href="/info.html">About</a></li>
           <li><a href="/crates.html">Cosmetic Crates</a></li>
           <li><a href="/othercrates.html" class="active">Other Crates</a></li>
-          <li><a href="/eventitems.html">Event Items</a></li>
+          <li><a href="/othercrates.html">Event Items</a></li>
+        </ul>
+        <ul class="nav-login" id="navLogin">
+          <!-- This will be dynamically updated -->
+          <li id="loginItem"><a href="#" onclick="toggleModal()">Login</a></li>
         </ul>
       </div>
     </nav>
@@ -91,7 +97,7 @@
                 <h2>Change Log</h2>
                 <hr class="changelog-divider" />
                 <div id="changelog"></div>
-            
+                <button class="about-btn" onclick="openChangelogModal()">View Full Changelog</button>
               </section>
             </aside>
           </div>
@@ -114,6 +120,80 @@
       pointer-events: none;
     "></div>
 
+        <!-- Login/Register Modal -->
+    <div id="authModal" class="modal">
+      <div class="modal-content">
+        <span class="close" onclick="toggleModal()">&times;</span>
+        <h2>Login to Your Account</h2>
+        <form id="loginForm">
+          <input type="text" placeholder="Email" required />
+          <input type="password" placeholder="Password" required />
+          <button type="submit">Login</button>
+        </form>
+        <p class="toggle-text">Don't have an account? <a href="#" onclick="toggleForm()">Register here</a></p>
+
+        <form id="registerForm" style="display: none;">
+          <input type="text" placeholder="Username" id="registerUsername" required />
+          <input type="email" placeholder="Email" id="registerEmail" required />
+          <input type="password" placeholder="Password" id="registerPassword" required />
+          <button type="submit">Register</button>
+        </form>
+        <p class="toggle-text" style="display: none;">Already have an account? <a href="#" onclick="toggleForm()">Login here</a></p>
+      </div>
+    </div>
+
+    <div id="registrationConfirmation" class="modal" style="display:none;">
+      <div class="modal-content">
+        <span class="close" onclick="document.getElementById('registrationConfirmation').style.display='none'">&times;</span>
+        <h2>Check Your Email</h2>
+        <p>We've sent a verification link to your email address. Please check your inbox/spam folders to verify your account.</p>
+      </div>
+    </div>
+
+    <!-- Account Info Modal -->
+    <div id="accountModal" class="modal" style="display:none;">
+      <div class="modal-content" id="accountModalContent">
+        <div class="account-section">
+          <h2>Account Details</h2>
+          <p><strong>Username:</strong> <span id="accUsername"></span></p>
+          <p><strong>Email:</strong> <span id="accEmail"></span></p>
+          <p><strong>Role:</strong> <span id="accRole"></span></p>
+          <p><strong>Email Verified:</strong> <span id="accVerified"></span></p>
+          <p><strong>Account Created:</strong> <span id="accCreated"></span></p>
+        </div>
+
+        <div class="password-section">
+          <h3>Change Password</h3>
+          <form id="passwordChangeForm">
+            <input type="password" id="currentPassword" placeholder="Current Password" required />
+            <input type="password" id="newPassword" placeholder="New Password" required />
+            <input type="password" id="confirmPassword" placeholder="Confirm New Password" required />
+            <div class="toggle-password-container">
+              <input type="checkbox" id="togglePassword" />
+              <label for="togglePassword">Show Passwords</label>
+            </div>
+            <button type="submit">Change Password</button>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <div id="toastContainer"></div>
+
+    <div id="changelogModal" class="changelog-modal-wrapper hidden">
+      <div class="panel__wrapper-icon changelog-modal-card">
+        <div class="panel__head">
+          <h4 class="font__family-montserrat font__weight-medium font__size-21">Other Crates Changelog</h4>
+          <p class="font__family-open-sans font__size-14">Latest changes made to this page will appear here.</p>
+        </div>
+        <ul id="changelogModalBody" class="panel__list"></ul>
+        <div id="changelogPagination" class="changelog-pagination" style="text-align: center; margin: 10px 0;"></div>
+        <div style="text-align:center; margin: 20px 0;">
+          <button class="about-btn ghost" onclick="closeChangelogModal()">Close</button>
+        </div>
+      </div>
+    </div>
+
     <footer>
       <div class="footer-creator">
         <p>Created by YooEm</p>
@@ -123,7 +203,9 @@
         <p><a href="privacy.html">Privacy Policy</a> | <a href="terms.html">Terms of Use</a></p>
       </div>
     </footer>
+    <script defer src="/js/globalModal.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
     <script src="/js/othercrates.js"></script>
+    <script src="/js/auth.js"></script>
   </body>
 </html>

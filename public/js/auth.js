@@ -174,6 +174,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Phase 1: Request Code
     if (codeSection.style.display === "none") {
+      resetCodeInput.required = false;
+      newPasswordInput.required = false;
       const email = emailInput.value.trim();
       if (!email) {
         showGlobalModal({
@@ -228,6 +230,8 @@ document.addEventListener("DOMContentLoaded", () => {
     } else {
       const code = resetCodeInput.value.trim();
       const newPassword = newPasswordInput.value.trim();
+      resetCodeInput.required = true;
+      newPasswordInput.required = true;
 
       if (!code || !newPassword) {
           showGlobalModal({
@@ -539,6 +543,19 @@ window.toggleForgotPasswordForm = function () {
   forgotForm.style.display = "block";
   toggleTexts.forEach(el => el.style.display = "none");
   backToLogin.style.display = "block";
+};
+
+window.backToLoginFromForgot = function () {
+  document.getElementById("forgotPasswordForm").reset();
+  document.getElementById("forgotPasswordForm").style.display = "none";
+  document.getElementById("codeSection").style.display = "none";
+
+  document.getElementById("loginForm").style.display = "block";
+  document.getElementById("registerForm").style.display = "none";
+  document.getElementById("backToLoginText").style.display = "none";
+
+  const toggleTexts = document.querySelectorAll(".toggle-text");
+  toggleTexts.forEach(el => el.style.display = "block");
 };
 
 document.addEventListener("DOMContentLoaded", () => {

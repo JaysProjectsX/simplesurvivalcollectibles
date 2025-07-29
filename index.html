@@ -78,7 +78,7 @@
           </div>
         </div>
 
-        <div class="knowledge-card" onclick="window.open('/crates.html')">
+        <div class="knowledge-card" onclick="window.open('/crates')">
           <div class="icon">
             <i class="fa-solid fa-key"></i>
           </div>
@@ -88,7 +88,7 @@
           </div>
         </div>
 
-        <div class="knowledge-card" onclick="window.open('/othercrates.html')">
+        <div class="knowledge-card" onclick="window.open('/othercrates')">
           <div class="icon">
             <i class="fa-solid fa-money-bill"></i>
           </div>
@@ -130,18 +130,26 @@
       <div class="dots" id="dots"></div>
     </section>
 
-    <!-- Login/Register Modal -->
+    <!-- Login/Register/Forgot Modal -->
     <div id="authModal" class="modal">
       <div class="modal-content">
         <span class="close" onclick="toggleModal()">&times;</span>
         <h2>Login to Your Account</h2>
+
+        <!-- LOGIN FORM -->
         <form id="loginForm">
           <input type="text" placeholder="Email" required />
           <input type="password" placeholder="Password" required />
           <button type="submit">Login</button>
         </form>
-        <p class="toggle-text">Don't have an account? <a href="#" onclick="toggleForm()">Register here</a></p>
 
+        <!-- Side-by-side Login/Register and Forgot Password -->
+        <div class="auth-toggle-row">
+          <p class="toggle-text">Don't have an account? <a href="#" onclick="toggleForm()">Register here</a></p>
+          <p class="toggle-text"><a href="#" onclick="toggleForgotPasswordForm()">Forgot your password?</a></p>
+        </div>
+
+        <!-- REGISTER FORM -->
         <form id="registerForm" style="display: none;">
           <input type="text" placeholder="Username" id="registerUsername" required />
           <input type="email" placeholder="Email" id="registerEmail" required />
@@ -149,8 +157,22 @@
           <button type="submit">Register</button>
         </form>
         <p class="toggle-text" style="display: none;">Already have an account? <a href="#" onclick="toggleForm()">Login here</a></p>
+
+        <!-- FORGOT PASSWORD FORM -->
+        <form id="forgotPasswordForm" style="display: none;">
+          <input type="email" id="forgotEmail" placeholder="Enter your account email" required />
+          <button type="submit" id="sendResetCodeBtn">Send Verification Code</button>
+
+          <div id="codeSection" style="display: none; margin-top: 1rem;">
+            <input type="text" id="resetCode" placeholder="Enter 6-digit code" required />
+            <input type="password" id="newResetPassword" placeholder="New Password" required />
+            <button type="submit" id="resetPasswordButton">Reset Password</button>
+          </div>
+        </form>
+        <p class="toggle-text" id="backToLoginText" style="display: none;">Remembered it? <a href="#" onclick="toggleForm()">Back to Login</a></p>
       </div>
     </div>
+
 
     <div id="registrationConfirmation" class="modal" style="display:none;">
       <div class="modal-content">

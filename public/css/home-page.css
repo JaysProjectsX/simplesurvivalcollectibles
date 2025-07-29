@@ -209,6 +209,17 @@ nav {
     transition: width 0.3s ease;
 }
 
+.auth-toggle-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+.auth-toggle-row .toggle-text {
+  margin: 0;
+}
+
 /* HERO SECTION */
 .hero {
     position: relative;

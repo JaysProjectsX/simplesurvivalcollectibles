@@ -170,124 +170,121 @@ document.addEventListener("DOMContentLoaded", () => {
   let resetEmail = ""; // for phase 2 tracking
 
   forgotForm.addEventListener("submit", async (e) => {
-    e.preventDefault();
+  e.preventDefault();
 
-    // Phase 1: Request Code
-    if (codeSection.style.display === "none") {
-      resetCodeInput.required = false;
-      newPasswordInput.required = false;
-      const email = emailInput.value.trim();
-      if (!email) {
-        showGlobalModal({
-          type: "error",
-          title: "Missing Email",
-          message: "Please enter your email address.",
-          buttons: [{ label: "Close", onClick: `fadeOutAndRemove('modal-forgotEmailError')` }],
-          id: "modal-forgotEmailError"
-        });
-        return;
-      }
+  resetCodeInput.required = false;
+  newPasswordInput.required = false;
 
-      try {
-        const res = await fetch(`${backendUrl}/forgot-password`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email })
-        });
+  const email = emailInput.value.trim();
+  if (!email) {
+    showGlobalModal({
+      type: "error",
+      title: "Missing Email",
+      message: "Please enter your email address.",
+      buttons: [{ label: "Close", onClick: `fadeOutAndRemove('modal-forgotEmailError')` }],
+      id: "modal-forgotEmailError"
+    });
+    return;
+  }
 
-        const data = await res.json();
-        if (res.ok) {
-          showGlobalModal({
-            type: "success",
-            title: "Reset Code Sent",
-            message: "A reset code has been sent to your email. Please check your inbox and spam folder.",
-            buttons: [{ label: "Close", onClick: `fadeOutAndRemove('modal-passwordResetCodeSent')` }],
-            id: "modal-passwordResetCodeSent"
-          });
-          codeSection.style.display = "block";
-          resetEmail = email; // store for reset phase
-        } else {
-          showGlobalModal({
-            type: "error",
-            title: "Error Sending Code",
-            message: "There was an error sending the reset code. Please try again later.",
-            buttons: [{ label: "Close", onClick: `fadeOutAndRemove('modal-passwordResetCodeFailed')` }],
-            id: "modal-passwordResetCodeFailed"
-          });
-        }
-      } catch (err) {
-          showGlobalModal({
-            type: "error",
-            title: "Internal Server Error",
-            message: "An error occurred while processing your request.",
-            buttons: [{ label: "Close", onClick: `fadeOutAndRemove('modal-passwordResetCodeError')` }],
-            id: "modal-passwordResetCodeError"
-          });
-        console.error(err);
-      }
+  try {
+    const res = await fetch(`${backendUrl}/forgot-password`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email })
+    });
 
-    // Phase 2: Submit code + new password
+    const data = await res.json();
+    if (res.ok) {
+      showGlobalModal({
+        type: "success",
+        title: "Reset Code Sent",
+        message: "A reset code has been sent to your email. Please check your inbox and spam folder.",
+        buttons: [{ label: "Close", onClick: `fadeOutAndRemove('modal-passwordResetCodeSent')` }],
+        id: "modal-passwordResetCodeSent"
+      });
+      codeSection.style.display = "block";
+      resetEmail = email;
     } else {
-      const code = resetCodeInput.value.trim();
-      const newPassword = newPasswordInput.value.trim();
-      resetCodeInput.required = true;
-      newPasswordInput.required = true;
-
-      if (!code || !newPassword) {
-          showGlobalModal({
-            type: "error",
-            title: "Missing Fields",
-            message: "Please fill in all fields.",
-            buttons: [{ label: "Close", onClick: `fadeOutAndRemove('modal-passwordResetMissingFields')` }],
-            id: "modal-passwordResetMissingFields"
-          });
-        return;
-      }
-
-      try {
-        const res = await fetch(`${backendUrl}/reset-password`, {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            email: resetEmail,
-            code,
-            newPassword
-          })
-        });
-
-        const data = await res.json();
-        if (res.ok) {
-          showGlobalModal({
-            type: "success",
-            title: "Password Reset Successful",
-            message: "You've successfully reset your password. You can now log in with your new password.",
-            buttons: [{ label: "Close", onClick: `fadeOutAndRemove('modal-passwordResetComplete')` }],
-            id: "modal-passwordResetComplete"
-          });
-          forgotForm.reset();
-          codeSection.style.display = "none";
-          toggleForm(); // return to login
-        } else {
-          showGlobalModal({
-            type: "error",
-            title: "Error Resetting Password",
-            message: "There was an error resetting your password. Please check the code and try again.",
-            buttons: [{ label: "Close", onClick: `fadeOutAndRemove('modal-passwordResetCodeError')` }],
-            id: "modal-passwordResetCodeError"
-          });
-        }
-      } catch (err) {
-          showGlobalModal({
-            type: "error",
-            title: "Internal Server Error",
-            message: "An internal server error occurred. Please try again later, if the problem persists, contact the developer.",
-            buttons: [{ label: "Close", onClick: `fadeOutAndRemove('modal-passwordResetServerError')` }],
-            id: "modal-passwordResetServerError"
-          });
-        console.error(err);
-      }
+      showGlobalModal({
+        type: "error",
+        title: "Error Sending Code",
+        message: "There was an error sending the reset code.",
+        buttons: [{ label: "Close", onClick: `fadeOutAndRemove('modal-passwordResetCodeFailed')` }],
+        id: "modal-passwordResetCodeFailed"
+      });
     }
-  });
+  } catch (err) {
+    showGlobalModal({
+      type: "error",
+      title: "Server Error",
+      message: "An internal error occurred. Please try again.",
+      buttons: [{ label: "Close", onClick: `fadeOutAndRemove('modal-passwordResetCodeError')` }],
+      id: "modal-passwordResetCodeError"
+    });
+    console.error(err);
+  }
+});
+
+document.getElementById("resetPasswordButton").addEventListener("click", async () => {
+  const code = resetCodeInput.value.trim();
+  const newPassword = newPasswordInput.value.trim();
+
+  if (!code || !newPassword) {
+    showGlobalModal({
+      type: "error",
+      title: "Missing Fields",
+      message: "Please fill in all fields.",
+      buttons: [{ label: "Close", onClick: `fadeOutAndRemove('modal-passwordResetMissingFields')` }],
+      id: "modal-passwordResetMissingFields"
+    });
+    return;
+  }
+
+  try {
+    const res = await fetch(`${backendUrl}/reset-password`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        email: resetEmail,
+        code,
+        newPassword
+      })
+    });
+
+    const data = await res.json();
+    if (res.ok) {
+      showGlobalModal({
+        type: "success",
+        title: "Password Reset Successful",
+        message: "You can now log in with your new password.",
+        buttons: [{ label: "Close", onClick: `fadeOutAndRemove('modal-passwordResetComplete')` }],
+        id: "modal-passwordResetComplete"
+      });
+      forgotForm.reset();
+      codeSection.style.display = "none";
+      toggleForm(); // return to login
+    } else {
+      showGlobalModal({
+        type: "error",
+        title: "Invalid Code",
+        message: "There was an error resetting your password. Please try again.",
+        buttons: [{ label: "Close", onClick: `fadeOutAndRemove('modal-passwordResetCodeError')` }],
+        id: "modal-passwordResetCodeError"
+      });
+    }
+  } catch (err) {
+    showGlobalModal({
+      type: "error",
+      title: "Internal Server Error",
+      message: "Please try again later or contact support.",
+      buttons: [{ label: "Close", onClick: `fadeOutAndRemove('modal-passwordResetServerError')` }],
+      id: "modal-passwordResetServerError"
+    });
+    console.error(err);
+  }
+});
+
 
 });
 
@@ -546,17 +543,27 @@ window.toggleForgotPasswordForm = function () {
 };
 
 window.backToLoginFromForgot = function () {
-  document.getElementById("forgotPasswordForm").reset();
-  document.getElementById("forgotPasswordForm").style.display = "none";
-  document.getElementById("codeSection").style.display = "none";
-
-  document.getElementById("loginForm").style.display = "block";
-  document.getElementById("registerForm").style.display = "none";
-  document.getElementById("backToLoginText").style.display = "none";
-
+  // Reset and hide forgot form
+  const forgotForm = document.getElementById("forgotPasswordForm");
+  const codeSection = document.getElementById("codeSection");
+  const loginForm = document.getElementById("loginForm");
+  const registerForm = document.getElementById("registerForm");
+  const backToLogin = document.getElementById("backToLoginText");
   const toggleTexts = document.querySelectorAll(".toggle-text");
-  toggleTexts.forEach(el => el.style.display = "block");
+
+  forgotForm.reset();
+  forgotForm.style.display = "none";
+  codeSection.style.display = "none";
+
+  loginForm.style.display = "block";
+  registerForm.style.display = "none";
+  backToLogin.style.display = "none";
+
+  // Show both login-related toggle-texts
+  toggleTexts[0].style.display = "block"; // "Don't have an account?"
+  toggleTexts[1].style.display = "block"; // "Forgot your password?"
 };
+
 
 document.addEventListener("DOMContentLoaded", () => {
   const toggleCheckbox = document.getElementById("togglePassword");

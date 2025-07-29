@@ -219,7 +219,7 @@ nav {
 
 .loader {
   height: 4px;
-  width: 130px;
+  width: 100%;
   --c:no-repeat linear-gradient(#6100ee 0 0);
   background: var(--c),var(--c),#d7b8fc;
   background-size: 60% 100%;

@@ -227,6 +227,9 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 document.getElementById("resetPasswordButton").addEventListener("click", async () => {
+  resetCodeInput.required = true;
+  newPasswordInput.required = true;
+
   const code = resetCodeInput.value.trim();
   const newPassword = newPasswordInput.value.trim();
 

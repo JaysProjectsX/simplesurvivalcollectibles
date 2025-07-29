@@ -69,7 +69,7 @@ if (dropdownContainer && crateTableContainer) {
       showCrateDataError("Failed to load crate list");
     });
 
-  fetch(`${backendUrl1}/api/tags`)
+  fetch(`${backendUrl1}/api/tags?type=cosmetic`)
     .then((res) => res.json())
     .then((tags) => {
       populateTagDropdown(tags);

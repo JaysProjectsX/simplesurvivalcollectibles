@@ -527,7 +527,19 @@ window.toggleForm = function () {
   }
 };
 
+window.toggleForgotPasswordForm = function () {
+  const loginForm = document.getElementById("loginForm");
+  const registerForm = document.getElementById("registerForm");
+  const forgotForm = document.getElementById("forgotPasswordForm");
+  const toggleTexts = document.querySelectorAll(".toggle-text");
+  const backToLogin = document.getElementById("backToLoginText");
 
+  loginForm.style.display = "none";
+  registerForm.style.display = "none";
+  forgotForm.style.display = "block";
+  toggleTexts.forEach(el => el.style.display = "none");
+  backToLogin.style.display = "block";
+};
 
 document.addEventListener("DOMContentLoaded", () => {
   const toggleCheckbox = document.getElementById("togglePassword");

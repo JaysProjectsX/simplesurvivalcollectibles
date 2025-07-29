@@ -212,8 +212,8 @@ document.addEventListener("DOMContentLoaded", () => {
       document.getElementById("resetLoading").style.display = "none";
       showGlobalModal({
         type: "error",
-        title: "Error Sending Code",
-        message: "There was an error sending the reset code.",
+        title: "Invalid Email",
+        message: "There was an error sending the reset code. There is no account associated with that email.",
         buttons: [{ label: "Close", onClick: `fadeOutAndRemove('modal-passwordResetCodeFailed')` }],
         id: "modal-passwordResetCodeFailed"
       });

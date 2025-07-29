@@ -188,6 +188,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   try {
+    document.getElementById("resetLoading").style.display = "block";
     const res = await fetch(`${backendUrl}/forgot-password`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -196,6 +197,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const data = await res.json();
     if (res.ok) {
+      document.getElementById("resetLoading").style.display = "none";
       showGlobalModal({
         type: "success",
         title: "Reset Code Sent",
@@ -203,9 +205,11 @@ document.addEventListener("DOMContentLoaded", () => {
         buttons: [{ label: "Close", onClick: `fadeOutAndRemove('modal-passwordResetCodeSent')` }],
         id: "modal-passwordResetCodeSent"
       });
+      document.getElementById("emailSection").style.display = "none";
       codeSection.style.display = "block";
       resetEmail = email;
     } else {
+      document.getElementById("resetLoading").style.display = "none";
       showGlobalModal({
         type: "error",
         title: "Error Sending Code",
@@ -215,6 +219,7 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     }
   } catch (err) {
+    document.getElementById("resetLoading").style.display = "none";
     showGlobalModal({
       type: "error",
       title: "Server Error",
@@ -245,6 +250,7 @@ document.getElementById("resetPasswordButton").addEventListener("click", async (
   }
 
   try {
+    document.getElementById("resetLoading").style.display = "block";
     const res = await fetch(`${backendUrl}/reset-password`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
@@ -257,6 +263,7 @@ document.getElementById("resetPasswordButton").addEventListener("click", async (
 
     const data = await res.json();
     if (res.ok) {
+      document.getElementById("resetLoading").style.display = "none";
       showGlobalModal({
         type: "success",
         title: "Password Reset Successful",
@@ -268,6 +275,7 @@ document.getElementById("resetPasswordButton").addEventListener("click", async (
       codeSection.style.display = "none";
       toggleForm(); // return to login
     } else {
+      document.getElementById("resetLoading").style.display = "none";
       showGlobalModal({
         type: "error",
         title: "Invalid Code",
@@ -277,6 +285,7 @@ document.getElementById("resetPasswordButton").addEventListener("click", async (
       });
     }
   } catch (err) {
+    document.getElementById("resetLoading").style.display = "none";
     showGlobalModal({
       type: "error",
       title: "Internal Server Error",

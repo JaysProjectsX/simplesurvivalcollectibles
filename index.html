@@ -160,13 +160,18 @@
 
         <!-- FORGOT PASSWORD FORM -->
         <form id="forgotPasswordForm" style="display: none;">
-          <input type="email" id="forgotEmail" placeholder="Enter your account email" required />
-          <button type="submit" id="sendResetCodeBtn">Send Verification Code</button>
+          <div id="emailSection">
+            <input type="email" id="forgotEmail" placeholder="Enter your account email" required />
+            <button type="submit" id="sendResetCodeBtn">Send Verification Code</button>
+          </div>
 
           <div id="codeSection" style="display: none; margin-top: 1rem;">
             <input type="text" id="resetCode" placeholder="Enter 6-digit code"/>
             <input type="password" id="newResetPassword" placeholder="New Password"/>
             <button type="button" id="resetPasswordButton">Reset Password</button>
+          </div>
+          <div id="resetLoading" style="display: none; text-align: center; margin-top: 0.5rem;">
+            <div class="loader"></div>
           </div>
         </form>
         <p class="toggle-text" id="backToLoginText" style="display: none;">Remembered it? <a href="#" onclick="backToLoginFromForgot()">Back to Login</a></p>

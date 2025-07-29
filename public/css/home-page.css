@@ -2222,6 +2222,27 @@ nav {
   color: #0059ff;
 }
 
+.legal-updated-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  background: #2d2d2d;
+  color: #ccc;
+  padding: 4px 8px;
+  border-radius: 20px;
+  margin-left: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.legal-updated-tag svg {
+  width: 12px;
+  height: 12px;
+  stroke: #ccc;
+  stroke-width: 2;
+}
+
 
   /* Styling for footer */
   footer { 

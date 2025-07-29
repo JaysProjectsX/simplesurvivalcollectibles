@@ -2230,10 +2230,9 @@ nav {
   font-weight: 600;
   background: #2d2d2d;
   color: #ccc;
-  padding: 4px 8px;
-  border-radius: 20px;
-  margin-left: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 4px 6px;
+  border-radius: 10px;
+  margin-top: 12px;
 }
 
 .legal-updated-tag svg {

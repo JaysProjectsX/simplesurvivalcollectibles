@@ -5,35 +5,42 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Privacy Policy - SimpleSurvival Collectibles</title>
     <link rel="stylesheet" href="/css/home-page.css" />
+    <link rel="stylesheet" href="/css/globalModal.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
     <link href="https://unpkg.com/boxicons@2.1.1/css/boxicons.min.css" rel="stylesheet" />
     <link href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css" rel="stylesheet" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
     <link rel="icon" href="/favicon.png" type="image/png" />
   </head>
   <body>
     <div id="particles-js" style="position: fixed; width: 100%; height: 100%; z-index: 0; top: 0; left: 0; pointer-events: none;"></div>
     <nav>
-        <div class="nav-content">
-          <div class="nav-logo">
-            <a href="/index.html">
-              <img src="/assets/Logo.png" alt="SimpleSurvival Collectibles Logo" />
-            </a>
-          </div>
-          <ul class="nav-links">
-            <li><a href="/index.html">Home</a></li>
-            <li><a href="/info.html">About</a></li>
-            <li><a href="/crates.html">Cosmetic Crates</a></li>
-            <li><a href="/othercrates.html">Other Crates</a></li>
-            <li><a href="/othercrates.html">Event Items</a></li>
-          </ul>
+      <div class="nav-content">
+        <div class="nav-logo">
+          <a href="/index.html">
+            <img src="/assets/Logo.png" alt="SimpleSurvival Collectibles Logo" />
+          </a>
         </div>
-      </nav>
+        <ul class="nav-links">
+          <li><a href="/index.html">Home</a></li>
+          <li><a href="/info.html">About</a></li>
+          <li><a href="/crates.html">Cosmetic Crates</a></li>
+          <li><a href="/othercrates.html">Other Crates</a></li>
+          <li><a href="/othercrates.html">Event Items</a></li>
+        </ul>
+        <ul class="nav-login" id="navLogin">
+          <!-- This will be dynamically updated -->
+          <li id="loginItem"><a href="#" onclick="toggleModal()">Login</a></li>
+        </ul>
+      </div>
+    </nav>
 
     <main style="margin-top: 100px;">
       <section class="legal-table-wrapper">
         <div class="legal-head">
         <h4>
           Privacy Policy
+        </h4>
+          <p>These details explain what data we collect, how it's used, and your rights as a user.</p>
           <span class="legal-updated-tag">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
               <path d="M12 6v6l4 2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -41,8 +48,6 @@
             </svg>
             Updated: July 28, 2025
           </span>
-        </h4>
-          <p>These details explain what data we collect, how it's used, and your rights as a user.</p>
         </div>
         <ul class="legal-list">
           <li>
@@ -53,7 +58,7 @@
           <li>
             <span class="line"></span>
             <i class="icon fas fa-lock"></i>
-            We do not use cookies or analytics tracking tools. No personal data is shared externally.
+            This website does not collect analytics data or use third-party tracking mechanisms. However, we do use secure, session-based cookies to authenticate registered users and protect your account. These cookies are essential for login functionality and are not used for advertising or behavior profiling.
           </li>
           <li>
             <span class="line"></span>
@@ -74,6 +79,66 @@
       </section>
     </main>
 
+        <!-- Login/Register Modal -->
+    <div id="authModal" class="modal">
+      <div class="modal-content">
+        <span class="close" onclick="toggleModal()">&times;</span>
+        <h2>Login to Your Account</h2>
+        <form id="loginForm">
+          <input type="text" placeholder="Email" required />
+          <input type="password" placeholder="Password" required />
+          <button type="submit">Login</button>
+        </form>
+        <p class="toggle-text">Don't have an account? <a href="#" onclick="toggleForm()">Register here</a></p>
+
+        <form id="registerForm" style="display: none;">
+          <input type="text" placeholder="Username" id="registerUsername" required />
+          <input type="email" placeholder="Email" id="registerEmail" required />
+          <input type="password" placeholder="Password" id="registerPassword" required />
+          <button type="submit">Register</button>
+        </form>
+        <p class="toggle-text" style="display: none;">Already have an account? <a href="#" onclick="toggleForm()">Login here</a></p>
+      </div>
+    </div>
+
+    <div id="registrationConfirmation" class="modal" style="display:none;">
+      <div class="modal-content">
+        <span class="close" onclick="document.getElementById('registrationConfirmation').style.display='none'">&times;</span>
+        <h2>Check Your Email</h2>
+        <p>We've sent a verification link to your email address. Please check your inbox/spam folders to verify your account.</p>
+      </div>
+    </div>
+
+    <!-- Account Info Modal -->
+    <div id="accountModal" class="modal" style="display:none;">
+      <div class="modal-content" id="accountModalContent">
+        <div class="account-section">
+          <h2>Account Details</h2>
+          <p><strong>Username:</strong> <span id="accUsername"></span></p>
+          <p><strong>Email:</strong> <span id="accEmail"></span></p>
+          <p><strong>Role:</strong> <span id="accRole"></span></p>
+          <p><strong>Email Verified:</strong> <span id="accVerified"></span></p>
+          <p><strong>Account Created:</strong> <span id="accCreated"></span></p>
+        </div>
+
+        <div class="password-section">
+          <h3>Change Password</h3>
+          <form id="passwordChangeForm">
+            <input type="password" id="currentPassword" placeholder="Current Password" required />
+            <input type="password" id="newPassword" placeholder="New Password" required />
+            <input type="password" id="confirmPassword" placeholder="Confirm New Password" required />
+            <div class="toggle-password-container">
+              <input type="checkbox" id="togglePassword" />
+              <label for="togglePassword">Show Passwords</label>
+            </div>
+            <button type="submit">Change Password</button>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <div id="toastContainer"></div>
+
     <footer>
         <div class="footer-creator">
           <p>Created by YooEm</p>
@@ -86,6 +151,8 @@
     <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
     <script src="/js/scripts.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
+    <script defer src="/js/globalModal.js"></script>
+    <script src="/js/auth.js"></script>
     <script>
       AOS.init({
         duration: 800,      // animation duration in ms

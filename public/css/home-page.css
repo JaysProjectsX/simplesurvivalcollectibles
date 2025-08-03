@@ -1627,7 +1627,7 @@ nav {
 .about-heading h3 {
   font-size: 1rem;
   letter-spacing: 2px;
-  background: linear-gradient(to left, #4083ff, #002fff);;
+  background: #4083ff;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   margin: 0;

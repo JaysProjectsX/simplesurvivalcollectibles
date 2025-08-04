@@ -74,7 +74,9 @@ function openCrateModal(crate) {
   modalTable.innerHTML = "";
 
   crate.items.forEach(item => {
-    const isChecked = userProgress[crate.id]?.items?.includes(item.id);
+    const isChecked = Array.isArray(userProgress[crate.id])
+    ? userProgress[crate.id].includes(item.id)
+    : userProgress[crate.id]?.items?.includes(item.id);
     const tr = document.createElement("tr");
 
     tr.innerHTML = `

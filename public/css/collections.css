@@ -262,7 +262,7 @@ button {
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  z-index: 1050;
+  z-index: 9999;
   border-radius: 10px;
   display: none;
 }

@@ -87,13 +87,13 @@ function openCrateModal(crate) {
     modalTable.appendChild(tr);
   });
 
-  modal.classList.remove("hidden");
+  modal.classList.remove("show");
 }
 
 
 // Close the modal
 function closeModal() {
-  modal.classList.add("hidden");
+  modal.classList.add("show");
 }
 
 // Initialize the page

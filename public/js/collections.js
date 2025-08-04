@@ -4,14 +4,15 @@ const modalTitle = document.getElementById("crateTitle");
 const modalTable = document.getElementById("crateItemsTableBody");
 
 let userProgress = {}; // fetched per user
+const backendUrl2 = "https://simplesurvivalcollectibles.site";
 
 async function fetchCrates() {
-  const res = await fetch("/api/crates/all");
+  const res = await fetch(`${backendUrl2}/api/crates/all`);
   return res.json();
 }
 
 async function fetchUserProgress() {
-  const res = await fetch("/api/user/progress", { credentials: "include" });
+  const res = await fetch(`${backendUrl2}/api/user/progress`, { credentials: "include" });
   userProgress = await res.json();
 }
 
@@ -73,7 +74,7 @@ function closeModal() {
 }
 
 async function updateProgress(crateId, itemId, checked) {
-  await fetch("/api/user/progress", {
+  await fetch(`${backendUrl2}/api/user/progress`, {
     method: "POST",
     credentials: "include",
     headers: { "Content-Type": "application/json" },

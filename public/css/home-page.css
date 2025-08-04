@@ -1018,7 +1018,23 @@ nav {
   }
 
   #crate-table-container {
-      margin-top: 2rem;
+    overflow-y: scroll;
+    overflow-x: hidden;
+    height: 100vh;
+    margin-top: 2rem;
+  }
+
+  #crate-table-container::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  #crate-table-container::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.05);
+  }
+
+  #crate-table-container::-webkit-scrollbar-thumb {
+    background: #80b3ff;
+    border-radius: 4px;
   }
 
   .tag {

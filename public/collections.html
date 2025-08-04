@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Home - SimpleSurvival Collectibles</title>
+    <link rel="stylesheet" href="/css/home-page.css" />
+    <link rel="stylesheet" href="/css/collections.css" />
+    <link rel="stylesheet" href="/css/globalModal.css" />
+    <link
+      href="https://unpkg.com/boxicons@2.1.1/css/boxicons.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+    />
+    <link rel="icon" href="/favicon.png" type="image/png" />
+  </head>
+  <body>
+    <nav>
+      <div class="nav-content">
+        <div class="nav-logo">
+          <a href="/index.html">
+            <img src="/assets/Logo.png" alt="SimpleSurvival Collectibles Logo" />
+          </a>
+        </div>
+        <ul class="nav-links">
+          <li><a href="/index.html">Home</a></li>
+          <li><a href="/info.html">About</a></li>
+          <li><a href="/crates.html">Cosmetic Crates</a></li>
+          <li><a href="/othercrates.html">Other Crates</a></li>
+          <li><a href="/othercrates.html">Event Items</a></li>
+        </ul>
+        <ul class="nav-login" id="navLogin">
+          <!-- This will be dynamically updated -->
+          <li id="loginItem"><a href="#" onclick="toggleModal()">Login</a></li>
+        </ul>
+      </div>
+    </nav>
+
+    <main class="collections-container" id="collectionsContainer"></main>
+
+    <!-- Modal for Crate Items -->
+    <div class="modal-overlay hidden" id="crateModal">
+        <div class="modal-content">
+        <span class="close-btn" onclick="closeModal()">×</span>
+        <h2 id="crateTitle">Crate Name</h2>
+        <div class="scrollable-table">
+            <table class="item-table">
+            <thead>
+                <tr>
+                <th>Item Name</th>
+                <th>Item Set</th>
+                <th>Icon</th>
+                <th>Collected</th>
+                </tr>
+            </thead>
+            <tbody id="crateItemsTableBody"></tbody>
+            </table>
+        </div>
+        </div>
+    </div>
+
+    <!-- Login/Register/Forgot Modal -->
+    <div id="authModal" class="modal">
+      <div class="modal-content">
+        <span class="close" onclick="toggleModal()">&times;</span>
+        <h2>Login to Your Account</h2>
+
+        <form id="loginForm">
+          <input type="text" placeholder="Email" required />
+          <input type="password" placeholder="Password" required />
+          <button type="submit">Login</button>
+        </form>
+
+        <div class="auth-toggle-row">
+          <p class="toggle-text">Don't have an account? <a href="#" onclick="toggleForm()">Register here</a></p>
+          <p class="toggle-text"><a href="#" onclick="toggleForgotPasswordForm()">Forgot your password?</a></p>
+        </div>
+
+        <form id="registerForm" style="display: none;">
+          <input type="text" placeholder="Username" id="registerUsername" required />
+          <input type="email" placeholder="Email" id="registerEmail" required />
+          <input type="password" placeholder="Password" id="registerPassword" required />
+          <button type="submit">Register</button>
+        </form>
+        <p class="toggle-text" style="display: none;">Already have an account? <a href="#" onclick="toggleForm()">Login here</a></p>
+
+        <form id="forgotPasswordForm" style="display: none;">
+          <div id="emailSection">
+            <input type="email" id="forgotEmail" placeholder="Enter your account email" required />
+            <button type="submit" id="sendResetCodeBtn">Send Verification Code</button>
+          </div>
+
+          <div id="codeSection" style="display: none; margin-top: 1rem;">
+            <input type="text" id="resetCode" placeholder="Enter 6-digit code"/>
+            <input type="password" id="newResetPassword" placeholder="New Password"/>
+            <button type="button" id="resetPasswordButton">Reset Password</button>
+          </div>
+          <div id="resetLoading" style="margin-right: 10px;margin-left: 10px;max-width: 390px;display: none;text-align: center;margin-top: 12px;">
+            <div class="loader"></div>
+          </div>
+        </form>
+        <p class="toggle-text" id="backToLoginText" style="display: none;">Remembered it? <a href="#" onclick="backToLoginFromForgot()">Back to Login</a></p>
+      </div>
+    </div>
+
+
+    <div id="registrationConfirmation" class="modal" style="display:none;">
+      <div class="modal-content">
+        <span class="close" onclick="document.getElementById('registrationConfirmation').style.display='none'">&times;</span>
+        <h2>Check Your Email</h2>
+        <p>We've sent a verification link to your email address. Please check your inbox/spam folders to verify your account.</p>
+      </div>
+    </div>
+
+    <!-- Account Info Modal -->
+    <div id="accountModal" class="modal" style="display:none;">
+      <div class="modal-content" id="accountModalContent">
+        <div class="account-section">
+          <h2>Account Details</h2>
+          <p><strong>Username:</strong> <span id="accUsername"></span></p>
+          <p><strong>Email:</strong> <span id="accEmail"></span></p>
+          <p><strong>Role:</strong> <span id="accRole"></span></p>
+          <p><strong>Email Verified:</strong> <span id="accVerified"></span></p>
+          <p><strong>Account Created:</strong> <span id="accCreated"></span></p>
+        </div>
+
+        <div class="password-section">
+          <h3>Change Password</h3>
+          <form id="passwordChangeForm">
+            <input type="password" id="currentPassword" placeholder="Current Password" required />
+            <input type="password" id="newPassword" placeholder="New Password" required />
+            <input type="password" id="confirmPassword" placeholder="Confirm New Password" required />
+            <div class="toggle-password-container">
+              <input type="checkbox" id="togglePassword" />
+              <label for="togglePassword">Show Passwords</label>
+            </div>
+            <button type="submit">Change Password</button>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <div id="toastContainer"></div>
+
+    <footer>
+      <div class="footer-creator">
+        <p>Created by YooEm</p>
+      </div>
+      <div class="footer-links">
+        <p><strong>Disclaimer:</strong> This is a fan-made website and is not affiliated with or endorsed by the SimpleSurvival Minecraft server or its owners.</p>
+        <p><a href="privacy.html">Privacy Policy</a> | <a href="terms.html">Terms of Use</a></p>
+      </div>
+    </footer>
+    <script defer src="/js/globalModal.js"></script>
+    <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+    <script src="/js/scripts.js"></script>
+    <script src="/js/auth.js"></script>
+    <script src="/js/collections.js"></script>
+    <script>
+      let currentIndex = 0;
+      const slides = document.querySelectorAll('.slide');
+      const slider = document.getElementById('slider');
+      const dotsContainer = document.getElementById('dots');
+
+      function showSlide(index) {
+        if (index >= slides.length) currentIndex = 0;
+        else if (index < 0) currentIndex = slides.length - 1;
+        else currentIndex = index;
+
+        slider.style.transform = `translateX(-${currentIndex * 100}%)`;
+        updateDots();
+      }
+
+      function moveSlide(step) {
+        showSlide(currentIndex + step);
+      }
+
+      function updateDots() {
+        dotsContainer.innerHTML = '';
+        slides.forEach((_, i) => {
+          const dot = document.createElement('span');
+          dot.classList.toggle('active', i === currentIndex);
+          dot.addEventListener('click', () => showSlide(i));
+          dotsContainer.appendChild(dot);
+        });
+      }
+
+      setInterval(() => moveSlide(1), 6000); // Automatic sliding
+      window.addEventListener('DOMContentLoaded', () => {
+        showSlide(0);
+      });
+    </script>
+  </body>
+</html>

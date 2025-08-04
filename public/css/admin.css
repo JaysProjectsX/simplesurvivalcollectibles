@@ -24,6 +24,7 @@
 
 /* Sidebar Styling */
 .admin-sidebar {
+  height: 320px;
   background-color: #1a1a1a;
   border-radius: 12px;
   padding: 1rem;

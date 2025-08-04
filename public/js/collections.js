@@ -80,8 +80,8 @@ function openCrateModal(crate) {
     tr.innerHTML = `
       <td>${item.item_name}</td>
       <td>${item.set_name}</td>
-      <td><img src="${item.icon_url}" alt="${item.item_name}" style="height:24px;"></td>
-      <td><input type="checkbox" data-crate-id="${crate.id}" data-item-id="${item.id}" ${isChecked ? "checked" : ""} /></td>
+      <td><img src="${item.icon_url}" alt="${item.item_name}"></td>
+      <td><input type="checkbox" data-crate-id="${crate.id}" data-item-id="${item.id}" ${isChecked ? "checked" : ""}></td>
     `;
 
     modalTable.appendChild(tr);
@@ -90,8 +90,6 @@ function openCrateModal(crate) {
   modal.classList.add("show");
 }
 
-
-// Close the modal
 function closeModal() {
   modal.classList.remove("show");
 }

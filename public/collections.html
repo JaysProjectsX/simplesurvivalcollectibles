@@ -58,38 +58,38 @@
     </div>
   </div>
 
-  <!-- Modal -->
-  <div class="modal" id="crateModal">
-    <div class="modal-dialog modal-dialog-centered modal-lg">
-      <div class="modal-content">
+    <!-- Modal -->
+    <div class="custom-modal" id="crateModal">
+    <div class="custom-modal-overlay" onclick="closeModal()"></div>
+    <div class="custom-modal-content fade-in" id="crateModalContent">
         <div class="modal-header">
-          <h5 class="modal-title" id="crateTitle">Crate Title</h5>
-          <button type="button" class="btn-close" onclick="closeModal()"></button>
+        <h3 id="crateTitle">Crate Name</h3>
+        <button class="close-btn" onclick="closeModal()">&times;</button>
         </div>
         <div class="modal-body">
-          <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
-            <table class="table table-striped">
-              <thead>
+        <div class="table-wrapper">
+            <table class="modal-table">
+            <thead>
                 <tr>
-                  <th>Item Name</th>
-                  <th>Item Set</th>
-                  <th>Icon</th>
-                  <th>Collected</th>
+                <th>Item Name</th>
+                <th>Item Set</th>
+                <th>Icon</th>
+                <th>Collected</th>
                 </tr>
-              </thead>
-              <tbody id="crateItemsTableBody">
+            </thead>
+            <tbody id="crateItemsTableBody">
                 <!-- Item rows will be injected here -->
-              </tbody>
+            </tbody>
             </table>
-          </div>
+        </div>
         </div>
         <div class="modal-footer">
-          <button id="cancelProgressBtn" class="btn btn-secondary">Cancel</button>
-          <button id="saveProgressBtn" class="btn btn-primary">Save</button>
+        <button id="cancelProgressBtn" class="btn-secondary">Cancel</button>
+        <button id="saveProgressBtn" class="btn-primary">Save</button>
         </div>
-      </div>
     </div>
-  </div>
+    </div>
+
 
     <!-- Login/Register/Forgot Modal -->
     <div id="authModal" class="modal">

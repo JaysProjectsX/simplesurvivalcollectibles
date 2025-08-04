@@ -36,26 +36,27 @@ async function fetchUserProgress() {
       if (res.status === 401) {
         document.getElementById("preloader").style.display = "none";
 
-        let countdown = 5;
-        collectionsContainer.innerHTML = `
-          <div class="error-message">
+        // Show full-page error
+        document.body.innerHTML = `
+          <div class="unauthorized-container">
             <h2>Unauthorized</h2>
             <p>Your session has expired or you are not logged in.</p>
-            <p>Redirecting to home page in <span id="redirectTimer">${countdown}</span> seconds...</p>
+            <p>Redirecting to home page in <span id="redirectTimer">5</span> seconds...</p>
           </div>
         `;
 
-        // Countdown and redirect
-        const timerInterval = setInterval(() => {
+        // Countdown + redirect
+        let countdown = 5;
+        const timer = setInterval(() => {
           countdown--;
           document.getElementById("redirectTimer").textContent = countdown;
           if (countdown <= 0) {
-            clearInterval(timerInterval);
+            clearInterval(timer);
             window.location.href = "/index.html";
           }
         }, 1000);
 
-        return; // stop execution
+        throw new Error("Unauthorized - stopping further execution");
       }
       throw new Error(`HTTP error! Status: ${res.status}`);
     }
@@ -63,13 +64,7 @@ async function fetchUserProgress() {
     userProgress = await res.json();
   } catch (err) {
     console.error("Error fetching user progress:", err);
-    document.getElementById("preloader").style.display = "none";
-    collectionsContainer.innerHTML = `
-      <div class="error-message">
-        <h2>Error</h2>
-        <p>Unable to load your collections. Please try again later.</p>
-      </div>
-    `;
+    throw err; // so the calling code won't try to render crates
   }
 }
 

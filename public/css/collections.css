@@ -291,15 +291,23 @@ button {
 @keyframes spin {
   to { transform: rotate(360deg); }
 }
-.error-message {
+.unauthorized-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
   text-align: center;
-  padding: 2rem;
   color: #ff6b6b;
+  font-family: 'Poppins', sans-serif;
 }
-.error-message h2 {
-  font-size: 1.5rem;
+
+.unauthorized-container h2 {
+  font-size: 2rem;
   margin-bottom: 0.5rem;
 }
-.error-message p {
-  font-size: 1rem;
+
+.unauthorized-container p {
+  font-size: 1.1rem;
+  margin: 0.25rem 0;
 }

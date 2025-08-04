@@ -87,13 +87,13 @@ function openCrateModal(crate) {
     modalTable.appendChild(tr);
   });
 
-  modal.classList.remove("show");
+  modal.classList.add("show");
 }
 
 
 // Close the modal
 function closeModal() {
-  modal.classList.add("show");
+  modal.classList.remove("show");
 }
 
 // Initialize the page
@@ -102,12 +102,8 @@ function closeModal() {
   const crates = await fetchCratesWithItems();
   collectionsContainer.innerHTML = "";
   renderCrates(crates);
-})();
-
-// Preloader spinner
-window.addEventListener("load", () => {
   document.getElementById("preloader").style.display = "none";
-});
+})();
 
 // Modal save/cancel buttons
 const saveButton = document.getElementById("saveProgressBtn");
@@ -129,15 +125,15 @@ saveButton.addEventListener("click", async () => {
     });
   }
 
-  modal.classList.add("hidden");
-  await fetchUserProgress();
-  collectionsContainer.innerHTML = "";
-  const crates = await fetchCrates();
-  renderCrates(crates);
+    modal.classList.remove("show");
+    await fetchUserProgress();
+    collectionsContainer.innerHTML = "";
+    const crates = await fetchCratesWithItems();
+    renderCrates(crates);
 });
 
 cancelButton.addEventListener("click", async () => {
-  modal.classList.add("hidden");
+  modal.classList.remove("show");
   await fetchUserProgress();
   const crates = await fetchCratesWithItems();
   collectionsContainer.innerHTML = "";

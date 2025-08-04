@@ -91,16 +91,16 @@ button {
   width: fit-content;
 }
 .tag-complete {
-  background: #28a745;
-  color: #fff;
+  background: rgba(66, 210, 157, 0.1);
+  color: rgb(66, 210, 157);
 }
 .tag-incomplete {
-  background: #ffc107;
-  color: #000;
+  background: rgba(247, 200, 0, 0.08);
+  color: #f7c800;
 }
 .tag-not-started {
-  background: #dc3545;
-  color: #fff;
+  background: rgba(250, 90, 120, 0.1);
+  color: rgb(250, 90, 120);
 }
 
 /* Progress bar */

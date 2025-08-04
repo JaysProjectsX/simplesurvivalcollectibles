@@ -80,22 +80,43 @@ function calculateProgress(crateId, itemCount) {
   return { percent, tagClass };
 }
 
+// Utility to format crate names like "valentinesCrate" -> "Valentines Crate"
+function formatCrateName(rawName) {
+  return rawName
+    .replace(/([a-z])([A-Z])/g, '$1 $2') // split camelCase
+    .replace(/_/g, ' ') // replace underscores with space
+    .replace(/\b\w/g, char => char.toUpperCase()); // capitalize first letter of each word
+}
+
 // Render cards for each crate
 function renderCrates(crates) {
+  collectionsContainer.innerHTML = ""; // clear before rendering
+
   crates.forEach(crate => {
     const { percent, tagClass } = calculateProgress(crate.id, crate.items.length);
     const lastSaved = userProgress[crate.id]?.updatedAt || "Never";
 
+    const collectedCount = userProgress[crate.id]?.items?.length || 0;
+    const totalCount = crate.items.length;
+
     const card = document.createElement("div");
     card.className = "crate-card";
+
     card.innerHTML = `
-      <div class="card-tag ${tagClass}">${tagClass === "tag-complete" ? "Completed" : tagClass === "tag-incomplete" ? "Incomplete" : "Not Started"}</div>
-      <h3>${crate.name}</h3>
+      <div class="card-tag ${tagClass}">
+        ${tagClass === "tag-complete" ? "Completed" : tagClass === "tag-incomplete" ? "Incomplete" : "Not Started"}
+      </div>
+      <h3>${formatCrateName(crate.name)}</h3>
       <div class="progress-bar-container">
         <div class="progress-bar-fill" style="width: ${percent}%">${percent}%</div>
       </div>
-      <div class="crate-date">Last saved: ${new Date(lastSaved).toLocaleDateString()}</div>
-      <div class="crate-count">${crate.items.length} items</div>
+      <div class="crate-date">
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 24 24" style="vertical-align: middle; margin-right: 5px;">
+          <path d="M12 1a11 11 0 1 0 11 11A11.013 11.013 0 0 0 12 1Zm0 20a9 9 0 1 1 9-9a9.01 9.01 0 0 1-9 9Zm.5-9.793V7a1 1 0 0 0-2 0v5a1 1 0 0 0 .293.707l3.5 3.5a1 1 0 0 0 1.414-1.414Z"/>
+        </svg>
+        ${lastSaved !== "Never" ? new Date(lastSaved).toLocaleDateString() : "Never"}
+      </div>
+      <div class="crate-count">${collectedCount}/${totalCount} items</div>
     `;
 
     card.addEventListener("click", () => openCrateModal(crate));

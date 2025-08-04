@@ -6,16 +6,34 @@ const modalTable = document.getElementById("crateItemsTableBody");
 let userProgress = {}; // fetched per user
 const backendUrl2 = "https://simplesurvivalcollectibles.site";
 
-async function fetchCrates() {
-  const res = await fetch(`${backendUrl2}/api/crates/all`);
-  return res.json();
+// Fetch crates and their items
+async function fetchCratesWithItems() {
+  const res = await fetch(`${backendUrl2}/api/crates`);
+  const crates = await res.json();
+
+  const cratesWithItems = await Promise.all(
+    crates.map(async (crate) => {
+      const itemRes = await fetch(`${backendUrl2}/api/crates/${crate.id}/items`);
+      const items = await itemRes.json();
+
+      return {
+        id: crate.id,
+        name: crate.crate_name,
+        items
+      };
+    })
+  );
+
+  return cratesWithItems;
 }
 
+// Fetch per-user progress
 async function fetchUserProgress() {
   const res = await fetch(`${backendUrl2}/api/user/progress`, { credentials: "include" });
   userProgress = await res.json();
 }
 
+// Determine progress bar percentage and tag class
 function calculateProgress(crateId, itemCount) {
   const collected = userProgress[crateId]?.length || 0;
   const percent = Math.round((collected / itemCount) * 100);
@@ -27,6 +45,7 @@ function calculateProgress(crateId, itemCount) {
   return { percent, tagClass };
 }
 
+// Render cards for each crate
 function renderCrates(crates) {
   crates.forEach(crate => {
     const { percent, tagClass } = calculateProgress(crate.id, crate.items.length);
@@ -48,6 +67,7 @@ function renderCrates(crates) {
   });
 }
 
+// Open modal with crate items
 function openCrateModal(crate) {
   modalTitle.textContent = crate.name;
   modalTable.innerHTML = "";
@@ -57,9 +77,9 @@ function openCrateModal(crate) {
     const tr = document.createElement("tr");
 
     tr.innerHTML = `
-      <td>${item.name}</td>
-      <td>${item.set}</td>
-      <td><img src="${item.icon_url}" alt="${item.name}"/></td>
+      <td>${item.item_name}</td>
+      <td>${item.set_name}</td>
+      <td><img src="${item.icon_url}" alt="${item.item_name}"/></td>
       <td><input type="checkbox" ${isChecked ? "checked" : ""} onchange="updateProgress('${crate.id}', '${item.id}', this.checked)" /></td>
     `;
 
@@ -69,10 +89,12 @@ function openCrateModal(crate) {
   modal.classList.remove("hidden");
 }
 
+// Close the modal
 function closeModal() {
   modal.classList.add("hidden");
 }
 
+// Update progress when checkbox changes
 async function updateProgress(crateId, itemId, checked) {
   await fetch(`${backendUrl2}/api/user/progress`, {
     method: "POST",
@@ -82,8 +104,35 @@ async function updateProgress(crateId, itemId, checked) {
   });
 }
 
+// Initialize the page
 (async () => {
   await fetchUserProgress();
-  const crates = await fetchCrates();
+  const crates = await fetchCratesWithItems();
+  collectionsContainer.innerHTML = "";
   renderCrates(crates);
 })();
+
+// Preloader spinner
+window.addEventListener("load", () => {
+  document.getElementById("preloader").style.display = "none";
+});
+
+// Modal save/cancel buttons
+const saveButton = document.getElementById("saveProgressBtn");
+const cancelButton = document.getElementById("cancelProgressBtn");
+
+saveButton.addEventListener("click", async () => {
+  modal.classList.add("hidden");
+  await fetchUserProgress();
+  const crates = await fetchCratesWithItems();
+  collectionsContainer.innerHTML = "";
+  renderCrates(crates);
+});
+
+cancelButton.addEventListener("click", async () => {
+  modal.classList.add("hidden");
+  await fetchUserProgress();
+  const crates = await fetchCratesWithItems();
+  collectionsContainer.innerHTML = "";
+  renderCrates(crates);
+});

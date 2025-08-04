@@ -22,6 +22,11 @@
     <link rel="icon" href="/favicon.png" type="image/png" />
   </head>
   <body>
+
+    <div id="preloader">
+    <div class="loader"></div>
+    </div>
+
     <nav>
       <div class="nav-content">
         <div class="nav-logo">
@@ -62,6 +67,10 @@
             </thead>
             <tbody id="crateItemsTableBody"></tbody>
             </table>
+        </div>
+        <div class="modal-footer">
+        <button id="cancelProgressBtn" class="btn cancel-btn">Cancel</button>
+        <button id="saveProgressBtn" class="btn save-btn">Save</button>
         </div>
         </div>
     </div>
@@ -163,39 +172,5 @@
     <script src="/js/scripts.js"></script>
     <script src="/js/auth.js"></script>
     <script src="/js/collections.js"></script>
-    <script>
-      let currentIndex = 0;
-      const slides = document.querySelectorAll('.slide');
-      const slider = document.getElementById('slider');
-      const dotsContainer = document.getElementById('dots');
-
-      function showSlide(index) {
-        if (index >= slides.length) currentIndex = 0;
-        else if (index < 0) currentIndex = slides.length - 1;
-        else currentIndex = index;
-
-        slider.style.transform = `translateX(-${currentIndex * 100}%)`;
-        updateDots();
-      }
-
-      function moveSlide(step) {
-        showSlide(currentIndex + step);
-      }
-
-      function updateDots() {
-        dotsContainer.innerHTML = '';
-        slides.forEach((_, i) => {
-          const dot = document.createElement('span');
-          dot.classList.toggle('active', i === currentIndex);
-          dot.addEventListener('click', () => showSlide(i));
-          dotsContainer.appendChild(dot);
-        });
-      }
-
-      setInterval(() => moveSlide(1), 6000); // Automatic sliding
-      window.addEventListener('DOMContentLoaded', () => {
-        showSlide(0);
-      });
-    </script>
   </body>
 </html>

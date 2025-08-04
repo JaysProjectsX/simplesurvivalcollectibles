@@ -202,6 +202,16 @@ button {
   padding: 0.75rem;
   text-align: left;
 }
+.modal-table td:last-child,
+.modal-table th:last-child {
+  text-align: center;
+}
+
+.modal-table input[type="checkbox"] {
+  transform: scale(1.2);
+  cursor: pointer;
+}
+
 .modal-table td img {
   height: 24px;
 }
@@ -280,4 +290,16 @@ button {
 }
 @keyframes spin {
   to { transform: rotate(360deg); }
+}
+.error-message {
+  text-align: center;
+  padding: 2rem;
+  color: #ff6b6b;
+}
+.error-message h2 {
+  font-size: 1.5rem;
+  margin-bottom: 0.5rem;
+}
+.error-message p {
+  font-size: 1rem;
 }

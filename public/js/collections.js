@@ -102,6 +102,13 @@ function renderCrates(crates) {
     const card = document.createElement("div");
     card.className = "crate-card";
 
+    // Set the bottom border color based on tagClass
+    let borderColor;
+    if (tagClass === "tag-complete") borderColor = "rgb(66, 210, 157)"; // green
+    else if (tagClass === "tag-incomplete") borderColor = "#f7c800"; // yellow
+    else borderColor = "rgb(250, 90, 120)"; // red
+    card.style.borderBottom = `3px solid ${borderColor}`;
+
     card.innerHTML = `
       <div class="card-tag ${tagClass}">
         ${tagClass === "tag-complete" ? "Completed" : tagClass === "tag-incomplete" ? "Incomplete" : "Not Started"}
@@ -123,6 +130,7 @@ function renderCrates(crates) {
     collectionsContainer.appendChild(card);
   });
 }
+
 
 // Open modal with crate items
 function openCrateModal(crate) {

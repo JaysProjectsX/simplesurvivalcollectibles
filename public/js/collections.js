@@ -80,7 +80,7 @@ function calculateProgress(crateId, itemCount) {
   return { percent, tagClass };
 }
 
-// Utility to format crate names like "valentinesCrate" -> "Valentines Crate"
+// Utility to format crate names
 function formatCrateName(rawName) {
   return rawName
     .replace(/([a-z])([A-Z])/g, '$1 $2') // split camelCase
@@ -126,7 +126,7 @@ function renderCrates(crates) {
 
 // Open modal with crate items
 function openCrateModal(crate) {
-  modalTitle.textContent = crate.name;
+  modalTitle.textContent = formatCrateName(crate.name);
   modalTable.innerHTML = "";
 
   crate.items.forEach(item => {
@@ -190,7 +190,6 @@ saveButton.addEventListener("click", async () => {
   document.getElementById("modalSavingOverlay").style.display = "none";
   modal.classList.add("hidden");
   await fetchUserProgress();
-  console.log("userProgress after save:", userProgress);
   const crates = await fetchCratesWithItems();
   collectionsContainer.innerHTML = "";
   renderCrates(crates);

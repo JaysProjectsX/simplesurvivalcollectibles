@@ -163,8 +163,6 @@ button {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border-bottom: 1px solid #444;
-  padding-bottom: 0.8rem;
   color: #fff;
 }
 
@@ -185,7 +183,7 @@ button {
 }
 
 .modal-body {
-  padding: 1rem 0;
+  padding: 0 !important;
   color: #ddd;
 }
 

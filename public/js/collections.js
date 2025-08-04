@@ -74,9 +74,7 @@ function openCrateModal(crate) {
   modalTable.innerHTML = "";
 
   crate.items.forEach(item => {
-    const isChecked = Array.isArray(userProgress[crate.id])
-    ? userProgress[crate.id].includes(item.id)
-    : userProgress[crate.id]?.items?.includes(item.id);
+    const isChecked = userProgress[crate.id]?.items?.includes(item.id);
     const tr = document.createElement("tr");
 
     tr.innerHTML = `
@@ -136,6 +134,7 @@ saveButton.addEventListener("click", async () => {
   document.getElementById("modalSavingOverlay").style.display = "none";
   modal.classList.add("hidden");
   await fetchUserProgress();
+  console.log("userProgress after save:", userProgress);
   const crates = await fetchCratesWithItems();
   collectionsContainer.innerHTML = "";
   renderCrates(crates);

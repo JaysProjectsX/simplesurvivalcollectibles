@@ -48,32 +48,48 @@
       </div>
     </nav>
 
-    <main class="collections-container" id="collectionsContainer"></main>
+  <div class="collections-board">
+    <div class="collections-header">
+      <h2>My Collections</h2>
+    </div>
 
-    <!-- Modal for Crate Items -->
-    <div class="modal-overlay hidden" id="crateModal">
-        <div class="modal-content">
-        <span class="close-btn" onclick="closeModal()">×</span>
-        <h2 id="crateTitle">Crate Name</h2>
-        <div class="scrollable-table">
-            <table class="item-table">
-            <thead>
+    <div class="collections-body" id="collectionsContainer">
+      <!-- Crate cards will be injected here -->
+    </div>
+  </div>
+
+  <!-- Modal -->
+  <div class="modal fade" id="crateModal">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="crateTitle">Crate Title</h5>
+          <button type="button" class="btn-close" onclick="closeModal()"></button>
+        </div>
+        <div class="modal-body">
+          <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
+            <table class="table table-striped">
+              <thead>
                 <tr>
-                <th>Item Name</th>
-                <th>Item Set</th>
-                <th>Icon</th>
-                <th>Collected</th>
+                  <th>Item Name</th>
+                  <th>Item Set</th>
+                  <th>Icon</th>
+                  <th>Collected</th>
                 </tr>
-            </thead>
-            <tbody id="crateItemsTableBody"></tbody>
+              </thead>
+              <tbody id="crateItemsTableBody">
+                <!-- Item rows will be injected here -->
+              </tbody>
             </table>
+          </div>
         </div>
         <div class="modal-footer">
-        <button id="cancelProgressBtn" class="btn cancel-btn">Cancel</button>
-        <button id="saveProgressBtn" class="btn save-btn">Save</button>
+          <button id="cancelProgressBtn" class="btn btn-secondary">Cancel</button>
+          <button id="saveProgressBtn" class="btn btn-primary">Save</button>
         </div>
-        </div>
+      </div>
     </div>
+  </div>
 
     <!-- Login/Register/Forgot Modal -->
     <div id="authModal" class="modal">

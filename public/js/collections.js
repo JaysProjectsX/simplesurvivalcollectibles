@@ -60,6 +60,7 @@ function renderCrates(crates) {
         <div class="progress-bar-fill" style="width: ${percent}%">${percent}%</div>
       </div>
       <div class="crate-date">Last saved: ${new Date(lastSaved).toLocaleDateString()}</div>
+      <div class="crate-count">${crate.items.length} items</div>
     `;
 
     card.addEventListener("click", () => openCrateModal(crate));
@@ -79,8 +80,8 @@ function openCrateModal(crate) {
     tr.innerHTML = `
       <td>${item.item_name}</td>
       <td>${item.set_name}</td>
-      <td><img src="${item.icon_url}" alt="${item.item_name}"/></td>
-      <td><input type="checkbox" ${isChecked ? "checked" : ""} onchange="updateProgress('${crate.id}', '${item.id}', this.checked)" /></td>
+      <td><img src="${item.icon_url}" alt="${item.item_name}" style="height:24px;"></td>
+      <td><input type="checkbox" data-crate-id="${crate.id}" data-item-id="${item.id}" ${isChecked ? "checked" : ""} /></td>
     `;
 
     modalTable.appendChild(tr);
@@ -89,19 +90,10 @@ function openCrateModal(crate) {
   modal.classList.remove("hidden");
 }
 
+
 // Close the modal
 function closeModal() {
   modal.classList.add("hidden");
-}
-
-// Update progress when checkbox changes
-async function updateProgress(crateId, itemId, checked) {
-  await fetch(`${backendUrl2}/api/user/progress`, {
-    method: "POST",
-    credentials: "include",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ crateId, itemId, checked }),
-  });
 }
 
 // Initialize the page
@@ -122,10 +114,25 @@ const saveButton = document.getElementById("saveProgressBtn");
 const cancelButton = document.getElementById("cancelProgressBtn");
 
 saveButton.addEventListener("click", async () => {
+  const checkboxes = modalTable.querySelectorAll("input[type='checkbox']");
+
+  for (const checkbox of checkboxes) {
+    const crateId = checkbox.dataset.crateId;
+    const itemId = checkbox.dataset.itemId;
+    const checked = checkbox.checked;
+
+    await fetch(`${backendUrl2}/api/user/progress`, {
+      method: "POST",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ crateId, itemId, checked }),
+    });
+  }
+
   modal.classList.add("hidden");
   await fetchUserProgress();
-  const crates = await fetchCratesWithItems();
   collectionsContainer.innerHTML = "";
+  const crates = await fetchCrates();
   renderCrates(crates);
 });
 

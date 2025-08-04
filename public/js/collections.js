@@ -35,7 +35,7 @@ async function fetchUserProgress() {
 
 // Determine progress bar percentage and tag class
 function calculateProgress(crateId, itemCount) {
-  const collected = userProgress[crateId]?.length || 0;
+  const collected = userProgress[crateId]?.items?.length || 0;
   const percent = Math.round((collected / itemCount) * 100);
 
   let tagClass = "tag-not-started";
@@ -74,7 +74,7 @@ function openCrateModal(crate) {
   modalTable.innerHTML = "";
 
   crate.items.forEach(item => {
-    const isChecked = userProgress[crate.id]?.includes(item.id);
+    const isChecked = userProgress[crate.id]?.items?.includes(item.id);
     const tr = document.createElement("tr");
 
     tr.innerHTML = `
@@ -108,26 +108,35 @@ const saveButton = document.getElementById("saveProgressBtn");
 const cancelButton = document.getElementById("cancelProgressBtn");
 
 saveButton.addEventListener("click", async () => {
+  document.getElementById("modalSavingOverlay").style.display = "flex";
+
   const checkboxes = modalTable.querySelectorAll("input[type='checkbox']");
+  const savePromises = [];
 
   for (const checkbox of checkboxes) {
     const crateId = checkbox.dataset.crateId;
     const itemId = checkbox.dataset.itemId;
     const checked = checkbox.checked;
 
-    await fetch(`${backendUrl2}/api/user/progress`, {
-      method: "POST",
-      credentials: "include",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ crateId, itemId, checked }),
-    });
+    savePromises.push(
+      fetch(`${backendUrl2}/api/user/progress`, {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ crateId, itemId, checked }),
+      })
+    );
   }
 
-    modal.classList.remove("show");
-    await fetchUserProgress();
-    collectionsContainer.innerHTML = "";
-    const crates = await fetchCratesWithItems();
-    renderCrates(crates);
+  await Promise.all(savePromises);
+
+  // Hide overlay, refresh data
+  document.getElementById("modalSavingOverlay").style.display = "none";
+  modal.classList.add("hidden");
+  await fetchUserProgress();
+  const crates = await fetchCratesWithItems();
+  collectionsContainer.innerHTML = "";
+  renderCrates(crates);
 });
 
 cancelButton.addEventListener("click", async () => {

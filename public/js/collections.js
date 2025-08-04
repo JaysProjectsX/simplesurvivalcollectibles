@@ -194,13 +194,58 @@ saveButton.addEventListener("click", async () => {
 
   await Promise.all(savePromises);
 
-  // Hide overlay, refresh data
-  document.getElementById("modalSavingOverlay").style.display = "none";
-  modal.classList.add("hidden");
+  // Refresh userProgress and crate data once
   await fetchUserProgress();
-  const crates = await fetchCratesWithItems();
-  collectionsContainer.innerHTML = "";
-  renderCrates(crates);
+  const allCrates = await fetchCratesWithItems();
+
+  // Update the specific crate card in real-time
+  const crateId = checkboxes[0]?.dataset.crateId;
+  if (crateId) {
+    const crateData = allCrates.find(c => c.id == crateId);
+    const crateCard = [...document.querySelectorAll(".crate-card")]
+      .find(card => card.querySelector("h3").textContent === formatCrateName(crateData.name));
+
+    if (crateCard) {
+      const { percent, tagClass } = calculateProgress(crateId, crateData.items.length);
+
+      // Update tag
+      const tagEl = crateCard.querySelector(".card-tag");
+      tagEl.className = `card-tag ${tagClass}`;
+      tagEl.textContent =
+        tagClass === "tag-complete" ? "Completed" :
+        tagClass === "tag-incomplete" ? "Incomplete" : "Not Started";
+
+      // Update progress bar
+      const progressFill = crateCard.querySelector(".progress-bar-fill");
+      progressFill.style.width = `${percent}%`;
+      progressFill.textContent = `${percent}%`;
+
+      // Update last saved date
+      const dateEl = crateCard.querySelector(".crate-date");
+      dateEl.innerHTML = `
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 24 24" style="vertical-align: middle; margin-right: 5px;">
+          <path d="M12 1a11 11 0 1 0 11 11A11.013 11.013 0 0 0 12 1Zm0 20a9 9 0 1 1 9-9a9.01 9.01 0 0 1-9 9Zm.5-9.793V7a1 1 0 0 0-2 0v5a1 1 0 0 0 .293.707l3.5 3.5a1 1 0 0 0 1.414-1.414Z"/>
+        </svg>
+        ${new Date(userProgress[crateId]?.updatedAt || Date.now()).toLocaleDateString()}
+      `;
+
+      // Update collected count
+      const collectedCount = userProgress[crateId]?.items?.length || 0;
+      crateCard.querySelector(".crate-count").textContent =
+        `${collectedCount}/${crateData.items.length} items`;
+
+      // Update border color
+      let borderColor;
+      if (tagClass === "tag-complete") borderColor = "rgb(66, 210, 157)";
+      else if (tagClass === "tag-incomplete") borderColor = "#f7c800";
+      else borderColor = "rgb(250, 90, 120)";
+      crateCard.style.borderBottom = `3px solid ${borderColor}`;
+    }
+  }
+
+  // Hide overlay & modal
+  document.getElementById("modalSavingOverlay").style.display = "none";
+  closeModal();
 });
 
 cancelButton.addEventListener("click", async () => {

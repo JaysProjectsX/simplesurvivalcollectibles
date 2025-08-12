@@ -2316,7 +2316,7 @@ nav {
     color: #ffffff;
   }
 
-/* ===== MOBILE NAV STYLES ===== */
+/* ===== MOBILE NAV STYLES (≤ 892px) ===== */
 .hamburger {
   display: none;
   font-size: 1.8rem;
@@ -2324,31 +2324,70 @@ nav {
   border: none;
   color: white;
   cursor: pointer;
+  line-height: 1;
 }
 
 @media (max-width: 892px) {
-  .hamburger {
-    display: block;
-  }
+  .hamburger { display: block; }
+
+  .nav-content { position: relative; }
 
   .nav-links {
-    display: none;
     position: absolute;
-    top: 60px; /* adjust based on nav height */
+    top: 60px;             /* adjust if your nav is taller/shorter */
     right: 0;
     background-color: #1e1e2f;
-    flex-direction: column;
-    width: 200px;
-    border-radius: 0 0 10px 10px;
-    padding: 1rem;
+    border-radius: 0 0 12px 12px;
+    width: min(280px, 90vw);
+    padding: 0.5rem 0;
     z-index: 999;
-  }
 
-  .nav-links li {
-    margin: 0.5rem 0;
+    /* Hidden state */
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    max-height: 0;
+    opacity: 0;
+    overflow: hidden;
+    transform: translateY(-8px);
+    transition:
+      max-height 260ms ease,
+      opacity 220ms ease,
+      transform 220ms ease;
+    box-shadow: 0 10px 24px rgba(0,0,0,0.24);
   }
 
   .nav-links.show {
-    display: flex;
+    /* Shown state */
+    max-height: 60vh;      /* big enough to fit all items */
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .nav-links li { list-style: none; }
+
+  .nav-links a {
+    display: block;
+    padding: 12px 16px;
+    color: #ffffff;
+    text-decoration: none;
+    font-weight: 500;
+    transition: background-color 160ms ease, transform 160ms ease, color 160ms ease;
+    border-radius: 8px;
+    margin: 2px 8px;
+  }
+
+  /* Hover styles + subtle slide */
+  .nav-links a:hover,
+  .nav-links a:focus {
+    background-color: rgba(255,255,255,0.08);
+    transform: translateX(4px);
+    color: #e6eaff;
   }
 }
+
+/* Desktop keeps your existing layout; make sure it’s visible > 892px */
+@media (min-width: 893px) {
+  .nav-links { display: flex; opacity: 1; transform: none; max-height: none; position: static; background: transparent; box-shadow: none; padding: 0; }
+}
+

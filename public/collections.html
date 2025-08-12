@@ -29,11 +29,18 @@
 
     <nav>
       <div class="nav-content">
+
         <div class="nav-logo">
           <a href="/index.html">
             <img src="/assets/Logo.png" alt="SimpleSurvival Collectibles Logo" />
           </a>
         </div>
+
+        <!-- Hamburger Button -->
+        <button class="hamburger" id="hamburgerBtn" aria-label="Toggle Menu">
+          ☰
+        </button>
+
         <ul class="nav-links">
           <li><a href="/index.html">Home</a></li>
           <li><a href="/info.html">About</a></li>
@@ -41,10 +48,12 @@
           <li><a href="/othercrates.html">Other Crates</a></li>
           <li><a href="/othercrates.html">Event Items</a></li>
         </ul>
+
         <ul class="nav-login" id="navLogin">
           <!-- This will be dynamically updated -->
           <li id="loginItem"><a href="#" onclick="toggleModal()">Login</a></li>
         </ul>
+
       </div>
     </nav>
 
@@ -193,5 +202,10 @@
     <script src="/js/scripts.js"></script>
     <script src="/js/auth.js"></script>
     <script src="/js/collections.js"></script>
+    <script>
+      document.getElementById('hamburgerBtn').addEventListener('click', function () {
+        document.getElementById('navLinks').classList.toggle('show');
+      });
+    </script>
   </body>
 </html>

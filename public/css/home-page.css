@@ -2315,3 +2315,40 @@ nav {
   footer a:hover {
     color: #ffffff;
   }
+
+/* ===== MOBILE NAV STYLES ===== */
+.hamburger {
+  display: none;
+  font-size: 1.8rem;
+  background: none;
+  border: none;
+  color: white;
+  cursor: pointer;
+}
+
+@media (max-width: 892px) {
+  .hamburger {
+    display: block;
+  }
+
+  .nav-links {
+    display: none;
+    position: absolute;
+    top: 60px; /* adjust based on nav height */
+    right: 0;
+    background-color: #1e1e2f;
+    flex-direction: column;
+    width: 200px;
+    border-radius: 0 0 10px 10px;
+    padding: 1rem;
+    z-index: 999;
+  }
+
+  .nav-links li {
+    margin: 0.5rem 0;
+  }
+
+  .nav-links.show {
+    display: flex;
+  }
+}

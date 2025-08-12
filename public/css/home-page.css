@@ -2316,26 +2316,40 @@ nav {
     color: #ffffff;
   }
 
-/* ============ NAV: tighten for small screens, no HTML/JS change ============ */
+/* ===== Mobile nav: two-row layout with horizontal scroll for links ===== */
 @media (max-width: 640px) {
-  /* Spread content so logo and login don't collide with links */
-  .nav-content { justify-content: space-between; padding-inline: 12px; } /* was centered */ /* ref: .nav-content */ 
+  .nav-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;           /* allow the links to move to a second row */
+    padding-inline: 12px;
+  }
 
-  /* Let links fit: reduce gap + allow horizontal scroll if needed */
+  /* Row 1: logo (left) + login (right) */
+  .nav-logo  { order: 0; }
+  .nav-login { order: 1; position: static; margin-left: auto; }
+  .nav-login a { white-space: nowrap; }
+
+  /* Row 2: links (full-width, scrollable if they overflow) */
   .nav-links {
-    gap: 16px;                /* was 30px */
-    overflow-x: auto;
+    order: 2;
+    flex: 0 0 100%;
+    display: flex;
+    align-items: center;
+    gap: 16px;                 /* narrower gap for mobile */
+    margin: 0;
+    padding-top: 8px;
+    overflow-x: auto;          /* allow sideways scroll instead of clipping */
+    white-space: nowrap;       /* keep links on one line */
     -webkit-overflow-scrolling: touch;
     scrollbar-width: none;
   }
   .nav-links::-webkit-scrollbar { display: none; }
-
-  /* Stop absolute overlap on narrow viewports */
-  .nav-login { position: static; margin-left: 8px; }
-  .nav-login a { white-space: nowrap; }
+  .nav-links li { flex: 0 0 auto; }
 }
 
-/* Slightly scale link text on very small screens */
+/* Tiny devices: nudge font size slightly down to fit more labels */
 @media (max-width: 380px) {
   .nav-links li a, .nav-login a { font-size: 0.95rem; }
 }

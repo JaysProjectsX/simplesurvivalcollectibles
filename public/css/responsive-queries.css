@@ -4,10 +4,12 @@
   container-type: inline-size; /* no HTML changes needed */
 }
 
-.about-card > .profile-box,
-.about-card > .about-text {
-  /* Make both columns gracefully stack full-width by default */
-  flex: 1 1 100%;
+/* Make the full-width stack *only* apply on phones */
+@media (max-width: 719px) {
+  .about-card > .profile-box,
+  .about-card > .about-text {
+    flex: 1 1 100%;
+  }
 }
 
 /* Tighter, phone-first padding/typography without touching your palette */
@@ -35,25 +37,64 @@
   .about-card > .about-text  { flex-basis: 62%; }
 }
 
+/* ===== About layout: side-by-side again on wider screens ===== */
+@media (min-width: 720px) {
+  .about-card { display: flex; }
+  .about-card > .profile-box { flex: 1 1 0; }
+  .about-card > .about-text  {
+    flex: 2 1 0;
+    text-align: left;
+  }
+}
+
+/* Optional: limit line length on very large screens */
+@media (min-width: 1000px) {
+  .about-card { max-width: 1000px; margin-inline: auto; }
+}
+
 /* Keep long words/photos from breaking layout in edge cases */
 .about-card, .about-text { overflow-wrap: anywhere; }
 
-/* ----- Nav: small-screen survival without a rewrite ----- */
+/* ----- Nav: mobile two-row layout with scroll-safe links ----- */
 @media (max-width: 640px) {
   .nav-content {
-    justify-content: space-between;   /* center → space-between on phones */
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;           /* allow second row */
     padding-inline: 12px;
   }
+
+  /* Row 1: logo (left) + login (right) */
+  .nav-logo  { order: 0; }
+  .nav-login { order: 1; position: static; margin-left: auto; }
+  .nav-login a { white-space: nowrap; }
+
+  /* Row 2: links (full-width, scrollable if overflow) */
   .nav-links {
-    gap: 16px;                        /* 30px → 16px for fit */
-    overflow-x: auto;                 /* allow sideways scroll if needed */
+    order: 2;
+    flex: 0 0 100%;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin: 0;
+    padding-top: 8px;
+    overflow-x: auto;
+    white-space: nowrap;
     -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
   }
   .nav-links::-webkit-scrollbar { display: none; }
-  .nav-login { position: static; margin-left: 8px; } /* no absolute overlap */
+  .nav-links li { flex: 0 0 auto; }
+}
+
+@media (max-width: 380px) {
+  .nav-links li a, .nav-login a { font-size: 0.95rem; }
 }
 
 /* ----- Modals: let them breathe on small viewports (non-breaking) ----- */
-.modal-content {
-  width: min(92vw, 450px);
+.modal .modal-content {
+  width: min(92vw, 600px);
+  max-height: 90vh;
+  overflow: auto;
 }

@@ -2316,3 +2316,79 @@ nav {
     color: #ffffff;
   }
 
+/* ============ NAV: tighten for small screens, no HTML/JS change ============ */
+@media (max-width: 640px) {
+  /* Spread content so logo and login don't collide with links */
+  .nav-content { justify-content: space-between; padding-inline: 12px; } /* was centered */ /* ref: .nav-content */ 
+
+  /* Let links fit: reduce gap + allow horizontal scroll if needed */
+  .nav-links {
+    gap: 16px;                /* was 30px */
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .nav-links::-webkit-scrollbar { display: none; }
+
+  /* Stop absolute overlap on narrow viewports */
+  .nav-login { position: static; margin-left: 8px; }
+  .nav-login a { white-space: nowrap; }
+}
+
+/* Slightly scale link text on very small screens */
+@media (max-width: 380px) {
+  .nav-links li a, .nav-login a { font-size: 0.95rem; }
+}
+
+/* ============ TABLES: mobile overflow & optional stacking ============ */
+
+/* A. Zero-risk: horizontal scroll on phones */
+@media (max-width: 640px) {
+  .crate-table-wrapper { overflow-x: auto; } /* wrapper currently hides overflow */
+  .crate-table { min-width: 560px; }         /* keep columns readable */
+}
+
+/* B. Optional enhancement: card-style stack (requires data-label in <td>) */
+@media (max-width: 560px) {
+  .crate-table thead { display: none; }
+  .crate-table, .crate-table tbody, .crate-table tr, .crate-table td {
+    display: block; width: 100%;
+  }
+  .crate-table tr {
+    background: rgba(255,255,255,0.05);
+    border-radius: 12px;
+    padding: 8px;
+    margin-bottom: 12px;
+  }
+  .crate-table td {
+    border-bottom: 0;
+    padding: 8px 10px;
+  }
+  .crate-table td[data-label]::before {
+    content: attr(data-label) ": ";
+    font-weight: 600;
+    opacity: 0.8;
+    margin-right: 4px;
+  }
+}
+
+/* ============ MODALS: fit small screens ============ */
+.modal .modal-content {
+  width: min(92vw, 600px);     /* flex to viewport while preserving your maxes */
+  max-height: 90vh;            /* avoid off-screen content */
+  overflow: auto;              /* scroll inside if tall forms */
+}
+
+/* Keep action buttons reachable on tiny heights */
+@media (max-height: 560px) {
+  .modal .modal-content { padding-bottom: 16px; }
+}
+
+/* ============ SITE-WIDE PERFORMANCE & REDUCED MOTION ============ */
+@media (prefers-reduced-motion: reduce) {
+  /* Disable logo pulsing + hover transforms, keep look intact */
+  .nav-logo img { animation: none !important; transition: none !important; }
+  .about-btn, .contact-btn { transition: none !important; transform: none !important; }
+  /* Generic: stop all other transitions/animations if needed */
+  * { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+}

@@ -1,0 +1,59 @@
+/* ----- About page: safer defaults on narrow screens ----- */
+.about-card {
+  /* Lets us adapt children based on the space this card actually has */
+  container-type: inline-size; /* no HTML changes needed */
+}
+
+.about-card > .profile-box,
+.about-card > .about-text {
+  /* Make both columns gracefully stack full-width by default */
+  flex: 1 1 100%;
+}
+
+/* Tighter, phone-first padding/typography without touching your palette */
+.about-text h1 { font-size: clamp(24px, 6vw, 32px); }
+.about-text p  { font-size: clamp(14px, 1.2vw, 16px); line-height: 1.6; }
+
+/* Profile image box keeps proportion but doesn’t overwhelm small screens */
+.profile-pic { max-width: 180px; max-height: 180px; margin: 0 auto; }
+
+/* Contact card breathes a bit on phones */
+@media (max-width: 480px) {
+  .contact-form { padding: 24px; }
+}
+
+/* When there’s room, restore a 2-column feel without changing your HTML */
+@container (min-width: 720px) {
+  .about-card { display: flex; }
+  .about-card > .profile-box,
+  .about-card > .about-text { flex: 1 1 50%; }
+}
+
+/* Slightly larger split for big desktops */
+@container (min-width: 1000px) {
+  .about-card > .profile-box { flex-basis: 38%; }
+  .about-card > .about-text  { flex-basis: 62%; }
+}
+
+/* Keep long words/photos from breaking layout in edge cases */
+.about-card, .about-text { overflow-wrap: anywhere; }
+
+/* ----- Nav: small-screen survival without a rewrite ----- */
+@media (max-width: 640px) {
+  .nav-content {
+    justify-content: space-between;   /* center → space-between on phones */
+    padding-inline: 12px;
+  }
+  .nav-links {
+    gap: 16px;                        /* 30px → 16px for fit */
+    overflow-x: auto;                 /* allow sideways scroll if needed */
+    -webkit-overflow-scrolling: touch;
+  }
+  .nav-links::-webkit-scrollbar { display: none; }
+  .nav-login { position: static; margin-left: 8px; } /* no absolute overlap */
+}
+
+/* ----- Modals: let them breathe on small viewports (non-breaking) ----- */
+.modal-content {
+  width: min(92vw, 450px);
+}

@@ -136,3 +136,32 @@
 .global-modal.error .icon {
   color: #fe6c9b;
 }
+
+/* ============ GLOBAL MODAL: small-screen width & safe motion ============ */
+
+/* Fluid width and safer height on phones */
+.global-modal {
+  width: min(92vw, 600px);   /* keep your existing max-width behavior */
+  max-height: 90vh;
+  overflow: auto;
+}
+
+/* Avoid layout shift of the icon on narrow widths */
+@media (max-width: 420px) {
+  .global-modal .modal-body { gap: 0.75em; }
+  .global-modal .modal-body .icon { width: 2.75rem; height: 2.75rem; }
+  .global-modal .modal-body h3 { font-size: 1.05rem; }
+  .global-modal .modal-body p  { font-size: 0.95rem; }
+}
+
+/* Respect reduced motion system setting */
+@media (prefers-reduced-motion: reduce) {
+  /* Kill entrance/exit animations and any transitions */
+  .global-modal-container,
+  .global-modal,
+  .global-modal .btn,
+  .global-modal * {
+    animation: none !important;
+    transition: none !important;
+  }
+}

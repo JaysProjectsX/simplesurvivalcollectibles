@@ -2619,3 +2619,195 @@ nav {
     .card, .btn, .input { transition: none !important; }
   }
 
+/* =========================================
+   AUTH COMPOSITE CARD (single-card layout)
+   ========================================= */
+
+.auth-page { padding: 110px 24px 70px; }
+
+.auth-composite {
+  /* one card that holds both sections */
+  width: 100%;
+  max-width: 1280px;
+  margin: 0 auto;
+  background: #11162a;                     /* deep panel */
+  border: 1px solid #26314a;               /* subtle border like source */
+  border-radius: 18px;
+  box-shadow: 0 22px 60px rgba(0,0,0,.45); /* heavy base shadow */
+  position: relative;
+  overflow: hidden;                         /* keep inner effects clipped */
+  display: grid;
+  grid-template-columns: 1.05fr 1fr;       /* left hero / right form */
+}
+
+.auth-composite::before,
+.auth-composite::after {
+  /* soft vignette glows inside card */
+  content: "";
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+  filter: blur(2px);
+  opacity: .15;
+}
+.auth-composite::before {
+  width: 560px; height: 560px;
+  left: -160px; top: 120px;
+  background: radial-gradient(closest-side, #7c6bff, transparent 65%);
+}
+.auth-composite::after {
+  width: 640px; height: 640px;
+  right: -220px; bottom: -180px;
+  background: radial-gradient(closest-side, #3f74ff, transparent 68%);
+}
+
+/* sections inside the single card */
+.auth-composite__left,
+.auth-composite__right {
+  position: relative;
+  z-index: 1;
+  padding: 34px 36px;
+}
+
+/* LEFT: hero area */
+.auth-composite__left {
+  background: linear-gradient(155deg, rgba(18, 25, 52, .65) 0%, rgba(10, 13, 28, .25) 100%);
+  border-right: 1px solid rgba(255,255,255,.06); /* the divider line like the screenshot */
+}
+.auth-composite__left h1 {
+  margin: 0 0 10px;
+  font-size: 2.05rem;
+  letter-spacing: .2px;
+  color: #9ab3ff;       /* title blue from source */
+  font-weight: 800;
+}
+.auth-composite__left .muted {
+  color: #aeb7d6;
+  font-size: .96rem;
+}
+
+/* RIGHT: form area */
+.auth-composite__right { background: transparent; }
+
+/* right pane inner card look (remove extra outer card visuals) */
+.auth-composite__right .card {
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  padding: 0;
+}
+
+/* form field stack + spacing */
+.auth-form {
+  max-width: 720px;
+}
+.auth-form .note {
+  display: block;
+  font-size: .8rem;
+  color: #9aa4c7;
+  margin: 0 0 6px;
+}
+.auth-form .input {
+  width: 100%;
+  height: 48px;
+  margin: 0 0 16px;
+  padding: 12px 14px;
+  border-radius: 10px;
+  border: 1px solid #2a3350;
+  background: #141b2c;
+  color: #e7ebff;
+  font-size: .97rem;
+  transition: border-color .15s ease, box-shadow .15s ease, background .15s ease;
+}
+.auth-form .input::placeholder { color: #a6afd2; }
+.auth-form .input:focus {
+  outline: none;
+  border-color: #365CF5;
+  box-shadow: 0 0 0 3px rgba(54,92,245,.22);
+}
+
+.auth-form .row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  margin: 8px 0 14px;
+  color: #9aa4c7;
+  font-size: .88rem;
+}
+.auth-form .row a { color: #86a8ff; text-decoration: none; }
+.auth-form .row a:hover { text-decoration: underline; }
+
+.auth-form .btn {
+  width: 100%;
+  height: 50px;
+  border-radius: 10px;
+  border: 0;
+  background: #365CF5;
+  color: #fff;
+  font-weight: 800;
+  letter-spacing: .1px;
+  box-shadow: 0 16px 40px rgba(54,92,245,.35);
+  transition: background .15s ease, transform .08s ease, filter .15s ease;
+}
+.auth-form .btn:hover { background: #2f52e8; filter: brightness(1.02); }
+.auth-form .btn:active { transform: translateY(1px); }
+
+/* Settings/Account — same single-card pattern */
+.account-wrap { max-width: 1280px; margin: 0 auto; }
+.account-composite {
+  background: #11162a;
+  border: 1px solid #26314a;
+  border-radius: 18px;
+  box-shadow: 0 22px 60px rgba(0,0,0,.45);
+  overflow: hidden;
+  display: grid;
+  grid-template-columns: 1fr 1.2fr;
+}
+.account-composite__left,
+.account-composite__right {
+  padding: 30px 34px;
+}
+.account-composite__left {
+  border-right: 1px solid rgba(255,255,255,.06);
+}
+.account-composite__left h2 {
+  margin: 0 0 10px;
+  font-size: 1.1rem;
+  color: #9aa4c7;
+  font-weight: 700;
+}
+.account-composite__left p { margin: 0 0 10px; text-align: left; }
+
+.account-composite__right h2 {
+  margin: 0 0 14px;
+  font-size: 1.1rem;
+  color: #9aa4c7; font-weight: 700; text-align: center;
+}
+
+/* password form inside account */
+.account-composite__right .input { width: 420px; max-width: 100%; }
+
+/* logout message panel size */
+.logout-panel {
+  max-width: 560px;
+  background: #141b2c;
+  border: 1px solid #26314a;
+  border-radius: 14px;
+  box-shadow: 0 20px 60px rgba(0,0,0,.45);
+  padding: 22px 24px;
+  text-align: left;
+}
+
+/* RESPONSIVE */
+@media (max-width: 1100px) {
+  .auth-composite { grid-template-columns: 1fr; }
+  .auth-composite__left { border-right: 0; border-bottom: 1px solid rgba(255,255,255,.06); }
+  .account-composite { grid-template-columns: 1fr; }
+  .account-composite__left { border-right: 0; border-bottom: 1px solid rgba(255,255,255,.06); }
+}
+@media (max-width: 640px) {
+  .auth-page { padding: 96px 16px 46px; }
+  .auth-composite__left, .auth-composite__right,
+  .account-composite__left, .account-composite__right { padding: 22px; }
+}

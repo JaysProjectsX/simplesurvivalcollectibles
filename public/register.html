@@ -1,27 +1,26 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Create Account</title>
-  <link rel="stylesheet" href="/css/home-page.css" />
-  <link rel="stylesheet" href="/css/globalModal.css" />
-  <link rel="icon" href="/favicon.png" type="image/png" />
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Sign up - SimpleSurvival Collectibles</title>
+  <link rel="icon" href="/favicon.png" type="image/png"/>
+  <link rel="stylesheet" href="/css/home-page.css"/>
+  <link rel="stylesheet" href="/css/globalModal.css"/>
   <link href="https://unpkg.com/boxicons@2.1.1/css/boxicons.min.css" rel="stylesheet"/>
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet"/>
-  <script defer src="/js/globalModal.js"></script>
-  <script defer src="/js/auth.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;600;800&display=swap" rel="stylesheet">
 </head>
 <body>
+
   <!-- Preloader -->
   <div id="preloader"><div class="loader"></div></div>
 
-  <div id="toastContainer"></div>
-
+  <!-- Nav -->
   <nav>
     <div class="nav-content">
       <div class="nav-logo">
-        <a href="/index.html"><img src="/assets/Logo.png" alt="SimpleSurvival Collectibles Logo"/></a>
+        <a href="/index.html"><img src="/assets/Logo.png" alt="SimpleSurvival Collectibles"/></a>
       </div>
       <ul class="nav-links">
         <li><a href="/index.html">Home</a></li>
@@ -37,61 +36,47 @@
   </nav>
 
   <main class="auth-page">
-    <section class="auth-shell">
-      <div class="auth-left">
+    <section class="auth-composite">
+      <div class="auth-composite__left">
         <h1>Get Started</h1>
         <p class="muted">Create your account.</p>
       </div>
 
-      <div class="auth-right">
-        <form id="registerForm" class="card">
-          <label class="note">Username</label>
-          <input class="input" id="registerUsername" required />
+      <div class="auth-composite__right">
+        <div class="card">
+          <form id="registerForm" class="auth-form" novalidate>
+            <label class="note" for="registerUsername">Username</label>
+            <input id="registerUsername" class="input" type="text" required />
 
-          <label class="note">Email</label>
-          <input class="input" id="registerEmail" type="email" required />
+            <label class="note" for="registerEmail">Email</label>
+            <input id="registerEmail" class="input" type="email" placeholder="you@example.com" required />
 
-          <label class="note">Password</label>
-          <input class="input" id="registerPassword" type="password" required />
+            <label class="note" for="registerPassword">Password</label>
+            <input id="registerPassword" class="input" type="password" required />
 
-          <button class="btn" type="submit">Sign Up</button>
-          <div id="backToLoginText" class="note">Already have an account? <a href="/login.html">Sign in</a></div>
-        </form>
+            <div class="row">
+              <span>Already have an account? <a href="/login.html">Sign in</a></span>
+            </div>
 
-        <!-- Hidden stubs -->
-        <form id="loginForm" style="display:none"><input type="email"/><input type="password"/></form>
-        <form id="forgotPasswordForm" style="display:none">
-          <div id="emailSection"><input id="forgotEmail" type="email"/></div>
-          <div id="codeSection" style="display:none">
-            <input id="resetCode"/><input id="newResetPassword" type="password"/>
-            <button id="resetPasswordButton" type="button">Reset Password</button>
-          </div>
-          <div id="resetLoading" style="display:none"></div>
-        </form>
-        <div id="authModal" style="display:none"></div>
-        <div id="registrationConfirmation" style="display:none"></div>
-        <div id="accountModal" style="display:none"></div>
+            <button class="btn" type="submit">Sign Up</button>
+          </form>
+        </div>
       </div>
     </section>
+
+    <!-- Registration confirmation modal (auth.js toggles this) -->
+    <div id="registrationConfirmation" class="modal" style="display:none;">
+      <div class="modal-content">
+        <span class="close" onclick="document.getElementById('registrationConfirmation').style.display='none'">&times;</span>
+        <h2>Check Your Email</h2>
+        <p>We’ve sent a verification link to your email address. Please check your inbox/spam folders to verify your account.</p>
+      </div>
+    </div>
   </main>
 
-  <script>
-    setTimeout(() => {
-      const pre = document.getElementById('preloader');
-      if (pre && pre.style.display !== 'none') {
-        if (typeof showGlobalModal === 'function') {
-          showGlobalModal({
-            type: "error",
-            title: "Network Delay",
-            message: "We couldn’t finish loading your session. Please try refreshing the page.",
-            buttons: [{ label: "Close", onClick: "fadeOutAndRemove('modal-authBootstrapError')" }],
-            id: "modal-authBootstrapError"
-          });
-        }
-        pre.style.opacity = "0";
-        setTimeout(() => { pre.style.display = "none"; }, 250);
-      }
-    }, 5000);
-  </script>
+  <div id="toastContainer"></div>
+
+  <script defer src="/js/globalModal.js"></script>
+  <script defer src="/js/auth.js"></script>
 </body>
 </html>

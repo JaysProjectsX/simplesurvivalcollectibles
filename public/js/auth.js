@@ -56,6 +56,7 @@ let currentUser = null;
     // Let your existing code render username/dropdown etc.
     if (typeof updateNavUI === "function") {
       try { updateNavUI(); } catch {}
+      try { paintAccountInfo(); } catch {}
     }
 
     const elapsed = Date.now() - started;
@@ -159,9 +160,16 @@ function isLockedOut(user) {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
-  updateNavUI(); // prevent flicker
+  updateNavUI();
   if (document.cookie.includes("refreshToken") || localStorage.getItem("username")) {
     fetchAccountInfo();
+  }
+
+    if (document.getElementById("accUsername")) {
+    paintAccountInfo();
+    if (!localStorage.getItem("username")) {
+      fetchAccountInfo().catch(() => {});
+    }
   }
 
     // Registration page
@@ -446,6 +454,7 @@ document.addEventListener("DOMContentLoaded", () => {
       localStorage.setItem("verified", data.verified);
       localStorage.setItem("created_at", data.created_at);
       updateNavUI();
+      paintAccountInfo();
     } catch (err) {
       console.error("Failed to fetch account info", err);
       await handleUnauthenticated();
@@ -542,6 +551,49 @@ function updateNavUI() {
   } else {
     // Link to dedicated login page (no modal)
     loginItem.innerHTML = `<a href="/login.html">Login</a>`;
+  }
+}
+
+/* === Paint account page from localStorage (safe if page doesn't have these IDs) === */
+function paintAccountInfo() {
+  // Quick exit if we're not on the account page
+  if (!document.getElementById("accUsername")) return;
+
+  const set = (id, val) => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = (val ?? "—");
+  };
+
+  const u = localStorage.getItem("username");
+  const e = localStorage.getItem("email");
+  const r = localStorage.getItem("role");
+  const v = localStorage.getItem("verified");
+  const c = localStorage.getItem("created_at");
+
+  set("accUsername", u || "—");
+  set("accEmail", e || "—");
+  set("accRole", r || "User");
+
+  if (v !== null) {
+    const verifiedBool = (v === "1" || v === "true" || v === 1 || v === true);
+    set("accVerified", verifiedBool ? "true" : "false");
+    const ve = document.getElementById("accVerified");
+    if (ve) ve.style.color = verifiedBool ? "limegreen" : "red";
+  }
+
+  if (c) {
+    const d = new Date(c);
+    const formatted = isNaN(d)
+      ? c
+      : d.toLocaleString("en-US", {
+          month: "2-digit",
+          day: "2-digit",
+          year: "numeric",
+          hour: "numeric",
+          minute: "2-digit",
+          hour12: true,
+        });
+    set("accCreated", formatted);
   }
 }
 

@@ -1,31 +1,26 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Sign In</title>
-  <link rel="stylesheet" href="/css/home-page.css" />
-  <link rel="stylesheet" href="/css/globalModal.css" />
-  <link rel="icon" href="/favicon.png" type="image/png" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Sign in - SimpleSurvival Collectibles</title>
+  <link rel="icon" href="/favicon.png" type="image/png"/>
+  <link rel="stylesheet" href="/css/home-page.css"/>
+  <link rel="stylesheet" href="/css/globalModal.css"/>
   <link href="https://unpkg.com/boxicons@2.1.1/css/boxicons.min.css" rel="stylesheet"/>
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet"/>
-  <script defer src="/js/globalModal.js"></script>
-  <script defer src="/js/auth.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;600;800&display=swap" rel="stylesheet">
 </head>
 <body>
+
   <!-- Preloader -->
   <div id="preloader"><div class="loader"></div></div>
 
-  <!-- Toasts -->
-  <div id="toastContainer"></div>
-
-  <!-- Site Nav -->
+  <!-- Nav -->
   <nav>
     <div class="nav-content">
       <div class="nav-logo">
-        <a href="/index.html">
-          <img src="/assets/Logo.png" alt="SimpleSurvival Collectibles Logo" />
-        </a>
+        <a href="/index.html"><img src="/assets/Logo.png" alt="SimpleSurvival Collectibles"/></a>
       </div>
       <ul class="nav-links">
         <li><a href="/index.html">Home</a></li>
@@ -40,69 +35,52 @@
     </div>
   </nav>
 
-  <!-- Page Content -->
   <main class="auth-page">
-    <section class="auth-shell">
-      <div class="auth-left">
+    <section class="auth-composite">
+      <!-- Left (hero) -->
+      <div class="auth-composite__left">
         <h1>Welcome Back</h1>
         <p class="muted">Sign in to your account to continue.</p>
       </div>
 
-      <div class="auth-right">
-        <!-- Your auth.js listens to #loginForm -->
-        <form id="loginForm" class="card">
-          <label class="note">Email</label>
-          <input class="input" type="email" placeholder="you@example.com" required />
+      <!-- Right (form) -->
+      <div class="auth-composite__right">
+        <div class="card">
+          <form id="loginForm" class="auth-form" novalidate>
+            <label class="note" for="loginEmail">Email</label>
+            <input id="loginEmail" class="input" type="text" placeholder="you@example.com" required />
 
-          <label class="note">Password</label>
-          <input class="input" type="password" placeholder="••••••••" required />
+            <label class="note" for="loginPassword">Password</label>
+            <input id="loginPassword" class="input" type="password" required />
 
-          <div class="row">
-            <span class="toggle-text note">Don’t have an account? <a href="/register.html">Create one</a></span>
-            <span class="toggle-text note"><a href="/forgot-password.html">Forgot password?</a></span>
-          </div>
+            <div class="row">
+              <span>Don’t have an account? <a href="/register.html">Create one</a></span>
+              <a href="/forgot-password.html">Forgot password?</a>
+            </div>
 
-          <button class="btn" type="submit">Sign In</button>
-          <div id="backToLoginText" class="note" style="display:none">Back to Login</div>
-        </form>
-
-        <!-- Hidden “compat” stubs so existing listeners never error -->
-        <form id="registerForm" style="display:none">
-          <input id="registerUsername"/><input id="registerEmail" type="email"/><input id="registerPassword" type="password"/>
-        </form>
-        <form id="forgotPasswordForm" style="display:none">
-          <div id="emailSection"><input id="forgotEmail" type="email"/></div>
-          <div id="codeSection" style="display:none">
-            <input id="resetCode"/><input id="newResetPassword" type="password"/>
-            <button id="resetPasswordButton" type="button">Reset Password</button>
-          </div>
-          <div id="resetLoading" style="display:none"></div>
-        </form>
-        <div id="authModal" style="display:none"></div>
-        <div id="registrationConfirmation" style="display:none"></div>
-        <div id="accountModal" style="display:none"></div>
+            <button class="btn" type="submit">Sign In</button>
+          </form>
+        </div>
       </div>
     </section>
   </main>
 
-  <!-- Fallback: if preloader hasn't faded by 5s, show an error and fade it -->
+  <div id="toastContainer"></div>
+
+  <script defer src="/js/globalModal.js"></script>
+  <script defer src="/js/auth.js"></script>
   <script>
-    setTimeout(() => {
-      const pre = document.getElementById('preloader');
-      if (pre && pre.style.display !== 'none') {
-        if (typeof showGlobalModal === 'function') {
-          showGlobalModal({
-            type: "error",
-            title: "Network Delay",
-            message: "We couldn’t finish loading your session. Please try refreshing the page.",
-            buttons: [{ label: "Close", onClick: "fadeOutAndRemove('modal-authBootstrapError')" }],
-            id: "modal-authBootstrapError"
-          });
-        }
-        pre.style.opacity = "0";
-        setTimeout(() => { pre.style.display = "none"; }, 250);
+    // Map form fields to what auth.js expects
+    document.addEventListener('DOMContentLoaded', () => {
+      const f = document.getElementById('loginForm');
+      if (f) {
+        const email = document.getElementById('loginEmail');
+        const pass  = document.getElementById('loginPassword');
+        // Ensure auth.js querySelector('input[type="text"]'/'password') hits these:
+        email.setAttribute('type','text');
+        pass.setAttribute('type','password');
       }
-    }, 5000);
+    });
   </script>
 </body>
 </html>

@@ -1,23 +1,26 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Logged Out</title>
-  <link rel="stylesheet" href="/css/home-page.css" />
-  <link rel="stylesheet" href="/css/globalModal.css" />
-  <link rel="icon" href="/favicon.png" type="image/png" />
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Logged out - SimpleSurvival Collectibles</title>
+  <link rel="icon" href="/favicon.png" type="image/png"/>
+  <link rel="stylesheet" href="/css/home-page.css"/>
+  <link rel="stylesheet" href="/css/globalModal.css"/>
   <link href="https://unpkg.com/boxicons@2.1.1/css/boxicons.min.css" rel="stylesheet"/>
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;600;800&display=swap" rel="stylesheet">
 </head>
 <body>
+
   <!-- Preloader -->
   <div id="preloader"><div class="loader"></div></div>
 
+  <!-- Nav -->
   <nav>
     <div class="nav-content">
       <div class="nav-logo">
-        <a href="/index.html"><img src="/assets/Logo.png" alt="SimpleSurvival Collectibles Logo"/></a>
+        <a href="/index.html"><img src="/assets/Logo.png" alt="SimpleSurvival Collectibles"/></a>
       </div>
       <ul class="nav-links">
         <li><a href="/index.html">Home</a></li>
@@ -33,24 +36,25 @@
   </nav>
 
   <main class="auth-page">
-    <section class="auth-shell">
-      <div class="card" style="max-width:560px;margin:60px auto;">
-        <h1>You’ve been logged out</h1>
-        <p class="muted">Your session has ended securely.</p>
-        <div class="spacer"></div>
-        <div class="note">
-          <a href="/index.html">Return home</a> or <a href="/login.html">sign in again</a>.
-        </div>
-      </div>
-    </section>
+    <div class="logout-panel">
+      <h3 style="margin:0 0 8px;color:#b8c4ff;">You’ve been logged out</h3>
+      <p style="margin:0 0 12px;color:#d8defa;">Your session has ended securely.</p>
+      <p><a href="/index.html">Return home</a> or <a href="/login.html">sign in again</a>.</p>
+    </div>
   </main>
 
-  <!-- We do NOT load auth.js here; logout already happened before redirect.
-       Use a tiny fade-out so the preloader doesn't linger if included globally. -->
+  <div id="toastContainer"></div>
+
+  <script defer src="/js/globalModal.js"></script>
+  <script defer src="/js/auth.js"></script>
   <script>
+    // If the dropdown didn't call logout() before navigating here, ensure we do it now.
     document.addEventListener('DOMContentLoaded', () => {
-      const pre = document.getElementById('preloader');
-      if (pre) { pre.style.opacity = '0'; setTimeout(()=>{ pre.style.display='none'; }, 250); }
+      try {
+        if (typeof logout === 'function') { logout(); }
+      } catch(e) {}
+      // Hide preloader in case auth.js hasn't yet
+      const p = document.getElementById('preloader'); if (p) p.style.opacity = '0', setTimeout(()=>p.style.display='none',250);
     });
   </script>
 </body>

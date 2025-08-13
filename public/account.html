@@ -1,27 +1,26 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>My Account</title>
-  <link rel="stylesheet" href="/css/home-page.css" />
-  <link rel="stylesheet" href="/css/globalModal.css" />
-  <link rel="icon" href="/favicon.png" type="image/png" />
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Account - SimpleSurvival Collectibles</title>
+  <link rel="icon" href="/favicon.png" type="image/png"/>
+  <link rel="stylesheet" href="/css/home-page.css"/>
+  <link rel="stylesheet" href="/css/globalModal.css"/>
   <link href="https://unpkg.com/boxicons@2.1.1/css/boxicons.min.css" rel="stylesheet"/>
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet"/>
-  <script defer src="/js/globalModal.js"></script>
-  <script defer src="/js/auth.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;600;800&display=swap" rel="stylesheet">
 </head>
 <body>
+
   <!-- Preloader -->
   <div id="preloader"><div class="loader"></div></div>
 
-  <div id="toastContainer"></div>
-
+  <!-- Nav -->
   <nav>
     <div class="nav-content">
       <div class="nav-logo">
-        <a href="/index.html"><img src="/assets/Logo.png" alt="SimpleSurvival Collectibles Logo"/></a>
+        <a href="/index.html"><img src="/assets/Logo.png" alt="SimpleSurvival Collectibles"/></a>
       </div>
       <ul class="nav-links">
         <li><a href="/index.html">Home</a></li>
@@ -36,64 +35,45 @@
     </div>
   </nav>
 
-  <main class="auth-page">
-    <section class="auth-shell">
-      <div class="auth-left card">
-        <h1>My Profile</h1>
-        <p class="muted">Account information</p>
-        <div class="spacer"></div>
-
-        <div><strong>Username:</strong> <span id="accUsername">…</span></div>
-        <div><strong>Email:</strong> <span id="accEmail">…</span></div>
-        <div><strong>Role:</strong> <span id="accRole">…</span></div>
-        <div><strong>Verified:</strong> <span id="accVerified">…</span></div>
-        <div><strong>Created:</strong> <span id="accCreated">…</span></div>
-
-        <!-- Hidden container referenced by legacy helper -->
-        <div id="accountModal" style="display:none"></div>
+  <main class="auth-page account-wrap">
+    <section class="account-composite">
+      <!-- Left: profile info -->
+      <div class="account-composite__left">
+        <h2>My Profile</h2>
+        <p><strong>Username:</strong> <span id="accUsername">...</span></p>
+        <p><strong>Email:</strong> <span id="accEmail">...</span></p>
+        <p><strong>Role:</strong> <span id="accRole">...</span></p>
+        <p><strong>Email Verified:</strong> <span id="accVerified">...</span></p>
+        <p><strong>Created:</strong> <span id="accCreated">...</span></p>
       </div>
 
-      <div class="auth-right card">
+      <!-- Right: change password -->
+      <div class="account-composite__right">
         <h2>Change Password</h2>
-        <form id="passwordChangeForm">
-          <label class="note">Current Password</label>
+        <form id="passwordChangeForm" class="auth-form" novalidate style="max-width:520px;margin:0 auto;">
+          <label class="note" for="currentPassword">Current Password</label>
           <input class="input" id="currentPassword" type="password" required />
 
-          <label class="note">New Password</label>
+          <label class="note" for="newPassword">New Password</label>
           <input class="input" id="newPassword" type="password" required />
 
-          <label class="note">Confirm New Password</label>
+          <label class="note" for="confirmPassword">Confirm New Password</label>
           <input class="input" id="confirmPassword" type="password" required />
 
-          <div class="spacer"></div>
-          <label class="note" style="display:flex;gap:8px;align-items:center">
-            <input type="checkbox" id="togglePassword" />
-            Show passwords
-          </label>
-          <div class="spacer"></div>
-          <button class="btn" type="submit">Update Password</button>
+          <div class="form-check" style="justify-content:center;margin-top:6px;">
+            <input type="checkbox" id="togglePassword"/>
+            <label for="togglePassword">Show passwords</label>
+          </div>
+
+          <button class="btn" type="submit" style="max-width:420px;margin:12px auto 0;">Update Password</button>
         </form>
       </div>
     </section>
   </main>
 
-  <script>
-    setTimeout(() => {
-      const pre = document.getElementById('preloader');
-      if (pre && pre.style.display !== 'none') {
-        if (typeof showGlobalModal === 'function') {
-          showGlobalModal({
-            type: "error",
-            title: "Network Delay",
-            message: "We couldn’t finish loading your session. Please try refreshing the page.",
-            buttons: [{ label: "Close", onClick: "fadeOutAndRemove('modal-authBootstrapError')" }],
-            id: "modal-authBootstrapError"
-          });
-        }
-        pre.style.opacity = "0";
-        setTimeout(() => { pre.style.display = "none"; }, 250);
-      }
-    }, 5000);
-  </script>
+  <div id="toastContainer"></div>
+
+  <script defer src="/js/globalModal.js"></script>
+  <script defer src="/js/auth.js"></script>
 </body>
 </html>

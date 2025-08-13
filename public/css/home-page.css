@@ -1503,6 +1503,7 @@ nav {
 
 #passwordChangeForm input[type="password"],
 #passwordChangeForm input[type="text"] {
+  height: 16px;
   width: 100%;
   padding: 10px 12px;
   margin-bottom: 12px;
@@ -2360,265 +2361,6 @@ nav {
     --auth-outline: rgba(54,92,245,.25);
   }
 
-  /* Ensure base background behind hero panels looks like screenshots */
-  .auth-page {
-    background: transparent; /* your page gradient stays */
-    padding: 100px 20px 60px;
-  }
-
-  /* Split layout like screenshots (illustration left, form right) */
-  .auth-shell {
-    width: 100%;
-    max-width: 1280px;
-    display: grid;
-    grid-template-columns: 1.15fr 1fr;
-    gap: 24px;
-  }
-
-  /* LEFT PANEL (hero/illustration) */
-  .auth-left {
-    position: relative;
-    background: linear-gradient(135deg, #0f1539 0%, #1a2140 60%);
-    border: 1px solid var(--auth-border);
-    border-radius: 14px;
-    padding: 34px 36px;
-    text-align: left;
-    overflow: hidden;
-    min-height: 520px;
-    box-shadow: 0 10px 40px rgba(0,0,0,.35);
-  }
-
-  .auth-left h1 {
-    margin: 0 0 6px;
-    font-size: 2rem;
-    letter-spacing: .2px;
-    color: var(--auth-title);
-    font-weight: 700;
-  }
-
-  .auth-left .muted {
-    color: var(--auth-muted);
-    font-size: .95rem;
-  }
-
-  /* simple decorative circles like the reference */
-  .auth-left::before,
-  .auth-left::after {
-    content: "";
-    position: absolute;
-    border-radius: 50%;
-    filter: blur(2px);
-    opacity: .15;
-  }
-  .auth-left::before {
-    width: 520px; height: 520px;
-    right: -140px; bottom: -140px;
-    background: radial-gradient(closest-side, #6f85ff, transparent 70%);
-  }
-  .auth-left::after {
-    width: 300px; height: 300px;
-    left: -120px; top: 120px;
-    background: radial-gradient(closest-side, #9f73ff, transparent 65%);
-  }
-
-  /* RIGHT PANEL (form) */
-  .auth-right { display: flex; align-items: stretch; }
-
-  .card {
-    width: 100%;
-    background: var(--auth-panel);
-    border: 1px solid var(--auth-border);
-    border-radius: 14px;
-    padding: 28px;
-    text-align: left;
-    box-shadow: 0 10px 40px rgba(0,0,0,.35);
-  }
-
-  /* Headlines inside cards (e.g., My Profile / Sign In Form) */
-  .card h2, .card h1 {
-    margin: 0 0 18px;
-    font-size: 1rem; /* small caption-like title like screenshot */
-    color: var(--auth-muted);
-    font-weight: 600;
-  }
-
-  /* Label + helper text */
-  .note {
-    display: block;
-    font-size: .8rem;
-    color: var(--auth-muted);
-    margin-bottom: 6px;
-  }
-
-  /* Inputs — tall, crisp, subtle borders */
-  .input,
-  .auth-page input[type="text"],
-  .auth-page input[type="email"],
-  .auth-page input[type="password"] {
-    width: 100%;
-    height: 46px;
-    padding: 11px 14px;
-    border-radius: 8px;
-    border: 1px solid var(--auth-field-border);
-    background: var(--auth-field);
-    color: var(--auth-text);
-    font-size: .96rem;
-    transition: border-color .15s ease, box-shadow .15s ease, background .15s ease;
-  }
-
-  .input::placeholder,
-  .auth-page input::placeholder { color: #a8b2d9; }
-
-  .input:focus,
-  .auth-page input:focus {
-    outline: none;
-    border-color: var(--auth-field-focus);
-    box-shadow: 0 0 0 3px var(--auth-outline);
-  }
-
-  /* Primary button — full width bar */
-  .btn,
-  .auth-page .btn {
-    margin-top: 6px;
-    width: 100%;
-    height: 48px;
-    border-radius: 8px;
-    border: 0;
-    background: var(--auth-primary);
-    color: #fff;
-    font-weight: 700;
-    font-size: .95rem;
-    letter-spacing: .1px;
-    cursor: pointer;
-    box-shadow: 0 6px 18px rgba(54,92,245,.35);
-    transition: filter .15s ease, transform .1s ease, background .15s ease;
-  }
-  .btn:hover { background: var(--auth-primary-hover); filter: brightness(1.02); }
-  .btn:active { transform: translateY(1px); }
-
-  /* Inline row under the inputs (remember/forgot + create account) */
-  .row {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 12px;
-    flex-wrap: wrap;
-    margin: 4px 0 10px;
-  }
-  .toggle-text { font-size: .85rem; color: var(--auth-muted); }
-  .toggle-text a { color: #7ea3ff; text-decoration: none; }
-  .toggle-text a:hover { text-decoration: underline; }
-
-  /* Forgot page loading spinner alignment */
-  #resetLoading .loader { width: 36px; height: 36px; border-width: 4px !important; margin: 0 auto; }
-
-  /* =============== ACCOUNT / SETTINGS (two panels) =============== */
-  .settings-grid, .account-grid {
-    width: 100%;
-    max-width: 1280px;
-    margin: 0 auto;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 24px;
-  }
-  .settings-card, .account-card {
-    background: var(--auth-panel);
-    border: 1px solid var(--auth-border);
-    border-radius: 12px;
-    padding: 22px;
-    text-align: left;
-    box-shadow: 0 10px 36px rgba(0,0,0,.3);
-  }
-  .settings-card h3, .account-card h3 {
-    margin: 0 0 14px;
-    font-size: .95rem;
-    color: var(--auth-muted);
-    font-weight: 600;
-  }
-
-  /* Inline triplets like City / Zip / Country */
-  .form-inline-3 {
-    display: grid;
-    grid-template-columns: 1fr 0.6fr 1fr;
-    gap: 12px;
-  }
-
-  /* Checkbox row look (remember me / robot) */
-  .form-check {
-    display: flex; align-items: center; gap: 10px;
-    margin: 6px 0 10px;
-    color: var(--auth-muted);
-    font-size: .9rem;
-  }
-  .form-check input[type="checkbox"] {
-    width: 16px; height: 16px; accent-color: var(--auth-primary);
-  }
-
-  /* Divider to separate form sections when needed */
-  .form-divider {
-    height: 1px;
-    background: rgba(255,255,255,.06);
-    margin: 16px 0;
-  }
-
-  /* Social row (optional, styled like screenshot buttons) */
-  .social-row {
-    display: flex; gap: 14px; margin-top: 16px;
-  }
-  .social-btn {
-    flex: 1;
-    height: 44px;
-    border-radius: 8px;
-    background: transparent;
-    color: #ccd4ff;
-    border: 1px solid rgba(110,168,255,.35);
-    cursor: pointer;
-    transition: background .15s ease, border-color .15s ease, color .15s ease;
-  }
-  .social-btn.google { border-color: rgba(240, 68, 56, .45); color: #ffb3ad; }
-  .social-btn:hover { background: rgba(110,168,255,.08); border-color: rgba(110,168,255,.6); color: #fff; }
-  .social-btn.google:hover { background: rgba(240,68,56,.08); border-color: rgba(240,68,56,.65); color: #fff; }
-
-  /* Small breadcrumb line (optional header area) */
-  .auth-breadcrumb {
-    display: flex; gap: 8px;
-    position: absolute; top: 10px; right: 14px;
-    font-size: .78rem; color: var(--auth-muted);
-  }
-  .auth-breadcrumb a { color: #7ea3ff; text-decoration: none; }
-  .auth-breadcrumb a:hover { text-decoration: underline; }
-
-  /* Badge style for roles in dropdown (already present, keep consistency) */
-  .role-tag { font-weight: 600; }
-
-  /* ================== RESPONSIVE ================== */
-  @media (max-width: 1180px) {
-    .auth-shell { grid-template-columns: 1fr 1fr; }
-  }
-  @media (max-width: 980px) {
-    .auth-shell { grid-template-columns: 1fr; }
-    .auth-left { min-height: 360px; }
-  }
-  @media (max-width: 640px) {
-    .auth-page { padding: 90px 14px 40px; }
-    .card { padding: 22px; }
-    .input { height: 44px; }
-    .btn { height: 46px; }
-  }
-
-  /* ================== ACCESSIBILITY ================== */
-  .auth-page a:focus-visible,
-  .auth-page .btn:focus-visible,
-  .auth-page input:focus-visible {
-    outline: 3px solid var(--auth-outline);
-    outline-offset: 2px;
-    border-radius: 8px;
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .card, .btn, .input { transition: none !important; }
-  }
-
 /* =========================================
    AUTH COMPOSITE CARD (single-card layout)
    ========================================= */
@@ -2738,27 +2480,15 @@ nav {
 .auth-form .row a { color: #86a8ff; text-decoration: none; }
 .auth-form .row a:hover { text-decoration: underline; }
 
-.auth-form .btn {
-  width: 100%;
-  height: 50px;
-  border-radius: 10px;
-  border: 0;
-  background: #365CF5;
-  color: #fff;
-  font-weight: 800;
-  letter-spacing: .1px;
-  box-shadow: 0 16px 40px rgba(54,92,245,.35);
-  transition: background .15s ease, transform .08s ease, filter .15s ease;
-}
+
 .auth-form .btn:hover { background: #2f52e8; filter: brightness(1.02); }
 .auth-form .btn:active { transform: translateY(1px); }
 
 /* Settings/Account — same single-card pattern */
-.account-wrap { max-width: 1280px; margin: 0 auto; }
+.account-wrap { margin: 4rem; }
 .account-composite {
-  background: #11162a;
-  border: 1px solid #26314a;
-  border-radius: 18px;
+  background: #14142D;
+  border-radius: 8px;
   box-shadow: 0 22px 60px rgba(0,0,0,.45);
   overflow: hidden;
   display: grid;
@@ -2772,17 +2502,17 @@ nav {
   border-right: 1px solid rgba(255,255,255,.06);
 }
 .account-composite__left h2 {
-  margin: 0 0 10px;
-  font-size: 1.1rem;
+  margin-bottom: 6.5rem;
   color: #9aa4c7;
   font-weight: 700;
 }
-.account-composite__left p { margin: 0 0 10px; text-align: left; }
+.account-composite__left p { margin: 0 0 10px; text-align: center; font-size:0.9rem; }
 
 .account-composite__right h2 {
-  margin: 0 0 14px;
-  font-size: 1.1rem;
-  color: #9aa4c7; font-weight: 700; text-align: center;
+  margin-bottom: 20px;
+  color: #9aa4c7; 
+  font-weight: 700; 
+  text-align: center;
 }
 
 /* password form inside account */

@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Logged Out</title>
+  <link rel="stylesheet" href="/css/home-page.css" />
+  <link rel="stylesheet" href="/css/globalModal.css" />
+  <link rel="icon" href="/favicon.png" type="image/png" />
+  <link href="https://unpkg.com/boxicons@2.1.1/css/boxicons.min.css" rel="stylesheet"/>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet"/>
+</head>
+<body>
+  <!-- Preloader -->
+  <div id="preloader"><div class="loader"></div></div>
+
+  <nav>
+    <div class="nav-content">
+      <div class="nav-logo">
+        <a href="/index.html"><img src="/assets/Logo.png" alt="SimpleSurvival Collectibles Logo"/></a>
+      </div>
+      <ul class="nav-links">
+        <li><a href="/index.html">Home</a></li>
+        <li><a href="/info.html">About</a></li>
+        <li><a href="/crates.html">Cosmetic Crates</a></li>
+        <li><a href="/othercrates.html">Other Crates</a></li>
+        <li><a href="/othercrates.html">Event Items</a></li>
+      </ul>
+      <ul class="nav-login" id="navLogin">
+        <li id="loginItem"><a href="/login.html">Login</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <main class="auth-page">
+    <section class="auth-shell">
+      <div class="card" style="max-width:560px;margin:60px auto;">
+        <h1>You’ve been logged out</h1>
+        <p class="muted">Your session has ended securely.</p>
+        <div class="spacer"></div>
+        <div class="note">
+          <a href="/index.html">Return home</a> or <a href="/login.html">sign in again</a>.
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- We do NOT load auth.js here; logout already happened before redirect.
+       Use a tiny fade-out so the preloader doesn't linger if included globally. -->
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const pre = document.getElementById('preloader');
+      if (pre) { pre.style.opacity = '0'; setTimeout(()=>{ pre.style.display='none'; }, 250); }
+    });
+  </script>
+</body>
+</html>

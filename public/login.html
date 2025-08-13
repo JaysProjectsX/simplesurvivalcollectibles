@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Sign In</title>
+  <link rel="stylesheet" href="/css/home-page.css" />
+  <link rel="stylesheet" href="/css/globalModal.css" />
+  <link rel="icon" href="/favicon.png" type="image/png" />
+  <link href="https://unpkg.com/boxicons@2.1.1/css/boxicons.min.css" rel="stylesheet"/>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet"/>
+  <script defer src="/js/globalModal.js"></script>
+  <script defer src="/js/auth.js"></script>
+</head>
+<body>
+  <!-- Preloader -->
+  <div id="preloader"><div class="loader"></div></div>
+
+  <!-- Toasts -->
+  <div id="toastContainer"></div>
+
+  <!-- Site Nav -->
+  <nav>
+    <div class="nav-content">
+      <div class="nav-logo">
+        <a href="/index.html">
+          <img src="/assets/Logo.png" alt="SimpleSurvival Collectibles Logo" />
+        </a>
+      </div>
+      <ul class="nav-links">
+        <li><a href="/index.html">Home</a></li>
+        <li><a href="/info.html">About</a></li>
+        <li><a href="/crates.html">Cosmetic Crates</a></li>
+        <li><a href="/othercrates.html">Other Crates</a></li>
+        <li><a href="/othercrates.html">Event Items</a></li>
+      </ul>
+      <ul class="nav-login" id="navLogin">
+        <li id="loginItem"><a href="/login.html">Login</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- Page Content -->
+  <main class="auth-page">
+    <section class="auth-shell">
+      <div class="auth-left">
+        <h1>Welcome Back</h1>
+        <p class="muted">Sign in to your account to continue.</p>
+      </div>
+
+      <div class="auth-right">
+        <!-- Your auth.js listens to #loginForm -->
+        <form id="loginForm" class="card">
+          <label class="note">Email</label>
+          <input class="input" type="email" placeholder="you@example.com" required />
+
+          <label class="note">Password</label>
+          <input class="input" type="password" placeholder="••••••••" required />
+
+          <div class="row">
+            <span class="toggle-text note">Don’t have an account? <a href="/register.html">Create one</a></span>
+            <span class="toggle-text note"><a href="/forgot-password.html">Forgot password?</a></span>
+          </div>
+
+          <button class="btn" type="submit">Sign In</button>
+          <div id="backToLoginText" class="note" style="display:none">Back to Login</div>
+        </form>
+
+        <!-- Hidden “compat” stubs so existing listeners never error -->
+        <form id="registerForm" style="display:none">
+          <input id="registerUsername"/><input id="registerEmail" type="email"/><input id="registerPassword" type="password"/>
+        </form>
+        <form id="forgotPasswordForm" style="display:none">
+          <div id="emailSection"><input id="forgotEmail" type="email"/></div>
+          <div id="codeSection" style="display:none">
+            <input id="resetCode"/><input id="newResetPassword" type="password"/>
+            <button id="resetPasswordButton" type="button">Reset Password</button>
+          </div>
+          <div id="resetLoading" style="display:none"></div>
+        </form>
+        <div id="authModal" style="display:none"></div>
+        <div id="registrationConfirmation" style="display:none"></div>
+        <div id="accountModal" style="display:none"></div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Fallback: if preloader hasn't faded by 5s, show an error and fade it -->
+  <script>
+    setTimeout(() => {
+      const pre = document.getElementById('preloader');
+      if (pre && pre.style.display !== 'none') {
+        if (typeof showGlobalModal === 'function') {
+          showGlobalModal({
+            type: "error",
+            title: "Network Delay",
+            message: "We couldn’t finish loading your session. Please try refreshing the page.",
+            buttons: [{ label: "Close", onClick: "fadeOutAndRemove('modal-authBootstrapError')" }],
+            id: "modal-authBootstrapError"
+          });
+        }
+        pre.style.opacity = "0";
+        setTimeout(() => { pre.style.display = "none"; }, 250);
+      }
+    }, 5000);
+  </script>
+</body>
+</html>

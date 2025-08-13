@@ -1,5 +1,4 @@
-/* Font + base tokens borrowed from the source */
-@import url("https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap");
+
 :root{
   --primary:#365CF5;
   --text:#5d657b;
@@ -10,7 +9,6 @@ html{scroll-behavior:smooth}
 body.auth-page{
   font-family:"Plus Jakarta Sans",sans-serif;
   color:var(--text);
-  background:var(--bg);
   margin:0;
 }
 
@@ -108,8 +106,104 @@ a{color:inherit;text-decoration:none;transition:.15s}
 a.hover-underline:hover{text-decoration:underline}
 
 /* Dark theme adjustments (uses same class name as source) */
-.darkTheme{color:#838C9A;background:#0b0b15}
+.darkTheme{color:#838C9A;}
 .darkTheme h1, .darkTheme h2, .darkTheme h6, .darkTheme .text-dark{color:#fff}
 .darkTheme .form-wrapper{background:#14142D;box-shadow:0 0 30px rgba(0,0,0,.2)}
 .darkTheme .input-style-1 input{background:#0e0e1f;border-color:#3F4053;color:#e8e8e8}
 .darkTheme .text-gray{color:rgba(255,255,255,0.5)}
+
+/* ===== Auth Form Wrapper ===== */
+.auth-wrapper {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #121212;
+  padding: 20px;
+}
+
+.auth-container {
+  background: #1c1c1c;
+  padding: 30px;
+  border-radius: 12px;
+  max-width: 420px;
+  width: 100%;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+}
+
+.auth-container h2 {
+  color: #fff;
+  text-align: center;
+  margin-bottom: 20px;
+  font-size: 1.8rem;
+}
+
+/* ===== Input Fields ===== */
+.auth-form .form-group {
+  margin-bottom: 20px;
+}
+
+.auth-form label {
+  display: block;
+  color: #ddd;
+  font-size: 0.95rem;
+  margin-bottom: 8px;
+}
+
+.auth-form input {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #333;
+  border-radius: 6px;
+  background: #2a2a2a;
+  color: #fff;
+  font-size: 0.95rem;
+}
+
+.auth-form input:focus {
+  outline: none;
+  border-color: #4dabf7;
+}
+
+/* ===== Submit Button ===== */
+.auth-form button {
+  width: 100%;
+  background: #4dabf7;
+  color: #fff;
+  padding: 12px;
+  border: none;
+  border-radius: 6px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.25s;
+}
+
+.auth-form button:hover {
+  background: #339af0;
+}
+
+/* ===== Links ===== */
+.auth-links {
+  margin-top: 15px;
+  text-align: center;
+}
+
+.auth-links a {
+  color: #4dabf7;
+  text-decoration: none;
+  font-size: 0.9rem;
+}
+
+.auth-links a:hover {
+  text-decoration: underline;
+}
+
+/* ===== Responsive ===== */
+@media (max-width: 480px) {
+  .auth-container {
+    padding: 20px;
+  }
+  .auth-container h2 {
+    font-size: 1.5rem;
+  }
+}

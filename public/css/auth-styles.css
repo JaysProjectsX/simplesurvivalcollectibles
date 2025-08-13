@@ -32,6 +32,7 @@ h6{font-size:16px;font-weight:600}
 .signin-section{padding:30px 0 60px}
 .title-wrapper{margin-bottom:30px}
 .pt-30{padding-top:30px}
+.pt-4rm{padding-top:4rem}
 .mb-10{margin-bottom:10px}
 .mb-15{margin-bottom:15px}
 .mb-20{margin-bottom:20px}
@@ -212,17 +213,17 @@ a.hover-underline:hover{text-decoration:underline}
    Auth Card (two-pane layout)
    ========================= */
 .signin-section {
-  padding: 24px 16px 48px;
+  padding: 0px 16px 24px;
 }
 
 /* The unified card */
 .auth-card {
   /* Center and size */
-  max-width: 1180px;
+  max-width: 1280px;
   margin: 24px auto;
   /* Dark card with rounded corners */
   background: #14142d;                 /* matches your dark theme card */
-  border-radius: 14px;
+  border-radius: 6px;
   box-shadow: 0 12px 24px -6px rgba(0,0,0,.35), 0 2px 4px rgba(0,0,0,.25);
   /* Two panes side by side */
   display: grid;
@@ -243,7 +244,7 @@ a.hover-underline:hover{text-decoration:underline}
 .auth-left-inner {
   width: 100%;
   max-width: 520px;
-  text-align: left;
+  text-align: center;
 }
 
 .auth-title {

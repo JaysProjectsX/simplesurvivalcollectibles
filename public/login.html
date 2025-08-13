@@ -7,16 +7,14 @@
   <link rel="icon" href="/favicon.png" type="image/png"/>
   <link rel="stylesheet" href="/css/home-page.css"/>
   <link rel="stylesheet" href="/css/globalModal.css"/>
+  <link rel="stylesheet" href="/css/auth-styles.css">
   <link href="https://unpkg.com/boxicons@2.1.1/css/boxicons.min.css" rel="stylesheet"/>
   <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;600;800&display=swap" rel="stylesheet">
 </head>
-<body>
-
-  <!-- Preloader -->
+<body class="auth-page darkTheme">
   <div id="preloader"><div class="loader"></div></div>
 
-  <!-- Nav -->
   <nav>
     <div class="nav-content">
       <div class="nav-logo">
@@ -35,52 +33,90 @@
     </div>
   </nav>
 
-  <main class="auth-page">
-    <section class="auth-composite">
-      <!-- Left (hero) -->
-      <div class="auth-composite__left">
-        <h1>Welcome Back</h1>
-        <p class="muted">Sign in to your account to continue.</p>
-      </div>
-
-      <!-- Right (form) -->
-      <div class="auth-composite__right">
-        <div class="card">
-          <form id="loginForm" class="auth-form" novalidate>
-            <label class="note" for="loginEmail">Email</label>
-            <input id="loginEmail" class="input" type="text" placeholder="you@example.com" required />
-
-            <label class="note" for="loginPassword">Password</label>
-            <input id="loginPassword" class="input" type="password" required />
-
-            <div class="row">
-              <span>Don’t have an account? <a href="/register.html">Create one</a></span>
-              <a href="/forgot-password.html">Forgot password?</a>
-            </div>
-
-            <button class="btn" type="submit">Sign In</button>
-          </form>
+  <main class="signin-section">
+    <div class="container-fluid">
+      <div class="title-wrapper pt-30">
+        <div class="row align-items-center">
+          <div class="col-md-6">
+            <div class="title"><h2>Sign in</h2></div>
+          </div>
         </div>
       </div>
-    </section>
+
+      <div class="row g-0 auth-row">
+        <div class="col-lg-6">
+          <div class="auth-cover-wrapper bg-primary-100">
+            <div class="auth-cover">
+              <div class="title text-center">
+                <h1 class="text-primary mb-10">Welcome Back</h1>
+                <p class="text-medium">Sign in to your account to continue</p>
+              </div>
+              <div class="cover-image">
+                <img src="/assets/signin-image.svg" alt="">
+              </div>
+              <div class="shape-image">
+                <img src="/assets/shape.svg" alt="">
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-lg-6">
+          <div class="signin-wrapper">
+            <div class="form-wrapper">
+              <h6 class="mb-15">Sign In Form</h6>
+              <p class="text-sm mb-25">Sign in to start keeping track of your in-game items.</p>
+
+              <form id="loginForm" novalidate>
+                <div class="input-style-1">
+                  <label for="email">Email</label>
+                  <input id="email" name="email" type="email" placeholder="Email" autocomplete="email" required>
+                </div>
+
+                <div class="input-style-1">
+                  <label for="password">Password</label>
+                  <input id="password" name="password" type="password" placeholder="Password" autocomplete="current-password" required>
+                </div>
+
+                <div class="between mb-20">
+                  <label class="form-check checkbox-style">
+                    <input class="form-check-input" type="checkbox" id="remember">
+                    <span class="form-check-label">Remember me next time</span>
+                  </label>
+                  <a href="/forgot-password.html" class="hover-underline">Forgot Password?</a>
+                </div>
+
+                <button class="main-btn primary-btn btn-hover w-100" type="submit">Sign In</button>
+              </form>
+
+              <div class="singin-option pt-40">
+                <p class="text-sm text-medium text-dark text-center">
+                  Don’t have an account?
+                  <a href="/register.html">Create an account</a>
+                </p>
+              </div>
+
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
   </main>
 
   <div id="toastContainer"></div>
 
+    <footer>
+      <div class="footer-creator">
+        <p>Created by YooEm</p>
+      </div>
+      <div class="footer-links">
+        <p><strong>Disclaimer:</strong> This is a fan-made website and is not affiliated with or endorsed by the SimpleSurvival Minecraft server or its owners.</p>
+        <p><a href="privacy.html">Privacy Policy</a> | <a href="terms.html">Terms of Use</a></p>
+      </div>
+    </footer>
+
   <script defer src="/js/globalModal.js"></script>
   <script defer src="/js/auth.js"></script>
-  <script>
-    // Map form fields to what auth.js expects
-    document.addEventListener('DOMContentLoaded', () => {
-      const f = document.getElementById('loginForm');
-      if (f) {
-        const email = document.getElementById('loginEmail');
-        const pass  = document.getElementById('loginPassword');
-        // Ensure auth.js querySelector('input[type="text"]'/'password') hits these:
-        email.setAttribute('type','text');
-        pass.setAttribute('type','password');
-      }
-    });
-  </script>
 </body>
 </html>

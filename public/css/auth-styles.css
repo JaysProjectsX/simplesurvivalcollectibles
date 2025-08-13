@@ -1,0 +1,115 @@
+/* Font + base tokens borrowed from the source */
+@import url("https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap");
+:root{
+  --primary:#365CF5;
+  --text:#5d657b;
+  --bg:#f1f5f9;
+  --radius:7px;
+}
+html{scroll-behavior:smooth}
+body.auth-page{
+  font-family:"Plus Jakarta Sans",sans-serif;
+  color:var(--text);
+  background:var(--bg);
+  margin:0;
+}
+
+/* Grid lite (enough for the split layout) */
+.container-fluid{max-width:1200px;margin:0 auto;padding:0 24px}
+.row{display:flex;flex-wrap:wrap;margin:0 -12px}
+.col-lg-6{padding:0 12px;box-sizing:border-box;width:50%}
+@media (max-width:991px){.col-lg-6{width:100%}}
+
+/* Titles & type */
+h1,h2,h3,h4,h5,h6{color:#1A2142;margin:0}
+h2{font-size:28px;font-weight:600}
+h6{font-size:16px;font-weight:600}
+.text-sm{font-size:14px;line-height:22px}
+.text-medium{font-weight:500}
+.text-dark{color:#1A2142}
+.text-primary{color:var(--primary)}
+.text-gray{color:#5d657b}
+
+/* Section layout (matches .signin-section look) */
+.signin-section{padding:30px 0 60px}
+.title-wrapper{margin-bottom:30px}
+.pt-30{padding-top:30px}
+.mb-10{margin-bottom:10px}
+.mb-15{margin-bottom:15px}
+.mb-20{margin-bottom:20px}
+.mb-25{margin-bottom:25px}
+.pt-40{padding-top:40px}
+.pb-40{padding-bottom:40px}
+
+/* Left illustration card */
+.auth-cover-wrapper{
+  background: rgba(54,92,245,.06);
+  height:100%;
+  border-radius:var(--radius);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:40px 20px;
+}
+.auth-cover .title{margin-bottom:20px}
+.auth-cover .cover-image img,
+.auth-cover .shape-image img{max-width:100%}
+
+/* Right form card */
+.signin-wrapper{padding:20px}
+.form-wrapper{
+  background:#fff;
+  box-shadow:0px 12px 24px -4px rgba(145,158,171,0.12), 0px 0px 2px rgba(145,158,171,0.2);
+  border-radius:var(--radius);
+  padding:30px;
+  max-width:520px;
+  margin:0 auto;
+}
+
+/* Inputs (matches .input-style-1) */
+.input-style-1{margin-bottom:16px}
+.input-style-1 label{display:block;margin-bottom:8px;font-weight:600}
+.input-style-1 input{
+  width:100%;
+  padding:12px 14px;
+  border:1px solid #DFE5EF;
+  border-radius:3px;
+  font-size:14px;
+}
+.input-style-1 input:focus{outline:none;box-shadow:none;border-color:#cbd6f9}
+
+/* Checkbox row */
+.between{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.checkbox-style{display:flex;align-items:center;gap:8px}
+.form-check-input{width:16px;height:16px}
+
+/* Buttons (matches .main-btn + variants) */
+.main-btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:10px;
+  padding:15px 45px;border-radius:3px;font-size:14px;line-height:24px;
+  border:1px solid transparent;cursor:pointer;transition:.2s ease-in-out;
+}
+.btn-hover{position:relative;overflow:hidden}
+.btn-hover::after{
+  content:"";position:absolute;inset:auto auto 50% 50%;width:0;height:0;border-radius:50%;
+  background:rgba(255,255,255,.05);transform:translate(-50%,-50%) scale(0);transition:.3s;
+}
+.btn-hover:hover::after{width:120%;height:120%;transform:translate(-50%,-50%) scale(1)}
+.primary-btn{background:var(--primary);color:#fff}
+.primary-btn:hover{filter:brightness(0.95)}
+.primary-btn-outline{background:transparent;color:var(--primary);border-color:var(--primary)}
+.primary-btn-outline:hover{background:var(--primary);color:#fff}
+.danger-btn-outline{background:transparent;color:#d50100;border-color:#d50100}
+.danger-btn-outline:hover{background:#d50100;color:#fff}
+.w-100{width:100%}
+
+/* Links */
+a{color:inherit;text-decoration:none;transition:.15s}
+a.hover-underline:hover{text-decoration:underline}
+
+/* Dark theme adjustments (uses same class name as source) */
+.darkTheme{color:#838C9A;background:#0b0b15}
+.darkTheme h1, .darkTheme h2, .darkTheme h6, .darkTheme .text-dark{color:#fff}
+.darkTheme .form-wrapper{background:#14142D;box-shadow:0 0 30px rgba(0,0,0,.2)}
+.darkTheme .input-style-1 input{background:#0e0e1f;border-color:#3F4053;color:#e8e8e8}
+.darkTheme .text-gray{color:rgba(255,255,255,0.5)}

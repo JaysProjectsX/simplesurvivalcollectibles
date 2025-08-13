@@ -2338,3 +2338,225 @@ nav {
     animation: spin 1s linear infinite;
   }
   @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ===============================
+   AUTH PAGES — LAYOUT & COMPONENTS
+   =============================== */
+
+  /* Page wrapper */
+  .auth-page {
+    width: 100%;
+    padding: 100px 20px 60px; /* room for fixed nav */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* Two-column shell that collapses to one on smaller screens */
+  .auth-shell {
+    width: 100%;
+    max-width: 1100px;
+    display: grid;
+    grid-template-columns: 1.1fr 1fr;
+    gap: 28px;
+    align-items: stretch;
+  }
+
+  /* Left column: headline, copy, hero bits */
+  .auth-left {
+    background: rgba(255, 255, 255, 0.04);
+    backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 18px;
+    padding: 28px;
+    text-align: left;
+    box-shadow: 0 12px 36px rgba(0,0,0,0.28);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .auth-left::after {
+    /* subtle corner glow */
+    content: "";
+    position: absolute;
+    right: -40px;
+    top: -40px;
+    width: 180px; height: 180px;
+    background: radial-gradient(closest-side, rgba(110,168,255,0.25), transparent 70%);
+    filter: blur(8px);
+    pointer-events: none;
+  }
+
+  .auth-left h1, .auth-left h2 {
+    margin: 0 0 8px;
+    font-size: clamp(1.8rem, 3vw, 2.4rem);
+    background: linear-gradient(90deg, #6e70ff, #b673f5);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .auth-left .muted { color: #cfd3ff; opacity: 0.85; }
+
+  /* Right column: the form card */
+  .auth-right {
+    display: flex;
+    align-items: stretch;
+  }
+
+  /* Reusable "card" shell for forms/content */
+  .card {
+    width: 100%;
+    background: rgba(255, 255, 255, 0.06);
+    backdrop-filter: blur(18px);
+    border: 1px solid rgba(255, 255, 255, 0.10);
+    border-radius: 18px;
+    padding: 24px;
+    text-align: left;
+    box-shadow: 0 16px 40px rgba(0,0,0,0.35);
+    transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
+  }
+
+  .card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 20px 50px rgba(0,0,0,0.38);
+    border-color: rgba(110,168,255,0.25);
+  }
+
+  /* Inputs */
+  .input, 
+  .auth-page input[type="text"], 
+  .auth-page input[type="email"], 
+  .auth-page input[type="password"] {
+    width: 100%;
+    margin: 8px 0 16px;
+    padding: 12px 14px;
+    border-radius: 10px;
+    border: 1px solid rgba(255,255,255,0.12);
+    background: rgba(10,12,28,0.7);
+    color: #fff;
+    font-size: 0.98rem;
+    transition: border-color .2s ease, box-shadow .2s ease, background .2s ease;
+  }
+
+  .input::placeholder,
+  .auth-page input::placeholder { color: #aab2d9; opacity: .9; }
+
+  .input:focus,
+  .auth-page input:focus {
+    outline: none;
+    border-color: #6ea8ff;
+    box-shadow: 0 0 0 3px rgba(110,168,255,0.18);
+    background: rgba(10,12,28,0.9);
+  }
+
+  /* Labels */
+  .note { 
+    display: block; 
+    font-size: 0.9rem; 
+    color: #cfd3ff; 
+    opacity: 0.95; 
+  }
+
+  /* Button */
+  .btn,
+  .auth-page .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    padding: 12px 16px;
+    border-radius: 12px;
+    border: 1px solid rgba(255,255,255,0.1);
+    background: linear-gradient(45deg, #4083ff, #002fff);
+    color: #fff;
+    font-weight: 700;
+    cursor: pointer;
+    transition: transform .15s ease, filter .2s ease, box-shadow .2s ease;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.35);
+  }
+  .btn:hover { filter: brightness(1.07); transform: translateY(-1px); }
+  .btn:active { transform: translateY(0); }
+  .btn[disabled] { opacity: .6; cursor: not-allowed; }
+
+  /* Minor helpers */
+  .row { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+  .spacer { height: 14px; }
+  .center { display: flex; align-items: center; justify-content: center; }
+
+  /* Toggle text links inline under forms */
+  .toggle-text { font-size: .9rem; color: #cfd3ff; }
+  .toggle-text a { color: #6ea8ff; text-decoration: none; }
+  .toggle-text a:hover { text-decoration: underline; }
+
+  /* Account page specifics */
+  .auth-page .auth-left.card { /* profile card look */
+    background: rgba(255,255,255,0.05);
+  }
+  .auth-page .auth-right.card { /* ensure right column card padding if used standalone */
+    padding: 24px;
+  }
+
+  .auth-page strong { color: #ffffff; }
+  .auth-page #accVerified { font-weight: 700; }
+  .auth-page #accVerified[style*="limegreen"] { text-shadow: 0 0 10px rgba(34,197,94,.35); }
+  .auth-page #accVerified[style*="red"] { text-shadow: 0 0 10px rgba(255,77,79,.35); }
+
+  /* Dropdown within nav is already styled; ensure auth-page doesn’t clip it */
+  .auth-page { position: relative; z-index: 1; }
+
+  /* Small “badge” style if used */
+  .badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: rgba(16, 24, 56, 0.85);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 999px;
+    padding: 6px 10px;
+    font-size: 12px; color: #cfd7ff;
+  }
+
+  /* Responsive behavior */
+  @media (max-width: 1024px) {
+    .auth-shell {
+      grid-template-columns: 1fr;
+      max-width: 760px;
+    }
+    .auth-left, .card { padding: 22px; }
+  }
+
+  @media (max-width: 720px) {
+    .auth-page { padding: 90px 16px 40px; }
+    .auth-left h1 { font-size: clamp(1.6rem, 5.5vw, 2rem); }
+    .row { gap: 8px; }
+  }
+
+  @media (max-width: 480px) {
+    .auth-page { padding: 88px 14px 36px; }
+    .card { padding: 18px; border-radius: 16px; }
+    .input { font-size: .95rem; padding: 11px 12px; }
+    .btn { padding: 11px 14px; border-radius: 10px; }
+  }
+
+  /* Accessibility niceties */
+  :where(.auth-page) a:focus-visible,
+  :where(.auth-page) .btn:focus-visible,
+  :where(.auth-page) .input:focus-visible {
+    outline: 3px solid rgba(110,168,255,0.55);
+    outline-offset: 2px;
+    border-radius: 12px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .card, .btn, .input { transition: none !important; }
+  }
+
+  /* Ensure preloader sits above auth pages but fades smoothly (already defined earlier) */
+  #preloader { transition: opacity .25s ease; }
+
+  /* Optional: keep the auth form's headings aligned even if nav wraps */
+  .auth-shell h1, .auth-shell h2 { line-height: 1.2; }
+
+  /* Optional: compact helper for tiny gaps between stacked elements */
+  .gap-6 { gap: 6px; }
+
+  /* Make sure nav-auth slot doesn’t flicker if you ever decide to hide during init */
+  .nav-auth-slot { will-change: contents; }

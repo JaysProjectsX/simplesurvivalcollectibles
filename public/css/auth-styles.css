@@ -112,7 +112,7 @@ a.hover-underline:hover{text-decoration:underline}
 .darkTheme{color:#838C9A;}
 .darkTheme h1, .darkTheme h2, .darkTheme h6, .darkTheme .text-dark{color:#fff}
 .darkTheme .form-wrapper{background:#14142D;box-shadow:0 0 30px rgba(0,0,0,.2)}
-.darkTheme .input-style-1 input{background:#0e0e1f;border-color:#3F4053;color:#e8e8e8}
+.darkTheme .input-style-1 input{background:#0e0e1f;border-color:#3F4053;color:#e8e8e8;box-sizing:border-box}
 .darkTheme .text-gray{color:rgba(255,255,255,0.5)}
 
 /* ===== Auth Form Wrapper ===== */
@@ -252,7 +252,7 @@ a.hover-underline:hover{text-decoration:underline}
 
 .auth-title {
   margin: 0 0 8px 0;
-  color: #fff;
+  color: #365CF5 !important;
   font-size: 32px;
   font-weight: 700;
   letter-spacing: .2px;
@@ -301,7 +301,6 @@ a.hover-underline:hover{text-decoration:underline}
 }
 .input-style-1 input {
   width: 100%;
-  padding: 14px 14px;
   border: 1px solid #2b2d43;
   border-radius: 6px;
   background: #0e0f22;
@@ -356,8 +355,9 @@ a.hover-underline:hover{text-decoration:underline}
 }
 
 .page-title {
-  font-size: 2rem;
-  font-weight: 600;
+  font-family: "Plus Jakarta Sans", sans-serif !important;
+  font-size: 1rem;
+  font-weight: 500 !important;
   margin: 0;
 }
 

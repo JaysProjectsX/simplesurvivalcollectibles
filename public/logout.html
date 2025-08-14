@@ -1,22 +1,21 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8"/>
+  <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Logged out - SimpleSurvival Collectibles</title>
+  <title>Signed Out - SimpleSurvival Collectibles</title>
   <link rel="icon" href="/favicon.png" type="image/png"/>
   <link rel="stylesheet" href="/css/home-page.css"/>
   <link rel="stylesheet" href="/css/globalModal.css"/>
+  <link rel="stylesheet" href="/css/auth-styles.css">
   <link href="https://unpkg.com/boxicons@2.1.1/css/boxicons.min.css" rel="stylesheet"/>
   <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;600;800&display=swap" rel="stylesheet">
 </head>
-<body>
-
-  <!-- Preloader -->
+<body class="auth-page darkTheme">
   <div id="preloader"><div class="loader"></div></div>
 
-  <!-- Nav -->
+  <!-- Top nav (same as login.html) -->
   <nav>
     <div class="nav-content">
       <div class="nav-logo">
@@ -35,27 +34,74 @@
     </div>
   </nav>
 
-  <main class="auth-page">
-    <div class="logout-panel">
-      <h3 style="margin:0 0 8px;color:#b8c4ff;">You’ve been logged out</h3>
-      <p style="margin:0 0 12px;color:#d8defa;">Your session has ended securely.</p>
-      <p><a href="/index.html">Return home</a> or <a href="/login.html">sign in again</a>.</p>
-    </div>
+  <main class="main-wrapper">
+
+    <!-- Page title row (mirrors login.html) -->
+    <section class="page-title-wrap pt-4rm">
+      <div class="container page-title-container">
+        <div class="page-title-row">
+          <h1 class="page-title">Signed out</h1>
+          <a href="/index.html" class="text-sm link-primary">
+            <i class="fa-solid fa-arrow-left"></i> Back to Home
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Auth card (same two-pane layout) -->
+    <section class="signin-section">
+      <div class="auth-card">
+        <!-- LEFT: Illustration -->
+        <aside class="auth-card__left">
+          <div class="auth-left-inner">
+            <h1 class="auth-title">See you soon!</h1>
+            <p class="auth-subtitle">You’ve been safely signed out.</p>
+
+            <div class="auth-illustration">
+              <!-- reuse your existing artwork so styling stays consistent -->
+              <img src="/assets/signin_image_transparent.svg" alt="Signed out illustration" />
+            </div>
+          </div>
+        </aside>
+
+        <!-- RIGHT: Static message -->
+        <div class="auth-card__right">
+          <div class="auth-right-inner">
+            <h1>Signed Out</h1>
+            <p class="text-sm mb-25">
+              You have successfully logged out of your account.
+              You can head back home or sign in again below.
+            </p>
+
+            <div class="between mb-20">
+              <a class="main-btn primary-btn btn-hover w-100" href="/login.html" style="margin-right:12px;">Go to Login</a>
+              <a class="main-btn primary-btn-outline btn-hover w-100" href="/index.html">Back to Home</a>
+            </div>
+
+            <p class="text-sm text-medium text-dark text-center auth-bottom-note">
+              Need an account?
+              <a class="link-primary" href="/register.html">Create an account</a>
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
   </main>
 
   <div id="toastContainer"></div>
 
+  <footer>
+    <div class="footer-creator">
+      <p>Created by YooEm</p>
+    </div>
+    <div class="footer-links">
+      <p><strong>Disclaimer:</strong> This is a fan-made website and is not affiliated with or endorsed by the SimpleSurvival Minecraft server or its owners.</p>
+      <p><a href="privacy.html">Privacy Policy</a> | <a href="terms.html">Terms of Use</a></p>
+    </div>
+  </footer>
+
   <script defer src="/js/globalModal.js"></script>
   <script defer src="/js/auth.js"></script>
-  <script>
-    // If the dropdown didn't call logout() before navigating here, ensure we do it now.
-    document.addEventListener('DOMContentLoaded', () => {
-      try {
-        if (typeof logout === 'function') { logout(); }
-      } catch(e) {}
-      // Hide preloader in case auth.js hasn't yet
-      const p = document.getElementById('preloader'); if (p) p.style.opacity = '0', setTimeout(()=>p.style.display='none',250);
-    });
-  </script>
 </body>
 </html>

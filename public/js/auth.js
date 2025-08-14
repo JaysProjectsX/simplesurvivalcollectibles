@@ -2,20 +2,34 @@ const backendUrl = "https://simplesurvivalcollectibles.site";
 let currentUser = null;
 
 /* === ADDED: Preloader-driven session bootstrap (uses your existing nav/update code) === */
+function hasCookie(name) {
+  return document.cookie
+    .split(";")
+    .some(c => c.trim().startsWith(name + "="));
+}
+
 (function () {
   const el = document.getElementById("preloader");
-  if (!el) return; // page doesn’t use the preloader; nothing to do
+  if (!el) return;
 
-  const SAFETY_TIMEOUT_MS = 4000; // never block longer than this
-  const MIN_HOLD_MS = 450;        // avoid a blink
+  const SAFETY_TIMEOUT_MS = 4000;
+  const MIN_HOLD_MS = 450;
   const started = Date.now();
 
+  // Page flags
+  const PAGE = location.pathname.split("/").pop();
+  const IS_LOGOUT_PAGE = PAGE === "logout.html";
+
+  // If we’re on logout page, or we clearly don’t have an auth cookie,
+  // skip hitting /me and /refresh entirely (prevents 401 spam).
+  const shouldAttemptSession = !IS_LOGOUT_PAGE && hasCookie("refreshToken");
+
   async function resolveSession() {
+    if (!shouldAttemptSession) return; // <-- guard
+
     try {
-      // Try /me with current access cookie
       let r = await fetch(`${backendUrl}/me`, { credentials: "include" });
 
-      // If unauthorized, try a single refresh then retry /me
       if (r.status === 401) {
         const rr = await fetch(`${backendUrl}/refresh`, { method: "POST", credentials: "include" });
         if (rr.ok) r = await fetch(`${backendUrl}/me`, { credentials: "include" });
@@ -24,7 +38,6 @@ let currentUser = null;
       if (r.ok) {
         const u = await r.json().catch(() => null);
         if (u) {
-          // Populate the minimal fields your existing code reads for UI
           localStorage.setItem("username", u.username || "");
           localStorage.setItem("email", u.email || "");
           localStorage.setItem("role", u.role || "User");
@@ -32,7 +45,6 @@ let currentUser = null;
           localStorage.setItem("created_at", u.created_at || "");
         }
       } else if (r.status === 401 || r.status === 403) {
-        // Truly not logged in — clear any stale display data
         localStorage.removeItem("username");
         localStorage.removeItem("email");
         localStorage.removeItem("role");
@@ -40,7 +52,7 @@ let currentUser = null;
         localStorage.removeItem("created_at");
       }
     } catch {
-      // Network hiccup — ignore; we will still reveal the page
+      // ignore
     }
   }
 
@@ -49,11 +61,9 @@ let currentUser = null;
     setTimeout(() => { el.style.display = "none"; }, 250);
   }
 
-  // Wait for DOM, resolve session, then paint UI and fade the overlay
   document.addEventListener("DOMContentLoaded", async () => {
     await resolveSession();
 
-    // Let your existing code render username/dropdown etc.
     if (typeof updateNavUI === "function") {
       try { updateNavUI(); } catch {}
       try { paintAccountInfo(); } catch {}
@@ -65,9 +75,19 @@ let currentUser = null;
     } else {
       hidePreloader();
     }
+
+    // If this is the dedicated logout page, do a one-shot cleanup and bounce.
+    if (IS_LOGOUT_PAGE) {
+      try {
+        await fetch(`${backendUrl}/logout`, { method: "POST", credentials: "include" });
+      } catch {}
+      localStorage.clear();
+      try { updateNavUI(); } catch {}
+      // small pause so user can see the page, then go to login
+      setTimeout(() => { window.location.href = "/login.html"; }, 900);
+    }
   });
 
-  // Safety fuse in case DOMContentLoaded never fires
   setTimeout(hidePreloader, SAFETY_TIMEOUT_MS);
 })();
 
@@ -106,9 +126,9 @@ let __auth_last_activity = Date.now();
   window.addEventListener(ev, () => { __auth_last_activity = Date.now(); }, {passive:true})
 );
 setInterval(async () => {
-  // ping refresh at most every ~5 min when active on the page
+  if (!hasCookie("refreshToken")) return; // <-- no cookie, don’t ping
+
   if (Date.now() - __auth_last_activity < 2 * 60 * 1000) {
-    // will be a quick no-op on server if access still valid
     try { await AUTH.refreshOnce(); } catch {}
   }
 }, 5 * 60 * 1000);
@@ -159,18 +179,19 @@ function isLockedOut(user) {
   return failedAttempts >= 3 && diff < 10 * 60 * 1000;
 }
 
-document.addEventListener("DOMContentLoaded", () => {
-  updateNavUI();
-  if (document.cookie.includes("refreshToken") || localStorage.getItem("username")) {
-    fetchAccountInfo();
-  }
+  document.addEventListener("DOMContentLoaded", () => {
+    updateNavUI();
+
+    if (hasCookie("refreshToken")) {
+      fetchAccountInfo();
+    }
 
     if (document.getElementById("accUsername")) {
-    paintAccountInfo();
-    if (!localStorage.getItem("username")) {
-      fetchAccountInfo().catch(() => {});
+      paintAccountInfo();
+      if (hasCookie("refreshToken") && !localStorage.getItem("username")) {
+        fetchAccountInfo().catch(() => {});
+      }
     }
-  }
 
     // Registration page
     const registerForm = document.getElementById("registerForm");

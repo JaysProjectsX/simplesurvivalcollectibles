@@ -254,7 +254,7 @@ function isLockedOut(user) {
             type: "success",
             title: "Successfully Logged In",
             message: `Welcome back, ${username || "User"}!`,
-            buttons: [{ label: "Close", onClick: `fadeOutAndRemove('modal-successLogin'); window.location.href = "/index.html";` }],
+            buttons: [{ label: "Close", onClick: `fadeOutAndRemove('modal-successLogin'); setTimeout(() => {window.location.href = '/index.html';}, 900);` }],
             id: "modal-successLogin"
           });
           } else {

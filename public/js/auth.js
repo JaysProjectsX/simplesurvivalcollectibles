@@ -406,11 +406,9 @@ document.addEventListener("DOMContentLoaded", () => {
                 type: "success",
                 title: "Password Reset Successful",
                 message: "You can now log in with your new password.",
-                buttons: [{ label: "Close", onClick: `fadeOutAndRemove('modal-passwordResetComplete')` }],
+                buttons: [{ label: "Close", onClick: `fadeOutAndRemove('modal-passwordResetComplete'); setTimeout(() => {window.location.href = '/login.html';}, 500);` }],
                 id: "modal-passwordResetComplete"
               });
-              // Send to login since we’re page-based now
-              window.location.href = "/login.html";
             } else {
               showGlobalModal({
                 type: "error",

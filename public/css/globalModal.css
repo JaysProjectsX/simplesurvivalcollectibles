@@ -86,9 +86,10 @@
   font-size: 1.2rem;
   margin: 0 0 0.5em;
   font-weight: 600;
+  color: #cccccc !important;
 }
 .global-modal .modal-body p {
-  color: #cccccc;
+  color: #cccccc !important;
   font-size: 1rem;
 }
 

@@ -345,6 +345,10 @@ document.addEventListener("DOMContentLoaded", () => {
             document.getElementById("emailSection").style.display = "none";
             codeSection.style.display = "block";
             resetEmail = emailInput.value.trim();
+            resetCodeInput.disabled = false;
+            newPasswordInput.disabled = false;
+            resetCodeInput.required = true;
+            newPasswordInput.required = true;
           } else {
             showGlobalModal({
               type: "error",

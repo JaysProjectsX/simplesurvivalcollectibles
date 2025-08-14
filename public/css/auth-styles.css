@@ -345,3 +345,15 @@ a.hover-underline:hover{text-decoration:underline}
   .auth-illustration img { height: 260px; }
   .auth-right-inner { max-width: 560px; }
 }
+
+.page-title-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.page-title {
+  font-size: 2rem;
+  font-weight: 600;
+  margin: 0;
+}

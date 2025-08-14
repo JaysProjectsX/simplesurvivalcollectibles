@@ -4,6 +4,8 @@
   --text:#5d657b;
   --bg:#f1f5f9;
   --radius:7px;
+  --auth-max: 1200px;
+  --auth-gutter: 24px;
 }
 html{scroll-behavior:smooth}
 body.auth-page{
@@ -213,28 +215,29 @@ a.hover-underline:hover{text-decoration:underline}
    Auth Card (two-pane layout)
    ========================= */
 .signin-section {
-  padding: 0px 16px 24px;
+  padding-left: var(--auth-gutter);
+  padding-right: var(--auth-gutter);
+  padding-top: 0;
+  padding-bottom: 24px;
 }
 
 /* The unified card */
 .auth-card {
-  /* Center and size */
-  max-width: 1280px;
+  max-width: var(--auth-max);
+  width: 100%;
   margin: 24px auto;
-  /* Dark card with rounded corners */
-  background: #14142d;                 /* matches your dark theme card */
+  background: #14142d;
   border-radius: 6px;
   box-shadow: 0 12px 24px -6px rgba(0,0,0,.35), 0 2px 4px rgba(0,0,0,.25);
-  /* Two panes side by side */
   display: grid;
   grid-template-columns: 1fr 1fr;
   min-height: 560px;
-  overflow: hidden;                     /* keep images inside rounded corners */
+  overflow: hidden;
 }
 
 /* LEFT pane */
 .auth-card__left {
-  background: radial-gradient(1200px 600px at 50% 60%, rgba(54,92,245,.15), rgba(54,92,245,0) 60%) #0f1130;
+  background: rgba(54, 92, 245, 0.1);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -356,4 +359,11 @@ a.hover-underline:hover{text-decoration:underline}
   font-size: 2rem;
   font-weight: 600;
   margin: 0;
+}
+
+.page-title-container{
+  max-width: var(--auth-max);
+  margin: 0 auto;
+  padding-left: var(--auth-gutter);
+  padding-right: var(--auth-gutter);
 }

@@ -949,9 +949,10 @@ nav {
   .crate-main,
   .filter-section-wrapper,
   .changelog-wrapper {
-    background: rgba(255, 255, 255, 0.05);
+    border-color: rgb(2, 2, 30);
+    background: rgb(20, 20, 45);
     backdrop-filter: blur(20px);
-    border-radius: 16px;
+    border-radius: 6px;
     padding: 20px;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
   }

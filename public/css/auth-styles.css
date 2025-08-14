@@ -338,7 +338,7 @@ a.hover-underline:hover{text-decoration:underline}
    ============== */
 @media (max-width: 1024px) {
   .auth-card {
-    grid-template-columns: 1fr;   /* stack left above right */
+    grid-template-columns: 1fr;
     min-height: 0;
   }
   .auth-card__left, .auth-card__right {

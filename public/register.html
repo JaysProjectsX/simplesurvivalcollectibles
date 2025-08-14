@@ -1,22 +1,20 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8"/>
+  <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Sign up - SimpleSurvival Collectibles</title>
+  <title>Create account - SimpleSurvival Collectibles</title>
   <link rel="icon" href="/favicon.png" type="image/png"/>
   <link rel="stylesheet" href="/css/home-page.css"/>
   <link rel="stylesheet" href="/css/globalModal.css"/>
+  <link rel="stylesheet" href="/css/auth-styles.css">
   <link href="https://unpkg.com/boxicons@2.1.1/css/boxicons.min.css" rel="stylesheet"/>
   <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;600;800&display=swap" rel="stylesheet">
 </head>
-<body>
-
-  <!-- Preloader -->
+<body class="auth-page darkTheme">
   <div id="preloader"><div class="loader"></div></div>
 
-  <!-- Nav -->
   <nav>
     <div class="nav-content">
       <div class="nav-logo">
@@ -35,47 +33,83 @@
     </div>
   </nav>
 
-  <main class="auth-page">
-    <section class="auth-composite">
-      <div class="auth-composite__left">
-        <h1>Get Started</h1>
-        <p class="muted">Create your account.</p>
-      </div>
-
-      <div class="auth-composite__right">
-        <div class="card">
-          <form id="registerForm" class="auth-form" novalidate>
-            <label class="note" for="registerUsername">Username</label>
-            <input id="registerUsername" class="input" type="text" required />
-
-            <label class="note" for="registerEmail">Email</label>
-            <input id="registerEmail" class="input" type="email" placeholder="you@example.com" required />
-
-            <label class="note" for="registerPassword">Password</label>
-            <input id="registerPassword" class="input" type="password" required />
-
-            <div class="row">
-              <span>Already have an account? <a href="/login.html">Sign in</a></span>
-            </div>
-
-            <button class="btn" type="submit">Sign Up</button>
-          </form>
+  <main class="main-wrapper">
+    <!-- Page title -->
+    <section class="page-title-wrap pt-4rm">
+      <div class="container page-title-container">
+        <div class="page-title-row">
+          <h1 class="page-title">Create account</h1>
+          <a href="/index.html" class="text-sm link-primary">Back to Home</a>
         </div>
       </div>
     </section>
 
-    <!-- Registration confirmation modal (auth.js toggles this) -->
-    <div id="registrationConfirmation" class="modal" style="display:none;">
-      <div class="modal-content">
-        <span class="close" onclick="document.getElementById('registrationConfirmation').style.display='none'">&times;</span>
-        <h2>Check Your Email</h2>
-        <p>We’ve sent a verification link to your email address. Please check your inbox/spam folders to verify your account.</p>
+    <!-- Auth card -->
+    <section class="signin-section">
+      <div class="auth-card">
+        <!-- Left -->
+        <aside class="auth-card__left">
+          <div class="auth-left-inner">
+            <h1 class="auth-title">Join Us</h1>
+            <p class="auth-subtitle">Create your account to get started</p>
+            <div class="auth-illustration">
+              <img src="/assets/signin_image_transparent.svg" alt="Create account illustration" />
+            </div>
+          </div>
+        </aside>
+
+        <!-- Right -->
+        <div class="auth-card__right">
+          <div class="auth-right-inner">
+            <h1>Registration</h1>
+            <p class="text-sm mb-25">Fill the fields below to create your account.</p>
+
+            <form id="registerForm" autocomplete="on">
+              <div class="input-style-1">
+                <label for="registerEmail">Email</label>
+                <input id="registerEmail" type="email" placeholder="Email" required />
+              </div>
+
+              <div class="input-style-1">
+                <label for="registerPassword">Password</label>
+                <input id="registerPassword" type="password" placeholder="Password" minlength="6" required />
+              </div>
+
+              <div class="input-style-1">
+                <label for="registerConfirm">Confirm Password</label>
+                <input id="registerConfirm" type="password" placeholder="Confirm Password" minlength="6" required />
+              </div>
+
+              <button class="main-btn primary-btn btn-hover w-100" type="submit">Create account</button>
+
+              <p class="text-sm text-medium text-dark text-center auth-bottom-note">
+                Already have an account?
+                <a class="link-primary" href="/login.html">Sign in</a>
+              </p>
+            </form>
+          </div>
+        </div>
       </div>
-    </div>
+    </section>
   </main>
 
   <div id="toastContainer"></div>
 
+  <footer>
+    <div class="footer-creator">
+      <p>Created by YooEm</p>
+    </div>
+    <div class="footer-links">
+      <p><strong>Disclaimer:</strong> This is a fan-made website and is not affiliated with or endorsed by the SimpleSurvival Minecraft server or its owners.</p>
+      <p><a href="privacy.html">Privacy Policy</a> | <a href="terms.html">Terms of Use</a></p>
+    </div>
+  </footer>
+  <script>
+    /* Dedicated-page shim so auth.js’ modal-based helpers won’t error */
+    window.toggleForm = () => { window.location.href = "/login.html"; };
+    window.toggleForgotPasswordForm = () => {};
+    window.backToLoginFromForgot = () => { window.location.href = "/login.html"; };
+  </script>
   <script defer src="/js/globalModal.js"></script>
   <script defer src="/js/auth.js"></script>
 </body>

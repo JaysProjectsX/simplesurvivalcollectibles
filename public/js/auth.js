@@ -250,18 +250,40 @@ function isLockedOut(user) {
           if (res.ok) {
             await fetchAccountInfo();
             const username = localStorage.getItem("username");
-            showToast(username ? `Logged in as: ${username}` : "Login succeeded", "success");
-            // Redirect per your preference
-            window.location.href = "/index.html";
+            showGlobalModal({
+            type: "success",
+            title: "Successfully Logged In",
+            message: `Welcome back, ${username || "User"}!`,
+            buttons: [{ label: "Close", onClick: `fadeOutAndRemove('modal-successLogin'); window.location.href = "/index.html";` }],
+            id: "modal-successLogin"
+          });
           } else {
             if (data.error && data.error.includes("active session")) {
-              showToast("Login failed: Active session already exists", "error");
+                showGlobalModal({
+                type: "error",
+                title: "Login Failed",
+                message: "This account already has an existing session. Please log out first or wait for the session to expire.",
+                buttons: [{ label: "Close", onClick: `fadeOutAndRemove('modal-sessionFailed');` }],
+                id: "modal-sessionFailed"
+              });
             } else {
-              showToast(data.error || "Login failed", "error");
+                showGlobalModal({
+                type: "error",
+                title: "Login Failed",
+                message: "An error occurred while logging in.",
+                buttons: [{ label: "Close", onClick: `fadeOutAndRemove('modal-loginFailed');` }],
+                id: "modal-loginFailed"
+              });
             }
           }
         } catch (err) {
-          showToast("Login request failed", "error");
+            showGlobalModal({
+            type: "error",
+            title: "Login Request Failed",
+            message: "A network error occurred while trying to log in.",
+            buttons: [{ label: "Close", onClick: `fadeOutAndRemove('modal-loginErrFailed');` }],
+            id: "modal-loginErrFailed"
+          });
           console.error(err);
         }
       });

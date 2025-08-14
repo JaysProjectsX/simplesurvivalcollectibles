@@ -83,8 +83,6 @@ function hasCookie(name) {
       } catch {}
       localStorage.clear();
       try { updateNavUI(); } catch {}
-      // small pause so user can see the page, then go to login
-      setTimeout(() => { window.location.href = "/login.html"; }, 900);
     }
   });
 

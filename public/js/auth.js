@@ -17,9 +17,11 @@ function hasCookie(name) {
   const started = Date.now();
 
   // Page flags
-  const PAGE = location.pathname.split("/").pop();
-  const IS_LOGOUT_PAGE = PAGE === "logout.html";
-  const IS_LOGIN_PAGE  = PAGE === "login.html";
+  let PAGE = location.pathname.split("/").pop().toLowerCase();
+  PAGE = PAGE.replace(/\.html$/, ""); // removes .html at the end if present
+
+  const IS_LOGOUT_PAGE = PAGE === "/logout";
+  const IS_LOGIN_PAGE  = PAGE === "/login";
   const HOME_URL       = "/index.html";
   const isProbablyLoggedIn = () =>
     hasCookie("refreshToken") || !!localStorage.getItem("username");

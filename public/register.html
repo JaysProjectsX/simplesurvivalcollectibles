@@ -66,21 +66,30 @@
 
             <form id="registerForm" autocomplete="on">
               <div class="input-style-1">
+                <label for="registerUsername">Username</label>
+                <input id="registerUsername" name="username" type="text" placeholder="Username" required />
+              </div>
+
+              <div class="input-style-1">
                 <label for="registerEmail">Email</label>
-                <input id="registerEmail" type="email" placeholder="Email" required />
+                <input id="registerEmail" name="email" type="email" placeholder="Email" required />
               </div>
 
               <div class="input-style-1">
                 <label for="registerPassword">Password</label>
-                <input id="registerPassword" type="password" placeholder="Password" minlength="6" required />
+                <input id="registerPassword" name="password" type="password" placeholder="Password" minlength="6" required />
               </div>
 
               <div class="input-style-1">
                 <label for="registerConfirm">Confirm Password</label>
-                <input id="registerConfirm" type="password" placeholder="Confirm Password" minlength="6" required />
+                <input id="registerConfirm" name="confirmPassword" type="password" placeholder="Confirm Password" minlength="6" required />
               </div>
 
               <button class="main-btn primary-btn btn-hover w-100" type="submit">Create account</button>
+
+              <div id="registerLoading" class="text-sm" style="display:none; margin-top:10px;">
+                Processing…
+              </div>
 
               <p class="text-sm text-medium text-dark text-center auth-bottom-note">
                 Already have an account?

@@ -196,11 +196,54 @@ function isLockedOut(user) {
     if (registerForm) {
       registerForm.addEventListener("submit", async function (e) {
         e.preventDefault();
-        const username = document.getElementById("registerUsername").value.trim();
-        const email = document.getElementById("registerEmail").value.trim();
-        const password = document.getElementById("registerPassword").value;
+
+        // Query within the form so it works even if IDs change to names later
+        const usernameEl = this.querySelector("#registerUsername, [name='username']");
+        const emailEl    = this.querySelector("#registerEmail, [name='email']");
+        const passwordEl = this.querySelector("#registerPassword, [name='password']");
+        const confirmEl  = this.querySelector("#registerConfirm, [name='confirmPassword']");
+        const loader     = document.getElementById("registerLoading");
+
+        if (!usernameEl || !emailEl || !passwordEl) {
+            showGlobalModal({
+            type: "error",
+            title: "Missing Fields",
+            message: "You're missing some required fields in the registration form. Please fill them out.",
+            buttons: [{ label: "Close", onClick: `fadeOutAndRemove('modal-registerMissingFields');` }],
+            id: "modal-registerMissingFields"
+          });
+          return;
+        }
+
+        const username = usernameEl.value.trim();
+        const email    = emailEl.value.trim();
+        const password = passwordEl.value;
+        const confirm  = confirmEl ? confirmEl.value : password;
+
+        if (!username || !email || !password) {
+            showGlobalModal({
+            type: "error",
+            title: "Missing Fields",
+            message: "Please complete all fields in the registration form.",
+            buttons: [{ label: "Close", onClick: `fadeOutAndRemove('modal-registerMissingFields1');` }],
+            id: "modal-registerMissingFields1"
+          });
+          return;
+        }
+        if (password !== confirm) {
+            showGlobalModal({
+            type: "error",
+            title: "Incorrect Passwords",
+            message: "The passwords you entered do not match. Please try again.",
+            buttons: [{ label: "Close", onClick: `fadeOutAndRemove('modal-registerIncorrectPasswords');` }],
+            id: "modal-registerIncorrectPasswords"
+          });
+          return;
+        }
 
         try {
+          if (loader) loader.style.display = "block";
+
           const res = await fetch(`${backendUrl}/register`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -209,18 +252,37 @@ function isLockedOut(user) {
 
           const data = await res.json().catch(() => ({}));
           if (res.ok) {
-            showToast("Registered successfully! Check your email for verification.", "success");
-            // Send them to login page
-            window.location.href = "/login.html";
+            showGlobalModal({
+            type: "success",
+            title: "Registration Successful",
+            message: "Your account has been created successfully! Please check your email for a verification link. You cannot log in until you verify your email.",
+            buttons: [{ label: "Close", onClick: `fadeOutAndRemove('modal-registerSuccessful'); setTimeout(() => {window.location.href = '/login.html';}, 500);` }],
+            id: "modal-registerSuccessful"
+          });
           } else {
-            showToast(data.error || "Registration failed.", "error");
+            showGlobalModal({
+            type: "error",
+            title: "Registration Failed",
+            message: "" + (data.error || "An error occurred during registration. Please try again later."),
+            buttons: [{ label: "Close", onClick: `fadeOutAndRemove('modal-registerError');` }],
+            id: "modal-registerError"
+          });
           }
         } catch (err) {
-          showToast("Registration request failed.", "error");
           console.error(err);
+            showGlobalModal({
+            type: "error",
+            title: "Registration Error",
+            message: "A network error occurred while trying to register. Please try again later.",
+            buttons: [{ label: "Close", onClick: `fadeOutAndRemove('modal-registerNetworkError');` }],
+            id: "modal-registerNetworkError"
+          });
+        } finally {
+          if (loader) loader.style.display = "none";
         }
       });
     }
+
 
     // Login page
     const loginForm = document.getElementById("loginForm");

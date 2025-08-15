@@ -91,7 +91,7 @@ function hasCookie(name) {
       hidePreloader();
     }
 
-    // If this is the dedicated logout page, do a one-shot cleanup and bounce.
+    // If this is the dedicated logout page, do a one-shot cleanup and bounce
     if (IS_LOGOUT_PAGE && isProbablyLoggedIn()) {
       try {
         await fetch(`${backendUrl}/logout`, { method: "POST", credentials: "include" });

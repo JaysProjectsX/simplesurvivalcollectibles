@@ -19,6 +19,10 @@ function hasCookie(name) {
   // Page flags
   const PAGE = location.pathname.split("/").pop();
   const IS_LOGOUT_PAGE = PAGE === "logout.html";
+  const IS_LOGIN_PAGE  = PAGE === "login.html";
+  const HOME_URL       = "/index.html";
+  const isProbablyLoggedIn = () =>
+    hasCookie("refreshToken") || !!localStorage.getItem("username");
 
   // If we’re on logout page, or we clearly don’t have an auth cookie,
   // skip hitting /me and /refresh entirely (prevents 401 spam).
@@ -69,6 +73,17 @@ function hasCookie(name) {
       try { paintAccountInfo(); } catch {}
     }
 
+    if (IS_LOGIN_PAGE && isProbablyLoggedIn()) {
+      window.location.replace(HOME_URL);
+      return;
+    }
+
+    // 2) If NOT logged in and on /logout.html, go home.
+    if (IS_LOGOUT_PAGE && !isProbablyLoggedIn()) {
+      window.location.replace(HOME_URL);
+      return;
+    }
+
     const elapsed = Date.now() - started;
     if (elapsed < MIN_HOLD_MS) {
       setTimeout(hidePreloader, MIN_HOLD_MS - elapsed);
@@ -77,12 +92,13 @@ function hasCookie(name) {
     }
 
     // If this is the dedicated logout page, do a one-shot cleanup and bounce.
-    if (IS_LOGOUT_PAGE) {
+    if (IS_LOGOUT_PAGE && isProbablyLoggedIn()) {
       try {
         await fetch(`${backendUrl}/logout`, { method: "POST", credentials: "include" });
       } catch {}
       localStorage.clear();
       try { updateNavUI(); } catch {}
+      // Stay on the static logout page (no redirect) so the “signed out” card shows.
     }
   });
 

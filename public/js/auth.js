@@ -16,13 +16,18 @@ function hasCookie(name) {
   const MIN_HOLD_MS = 450;
   const started = Date.now();
 
-  // Page flags
-  const PATH = location.pathname.toLowerCase().replace(/\/+$/, ""); // strip trailing slash
-  const LAST = (PATH.split("/").filter(Boolean).pop() || "index").replace(/\.html$/, "");
+  // Normalize path:
+  //   - lowercase
+  //   - strip trailing slash
+  //   - derive LAST = last segment without ".html"
+  const PATH = location.pathname.toLowerCase().replace(/\/+$/, "");        // e.g. "/login", "/logout", "/index", "/login.html"
+  const LAST = (PATH.split("/").filter(Boolean).pop() || "index")          // e.g. "login", "logout", "index", "login.html"
+               .replace(/\.html$/, "");                                    // -> "login"
 
-  const IS_LOGOUT_PAGE = PAGE === "/logout";
-  const IS_LOGIN_PAGE  = PAGE === "/login";
-  const HOME_URL       = "/";
+  const IS_LOGOUT_PAGE = LAST === "logout";
+  const IS_LOGIN_PAGE  = LAST === "login";
+  const HOME_URL       = "/"; // or "/index.html" if you prefer hard file
+
   const isProbablyLoggedIn = () =>
     hasCookie("refreshToken") || !!localStorage.getItem("username");
 
@@ -31,16 +36,13 @@ function hasCookie(name) {
   const shouldAttemptSession = !IS_LOGOUT_PAGE && hasCookie("refreshToken");
 
   async function resolveSession() {
-    if (!shouldAttemptSession) return; // <-- guard
-
+    if (!shouldAttemptSession) return;
     try {
       let r = await fetch(`${backendUrl}/me`, { credentials: "include" });
-
       if (r.status === 401) {
         const rr = await fetch(`${backendUrl}/refresh`, { method: "POST", credentials: "include" });
         if (rr.ok) r = await fetch(`${backendUrl}/me`, { credentials: "include" });
       }
-
       if (r.ok) {
         const u = await r.json().catch(() => null);
         if (u) {
@@ -57,9 +59,7 @@ function hasCookie(name) {
         localStorage.removeItem("verified");
         localStorage.removeItem("created_at");
       }
-    } catch {
-      // ignore
-    }
+    } catch {}
   }
 
   function hidePreloader() {
@@ -70,37 +70,28 @@ function hasCookie(name) {
   document.addEventListener("DOMContentLoaded", async () => {
     await resolveSession();
 
-    if (typeof updateNavUI === "function") {
-      try { updateNavUI(); } catch {}
-      try { paintAccountInfo(); } catch {}
-    }
+    try { updateNavUI(); } catch {}
+    try { paintAccountInfo(); } catch {}
 
+    // Redirect rules
     if (IS_LOGIN_PAGE && isProbablyLoggedIn()) {
       window.location.replace(HOME_URL);
       return;
     }
-
-    // 2) If NOT logged in and on /logout.html, go home.
     if (IS_LOGOUT_PAGE && !isProbablyLoggedIn()) {
       window.location.replace(HOME_URL);
       return;
     }
 
     const elapsed = Date.now() - started;
-    if (elapsed < MIN_HOLD_MS) {
-      setTimeout(hidePreloader, MIN_HOLD_MS - elapsed);
-    } else {
-      hidePreloader();
-    }
+    if (elapsed < MIN_HOLD_MS) setTimeout(hidePreloader, MIN_HOLD_MS - elapsed);
+    else hidePreloader();
 
-    // If this is the dedicated logout page, do a one-shot cleanup and bounce
+    // If on logout page and logged in, perform one-shot logout but stay on page to show the static card
     if (IS_LOGOUT_PAGE && isProbablyLoggedIn()) {
-      try {
-        await fetch(`${backendUrl}/logout`, { method: "POST", credentials: "include" });
-      } catch {}
+      try { await fetch(`${backendUrl}/logout`, { method: "POST", credentials: "include" }); } catch {}
       localStorage.clear();
       try { updateNavUI(); } catch {}
-      // Stay on the static logout page (no redirect) so the “signed out” card shows.
     }
   });
 

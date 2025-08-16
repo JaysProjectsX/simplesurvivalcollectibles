@@ -24,6 +24,8 @@ function hasCookie(name) {
   const LAST = (PATH.split("/").filter(Boolean).pop() || "index")          // e.g. "login", "logout", "index", "login.html"
                .replace(/\.html$/, "");                                    // -> "login"
 
+  const JUST_LOGGED_OUT = sessionStorage.getItem("justLoggedOut") === "1";
+
   const IS_LOGOUT_PAGE = LAST === "logout";
   const IS_LOGIN_PAGE  = LAST === "login";
   const HOME_URL       = "/"; // or "/index.html" if you prefer hard file
@@ -78,9 +80,13 @@ function hasCookie(name) {
       window.location.replace(HOME_URL);
       return;
     }
-    if (IS_LOGOUT_PAGE && !isProbablyLoggedIn()) {
+    if (IS_LOGOUT_PAGE && !isProbablyLoggedIn() && !JUST_LOGGED_OUT) {
       window.location.replace(HOME_URL);
       return;
+    }
+
+    if (IS_LOGOUT_PAGE && JUST_LOGGED_OUT) {
+      sessionStorage.removeItem("justLoggedOut");
     }
 
     const elapsed = Date.now() - started;
@@ -90,6 +96,7 @@ function hasCookie(name) {
     // If on logout page and logged in, perform one-shot logout but stay on page to show the static card
     if (IS_LOGOUT_PAGE && isProbablyLoggedIn()) {
       try { await fetch(`${backendUrl}/logout`, { method: "POST", credentials: "include" }); } catch {}
+      sessionStorage.setItem("justLoggedOut", "1");
       localStorage.clear();
       try { updateNavUI(); } catch {}
     }
@@ -265,7 +272,7 @@ function isLockedOut(user) {
             type: "success",
             title: "Registration Successful",
             message: "Your account has been created successfully! Please check your email for a verification link. You cannot log in until you verify your email.",
-            buttons: [{ label: "Close", onClick: `fadeOutAndRemove('modal-registerSuccessful'); setTimeout(() => {window.location.href = '/login.html';}, 500);` }],
+            buttons: [{ label: "Close", onClick: `fadeOutAndRemove('modal-registerSuccessful'); setTimeout(() => {window.location.href = '/login';}, 100);` }],
             id: "modal-registerSuccessful"
           });
           } else {
@@ -325,7 +332,7 @@ function isLockedOut(user) {
             type: "success",
             title: "Successfully Logged In",
             message: `Welcome back, ${username || "User"}!`,
-            buttons: [{ label: "Close", onClick: `fadeOutAndRemove('modal-successLogin'); setTimeout(() => {window.location.href = '/index.html';}, 900);` }],
+            buttons: [{ label: "Close", onClick: `fadeOutAndRemove('modal-successLogin'); setTimeout(() => {window.location.href = '/';}, 900);` }],
             id: "modal-successLogin"
           });
           } else {
@@ -518,7 +525,7 @@ function isLockedOut(user) {
                 type: "success",
                 title: "Password Reset Successful",
                 message: "You can now log in with your new password.",
-                buttons: [{ label: "Close", onClick: `fadeOutAndRemove('modal-passwordResetComplete'); setTimeout(() => {window.location.href = '/login.html';}, 500);` }],
+                buttons: [{ label: "Close", onClick: `fadeOutAndRemove('modal-passwordResetComplete'); setTimeout(() => {window.location.href = '/login';}, 100);` }],
                 id: "modal-passwordResetComplete"
               });
             } else {
@@ -651,7 +658,7 @@ function updateNavUI() {
         <span onclick="toggleDropdown()" class="username-link">${username}</span>
         <div class="dropdown-content" id="userDropdown">
           ${headerHTML}
-          <a href="/account.html" class="dropdown-item">Account Options</a>
+          <a href="/account" class="dropdown-item">Account Options</a>
           ${roleLinks}
           <a href="javascript:void(0)" onclick="logout()" class="dropdown-item">Log Out</a>
         </div>
@@ -721,9 +728,11 @@ async function logout() {
     console.error("Logout request failed:", err);
   }
 
+  sessionStorage.setItem("justLoggedOut", "1");
+
   localStorage.clear();
   updateNavUI();
-  window.location.href = "/logout.html";
+  window.location.href = "/logout";
 }
 
 
@@ -772,23 +781,23 @@ function showLockoutModal(secondsRemaining) {
 }
 
 function openAccountModal() {
-  window.location.href = "/account.html";
+  window.location.href = "/account";
 }
 
 window.toggleModal = function () {
-  window.location.href = "/login.html";
+  window.location.href = "/login";
 };
 
 window.toggleForm = function () {
-  window.location.href = "/register.html";
+  window.location.href = "/register";
 };
 
 window.toggleForgotPasswordForm = function () {
-  window.location.href = "/forgot-password.html";
+  window.location.href = "/forgot-password";
 };
 
 window.backToLoginFromForgot = function () {
-  window.location.href = "/login.html";
+  window.location.href = "/login";
 };
 
 

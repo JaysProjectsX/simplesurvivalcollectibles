@@ -17,12 +17,12 @@ function hasCookie(name) {
   const started = Date.now();
 
   // Page flags
-  let PAGE = location.pathname.split("/").pop().toLowerCase();
-  PAGE = PAGE.replace(/\.html$/, ""); // removes .html at the end if present
+  const PATH = location.pathname.toLowerCase().replace(/\/+$/, ""); // strip trailing slash
+  const LAST = (PATH.split("/").filter(Boolean).pop() || "index").replace(/\.html$/, "");
 
   const IS_LOGOUT_PAGE = PAGE === "/logout";
   const IS_LOGIN_PAGE  = PAGE === "/login";
-  const HOME_URL       = "/index.html";
+  const HOME_URL       = "/";
   const isProbablyLoggedIn = () =>
     hasCookie("refreshToken") || !!localStorage.getItem("username");
 
@@ -673,7 +673,7 @@ function updateNavUI() {
     };
   } else {
     // Link to dedicated login page (no modal)
-    loginItem.innerHTML = `<a href="/login.html">Login</a>`;
+    loginItem.innerHTML = `<a href="/login">Login</a>`;
   }
 }
 

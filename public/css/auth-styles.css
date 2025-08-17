@@ -112,7 +112,7 @@ a.hover-underline:hover{text-decoration:underline}
 .darkTheme{color:#838C9A;}
 .darkTheme h1, .darkTheme h2, .darkTheme h6, .darkTheme .text-dark{color:#fff}
 .darkTheme .form-wrapper{background:#14142D;box-shadow:0 0 30px rgba(0,0,0,.2)}
-.darkTheme .input-style-1 input{background:#0e0e1f;border-color:#3F4053;color:#e8e8e8;box-sizing:border-box}
+.darkTheme .input-style-1 input{background:#0e0e1f !important;border-color:#3F4053 !important;color:#e8e8e8 !important;box-sizing:border-box !important;}
 .darkTheme .text-gray{color:rgba(255,255,255,0.5)}
 
 /* ===== Auth Form Wrapper ===== */

@@ -13,10 +13,10 @@
   margin-bottom: 24px;
 }
 .kpi-card {
-  background: rgba(255,255,255,0.04);
-  border: 1px solid rgba(255,255,255,0.06);
-  border-radius: 14px;
-  padding: 16px;
+  background: #14142D;
+  border: #02021E;
+  border-radius: 6px;
+  padding: 20px;
   display: grid;
   grid-template-columns: auto 1fr auto;
   align-items: center;
@@ -35,7 +35,7 @@
 .kpi-orange { background: rgba(255, 163, 72, .18); color: #ffc490; }
 
 .kpi-meta { display: flex; flex-direction: column; }
-.kpi-title { font-size: .85rem; opacity: .8; }
+.kpi-title { font-size: .85rem; opacity: .8; margin-bottom: 6px;}
 .kpi-value { font-weight: 700; font-size: 1.15rem; margin-top: 2px; }
 .kpi-foot  { font-size: .75rem; opacity: .6; }
 
@@ -55,10 +55,10 @@
 }
 
 .panel {
-  background: rgba(255,255,255,0.04);
-  border: 1px solid rgba(255,255,255,0.06);
-  border-radius: 14px;
-  padding: 16px;
+  background: #14142D;
+  border: #02021E;
+  border-radius: 6px;
+  padding: 16px !important;
 }
 .panel-head {
   display: flex; align-items: center; justify-content: space-between;

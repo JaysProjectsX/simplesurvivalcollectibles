@@ -7,23 +7,23 @@
   <link rel="icon" href="/favicon.png" type="image/png"/>
   <link rel="stylesheet" href="/css/home-page.css"/>
   <link rel="stylesheet" href="/css/globalModal.css"/>
+  <link rel="stylesheet" href="/css/auth-styles.css"/>
+  <link rel="stylesheet" href="/css/account.css"/>
   <link href="https://unpkg.com/boxicons@2.1.1/css/boxicons.min.css" rel="stylesheet"/>
   <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;600;800&display=swap" rel="stylesheet">
 </head>
-<body>
+<body class="auth-page darkTheme">
 
-  <!-- Preloader -->
   <div id="preloader"><div class="loader"></div></div>
 
-  <!-- Nav -->
   <nav>
     <div class="nav-content">
       <div class="nav-logo">
         <a href="/"><img src="/assets/Logo.png" alt="SimpleSurvival Collectibles"/></a>
       </div>
       <ul class="nav-links">
-        <li><a href="/">Home</a></li>
+        <li><a href="/" class="">Home</a></li>
         <li><a href="/info">About</a></li>
         <li><a href="/crates">Cosmetic Crates</a></li>
         <li><a href="/othercrates">Other Crates</a></li>
@@ -35,43 +35,164 @@
     </div>
   </nav>
 
-  <main class="auth-page account-wrap">
-    <section class="account-composite">
-      <!-- Left: profile info -->
-      <div class="account-composite__left">
-        <h2>My Profile</h2>
-        <p><strong>Username:</strong> <span id="accUsername">...</span></p>
-        <p><strong>Email:</strong> <span id="accEmail">...</span></p>
-        <p><strong>Role:</strong> <span id="accRole">...</span></p>
-        <p><strong>Email Verified:</strong> <span id="accVerified">...</span></p>
-        <p><strong>Created:</strong> <span id="accCreated">...</span></p>
+  <main class="main-wrapper">
+
+    <!-- Page title (same pattern as login/register pages) -->
+    <section class="page-title-wrap pt-4rm">
+      <div class="container page-title-container">
+        <div class="page-title-row">
+          <h1 class="page-title">Account</h1>
+          <a href="/" class="text-sm link-primary">Back to Home</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Dashboard grid -->
+    <section class="account-grid container">
+
+      <!-- Top 4 icon cards -->
+      <div class="kpis-grid">
+        <!-- Total items collected -->
+        <div class="kpi-card">
+          <div class="kpi-icon kpi-purple"><i class="bx bx-cube-alt"></i></div>
+          <div class="kpi-meta">
+            <span class="kpi-title">Total items collected</span>
+            <span class="kpi-value" id="accTotalItems">—</span>
+          </div>
+          <span class="kpi-foot">Updated now</span>
+        </div>
+
+        <!-- Last login -->
+        <div class="kpi-card">
+          <div class="kpi-icon kpi-green"><i class="bx bx-log-in-circle"></i></div>
+          <div class="kpi-meta">
+            <span class="kpi-title">Last login</span>
+            <span class="kpi-value" id="accLastLogin">—</span>
+          </div>
+          <span class="kpi-foot">&nbsp;</span>
+        </div>
+
+        <!-- Creation date -->
+        <div class="kpi-card">
+          <div class="kpi-icon kpi-blue"><i class="bx bx-calendar-star"></i></div>
+          <div class="kpi-meta">
+            <span class="kpi-title">Created</span>
+            <span class="kpi-value" id="accCreated">—</span>
+          </div>
+          <span class="kpi-foot">&nbsp;</span>
+        </div>
+
+        <!-- Request data deletion -->
+        <div class="kpi-card">
+          <div class="kpi-icon kpi-orange"><i class="bx bx-trash"></i></div>
+          <div class="kpi-meta">
+            <span class="kpi-title">Request Data Deletion</span>
+            <button id="requestDeletionBtn" class="mini-btn" type="button" disabled title="Coming soon">
+              Coming soon
+            </button>
+          </div>
+          <span class="kpi-foot">&nbsp;</span>
+        </div>
       </div>
 
-      <!-- Right: change password -->
-      <div class="account-composite__right">
-        <h2>Change Password</h2>
-        <form id="passwordChangeForm" class="auth-form" novalidate style="max-width:520px;margin:0 auto;">
-          <label class="note" for="currentPassword">Current Password</label>
-          <input class="input" id="currentPassword" type="password" required />
+      <!-- 2-column lower area -->
+      <div class="lower-grid">
+        <!-- Left vertical “Recent file” style → account details list -->
+        <aside class="panel panel-list">
+          <div class="panel-head">
+            <h2>Account Details</h2>
+            <button class="dots" aria-label="menu"><i class="bx bx-dots-horizontal-rounded"></i></button>
+          </div>
+          <ul class="details-list">
+            <li class="detail-row">
+              <span class="detail-left">
+                <span class="detail-icon icon-indigo"><i class="bx bx-user"></i></span>
+                <span class="detail-titles">
+                  <strong>Username</strong>
+                  <em id="accUsername">—</em>
+                </span>
+              </span>
+            </li>
 
-          <label class="note" for="newPassword">New Password</label>
-          <input class="input" id="newPassword" type="password" required />
+            <li class="detail-row">
+              <span class="detail-left">
+                <span class="detail-icon icon-teal"><i class="bx bx-envelope"></i></span>
+                <span class="detail-titles">
+                  <strong>Email</strong>
+                  <em id="accEmail">—</em>
+                </span>
+              </span>
+            </li>
 
-          <label class="note" for="confirmPassword">Confirm New Password</label>
-          <input class="input" id="confirmPassword" type="password" required />
+            <li class="detail-row">
+              <span class="detail-left">
+                <span class="detail-icon icon-yellow"><i class="bx bx-id-badge"></i></span>
+                <span class="detail-titles">
+                  <strong>Role</strong>
+                  <em id="accRole">User</em>
+                </span>
+              </span>
+            </li>
 
-          <div class="form-check" style="justify-content:center;margin-top:6px;">
-            <input type="checkbox" id="togglePassword"/>
-            <label for="togglePassword">Show passwords</label>
+            <li class="detail-row">
+              <span class="detail-left">
+                <span class="detail-icon icon-lime"><i class="bx bx-check-shield"></i></span>
+                <span class="detail-titles">
+                  <strong>Verified Email</strong>
+                  <em id="accVerified">false</em>
+                </span>
+              </span>
+            </li>
+          </ul>
+        </aside>
+
+        <!-- Right “Activity Chart” card → change password -->
+        <section class="panel">
+          <div class="panel-head between">
+            <h2>Change Password</h2>
+            <div class="seg-control">
+              <button class="seg active" type="button">Account</button>
+              <button class="seg" type="button" disabled>Security</button>
+            </div>
           </div>
 
-          <button class="btn" type="submit" style="max-width:420px;margin:12px auto 0;">Update Password</button>
-        </form>
+          <form id="passwordChangeForm" class="pw-form">
+            <label class="input-style-1">
+              <span>Current Password</span>
+              <input id="currentPassword" type="password" placeholder="Current Password" required/>
+            </label>
+
+            <label class="input-style-1">
+              <span>New Password</span>
+              <input id="newPassword" type="password" placeholder="New Password" minlength="6" required/>
+            </label>
+
+            <label class="input-style-1">
+              <span>Confirm New Password</span>
+              <input id="confirmPassword" type="password" placeholder="Confirm New Password" minlength="6" required/>
+            </label>
+
+            <label class="showpw">
+              <input id="togglePassword" type="checkbox"/>
+              <span>Show passwords</span>
+            </label>
+
+            <button class="main-btn primary-btn btn-hover" type="submit">Update Password</button>
+          </form>
+        </section>
       </div>
     </section>
   </main>
 
   <div id="toastContainer"></div>
+
+  <footer>
+    <div class="footer-creator"><p>Created by YooEm</p></div>
+    <div class="footer-links">
+      <p><strong>Disclaimer:</strong> This is a fan-made website and is not affiliated with or endorsed by the SimpleSurvival Minecraft server or its owners.</p>
+      <p><a href="/privacy.html">Privacy Policy</a> | <a href="/terms.html">Terms of Use</a></p>
+    </div>
+  </footer>
 
   <script defer src="/js/globalModal.js"></script>
   <script defer src="/js/auth.js"></script>

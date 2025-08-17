@@ -52,7 +52,7 @@ async function fetchUserProgress() {
           document.getElementById("redirectTimer").textContent = countdown;
           if (countdown <= 0) {
             clearInterval(timer);
-            window.location.href = "/index.html";
+            window.location.href = "/";
           }
         }, 1000);
 

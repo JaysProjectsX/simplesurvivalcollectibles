@@ -119,19 +119,19 @@
     <nav>
       <div class="nav-content">
         <div class="nav-logo">
-          <a href="/index.html">
+          <a href="/">
             <img src="/assets/Logo.png" alt="SimpleSurvival Collectibles Logo" />
           </a>
         </div>
         <ul class="nav-links">
-          <li><a href="/index.html">Home</a></li>
-          <li><a href="/info.html">About</a></li>
-          <li><a href="/crates.html">Cosmetic Crates</a></li>
-          <li><a href="/othercrates.html">Other Crates</a></li>
-          <li><a href="/othercrates.html">Event Items</a></li>
+          <li><a href="/">Home</a></li>
+          <li><a href="/info">About</a></li>
+          <li><a href="/crates">Cosmetic Crates</a></li>
+          <li><a href="/othercrates">Other Crates</a></li>
+          <li><a href="/othercrates">Event Items</a></li>
         </ul>
         <ul class="nav-login" id="navLogin">
-          <li id="loginItem"><a href="#" onclick="toggleModal()">Login</a></li>
+          <li id="loginItem"><a href="/login">Login</a></li>
         </ul>
       </div>
     </nav>
@@ -146,68 +146,9 @@
         </svg>
         <h2>Message Sent!</h2>
         <p>Thank you for reaching out. I'll get back to you as soon as possible.</p>
-        <a href="/index.html" class="return-link">Return to Home</a>
+        <a href="/" class="return-link">Return to Home</a>
       </div>
     </section>
-
-    <!-- Login/Register Modal -->
-    <div id="authModal" class="modal">
-      <div class="modal-content">
-        <span class="close" onclick="toggleModal()">&times;</span>
-        <h2>Login to Your Account</h2>
-        <form id="loginForm">
-          <input type="text" placeholder="Email" required />
-          <input type="password" placeholder="Password" required />
-          <button type="submit">Login</button>
-        </form>
-        <p class="toggle-text">Don't have an account? <a href="#" onclick="toggleForm()">Register here</a></p>
-
-        <form id="registerForm" style="display: none;">
-          <input type="text" placeholder="Username" id="registerUsername" required />
-          <input type="email" placeholder="Email" id="registerEmail" required />
-          <input type="password" placeholder="Password" id="registerPassword" required />
-          <button type="submit">Register</button>
-        </form>
-        <p class="toggle-text" style="display: none;">Already have an account? <a href="#" onclick="toggleForm()">Login here</a></p>
-      </div>
-    </div>
-
-    <!-- Email Confirmation Modal -->
-    <div id="registrationConfirmation" class="modal" style="display:none;">
-      <div class="modal-content">
-        <span class="close" onclick="document.getElementById('registrationConfirmation').style.display='none'">&times;</span>
-        <h2>Check Your Email</h2>
-        <p>We've sent a verification link to your email address. Please check your inbox/spam folders to verify your account.</p>
-      </div>
-    </div>
-
-    <!-- Account Info Modal -->
-    <div id="accountModal" class="modal" style="display:none;">
-      <div class="modal-content" id="accountModalContent">
-        <div class="account-section">
-          <h2>Account Details</h2>
-          <p><strong>Username:</strong> <span id="accUsername"></span></p>
-          <p><strong>Email:</strong> <span id="accEmail"></span></p>
-          <p><strong>Role:</strong> <span id="accRole"></span></p>
-          <p><strong>Email Verified:</strong> <span id="accVerified"></span></p>
-          <p><strong>Account Created:</strong> <span id="accCreated"></span></p>
-        </div>
-
-        <div class="password-section">
-          <h3>Change Password</h3>
-          <form id="passwordChangeForm">
-            <input type="password" id="currentPassword" placeholder="Current Password" required />
-            <input type="password" id="newPassword" placeholder="New Password" required />
-            <input type="password" id="confirmPassword" placeholder="Confirm New Password" required />
-            <div class="toggle-password-container">
-              <input type="checkbox" id="togglePassword" />
-              <label for="togglePassword">Show Passwords</label>
-            </div>
-            <button type="submit">Change Password</button>
-          </form>
-        </div>
-      </div>
-    </div>
 
     <div id="toastContainer"></div>
 
@@ -217,7 +158,7 @@
       </div>
       <div class="footer-links">
         <p><strong>Disclaimer:</strong> This is a fan-made website and is not affiliated with or endorsed by the SimpleSurvival Minecraft server or its owners.</p>
-        <p><a href="/privacy.html">Privacy Policy</a> | <a href="/terms.html">Terms of Use</a></p>
+        <p><a href="/privacy">Privacy Policy</a> | <a href="/terms">Terms of Use</a></p>
       </div>
     </footer>
 

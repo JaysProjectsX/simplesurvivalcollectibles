@@ -1616,6 +1616,14 @@ nav {
   z-index: 1;
 }
 
+@media (max-width: 905px) {
+  .about-section {
+    flex-direction: column;
+    padding: 10px;
+    margin-top: 4rem;
+  }
+}
+
 .about-card {
   display: flex;
   flex-wrap: wrap;

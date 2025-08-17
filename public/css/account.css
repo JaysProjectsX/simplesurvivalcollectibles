@@ -36,7 +36,7 @@
 
 .kpi-meta { display: flex; flex-direction: column; }
 .kpi-title { font-size: .85rem; opacity: .8; margin-bottom: 6px;}
-.kpi-value { font-weight: 700; font-size: 1.15rem; margin-top: 2px; }
+.kpi-value { font-weight: 500; font-size: 14px; margin-top: 2px; }
 .kpi-foot  { font-size: .75rem; opacity: .6; }
 
 /* mini button inside a kpi */

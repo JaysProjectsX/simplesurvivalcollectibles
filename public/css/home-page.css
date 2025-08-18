@@ -1501,25 +1501,6 @@ nav {
   align-items: center;
 }
 
-#passwordChangeForm input[type="password"],
-#passwordChangeForm input[type="text"] {
-  height: 16px;
-  width: 100%;
-  padding: 10px 12px;
-  margin-bottom: 12px;
-  border: 1px solid #444;
-  border-radius: 6px;
-  background-color: #2b2b2b;
-  color: #fff;
-  font-size: 0.95rem;
-  align-items: center;
-}
-
-#passwordChangeForm input::placeholder {
-  color: #999;
-}
-
-
 /* Submit Button */
 #passwordChangeForm button {
   width: 90%;

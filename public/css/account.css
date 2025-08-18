@@ -90,19 +90,18 @@
 
 .detail-left { display: flex; align-items: center; gap: 12px; }
 .detail-icon {
-  width: 36px; height: 36px; border-radius: 10px; display: grid; place-items: center;
-  background: rgba(255,255,255,0.06);
+  width: 36px; height: 36px; border-radius: 6px; display: grid; place-items: center;
+  background: #02021E;
   box-shadow: inset 0 0 0 1px rgba(255,255,255,0.08);
   font-size: 18px;
 }
-.icon-indigo { background: rgba(121, 99, 255, .18); color: #a89cff; }
-.icon-teal   { background: rgba(55, 184, 161, .18); color: #86e6d8; }
-.icon-yellow { background: rgba(255, 214, 87,  .18); color: #ffe49a; }
-.icon-lime   { background: rgba(166, 226, 78,  .18); color: #d8ffa0; }
 
 .detail-titles strong { display: block; font-size: .9rem; }
 .detail-titles em {
-  display: block; font-style: normal; opacity: .8; font-size: .85rem; margin-top: 2px;
+  display: block; font-style: normal; opacity: .8; font-size: .85rem;
+}
+.detail-titles p.p-title {
+  display: block; font-style: normal; font-size: .85rem; margin: 0 !important;
 }
 
 /* Right panel → Change password form spacing */

@@ -5,6 +5,12 @@
   padding: 0 1rem 3rem;
 }
 
+.page-title-wrap .page-title-container{
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
 /* ===== KPI row (4 cards) ===== */
 .kpis-grid {
   display: grid;
@@ -70,8 +76,8 @@
 .dots { background: transparent; border: 0; color: #9aa3b2; font-size: 20px; }
 
 /* “Recent files” style list */
-.panel-list { padding: 0; }
-.details-list { list-style: none; margin: 0; padding: 12px 0; }
+.panel-list { padding: 16px !important; }
+.details-list { list-style: none; margin: 0; padding: 8px 0 0; }
 .detail-row {
   display: flex; align-items: center; justify-content: space-between;
   padding: 10px 12px;
@@ -101,6 +107,14 @@
 .pw-form { display: grid; gap: 12px; }
 .pw-form .input-style-1 span { display: block; margin-bottom: 6px; opacity: .85; }
 .showpw { display: inline-flex; align-items: center; gap: 8px; margin: 4px 0 8px; }
+.pw-form .input-style-1,
+.pw-form .input-style-1 input{
+  width: 100%;
+  box-sizing: border-box;
+}
+.pw-form .main-btn{
+  width: 100%;
+}
 
 /* ===== Responsiveness ===== */
 @media (max-width: 1200px) {

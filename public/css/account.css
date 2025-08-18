@@ -139,3 +139,76 @@
 @media (max-width: 640px) {
   .account-page .kpis-grid { grid-template-columns: 1fr; }
 }
+
+/* ───────── 1) Make title container and grid use the same width & padding ───────── */
+.account-page .page-title-container,
+.account-page .account-grid.container {
+  max-width: 1440px !important;   /* wider like the reference */
+  margin-inline: auto !important;
+  padding-inline: 2rem !important; /* same inner gutters for both rows */
+}
+
+/* keep the title row on one line like the reference */
+.account-page .page-title-row{
+  display:flex; align-items:center; justify-content:space-between;
+}
+
+/* ───────── 2) KPI row / lower grid polish ───────── */
+.account-page .kpis-grid {        /* stretch nicely across the container */
+  display:grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap:20px;
+  margin-bottom:26px;
+}
+
+/* Do NOT force equal heights for the two lower panels.
+   This lets the left column fit its list height only. */
+.account-page .lower-grid{
+  display:grid;
+  grid-template-columns: minmax(320px, 1.15fr) 2fr;
+  gap:20px;
+  align-items:start;            /* <- key line to kill the extra empty space */
+}
+
+/* ───────── 3) Align content in the left “Account Details” panel ───────── */
+.account-page .panel-list{ padding:16px !important; }
+.account-page .details-list{ list-style:none; margin:0; padding:8px 0 0; }
+.account-page .detail-row{
+  display:flex; align-items:center; justify-content:space-between;
+  padding:10px 12px; border-radius:10px;
+}
+.account-page .detail-row + .detail-row{ margin-top:6px; }
+.account-page .detail-left{ display:flex; align-items:center; gap:12px; }
+.account-page .detail-icon{
+  width:36px; height:36px; border-radius:6px; display:grid; place-items:center;
+  background:#02021E; box-shadow:inset 0 0 0 1px rgba(255,255,255,.08);
+  font-size:18px; flex:0 0 36px;    /* fixed width so labels line up */
+}
+.account-page .detail-titles{ display:flex; flex-direction:column; }
+.account-page .detail-titles .p-title{ margin:0; font-size:.85rem; }
+.account-page .detail-titles em{ font-style:normal; opacity:.8; font-size:.85rem; }
+
+/* ───────── 4) Make inputs exactly as wide as the button ───────── */
+.account-page .pw-form{ display:grid; gap:12px; }
+.account-page .pw-form .input-style-1,
+.account-page .pw-form .input-style-1 input{
+  width:100% !important;       /* override any global max-widths */
+  box-sizing:border-box;
+}
+.account-page .pw-form .input-style-1 input{
+  height:44px; padding:0 12px; /* visual match with the button height */
+}
+.account-page .pw-form .main-btn{
+  width:100% !important;
+  max-width:none !important;
+  display:block;
+}
+
+/* ───────── 5) Responsive breakpoints (same behavior as the reference) ───────── */
+@media (max-width: 1200px){
+  .account-page .kpis-grid{ grid-template-columns: repeat(2, minmax(0,1fr)); }
+  .account-page .lower-grid{ grid-template-columns: 1fr; }
+}
+@media (max-width: 640px){
+  .account-page .kpis-grid{ grid-template-columns: 1fr; }
+}

@@ -1,11 +1,23 @@
 /* === Account page: File Manager skin === */
 
+:root { --account-gutter: clamp(18px, 3vw, 32px); }
+
+.account-page {
+  overflow-x: hidden;
+}
+
 /* page container width & gutters like source */
 .account-page .page-title-container,
 .account-page .account-grid.container{
   max-width: 1620px;
-  margin: 0 auto;
-  padding: 0 30px;
+  box-sizing: border-box !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+  padding-left: var(--account-gutter) !important;
+  padding-right: var(--account-gutter) !important;
+}
+@media (min-width: 1400px){
+  :root { --account-gutter: 36px; }
 }
 
 /* title row like source's title-wrapper */
@@ -29,7 +41,6 @@
   grid-template-columns:auto 1fr auto;
   align-items:center;
   gap:12px;
-  box-shadow:0 12px 24px -4px rgba(145,158,171,.12), 0 0 2px rgba(145,158,171,.2);
 }
 .kpi-icon{
   width:44px;height:44px;border-radius:10px;
@@ -66,7 +77,6 @@
   border:#02021E;
   border-radius:7px;
   padding:16px !important;
-  box-shadow:0 12px 24px -4px rgba(145,158,171,.12), 0 0 2px rgba(145,158,171,.2);
 }
 .panel-head{
   display:flex; align-items:center; justify-content:space-between;
@@ -134,6 +144,8 @@
 /* guard against global .container rules */
 .account-page .container{
   max-width: none; /* let the two specific containers above control width */
+  padding-left: 0 !important;
+  padding-right: 0 !important;
 }
 
 /* ensure left alignment regardless of site-wide text rules */
@@ -154,9 +166,11 @@
 
 /* Fix inputs being narrower than the button on some themes */
 .pw-form .input-style-1,
+.pw-form .input-style-1 label,
 .pw-form .input-style-1 input{
   width: 100% !important;
   box-sizing: border-box !important;
+  text-align: center !important;
 }
 
 /* Keep the bottom section spanning full container width */
@@ -165,6 +179,15 @@
   grid-template-columns: minmax(320px,1.15fr) 2fr !important;
   gap: 20px !important;
   align-items: start !important;
+}
+
+.role-tag{
+  margin-left: 0 !important;
+  padding: 0 !important;
+}
+
+.checkbox-style-1 {
+  text-align: center !important;
 }
 
 /* Responsive breakpoints like the source */

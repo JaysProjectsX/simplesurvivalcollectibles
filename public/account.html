@@ -37,141 +37,141 @@
 
   <main class="main-wrapper">
 
-    <!-- Page title (same pattern as login/register pages) -->
+    <!-- ===== Page Title (matches source title-wrapper) ===== -->
     <section class="page-title-wrap pt-4rm">
       <div class="container page-title-container">
         <div class="page-title-row">
           <h1 class="page-title">Account</h1>
-          <a href="/" class="text-sm link-primary">Back to Home</a>
+          <a href="/" class="link-primary text-sm">Back to Home</a>
         </div>
       </div>
     </section>
 
-    <!-- Dashboard grid -->
+    <!-- ===== File-Manager style wrapper ===== -->
     <section class="account-grid container">
-
-      <!-- Top 4 icon cards -->
+      <!-- KPI Cards Row (mirrors icon-card layout) -->
       <div class="kpis-grid">
-        <!-- Total items collected -->
         <div class="kpi-card">
-          <div class="kpi-icon kpi-purple"><i class="bx bx-cube-alt"></i></div>
+          <span class="kpi-icon kpi-purple"><i class="lni lni-inbox"></i></span>
           <div class="kpi-meta">
             <span class="kpi-title">Total items collected</span>
-            <span class="kpi-value" id="accTotalItems">—</span>
+            <span class="kpi-value" id="kpi-total">—</span>
           </div>
+          <span class="kpi-foot"></span>
         </div>
 
-        <!-- Last login -->
         <div class="kpi-card">
-          <div class="kpi-icon kpi-green"><i class="bx bx-log-in-circle"></i></div>
+          <span class="kpi-icon kpi-green"><i class="lni lni-login"></i></span>
           <div class="kpi-meta">
             <span class="kpi-title">Last login</span>
-            <span class="kpi-value" id="accLastLogin">—</span>
+            <span class="kpi-value" id="kpi-last-login">—</span>
           </div>
-          <span class="kpi-foot">&nbsp;</span>
+          <span class="kpi-foot"></span>
         </div>
 
-        <!-- Creation date -->
         <div class="kpi-card">
-          <div class="kpi-icon kpi-blue"><i class="bx bx-calendar-star"></i></div>
+          <span class="kpi-icon kpi-blue"><i class="lni lni-calendar"></i></span>
           <div class="kpi-meta">
             <span class="kpi-title">Created</span>
-            <span class="kpi-value" id="accCreated">—</span>
+            <span class="kpi-value" id="kpi-created">06/27/2025, 12:40 PM</span>
           </div>
-          <span class="kpi-foot">&nbsp;</span>
+          <span class="kpi-foot"></span>
         </div>
 
-        <!-- Request data deletion -->
         <div class="kpi-card">
-          <div class="kpi-icon kpi-orange"><i class="bx bx-trash"></i></div>
+          <span class="kpi-icon kpi-orange"><i class="lni lni-trash-can"></i></span>
           <div class="kpi-meta">
             <span class="kpi-title">Request Data Deletion</span>
-            <button id="requestDeletionBtn" class="mini-btn" type="button" disabled title="Coming soon">
-              Coming soon
-            </button>
+            <button class="mini-btn" disabled>Coming soon</button>
           </div>
-          <span class="kpi-foot">&nbsp;</span>
+          <span class="kpi-foot"></span>
         </div>
       </div>
 
-      <!-- 2-column lower area -->
+      <!-- Lower two-column area (left = Account Details list, right = form) -->
       <div class="lower-grid">
-        <!-- Left vertical “Recent file” style → account details list -->
+        <!-- Left panel → Recent-files style list -->
         <aside class="panel panel-list">
           <div class="panel-head">
             <h2>Account Details</h2>
+            <button class="icon-btn" type="button" aria-label="More">
+              <i class="lni lni-more-alt"></i>
+            </button>
           </div>
+
           <ul class="details-list">
             <li class="detail-row">
-              <span class="detail-left">
-                <span class="detail-icon"><i class="bx bx-user"></i></span>
-                <span class="detail-titles">
-                  <p class="p-title">Username</p>
-                  <em id="accUsername">—</em>
-                </span>
-              </span>
+              <div class="detail-left">
+                <span class="detail-icon"><i class="lni lni-user"></i></span>
+                <div class="detail-titles">
+                  <span class="p-title">Username</span>
+                  <em id="acc-username">YooEm</em>
+                </div>
+              </div>
             </li>
 
             <li class="detail-row">
-              <span class="detail-left">
-                <span class="detail-icon"><i class="bx bx-envelope"></i></span>
-                <span class="detail-titles">
-                  <p class="p-title">Email</p>
-                  <em id="accEmail">—</em>
-                </span>
-              </span>
+              <div class="detail-left">
+                <span class="detail-icon"><i class="lni lni-envelope"></i></span>
+                <div class="detail-titles">
+                  <span class="p-title">Email</span>
+                  <em id="acc-email">prozh9008@gmail.com</em>
+                </div>
+              </div>
             </li>
 
             <li class="detail-row">
-              <span class="detail-left">
-                <span class="detail-icon"><i class="bx bx-id-badge"></i></span>
-                <span class="detail-titles">
-                  <p class="p-title">Role</p>
-                  <em id="accRole">User</em>
-                </span>
-              </span>
+              <div class="detail-left">
+                <span class="detail-icon"><i class="lni lni-shield"></i></span>
+                <div class="detail-titles">
+                  <span class="p-title">Role</span>
+                  <em id="acc-role" class="role-tag role-sysadmin">SysAdmin</em>
+                </div>
+              </div>
             </li>
 
             <li class="detail-row">
-              <span class="detail-left">
-                <span class="detail-icon"><i class="bx bx-check-shield"></i></span>
-                <span class="detail-titles">
-                  <p class="p-title">Verified Email</p>
-                  <em id="accVerified">false</em>
-                </span>
-              </span>
+              <div class="detail-left">
+                <span class="detail-icon"><i class="lni lni-checkmark-circle"></i></span>
+                <div class="detail-titles">
+                  <span class="p-title">Verified Email</span>
+                  <em id="acc-verified" class="text-success">true</em>
+                </div>
+              </div>
             </li>
           </ul>
         </aside>
 
-        <!-- Right “Activity Chart” card → change password -->
+        <!-- Right panel → Change Password form -->
         <section class="panel">
-          <div class="panel-head between">
+          <div class="panel-head">
             <h2>Change Password</h2>
           </div>
 
-          <form id="passwordChangeForm" class="pw-form">
-            <label class="input-style-1">
-              <span>Current Password</span>
-              <input id="currentPassword" type="password" placeholder="Current Password" required/>
-            </label>
+          <form id="passwordForm" class="pw-form" autocomplete="off" novalidate>
+            <div class="input-style-1">
+              <label for="currentPassword">Current Password</label>
+              <input id="currentPassword" type="password" />
+            </div>
 
-            <label class="input-style-1">
-              <span>New Password</span>
-              <input id="newPassword" type="password" placeholder="New Password" minlength="6" required/>
-            </label>
+            <div class="input-style-1">
+              <label for="newPassword">New Password</label>
+              <input id="newPassword" type="password" />
+            </div>
 
-            <label class="input-style-1">
-              <span>Confirm New Password</span>
-              <input id="confirmPassword" type="password" placeholder="Confirm New Password" minlength="6" required/>
-            </label>
+            <div class="input-style-1">
+              <label for="confirmPassword">Confirm New Password</label>
+              <input id="confirmPassword" type="password" />
+            </div>
 
-            <label class="showpw">
-              <input id="togglePassword" type="checkbox"/>
+            <label class="checkbox-style-1" style="margin-top:4px;">
+              <input type="checkbox" id="showPw" />
               <span>Show passwords</span>
             </label>
 
-            <button class="main-btn primary-btn btn-hover" type="submit">Update Password</button>
+            <button id="updatePasswordBtn" class="main-btn primary-btn" type="button">
+              Update Password
+            </button>
           </form>
         </section>
       </div>
@@ -184,7 +184,7 @@
     <div class="footer-creator"><p>Created by YooEm</p></div>
     <div class="footer-links">
       <p><strong>Disclaimer:</strong> This is a fan-made website and is not affiliated with or endorsed by the SimpleSurvival Minecraft server or its owners.</p>
-      <p><a href="/privacy.html">Privacy Policy</a> | <a href="/terms.html">Terms of Use</a></p>
+      <p><a href="/privacy">Privacy Policy</a> | <a href="/terms">Terms of Use</a></p>
     </div>
   </footer>
 

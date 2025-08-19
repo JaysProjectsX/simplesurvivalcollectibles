@@ -144,8 +144,6 @@
 /* guard against global .container rules */
 .account-page .container{
   max-width: none; /* let the two specific containers above control width */
-  padding-left: 0 !important;
-  padding-right: 0 !important;
 }
 
 /* ensure left alignment regardless of site-wide text rules */

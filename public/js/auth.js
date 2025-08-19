@@ -367,6 +367,10 @@ function isLockedOut(user) {
       });
     }
 
+    if (document.getElementById("kpi-total")) {
+      computeAccountTotals().catch(() => {});
+    }
+
     // Account page – change password
     const pwForm = document.getElementById("passwordChangeForm");
     if (pwForm) {
@@ -553,6 +557,46 @@ function isLockedOut(user) {
       }
     }
   });
+
+    /* === KPI: Total items collected across ALL crates === */
+    async function computeAccountTotals() {
+      const totalEl = document.getElementById("kpi-total");
+      if (!totalEl) return;
+
+      try {
+        totalEl.textContent = "—";
+
+        // Pull crates and user progress in parallel
+        const [cratesRes, progressRes] = await Promise.all([
+          fetch(`${backendUrl}/api/crates`, { credentials: "include" }),
+          AUTH.fetchWithAuth(`${backendUrl}/api/user/progress`)
+        ]);
+
+        if (!cratesRes.ok) throw new Error("Failed to load crates");
+        const crates = await cratesRes.json();
+
+        // Fetch item lists for every crate concurrently, then count
+        const counts = await Promise.all(
+          crates.map(async c => {
+            const r = await fetch(`${backendUrl}/api/crates/${c.id}/items`, { credentials: "include" });
+            const items = await r.json().catch(() => []);
+            return { id: c.id, total: Array.isArray(items) ? items.length : 0 };
+          })
+        );
+
+        const progress = progressRes.ok ? await progressRes.json() : {};
+
+        const grandTotal   = counts.reduce((sum, c) => sum + c.total, 0);
+        const grandOwned   = counts.reduce((sum, c) => sum + ((progress[c.id]?.items?.length) || 0), 0);
+
+        totalEl.textContent = `${grandOwned} / ${grandTotal} items collected`;
+      } catch (e) {
+        console.error("computeAccountTotals error:", e);
+        const totalEl = document.getElementById("kpi-total");
+        if (totalEl) totalEl.textContent = "—";
+      }
+    }
+
 
   async function fetchAccountInfo() {
     try {

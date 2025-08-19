@@ -110,3 +110,68 @@
   .kpis-grid{ grid-template-columns:repeat(2, minmax(0,1fr)); }
   .lower-grid{ grid-template-columns:1fr; }
 }
+
+/* --- Hard overrides for this page only --- */
+
+.account-page .main-wrapper{
+  /* kill any site-wide width caps or centering on main wrapper */
+  max-width: none !important;
+  width: 100% !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  display: block !important;
+}
+
+/* make our two "containers" act like the source page width */
+.account-page .page-title-container,
+.account-page .account-grid.container{
+  max-width: 1620px !important;
+  width: 100% !important;
+  margin: 0 auto !important;
+  padding: 0 30px !important;
+}
+
+/* guard against global .container rules */
+.account-page .container{
+  max-width: none; /* let the two specific containers above control width */
+}
+
+/* ensure left alignment regardless of site-wide text rules */
+.account-page .panel,
+.account-page .details-list,
+.account-page .detail-titles,
+.account-page .panel-head h2,
+.account-page .pw-form label{
+  text-align: left !important;
+}
+
+/* sometimes global nav/section spacing pushes the grid down/right */
+.account-page .page-title-wrap{ margin: 32px 0 18px !important; }
+.account-page .kpis-grid{ margin-bottom: 26px !important; }
+
+/* KPI cards: make sure they’re uniform height like the source */
+.kpi-card{ min-height: 86px; }
+
+/* Fix inputs being narrower than the button on some themes */
+.pw-form .input-style-1,
+.pw-form .input-style-1 input{
+  width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+/* Keep the bottom section spanning full container width */
+.lower-grid{
+  display: grid !important;
+  grid-template-columns: minmax(320px,1.15fr) 2fr !important;
+  gap: 20px !important;
+  align-items: start !important;
+}
+
+/* Responsive breakpoints like the source */
+@media (max-width: 1400px){
+  .kpis-grid{ grid-template-columns: repeat(3, minmax(0,1fr)) !important; }
+}
+@media (max-width: 1200px){
+  .kpis-grid{ grid-template-columns: repeat(2, minmax(0,1fr)) !important; }
+  .lower-grid{ grid-template-columns: 1fr !important; }
+}

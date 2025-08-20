@@ -561,21 +561,23 @@ function isLockedOut(user) {
     /* === KPI: Total items collected across ALL crates === */
     async function computeAccountTotals() {
       const totalEl = document.getElementById("kpi-total");
-      if (!totalEl) return;
+      const pctEl   = document.getElementById("kpi-completion");
+      if (!totalEl && !pctEl) return;
 
       try {
-        totalEl.textContent = "—";
+        if (totalEl) totalEl.textContent = "—";
+        if (pctEl)   pctEl.textContent   = "—";
 
-        // Pull crates and user progress in parallel
+        // Pull crates list + user progress together
         const [cratesRes, progressRes] = await Promise.all([
           fetch(`${backendUrl}/api/crates`, { credentials: "include" }),
           AUTH.fetchWithAuth(`${backendUrl}/api/user/progress`)
         ]);
-
         if (!cratesRes.ok) throw new Error("Failed to load crates");
-        const crates = await cratesRes.json();
+        const crates   = await cratesRes.json();
+        const progress = progressRes.ok ? await progressRes.json() : {};
 
-        // Fetch item lists for every crate concurrently, then count
+        // Count total items across all crates
         const counts = await Promise.all(
           crates.map(async c => {
             const r = await fetch(`${backendUrl}/api/crates/${c.id}/items`, { credentials: "include" });
@@ -584,18 +586,20 @@ function isLockedOut(user) {
           })
         );
 
-        const progress = progressRes.ok ? await progressRes.json() : {};
+        const grandTotal = counts.reduce((sum, c) => sum + c.total, 0);
+        const grandOwned = counts.reduce((sum, c) => sum + ((progress[c.id]?.items?.length) || 0), 0);
 
-        const grandTotal   = counts.reduce((sum, c) => sum + c.total, 0);
-        const grandOwned   = counts.reduce((sum, c) => sum + ((progress[c.id]?.items?.length) || 0), 0);
+        if (totalEl) totalEl.textContent = `${grandOwned}/${grandTotal} items`;
 
-        totalEl.textContent = `${grandOwned} / ${grandTotal} items collected`;
+        const pct = grandTotal ? Math.round((grandOwned / grandTotal) * 100) : 0;
+        if (pctEl) pctEl.textContent = `${pct}% of items collected`;
       } catch (e) {
         console.error("computeAccountTotals error:", e);
-        const totalEl = document.getElementById("kpi-total");
         if (totalEl) totalEl.textContent = "—";
+        if (pctEl)   pctEl.textContent   = "—";
       }
     }
+
 
 
   async function fetchAccountInfo() {

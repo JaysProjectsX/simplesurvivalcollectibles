@@ -592,7 +592,7 @@ function isLockedOut(user) {
         if (totalEl) totalEl.textContent = `${grandOwned}/${grandTotal} items`;
 
         const pct = grandTotal ? Math.round((grandOwned / grandTotal) * 100) : 0;
-        if (pctEl) pctEl.textContent = `${pct}% of items collected`;
+        if (pctEl) pctEl.textContent = `${pct}% complete`;
       } catch (e) {
         console.error("computeAccountTotals error:", e);
         if (totalEl) totalEl.textContent = "—";

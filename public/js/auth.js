@@ -381,7 +381,13 @@ function isLockedOut(user) {
         const confirm = document.getElementById("confirmPassword").value;
 
         if (newPass !== confirm) {
-          showToast("New passwords do not match.", "error");
+          showGlobalModal({
+            type: "error",
+            title: "New Passwords Mismatch",
+            message: "Your new passwords do not match. Please try again.",
+            buttons: [{ label: "Close", onClick: `fadeOutAndRemove('modal-pwMismatch')` }],
+            id: "modal-pwMismatch"
+          });
           return;
         }
 
@@ -395,14 +401,32 @@ function isLockedOut(user) {
 
           const data = await res.json().catch(() => ({}));
           if (res.ok) {
-            showToast("Password changed successfully!", "success");
+          showGlobalModal({
+            type: "success",
+            title: "Password Changed",
+            message: "Your password has been successfully changed. You can now log in with your new password.",
+            buttons: [{ label: "Close", onClick: `fadeOutAndRemove('modal-pwChangeSuccess')` }],
+            id: "modal-pwChangeSuccess"
+          });
             pwForm.reset();
           } else {
-            showToast(data.error || "Password change failed.", "error");
+          showGlobalModal({
+            type: "error",
+            title: "Password Change Failed",
+            message: "" + (data.error || "An error occurred while changing your password. Please try again later."),
+            buttons: [{ label: "Close", onClick: `fadeOutAndRemove('modal-pwChangeFailed')` }],
+            id: "modal-pwChangeFailed"
+          });
           }
         } catch (err) {
           console.error("Password change error:", err);
-          showToast("Server error.", "error");
+          showGlobalModal({
+            type: "error",
+            title: "Server Error",
+            message: "An internal error occurred while trying to change your password. Please try again later.",
+            buttons: [{ label: "Close", onClick: `fadeOutAndRemove('modal-pwInternalErr')` }],
+            id: "modal-pwInternalErr"
+          });
         }
       });
 

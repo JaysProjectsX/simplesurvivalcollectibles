@@ -374,23 +374,88 @@ function isLockedOut(user) {
     // Account page – change password
     const pwForm = document.getElementById("passwordChangeForm");
     if (pwForm) {
+      const curEl = document.getElementById("currentPassword");
+      const newEl = document.getElementById("newPassword");
+      const conEl = document.getElementById("confirmPassword");
+
+      // helpers
+      const setFieldState = (el, state /* 'valid' | 'invalid' | 'neutral' */, msg = "") => {
+        if (!el) return;
+        const wrapper = el.closest(".input-style-1");
+        if (!wrapper) return;
+
+        // ensure an error span exists
+        let err = wrapper.querySelector(".input-error");
+        if (!err) {
+          err = document.createElement("div");
+          err.className = "input-error";
+          wrapper.appendChild(err);
+        }
+
+        // reset
+        el.classList.remove("is-valid","is-invalid");
+        wrapper.classList.remove("invalid");
+
+        if (state === "valid") {
+          el.classList.add("is-valid");
+          err.textContent = "";
+        } else if (state === "invalid") {
+          el.classList.add("is-invalid");
+          wrapper.classList.add("invalid");
+          err.textContent = msg || "Invalid value.";
+        } else {
+          err.textContent = "";
+        }
+      };
+
+      const clearOnInput = (el) => {
+        if (!el) return;
+        el.addEventListener("input", () => setFieldState(el, "neutral"));
+      };
+      [curEl, newEl, conEl].forEach(clearOnInput);
+
       pwForm.addEventListener("submit", async (e) => {
         e.preventDefault();
-        const current = document.getElementById("currentPassword").value;
-        const newPass = document.getElementById("newPassword").value;
-        const confirm = document.getElementById("confirmPassword").value;
 
-        if (newPass !== confirm) {
-          showGlobalModal({
-            type: "error",
-            title: "New Passwords Mismatch",
-            message: "Your new passwords do not match. Please try again.",
-            buttons: [{ label: "Close", onClick: `fadeOutAndRemove('modal-pwMismatch')` }],
-            id: "modal-pwMismatch"
-          });
+        const current = curEl?.value ?? "";
+        const newPass = newEl?.value ?? "";
+        const confirm = conEl?.value ?? "";
+
+        // ----- Client-side validation -----
+        let hasError = false;
+
+        if (!current.trim()) {
+          setFieldState(curEl, "invalid", "Please enter your current password.");
+          hasError = true;
+        }
+        if (!newPass.trim()) {
+          setFieldState(newEl, "invalid", "Please enter a new password.");
+          hasError = true;
+        }
+        if (!confirm.trim()) {
+          setFieldState(conEl, "invalid", "Please confirm your new password.");
+          hasError = true;
+        }
+
+        // Optional: enforce a minimum length (uncomment if you want it)
+        // if (newPass && newPass.length < 8) {
+        //   setFieldState(newEl, "invalid", "Use at least 8 characters.");
+        //   hasError = true;
+        // }
+
+        if (newPass && confirm && newPass !== confirm) {
+          setFieldState(conEl, "invalid", "New passwords do not match.");
+          hasError = true;
+        }
+
+        if (hasError) {
+          // focus first invalid field
+          const firstInvalid = pwForm.querySelector(".is-invalid");
+          if (firstInvalid) firstInvalid.focus();
           return;
         }
 
+        // ----- Server request -----
         try {
           const res = await fetch(`${backendUrl}/change-password`, {
             method: "POST",
@@ -400,23 +465,49 @@ function isLockedOut(user) {
           });
 
           const data = await res.json().catch(() => ({}));
+
           if (res.ok) {
-          showGlobalModal({
-            type: "success",
-            title: "Password Changed",
-            message: "Your password has been successfully changed. You can now log in with your new password.",
-            buttons: [{ label: "Close", onClick: `fadeOutAndRemove('modal-pwChangeSuccess')` }],
-            id: "modal-pwChangeSuccess"
-          });
+            setFieldState(curEl, "valid");
+            setFieldState(newEl, "valid");
+            setFieldState(conEl, "valid");
+
+            showGlobalModal({
+              type: "success",
+              title: "Password Changed",
+              message: "Your password has been successfully changed.",
+              buttons: [{ label: "Close", onClick: `fadeOutAndRemove('modal-pwChangeSuccess')` }],
+              id: "modal-pwChangeSuccess"
+            });
+
             pwForm.reset();
+            // clear validity state after reset
+            [curEl, newEl, conEl].forEach(el => setFieldState(el, "neutral"));
           } else {
-          showGlobalModal({
-            type: "error",
-            title: "Password Change Failed",
-            message: "" + (data.error || "An error occurred while changing your password. Please try again later."),
-            buttons: [{ label: "Close", onClick: `fadeOutAndRemove('modal-pwChangeFailed')` }],
-            id: "modal-pwChangeFailed"
-          });
+            const errMsg = (data.error || "").toLowerCase();
+
+            // Heuristic: detect incorrect current password from server message
+            if (errMsg.includes("current password") && errMsg.includes("incorrect")
+            || errMsg.includes("invalid current")
+            || errMsg.includes("wrong password")) {
+              setFieldState(curEl, "invalid", "Current password is incorrect.");
+              curEl?.focus();
+            } else if (errMsg.includes("match") || errMsg.includes("confirm")) {
+              setFieldState(conEl, "invalid", "New passwords do not match.");
+              conEl?.focus();
+            } else if (errMsg.includes("too short") || errMsg.includes("length")) {
+              setFieldState(newEl, "invalid", data.error);
+              newEl?.focus();
+            } else {
+              // generic failure: show modal and mark new password invalid as a hint
+              setFieldState(newEl, "invalid");
+              showGlobalModal({
+                type: "error",
+                title: "Password Change Failed",
+                message: data.error || "An error occurred while changing your password. Please try again.",
+                buttons: [{ label: "Close", onClick: `fadeOutAndRemove('modal-pwChangeFailed')` }],
+                id: "modal-pwChangeFailed"
+              });
+            }
           }
         } catch (err) {
           console.error("Password change error:", err);
@@ -430,18 +521,16 @@ function isLockedOut(user) {
         }
       });
 
-      // Optional: show/hide password checkbox (only on account page)
-      const toggleCheckbox = document.getElementById("togglePassword");
+      // Checkbox: show/hide passwords
+      const toggleCheckbox = document.getElementById("togglePassword") || document.getElementById("showPw");
       if (toggleCheckbox) {
         toggleCheckbox.addEventListener("change", function () {
           const type = this.checked ? "text" : "password";
-          ["currentPassword","newPassword","confirmPassword"].forEach(id => {
-            const input = document.getElementById(id);
-            if (input) input.type = type;
-          });
+          [curEl, newEl, conEl].forEach(el => { if (el) el.type = type; });
         });
       }
     }
+
 
     // Forgot/reset page (two-phase in one form)
     const forgotForm = document.getElementById("forgotPasswordForm");

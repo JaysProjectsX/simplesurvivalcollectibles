@@ -183,6 +183,25 @@
   text-align: center !important;
 }
 
+/* Input validity states */
+.input-style-1 input.is-valid {
+  outline: 2px solid #42d29d;
+  box-shadow: 0 0 0 3px rgba(66,210,157,.2);
+}
+.input-style-1 input.is-invalid {
+  outline: 2px solid #ff6b6b;
+  box-shadow: 0 0 0 3px rgba(255,107,107,.2);
+}
+
+/* Inline error note under an input */
+.input-error {
+  display: none;
+  margin-top: 6px;
+  font-size: .85rem;
+  color: #ff9aa2;
+}
+.input-style-1.invalid .input-error { display: block; }
+
 /* Responsive breakpoints like the source */
 @media (max-width: 1400px){
   .kpis-grid{ grid-template-columns: repeat(3, minmax(0,1fr)) !important; }

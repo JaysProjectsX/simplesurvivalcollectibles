@@ -1503,24 +1503,6 @@ nav {
   align-items: center;
 }
 
-/* Submit Button */
-#passwordChangeForm button {
-  width: 90%;
-  background-color: #2966d8;
-  color: white;
-  padding: 10px 12px;
-  border: none;
-  border-radius: 6px;
-  font-weight: bold;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-  margin-top: 10px;
-}
-
-#passwordChangeForm button:hover {
-  background-color: #1f4ab1;
-}
-
 /* Align show password checkbox + label */
 
 .toggle-password-container {

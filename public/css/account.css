@@ -1,6 +1,6 @@
 /* === Account page: File Manager skin === */
 
-:root { --account-gutter: clamp(18px, 3vw, 32px); --account-form-width: 820px;}
+:root { --account-gutter: clamp(18px, 3vw, 32px); --account-form-width: 650px;}
 
 .account-page {
   overflow-x: hidden;
@@ -113,7 +113,6 @@
 .pw-form .input-style-1 input{
   height:40px; padding:0 12px;      /* match button height/feel */
 }
-.pw-form .main-btn{ width:100%; }
 
 /* ---- Responsive like source ---- */
 @media (max-width:1200px){
@@ -213,18 +212,7 @@
 .pw-form > .input-style-1,
 .pw-form > .checkbox-style-1,
 .pw-form > .main-btn {
-  width: min(100%, var(--account-form-width));
-}
-
-/* Inputs fill their wrapper */
-.pw-form .input-style-1 input {
-  width: 100% !important;
-}
-
-/* Ensure the button uses the same width (override any earlier rules) */
-.pw-form .main-btn {
-  width: 100% !important;
-  max-width: none !important;
+  width: min(100%, var(--account-form-width)) !important;
 }
 
 /* Responsive breakpoints like the source */

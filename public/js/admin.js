@@ -19,10 +19,6 @@ document.addEventListener("DOMContentLoaded", async () => {
   });
 
   try {
-    const res = await fetch("https://simplesurvivalcollectibles.site/me", {
-      credentials: "include",
-    });
-
     if (res.status === 401) {
       // Try refreshing the token
       const refreshRes = await fetch("https://simplesurvivalcollectibles.site/refresh", {
@@ -142,6 +138,15 @@ function initializeAdminPanel(role) {
     });
   }
 
+  const STATUS_MAP = {
+    awaiting:     { label: 'Awaiting Approval', modalClass: 'kbm-awaiting', tagClass: 'awaiting' },
+    in_progress:  { label: 'In Progress',       modalClass: 'kbm-inProgress', tagClass: 'in-progress' },
+    completed:    { label: 'Completed',         modalClass: 'kbm-completed', tagClass: 'completed' }
+  };
+  const statusLabel = s => (STATUS_MAP[s]?.label || s);
+  const statusTagCls = s => (STATUS_MAP[s]?.tagClass || '');
+  const statusModalCls = s => (STATUS_MAP[s]?.modalClass || '');
+
   const STATUS_LABELS = {
     awaiting: 'Awaiting Approval',
     in_progress: 'In Progress',
@@ -167,16 +172,18 @@ function initializeAdminPanel(role) {
 
     data.forEach(r => {
       const card = document.createElement('div');
-      card.className = `kb-card ${r.status}`;
+      card.className = `kb-card state-${r.status}`;      // used for border color
+      const tag = `<span class="kb-tag ${statusTagCls(r.status)}">${statusLabel(r.status)}</span>`;
       card.innerHTML = `
-        <div class="kb-pill">${getStatusLabel(r.status)}</div>
-        <div class="kb-title">${escapeHTML(r.username_snapshot)} <span class="kb-subtle">(${escapeHTML(r.email_snapshot)})</span></div>
-        <div class="kb-meta">
-          <span>${new Date(r.requested_at).toLocaleDateString()}</span>
-          ${r.scheduled_delete_at ? `<span>Deletes: ${new Date(r.scheduled_delete_at).toLocaleString()}</span>` : ``}
+        <div class="kb-card-top">${tag}</div>
+        <h4 class="kb-title">${escapeHTML(r.username_snapshot)} <span class="kb-subtle">(${escapeHTML(r.email_snapshot)})</span></h4>
+        <div class="kb-card-bottom">
+          <span class="kb-date">${new Date(r.requested_at).toLocaleDateString()}</span>
+          ${r.scheduled_delete_at ? `<span class="kb-date">Deletes: ${new Date(r.scheduled_delete_at).toLocaleString()}</span>` : ``}
         </div>
       `;
       card.onclick = () => openDeletionModal(r.id);
+
       if (r.status === 'awaiting') A.appendChild(card);
       else if (r.status === 'in_progress') I.appendChild(card);
       else if (r.status === 'completed') C.appendChild(card);
@@ -199,12 +206,12 @@ function initializeAdminPanel(role) {
     const { request:r, logs } = await res.json();
 
     // header
-    document.getElementById('kbm-title').textContent = 'Deletion Request';
+    document.getElementById('kbm-title').textContent = 'Account Deletion Request';
     document.getElementById('kbm-userline').innerHTML =
       `${escapeHTML(r.username_snapshot)} <span class="kb-subtle">(${escapeHTML(r.email_snapshot)})</span>`;
     const statusEl = document.getElementById('kbm-status');
-    statusEl.textContent = getStatusLabel(r.status);
-    statusEl.className = `kbm-status ${getStatusClass(r.status)}`;
+    statusEl.textContent = statusLabel(r.status);                     // Awaiting Approval / In Progress / Completed
+    statusEl.className = `kbm-status ${statusModalCls(r.status)}`;    // adds kbm-awaiting | kbm-inProgress | kbm-completed
     document.getElementById('kbm-ip').textContent = `Requested from: ${r.requester_ip || '—'}`;
     document.getElementById('kbm-ua').textContent = r.requester_ua || '—';
 

@@ -992,7 +992,7 @@ select {
 
 .kbm-logwrap { margin-top: 10px; }
 .kbm-logs { max-height:220px; overflow:auto; border:1px solid rgba(255,255,255,.06); border-radius:10px; padding:10px; }
-.kbm-logline { font-size:.92rem; opacity:.92; padding:4px 2px; }
+.kbm-logline { font-size:.80rem; opacity:.92; padding:4px 2px; }
 
 .kbm-foot { display:flex; justify-content:flex-end; gap:10px; }
 .kbm-btn {
@@ -1007,3 +1007,76 @@ select {
   .kbm-meta { grid-template-columns: 1fr; }
 }
 
+/* ===== Tasks / Kanban (Admin) ===== */
+.kanban {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(360px, 1fr)); /* 3 columns side by side */
+  gap: 2rem;
+  align-items: start;
+}
+
+.kanban-col {}
+.kanban-head {
+  text-align: center;
+  font-weight: 600;
+  color: #c8c8d6;
+  margin-bottom: 0.75rem;
+}
+
+/* List inside each column stacks cards like Collections */
+.kanban-list {
+  display: grid;
+  gap: 1rem;
+}
+
+/* Card look inspired by Collections' .crate-card */
+.kb-card {
+  background-color: #1e1e2f;
+  border-radius: 10px;
+  border-bottom: 3px solid transparent;  /* status accent */
+  padding: 1.2rem;
+  color: #fff;
+  cursor: pointer;
+  transition: transform .2s ease;
+  display: flex;
+  flex-direction: column;
+  gap: .75rem;
+}
+.kb-card:hover { transform: translateY(-5px); }
+
+.kb-card-top { display:flex; justify-content:flex-start; }
+.kb-title { font-size: 1.05rem; margin: 0; }
+.kb-subtle { opacity: .75; font-weight: 500; }
+.kb-card-bottom { display:flex; gap: 1rem; color:#aaa; font-size:.9rem; }
+.kb-date { white-space: nowrap; }
+
+/* Small status tag (mirrors Collections' .card-tag & colored variants) */
+.kb-tag {
+  font-size: .75rem;
+  font-weight: 700;
+  padding: .3rem .6rem;
+  border-radius: 4px;
+  display: inline-block;
+  width: fit-content;
+}
+.kb-tag.awaiting     { background: rgba(247, 200, 0, 0.08); color: #f7c800; }
+.kb-tag.in-progress  { background: rgba(88, 181, 255, 0.10); color: #58b5ff; }
+.kb-tag.completed    { background: rgba(66, 210, 157, 0.10); color: rgb(66, 210, 157); }
+
+/* Accent border by state (matches Collections vibe) */
+.kb-card.state-awaiting    { border-bottom-color: #f7c800; }
+.kb-card.state-in_progress { border-bottom-color: #58b5ff; }
+.kb-card.state-completed   { border-bottom-color: rgb(66, 210, 157); }
+
+/* Modal status color hooks you already named */
+.kbm-status.kbm-awaiting   { color: #f7c800; }
+.kbm-status.kbm-inProgress { color: #58b5ff; }
+.kbm-status.kbm-completed  { color: rgb(66, 210, 157); }
+
+/* Responsive: stack columns earlier so cards stay tidy */
+@media (max-width: 1200px) {
+  .kanban { grid-template-columns: repeat(2, minmax(320px, 1fr)); }
+}
+@media (max-width: 780px) {
+  .kanban { grid-template-columns: 1fr; }
+}

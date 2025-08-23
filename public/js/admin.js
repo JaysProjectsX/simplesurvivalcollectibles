@@ -860,6 +860,113 @@ if (dbTabBtn) {
   });
 }
 
+// ===== Tasks (Deletion Requests) =====
+const tasksTabBtn = document.querySelector('[data-tab="tasksTab"]');
+if (tasksTabBtn) {
+  tasksTabBtn.addEventListener("click", () => loadDeletionRequests());
+}
+
+async function api(path, init={}) {
+  return fetch(`https://simplesurvivalcollectibles.site${path}`, {
+    credentials:'include',
+    ...init
+  });
+}
+
+async function loadDeletionRequests() {
+  const [all] = await Promise.all([
+    api('/admin/deletion-requests').then(r=>r.json()).catch(()=>[])
+  ]);
+
+  const A = document.getElementById('kb-awaiting');
+  const I = document.getElementById('kb-inprogress');
+  const C = document.getElementById('kb-completed');
+  [A,I,C].forEach(el => el && (el.innerHTML = ''));
+
+  all.forEach(r => {
+    const card = document.createElement('div');
+    card.className = 'kanban-card';
+    const whenSched = r.scheduled_delete_at ? new Date(r.scheduled_delete_at).toLocaleString() : null;
+    card.innerHTML = `
+      <div class="title"><b>${r.username_snapshot}</b> <span style="opacity:.7">(${r.email_snapshot})</span></div>
+      <div class="meta">
+        <span>${r.status.replace('_',' ')}</span>
+        <span>${whenSched ? `Deletes: ${whenSched}` : new Date(r.requested_at).toLocaleDateString()}</span>
+      </div>
+    `;
+    card.onclick = () => openDeletionModal(r.id);
+    if (r.status === 'awaiting') A.appendChild(card);
+    else if (r.status === 'in_progress') I.appendChild(card);
+    else if (r.status === 'completed') C.appendChild(card);
+  });
+}
+
+async function openDeletionModal(id) {
+  const res = await api(`/admin/deletion-requests/${id}`);
+  if (!res.ok) return;
+  const { request:r, logs } = await res.json();
+
+  const header = `
+    <div style="display:flex;justify-content:space-between;align-items:center;">
+      <div>
+        <h3 style="margin:0">${r.username_snapshot} <span style="opacity:.7">(${r.email_snapshot})</span></h3>
+        <small>Status: <b>${r.status.replace('_',' ')}</b></small>
+      </div>
+      <span class="badge">${r.requester_ip || '—'}</span>
+    </div>
+    <div style="opacity:.75;margin-top:6px">User Agent: ${r.requester_ua ? r.requester_ua.replace(/</g,'&lt;') : '—'}</div>
+  `;
+
+  const logHtml = logs.map(l =>
+    `<div style="opacity:.85;font-size:.9rem;margin:.25rem 0">
+       ${new Date(l.at_time).toLocaleString()} — <b>${l.action}</b> ${l.note ? `— ${l.note}`:''}
+     </div>`).join('');
+
+  const btns = [];
+  if (r.status === 'awaiting') {
+    btns.push({label:'Deny', onClick:`denyDeletion(${r.id})`});
+    btns.push({label:'Approve (24h)', onClick:`approveDeletion(${r.id})`});
+  } else if (r.status === 'in_progress') {
+    btns.push({label:'Cancel', onClick:`cancelDeletion(${r.id})`});
+  }
+
+  showGlobalModal({
+    type: "info",
+    title: "Deletion Request",
+    message: `
+      ${header}
+      <hr/>
+      <div><b>Requested:</b> ${new Date(r.requested_at).toLocaleString()}</div>
+      ${r.scheduled_delete_at ? `<div><b>Scheduled:</b> ${new Date(r.scheduled_delete_at).toLocaleString()}</div>`:''}
+      ${r.completed_at ? `<div><b>Completed:</b> ${new Date(r.completed_at).toLocaleString()}</div>`:''}
+      <hr/>
+      <div style="max-height:220px;overflow:auto">${logHtml || '<i>No history</i>'}</div>
+    `,
+    buttons: [...btns, {label:'Close', onClick:`fadeOutAndRemove('modal-deletion-${id}')`}],
+    id: `modal-deletion-${id}`
+  });
+}
+
+async function approveDeletion(id) {
+  await api(`/admin/deletion-requests/${id}/approve`, { method:'POST' });
+  showToast('Approved and scheduled in 24h');
+  loadDeletionRequests();
+}
+function promptReason(action, id) {
+  const reason = prompt(`${action} reason (optional):`, '');
+  return api(`/admin/deletion-requests/${id}/${action}`, {
+    method:'POST',
+    headers: { 'Content-Type':'application/json' },
+    body: JSON.stringify({ reason })
+  }).then(()=>{
+    showToast(`${action[0].toUpperCase()+action.slice(1)} OK`);
+    loadDeletionRequests();
+  });
+}
+const denyDeletion = id => promptReason('deny', id);
+const cancelDeletion = id => promptReason('cancel', id);
+
+
 function loadAuditLogs(page = 1) {
   fetch(
     `https://simplesurvivalcollectibles.site/admin/audit-logs?page=${page}&limit=10`,

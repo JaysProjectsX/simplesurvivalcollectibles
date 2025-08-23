@@ -973,6 +973,64 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 });
 
+// === Account: Request deletion ===
+document.addEventListener("DOMContentLoaded", () => {
+  const btn = document.getElementById("requestDeletionBtn");
+  const statusEl = document.getElementById("deletionStatus");
+  if (!btn) return;
+
+  async function refreshDeletionBadge() {
+    try {
+      const r = await AUTH.fetchWithAuth(`${backendUrl}/admin/deletion-requests?status=in_progress`);
+      if (!r.ok) return;
+      const rows = await r.json();
+      const me = localStorage.getItem("email");
+      const mine = rows.find(x => x.email_snapshot === me);
+      if (mine && mine.scheduled_delete_at) {
+        const when = new Date(mine.scheduled_delete_at).toLocaleString();
+        statusEl.textContent = `Scheduled: ${when}`;
+      }
+    } catch {}
+  }
+  refreshDeletionBadge();
+
+  btn.addEventListener("click", async () => {
+    try {
+      btn.disabled = true;
+      const res = await AUTH.fetchWithAuth(`${backendUrl}/account/request-deletion`, { method: "POST" });
+      if (res.status === 409) {
+        showGlobalModal({
+          type: "warning",
+          title: "Request Already Open",
+          message: "You already have an open deletion request.",
+          buttons: [{ label: "Close", onClick: "fadeOutAndRemove('modal-req-open')" }],
+          id: "modal-req-open"
+        });
+      } else if (res.ok) {
+        showGlobalModal({
+          type: "success",
+          title: "Request Submitted",
+          message: "Your request is awaiting admin approval.",
+          buttons: [{ label: "Close", onClick: "fadeOutAndRemove('modal-req-ok')" }],
+          id: "modal-req-ok"
+        });
+      } else {
+        showGlobalModal({
+          type: "error",
+          title: "Failed",
+          message: "Could not submit your request. Please try again later.",
+          buttons: [{ label: "Close", onClick: "fadeOutAndRemove('modal-req-fail')" }],
+          id: "modal-req-fail"
+        });
+      }
+    } finally {
+      btn.disabled = false;
+      refreshDeletionBadge();
+    }
+  });
+});
+
+
 window.onclick = function (event) {
   const authModal = document.getElementById("authModal");
   const accountModal = document.getElementById("accountModal");

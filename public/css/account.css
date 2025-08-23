@@ -215,6 +215,17 @@
   width: min(100%, var(--account-form-width)) !important;
 }
 
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 /* Responsive breakpoints like the source */
 @media (max-width: 1400px){
   .kpis-grid{ grid-template-columns: repeat(3, minmax(0,1fr)) !important; }

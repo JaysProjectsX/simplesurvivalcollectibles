@@ -890,3 +890,13 @@ select {
   font-family: "Poppins", sans-serif;
   font-size: 0.95rem;
 }
+
+.kanban { display:grid; gap:16px; grid-template-columns: repeat(3,1fr); }
+.kanban-col { background:#191c2b; border-radius:12px; padding:12px; }
+.kanban-head { font-weight:600; opacity:.9; margin-bottom:8px; }
+.kanban-card {
+  background:#141827; border-radius:12px; padding:12px; margin:8px 0; 
+  border:1px solid rgba(110,168,255,.3);
+  cursor:pointer;
+}
+.kanban-card .meta { display:flex; justify-content:space-between; font-size:.85rem; opacity:.8; }

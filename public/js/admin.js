@@ -19,6 +19,10 @@ document.addEventListener("DOMContentLoaded", async () => {
   });
 
   try {
+    const res = await fetch("https://simplesurvivalcollectibles.site/me", {
+      credentials: "include",
+    });
+
     if (res.status === 401) {
       // Try refreshing the token
       const refreshRes = await fetch("https://simplesurvivalcollectibles.site/refresh", {

@@ -319,6 +319,59 @@
         </div>
       </div>
 
+      <!-- Deletion Request Modal (admin-only) -->
+      <div id="taskModalBackdrop" class="kbm-backdrop hidden">
+        <div class="kbm-modal fadeIn" id="taskModal">
+          <div class="kbm-head">
+            <h3 id="kbm-title">Deletion Request</h3>
+            <button class="kbm-close" aria-label="Close" onclick="window.closeTaskModal()">×</button>
+          </div>
+
+          <div class="kbm-body">
+            <!-- header block -->
+            <div class="kbm-toprow">
+              <div>
+                <div class="kbm-title" id="kbm-userline">—</div>
+                <div class="kbm-sub" id="kbm-status">—</div>
+              </div>
+              <div class="kbm-pill" id="kbm-ip">—</div>
+            </div>
+
+            <!-- description block -->
+            <div class="kbm-desc">
+              <div class="kbm-desc-title">User Agent</div>
+              <div id="kbm-ua">—</div>
+            </div>
+
+            <!-- meta row -->
+            <div class="kbm-meta">
+              <div class="kbm-meta-col">
+                <div class="kbm-meta-label">Requested</div>
+                <div class="kbm-meta-value" id="kbm-requested">—</div>
+              </div>
+              <div class="kbm-meta-col">
+                <div class="kbm-meta-label">Scheduled</div>
+                <div class="kbm-meta-value" id="kbm-scheduled">—</div>
+              </div>
+              <div class="kbm-meta-col">
+                <div class="kbm-meta-label">Completed</div>
+                <div class="kbm-meta-value" id="kbm-completed">—</div>
+              </div>
+            </div>
+
+            <div class="kbm-logwrap">
+              <div class="kbm-desc-title">History</div>
+              <div id="kbm-logs" class="kbm-logs"></div>
+            </div>
+          </div>
+
+          <div class="kbm-foot" id="kbm-buttons">
+            <!-- buttons injected here depending on state -->
+            <button class="kbm-btn" onclick="window.closeTaskModal()">Close</button>
+          </div>
+        </div>
+      </div>
+
     <!-- Edit Item Modal -->
     <div id="editItemModalAdmin" class="modal-admin hidden">
       <div class="modal-content-admin fadeIn">

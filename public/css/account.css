@@ -60,8 +60,13 @@
 
 /* small pill button inside a KPI */
 .mini-btn{
-  background:#2f64ff; color:#fff; border:none;
-  padding:6px 10px; border-radius:8px; font-weight:600;
+  background:#2f64ff;
+  color:#fff;
+  border:none;
+  padding:6px 10px;
+  border-radius:8px;
+  font-weight:600;
+  margin-left: 10px;
 }
 
 /* ---- Lower grid (left list + right panel) ---- */

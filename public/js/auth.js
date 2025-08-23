@@ -983,12 +983,6 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 async function initDeletionUI(btn, statusEl) {
-  // If not logged in, make it clear
-  if (!hasCookie("refreshToken")) {
-    btn.disabled = true;
-    btn.title = "Login required";
-    return;
-  }
 
   async function fetchStatus() {
     try {

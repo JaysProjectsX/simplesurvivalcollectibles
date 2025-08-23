@@ -973,30 +973,84 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 });
 
-// === Account: Request deletion ===
+// === Account: Request deletion (user-scoped, safe for non-admins) ===
 document.addEventListener("DOMContentLoaded", () => {
   const btn = document.getElementById("requestDeletionBtn");
   const statusEl = document.getElementById("deletionStatus");
   if (!btn) return;
 
-  async function refreshDeletionBadge() {
-    try {
-      const r = await AUTH.fetchWithAuth(`${backendUrl}/admin/deletion-requests?status=in_progress`);
-      if (!r.ok) return;
-      const rows = await r.json();
-      const me = localStorage.getItem("email");
-      const mine = rows.find(x => x.email_snapshot === me);
-      if (mine && mine.scheduled_delete_at) {
-        const when = new Date(mine.scheduled_delete_at).toLocaleString();
-        statusEl.textContent = `Scheduled: ${when}`;
-      }
-    } catch {}
-  }
-  refreshDeletionBadge();
+  initDeletionUI(btn, statusEl).catch(() => {});
+});
 
-  btn.addEventListener("click", async () => {
+async function initDeletionUI(btn, statusEl) {
+  // If not logged in, make it clear
+  if (!hasCookie("refreshToken")) {
+    btn.disabled = true;
+    btn.title = "Login required";
+    return;
+  }
+
+  async function fetchStatus() {
     try {
-      btn.disabled = true;
+      const r = await AUTH.fetchWithAuth(`${backendUrl}/account/deletion-status`);
+      if (!r.ok) return null;
+      return await r.json(); // {status, scheduled_delete_at, requested_at, completed_at} | null
+    } catch { return null; }
+  }
+
+  async function paintStatus() {
+    const s = await fetchStatus();
+
+    // default: user can request
+    let label = "Request";
+    let disabled = false;
+    let tip = "";
+    let badge = "";
+
+    if (s) {
+      switch (s.status) {
+        case "awaiting":
+          label = "Awaiting approval";
+          disabled = true;
+          tip = "Your request is pending review.";
+          break;
+        case "in_progress":
+          label = "Scheduled";
+          disabled = true;
+          if (s.scheduled_delete_at) {
+            const when = new Date(s.scheduled_delete_at).toLocaleString();
+            tip = `Scheduled for ${when}`;
+            badge = `Scheduled: ${when}`;
+          }
+          break;
+        case "completed":
+          label = "Deleted";
+          disabled = true;
+          tip = "Your account has been deleted.";
+          badge = "Completed";
+          break;
+        case "denied":
+        case "cancelled":
+          // user can re-request
+          label = "Request";
+          disabled = false;
+          tip = s.status === "denied" ? "Previous request was denied." : "Previous request was cancelled.";
+          break;
+      }
+    }
+
+    btn.textContent = label;
+    btn.disabled = disabled;
+    btn.title = tip;
+
+    if (statusEl) statusEl.textContent = badge;
+  }
+
+  async function onRequest() {
+    const prev = btn.textContent;
+    btn.disabled = true;
+    btn.textContent = "Requesting...";
+    try {
       const res = await AUTH.fetchWithAuth(`${backendUrl}/account/request-deletion`, { method: "POST" });
       if (res.status === 409) {
         showGlobalModal({
@@ -1023,13 +1077,18 @@ document.addEventListener("DOMContentLoaded", () => {
           id: "modal-req-fail"
         });
       }
+    } catch {
+      showToast("Network error.", "error");
     } finally {
-      btn.disabled = false;
-      refreshDeletionBadge();
+      await paintStatus();
     }
-  });
-});
+  }
 
+  // initial paint + bind click
+  await paintStatus();
+  // bind once (button becomes disabled once the request is open)
+  btn.addEventListener("click", onRequest, { once: true });
+}
 
 window.onclick = function (event) {
   const authModal = document.getElementById("authModal");

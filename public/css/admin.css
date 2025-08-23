@@ -24,7 +24,7 @@
 
 /* Sidebar Styling */
 .admin-sidebar {
-  height: 320px;
+  height: 380px;
   background-color: #1a1a1a;
   border-radius: 12px;
   padding: 1rem;
@@ -892,11 +892,12 @@ select {
 }
 
 .kanban { display:grid; gap:16px; grid-template-columns: repeat(3,1fr); }
-.kanban-col { background:#191c2b; border-radius:12px; padding:12px; }
+.kanban-col { border-radius:12px; padding:12px; }
 .kanban-head { font-weight:600; opacity:.9; margin-bottom:8px; }
 .kanban-card {
-  background:#141827; border-radius:12px; padding:12px; margin:8px 0; 
-  border:1px solid rgba(110,168,255,.3);
+  background: #1e1e2f; border-radius:12px; padding:12px; margin:8px 0; 
+  border-radius: 10px;
+  border-bottom: 3px solid transparent;
   cursor:pointer;
 }
 .kanban-card .meta { display:flex; justify-content:space-between; font-size:.85rem; opacity:.8; }

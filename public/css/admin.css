@@ -915,7 +915,6 @@ select {
   line-height: 1;
   padding: 6px 8px;
   border-radius: 999px;
-  background: #2b2f48;
   color:#fff;
   opacity:.9;
   margin-bottom:10px;
@@ -963,11 +962,9 @@ select {
 }
 .kbm-head, .kbm-foot {
   padding: 18px 24px;
-  background: #121528;
 }
 .kbm-head {
   display:flex; align-items:center; justify-content:space-between;
-  border-bottom: 1px solid rgba(255,255,255,.06);
 }
 .kbm-head h3 { margin:0; font-size: 1.15rem; }
 .kbm-close {
@@ -977,13 +974,17 @@ select {
 
 .kbm-body { padding: 20px 24px; }
 
-.kbm-toprow { display:flex; align-items:flex-start; justify-content:space-between; gap:16px; }
-.kbm-title { font-size: 1.1rem; font-weight:700; }
-.kbm-sub { font-size:.9rem; opacity:.8; margin-top:4px; }
-.kbm-pill { padding:8px 10px; border-radius: 10px; background:#2b2f48; font-size:.85rem; }
+.kbm-toprow { display:flex; align-items:center; justify-content:center; gap:6px; }
+.kbm-title { font-size: 1.1rem; }
+.kbm-status { font-size:.65rem; margin-top: 4px; border-radius: 4px; padding: 4px; background-color: rgba(213, 1, 0, 0.1); }
+.kbm-awaiting {  color: rgb(213, 1, 0); }
+.kbm-inProgress { color: #365CF5; }
+.kbm-completed { color: rgb(66, 210, 157); }
+.kbm-pill { padding:8px 10px; border-radius: 10px; font-size:.85rem; }
 
 .kbm-desc { margin:18px 0 8px; }
 .kbm-desc-title { font-weight:600; opacity:.9; margin-bottom:6px; }
+.kbm-agent { font-size: .75rem; }
 
 .kbm-meta { display:grid; grid-template-columns: repeat(3,1fr); gap:16px; margin:16px 0; }
 .kbm-meta-label { font-size:.85rem; opacity:.7; }
@@ -993,7 +994,7 @@ select {
 .kbm-logs { max-height:220px; overflow:auto; border:1px solid rgba(255,255,255,.06); border-radius:10px; padding:10px; }
 .kbm-logline { font-size:.92rem; opacity:.92; padding:4px 2px; }
 
-.kbm-foot { display:flex; justify-content:flex-end; gap:10px; border-top: 1px solid rgba(255,255,255,.06); }
+.kbm-foot { display:flex; justify-content:flex-end; gap:10px; }
 .kbm-btn {
   background:#2b63f1; border:0; color:#fff; padding:10px 14px; border-radius:8px; cursor:pointer;
 }

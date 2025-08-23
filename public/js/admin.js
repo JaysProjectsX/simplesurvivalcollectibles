@@ -189,8 +189,8 @@ function initializeAdminPanel(role) {
     document.getElementById('kbm-title').textContent = 'Deletion Request';
     document.getElementById('kbm-userline').innerHTML =
       `${escapeHTML(r.username_snapshot)} <span class="kb-subtle">(${escapeHTML(r.email_snapshot)})</span>`;
-    document.getElementById('kbm-status').textContent = `Status: ${r.status.replace('_',' ')}`;
-    document.getElementById('kbm-ip').textContent = r.requester_ip || '—';
+    document.getElementById('kbm-status').textContent = `${r.status.replace('_',' ')}`;
+    document.getElementById('kbm-ip').textContent = `Requested from: ${r.requester_ip || '—'}`;
     document.getElementById('kbm-ua').textContent = r.requester_ua || '—';
 
     // meta

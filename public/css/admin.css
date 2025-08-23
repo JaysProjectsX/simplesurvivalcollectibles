@@ -898,7 +898,6 @@ select {
 .kb-card {
   background: #181b2a;
   border-radius: 14px;
-  box-shadow: 0 2px 0 rgba(110,168,255,.25) inset;
   border-bottom: 2px solid rgba(110,168,255,.3);
   padding: 16px 18px;
   margin: 14px 0;
@@ -947,7 +946,7 @@ select {
   display:flex;
   align-items:flex-start;
   justify-content:center;
-  padding: 50px 14px;
+  padding: 200px 14px;
   z-index: 9999;
 }
 .kbm-backdrop.hidden { display:none; }
@@ -976,10 +975,10 @@ select {
 
 .kbm-toprow { display:flex; align-items:center; justify-content:center; gap:6px; }
 .kbm-title { font-size: 1.1rem; }
-.kbm-status { font-size:.65rem; margin-top: 4px; border-radius: 4px; padding: 4px; background-color: rgba(213, 1, 0, 0.1); }
-.kbm-awaiting {  color: rgb(213, 1, 0); }
-.kbm-inProgress { color: #365CF5; }
-.kbm-completed { color: rgb(66, 210, 157); }
+.kbm-status { font-size:.65rem; margin-top: 4px; border-radius: 4px; padding: 4px; background-color: transparent; }
+.kbm-awaiting {  color: rgb(250, 90, 120); background-color: rgba(213, 1, 0, 0.08); }
+.kbm-inProgress { color: #365CF5; background-color: rgba(54, 92, 245, 0.08);}
+.kbm-completed { color: #42d29d; background-color: rgba(66, 210, 157, 0.1); }
 .kbm-pill { padding:8px 10px; border-radius: 10px; font-size:.85rem; }
 
 .kbm-desc { margin:18px 0 8px; }
@@ -1047,7 +1046,7 @@ select {
 .kb-card-top { display:flex; justify-content:flex-start; }
 .kb-title { font-size: 1.05rem; margin: 0; }
 .kb-subtle { opacity: .75; font-weight: 500; }
-.kb-card-bottom { display:flex; gap: 1rem; color:#aaa; font-size:.9rem; }
+.kb-card-bottom { display:flex; justify-content: center; gap: 1rem; color:#aaa; font-size:.9rem; }
 .kb-date { white-space: nowrap; }
 
 /* Small status tag (mirrors Collections' .card-tag & colored variants) */
@@ -1059,14 +1058,14 @@ select {
   display: inline-block;
   width: fit-content;
 }
-.kb-tag.awaiting     { background: rgba(247, 200, 0, 0.08); color: rgb(213, 1, 0); }
-.kb-tag.in-progress  { background: rgba(88, 181, 255, 0.10); color: #365CF5; }
-.kb-tag.completed    { background: rgba(66, 210, 157, 0.10); color: rgb(66, 210, 157); }
+.kb-tag.awaiting     { background-color: rgba(213, 1, 0, 0.08); color: rgb(250, 90, 120); }
+.kb-tag.in-progress  { background: rgba(54, 92, 245, 0.08); color: #365CF5; }
+.kb-tag.completed    { background: rgba(66, 210, 157, 0.1); color: #42d29d; }
 
 /* Accent border by state (matches Collections vibe) */
-.kb-card.state-awaiting    { border-bottom-color: rgb(213, 1, 0); }
+.kb-card.state-awaiting    { border-bottom-color: rgb(250, 90, 120); }
 .kb-card.state-in_progress { border-bottom-color: #365CF5; }
-.kb-card.state-completed   { border-bottom-color: rgb(66, 210, 157); }
+.kb-card.state-completed   { border-bottom-color: #42d29d; }
 
 /* Responsive: stack columns earlier so cards stay tidy */
 @media (max-width: 1200px) {

@@ -1014,7 +1014,6 @@ select {
   align-items: start;
 }
 
-.kanban-col {}
 .kanban-head {
   text-align: center;
   font-weight: 600;

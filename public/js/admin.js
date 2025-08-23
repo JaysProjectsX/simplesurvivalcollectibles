@@ -123,6 +123,16 @@ function initializeAdminPanel(role) {
     loadAuditLogs(currentPage);
   }
 
+  const dbTabBtn = document.querySelector('[data-tab="dbTab"]');
+  if (dbTabBtn) {
+    dbTabBtn.addEventListener('click', () => loadCratesAndItems());
+
+    // If DB tab happens to be active on initial load, populate immediately
+    if (dbTabBtn.classList.contains('active')) {
+      loadCratesAndItems();
+    }
+  }
+
   // ===== Tasks (Deletion Requests) =====
   const tasksTabBtn = document.querySelector('[data-tab="tasksTab"]');
   if (tasksTabBtn && (role === 'Admin' || role === 'SysAdmin')) {
@@ -424,10 +434,13 @@ function loadCratesAndItems() {
     .then(([crates, items]) => {
       const selector = document.getElementById("crate-selector");
       const form = document.getElementById("crate-edit-form");
-
+      if (!selector || !form) return;
+      
       // Populate crate dropdown
       selector.innerHTML =
         "<option disabled selected>Select a crate to edit</option>";
+      selector.onchange = null;
+
       crates.forEach((crate) => {
         const option = document.createElement("option");
         option.value = crate.id;

@@ -142,7 +142,20 @@ function initializeAdminPanel(role) {
     });
   }
 
-
+  const STATUS_LABELS = {
+    awaiting: 'Awaiting Approval',
+    in_progress: 'In Progress',
+    completed: 'Completed'
+  };
+  function getStatusLabel(s) {
+    return STATUS_LABELS[s] || s;
+  }
+  function getStatusClass(s) {
+    if (s === 'awaiting')    return 'kbm-awaiting';
+    if (s === 'in_progress') return 'kbm-inProgress'; // note the capital P per your class name
+    if (s === 'completed')   return 'kbm-completed';
+    return '';
+  }
 
   async function loadDeletionRequests() {
     const data = await api('/admin/deletion-requests').then(r => r.json()).catch(() => []);
@@ -156,7 +169,7 @@ function initializeAdminPanel(role) {
       const card = document.createElement('div');
       card.className = `kb-card ${r.status}`;
       card.innerHTML = `
-        <div class="kb-pill">${r.status.replace('_',' ')}</div>
+        <div class="kb-pill">${getStatusLabel(r.status)}</div>
         <div class="kb-title">${escapeHTML(r.username_snapshot)} <span class="kb-subtle">(${escapeHTML(r.email_snapshot)})</span></div>
         <div class="kb-meta">
           <span>${new Date(r.requested_at).toLocaleDateString()}</span>
@@ -189,7 +202,9 @@ function initializeAdminPanel(role) {
     document.getElementById('kbm-title').textContent = 'Deletion Request';
     document.getElementById('kbm-userline').innerHTML =
       `${escapeHTML(r.username_snapshot)} <span class="kb-subtle">(${escapeHTML(r.email_snapshot)})</span>`;
-    document.getElementById('kbm-status').textContent = `${r.status.replace('_',' ')}`;
+    const statusEl = document.getElementById('kbm-status');
+    statusEl.textContent = getStatusLabel(r.status);
+    statusEl.className = `kbm-status ${getStatusClass(r.status)}`;
     document.getElementById('kbm-ip').textContent = `Requested from: ${r.requester_ip || '—'}`;
     document.getElementById('kbm-ua').textContent = r.requester_ua || '—';
 

@@ -1059,19 +1059,14 @@ select {
   display: inline-block;
   width: fit-content;
 }
-.kb-tag.awaiting     { background: rgba(247, 200, 0, 0.08); color: #f7c800; }
-.kb-tag.in-progress  { background: rgba(88, 181, 255, 0.10); color: #58b5ff; }
+.kb-tag.awaiting     { background: rgba(247, 200, 0, 0.08); color: rgb(213, 1, 0); }
+.kb-tag.in-progress  { background: rgba(88, 181, 255, 0.10); color: #365CF5; }
 .kb-tag.completed    { background: rgba(66, 210, 157, 0.10); color: rgb(66, 210, 157); }
 
 /* Accent border by state (matches Collections vibe) */
-.kb-card.state-awaiting    { border-bottom-color: #f7c800; }
-.kb-card.state-in_progress { border-bottom-color: #58b5ff; }
+.kb-card.state-awaiting    { border-bottom-color: rgb(213, 1, 0); }
+.kb-card.state-in_progress { border-bottom-color: #365CF5; }
 .kb-card.state-completed   { border-bottom-color: rgb(66, 210, 157); }
-
-/* Modal status color hooks you already named */
-.kbm-status.kbm-awaiting   { color: #f7c800; }
-.kbm-status.kbm-inProgress { color: #58b5ff; }
-.kbm-status.kbm-completed  { color: rgb(66, 210, 157); }
 
 /* Responsive: stack columns earlier so cards stay tidy */
 @media (max-width: 1200px) {

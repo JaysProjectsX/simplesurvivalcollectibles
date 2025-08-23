@@ -1067,6 +1067,27 @@ select {
 .kb-card.state-in_progress { border-bottom-color: #365CF5; }
 .kb-card.state-completed   { border-bottom-color: #42d29d; }
 
+/* Narrower variant of the task modal (for small forms) */
+.kbm-modal.kbm-modal--narrow { max-width: 560px; }
+
+/* Textarea styling to match your dark UI */
+.kbm-textarea {
+  width: 100%;
+  min-height: 120px;
+  padding: 12px 14px;
+  border-radius: 10px;
+  border: 1px solid rgba(255,255,255,.08);
+  background: #151824;
+  color: #e7e9f3;
+  resize: vertical;
+  outline: none;
+}
+.kbm-textarea:focus {
+  border-color: rgba(99, 102, 241, .55); /* subtle focus */
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, .15);
+}
+
+
 /* Responsive: stack columns earlier so cards stay tidy */
 @media (max-width: 1200px) {
   .kanban { grid-template-columns: repeat(2, minmax(320px, 1fr)); }

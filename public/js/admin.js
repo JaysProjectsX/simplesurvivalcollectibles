@@ -161,7 +161,7 @@ function initializeAdminPanel(role) {
   }
   function getStatusClass(s) {
     if (s === 'awaiting')    return 'kbm-awaiting';
-    if (s === 'in_progress') return 'kbm-inProgress'; // note the capital P per your class name
+    if (s === 'in_progress') return 'kbm-inProgress';
     if (s === 'completed')   return 'kbm-completed';
     return '';
   }
@@ -176,7 +176,7 @@ function initializeAdminPanel(role) {
 
     data.forEach(r => {
       const card = document.createElement('div');
-      card.className = `kb-card state-${r.status}`;      // used for border color
+      card.className = `kb-card state-${r.status}`;
       const tag = `<span class="kb-tag ${statusTagCls(r.status)}">${statusLabel(r.status)}</span>`;
       card.innerHTML = `
         <div class="kb-card-top">${tag}</div>
@@ -232,16 +232,28 @@ function initializeAdminPanel(role) {
 
     // buttons (admin/sysadmin only)
     const btnWrap = document.getElementById('kbm-buttons');
-    btnWrap.innerHTML = `<button class="kbm-btn secondary" onclick="window.closeTaskModal()">Close</button>`;
 
     if (r.status === 'awaiting') {
-      btnWrap.insertAdjacentHTML('afterbegin',
-        `<button class="kbm-btn danger" onclick="denyDeletion(${r.id})">Deny</button>`);
-      btnWrap.insertAdjacentHTML('afterbegin',
-        `<button class="kbm-btn" onclick="approveDeletion(${r.id})">Approve (24h)</button>`);
+      btnWrap.innerHTML = `
+        <button class="kbm-btn" id="kbm-approve">Approve (24h)</button>
+        <button class="kbm-btn danger" id="kbm-deny">Deny</button>
+        <button class="kbm-btn secondary" id="kbm-close">Close</button>
+      `;
+      document.getElementById('kbm-approve')?.addEventListener('click', () => approveDeletion(r.id));
+      document.getElementById('kbm-deny')?.addEventListener('click', () => showReasonModal('deny', r.id));
+      document.getElementById('kbm-close')?.addEventListener('click', window.closeTaskModal);
+
     } else if (r.status === 'in_progress') {
-      btnWrap.insertAdjacentHTML('afterbegin',
-        `<button class="kbm-btn warn" onclick="cancelDeletion(${r.id})">Cancel</button>`);
+      btnWrap.innerHTML = `
+        <button class="kbm-btn warn" id="kbm-cancel">Cancel</button>
+        <button class="kbm-btn secondary" id="kbm-close">Close</button>
+      `;
+      document.getElementById('kbm-cancel')?.addEventListener('click', () => showReasonModal('cancel', r.id));
+      document.getElementById('kbm-close')?.addEventListener('click', window.closeTaskModal);
+
+    } else {
+      btnWrap.innerHTML = `<button class="kbm-btn secondary" id="kbm-close">Close</button>`;
+      document.getElementById('kbm-close')?.addEventListener('click', window.closeTaskModal);
     }
 
     // show
@@ -256,20 +268,68 @@ function initializeAdminPanel(role) {
     loadDeletionRequests();
   }
 
-  function promptReason(action, id) {
-    const reason = prompt(`${action} reason (optional):`, '');
-    return api(`/admin/deletion-requests/${id}/${action}`, {
-      method:'POST',
-      headers: { 'Content-Type':'application/json' },
-      body: JSON.stringify({ reason })
-    }).then(()=>{
-      showToast(`${action[0].toUpperCase()+action.slice(1)} OK`);
+  function showReasonModal(action, id) {
+    // action is 'deny' or 'cancel'
+    const sfx = `${action}-${id}-${Date.now()}`;
+    const actionLabel = action === 'deny' ? 'Deny Request' : 'Cancel Deletion';
+
+    const html = `
+    <div id="reasonBackdrop-${sfx}" class="kbm-backdrop">
+      <div id="reasonModal-${sfx}" class="kbm-modal fadeIn kbm-modal--narrow" role="dialog" aria-modal="true">
+        <div class="kbm-head">
+          <h3>${actionLabel}</h3>
+          <button class="kbm-close" aria-label="Close">&times;</button>
+        </div>
+
+        <div class="kbm-body">
+          <div class="kbm-desc">
+            <div class="kbm-desc-title">Reason (optional)</div>
+            <textarea id="reasonText-${sfx}" class="kbm-textarea" placeholder="Type your reason..."></textarea>
+          </div>
+        </div>
+
+        <div class="kbm-foot">
+          <button class="kbm-btn secondary" id="reasonCancel-${sfx}">Cancel</button>
+          <button class="kbm-btn ${action === 'deny' ? 'danger' : 'warn'}" id="reasonSubmit-${sfx}">
+            ${action === 'deny' ? 'Deny' : 'Confirm Cancel'}
+          </button>
+        </div>
+      </div>
+    </div>`;
+
+    document.body.insertAdjacentHTML('beforeend', html);
+
+    const backdrop = document.getElementById(`reasonBackdrop-${sfx}`);
+    const modal    = document.getElementById(`reasonModal-${sfx}`);
+
+    // Close handlers
+    backdrop.querySelector('.kbm-close')?.addEventListener('click', () => closeReasonModal(sfx));
+    document.getElementById(`reasonCancel-${sfx}`)?.addEventListener('click', () => closeReasonModal(sfx));
+
+    // Submit handler
+    document.getElementById(`reasonSubmit-${sfx}`)?.addEventListener('click', async () => {
+      const reason = document.getElementById(`reasonText-${sfx}`).value.trim();
+      await api(`/admin/deletion-requests/${id}/${action}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ reason })
+      });
+      showToast(action === 'deny' ? 'Request denied' : 'Deletion cancelled');
+      closeReasonModal(sfx);
       window.closeTaskModal();
       loadDeletionRequests();
     });
   }
-  const denyDeletion = id => promptReason('deny', id);
-  const cancelDeletion = id => promptReason('cancel', id);
+
+  function closeReasonModal(sfx) {
+    const backdrop = document.getElementById(`reasonBackdrop-${sfx}`);
+    const modal    = document.getElementById(`reasonModal-${sfx}`);
+    if (!backdrop || !modal) return;
+
+    modal.classList.remove('fadeIn');
+    modal.classList.add('fadeOut');
+    setTimeout(() => backdrop.remove(), 220); // match your fadeOut duration
+  }
 
 
 

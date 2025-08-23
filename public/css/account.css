@@ -67,6 +67,7 @@
   border-radius:8px;
   font-weight:600;
   margin-left: 10px;
+  cursor: pointer;
 }
 
 /* ---- Lower grid (left list + right panel) ---- */

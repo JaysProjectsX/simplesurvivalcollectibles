@@ -998,8 +998,8 @@ select {
   background:#2b63f1; border:0; color:#fff; padding:10px 14px; border-radius:8px; cursor:pointer;
 }
 .kbm-btn.secondary { background:#2b2f48; }
-.kbm-btn.danger { background:#d64545; }
-.kbm-btn.warn { background:#d6a545; color:#101217; }
+.kbm-btn.danger { background:#2b63f1; }
+.kbm-btn.warn { background:#2b63f1; }
 
 /* mobile */
 @media (max-width: 640px){
@@ -1074,7 +1074,8 @@ select {
 .kbm-textarea {
   width: 100%;
   min-height: 120px;
-  padding: 12px 14px;
+  padding: 12px 0;
+  text-align: center;
   border-radius: 10px;
   border: 1px solid rgba(255,255,255,.08);
   background: #151824;

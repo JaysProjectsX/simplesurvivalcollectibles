@@ -182,8 +182,8 @@ function initializeAdminPanel(role) {
         <div class="kb-card-top">${tag}</div>
         <h4 class="kb-title">${escapeHTML(r.username_snapshot)} <span class="kb-subtle">(${escapeHTML(r.email_snapshot)})</span></h4>
         <div class="kb-card-bottom">
-          <span class="kb-date">${new Date(r.requested_at).toLocaleDateString()}</span>
-          ${r.scheduled_delete_at ? `<span class="kb-date">Deletes: ${new Date(r.scheduled_delete_at).toLocaleString()}</span>` : ``}
+          <small class="kb-date">${new Date(r.requested_at).toLocaleDateString()}</small>
+          ${r.scheduled_delete_at ? `<small class="kb-date">Deletes: ${new Date(r.scheduled_delete_at).toLocaleString()}</small>` : ``}
         </div>
       `;
       card.onclick = () => openDeletionModal(r.id);
@@ -245,7 +245,7 @@ function initializeAdminPanel(role) {
 
     } else if (r.status === 'in_progress') {
       btnWrap.innerHTML = `
-        <button class="kbm-btn warn" id="kbm-cancel">Cancel</button>
+        <button class="kbm-btn" id="kbm-cancel">Cancel</button>
         <button class="kbm-btn secondary" id="kbm-close">Close</button>
       `;
       document.getElementById('kbm-cancel')?.addEventListener('click', () => showReasonModal('cancel', r.id));

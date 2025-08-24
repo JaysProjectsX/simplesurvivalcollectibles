@@ -2,22 +2,6 @@ let currentPage = 1;
 const logsPerPage = 10;
 
 document.addEventListener("DOMContentLoaded", async () => {
-  const crateToggleBtn = document.getElementById("crate-toggle-btn");
-  if (crateToggleBtn) {
-    crateToggleBtn.addEventListener("click", function () {
-      console.log("Direct crate toggle btn clicked");
-      toggleDropdown(this);
-    });
-  }
-
-  document.addEventListener("click", function (e) {
-    const btn = e.target.closest(".crate-dropdown-btn");
-    if (btn) {
-      console.log("Crate dropdown button clicked:", btn);
-      toggleDropdown(btn);
-    }
-  });
-
   try {
     const res = await fetch("https://simplesurvivalcollectibles.site/me", {
       credentials: "include",
@@ -121,6 +105,34 @@ function initializeAdminPanel(role) {
     if (auditTabBtn) auditTabBtn.style.display = "inline-block";
 
     loadAuditLogs(currentPage);
+
+    // 🆕 Account list (respects filter)
+    loadAccountList();
+    document.getElementById('userFilter')?.addEventListener('change', () => loadAccountList());
+
+    // Keep Role Management list as-is (usually you DON'T want deleted users here)
+    fetch("https://simplesurvivalcollectibles.site/admin/all-users", {
+      credentials: "include"
+    })
+      .then(res => res.json())
+      .then(data => {
+        const roleList = document.getElementById("roleManagementList");
+        roleList.innerHTML = data.map(user => `
+          <tr>
+            <td>${user.username}</td>
+            <td>${user.email}</td>
+            <td>${user.role}</td>
+            <td>
+              <select class="role-select" id="role-${user.id}">
+                <option value="User" ${user.role === 'User' ? 'selected' : ''}>User</option>
+                <option value="Admin" ${user.role === 'Admin' ? 'selected' : ''}>Admin</option>
+                <option value="SysAdmin" ${user.role === 'SysAdmin' ? 'selected' : ''}>SysAdmin</option>
+              </select>
+            </td>
+            <td><button class="admin-action-btn verify" onclick="changeRole(${user.id})">Update</button></td>
+          </tr>
+        `).join("");
+      });
   }
 
   const dbTabBtn = document.querySelector('[data-tab="dbTab"]');
@@ -165,21 +177,6 @@ function initializeAdminPanel(role) {
   const statusLabel = s => (STATUS_MAP[s]?.label || s);
   const statusTagCls = s => (STATUS_MAP[s]?.tagClass || '');
   const statusModalCls = s => (STATUS_MAP[s]?.modalClass || '');
-
-  const STATUS_LABELS = {
-    awaiting: 'Awaiting Approval',
-    in_progress: 'In Progress',
-    completed: 'Completed'
-  };
-  function getStatusLabel(s) {
-    return STATUS_LABELS[s] || s;
-  }
-  function getStatusClass(s) {
-    if (s === 'awaiting')    return 'kbm-awaiting';
-    if (s === 'in_progress') return 'kbm-inProgress';
-    if (s === 'completed')   return 'kbm-completed';
-    return '';
-  }
 
   // open/close helpers
   window.closeAuditModal = function () {
@@ -520,63 +517,6 @@ function initializeAdminPanel(role) {
       });
     });
 
-  if (role === "SysAdmin") {
-    fetch("https://simplesurvivalcollectibles.site/admin/all-users", {
-      credentials: "include"
-    })
-      .then(res => res.json())
-      .then(data => {
-        const tableBody = document.getElementById("accountList");
-        tableBody.innerHTML = data.map(user => {
-          const locked = isLockedOut(user);
-          const lastFailed = new Date(user.last_failed_login);
-          const now = Date.now();
-          const diffInSeconds = Math.floor((now - lastFailed) / 1000);
-          const remainingTime = Math.max(0, 600 - diffInSeconds);
-
-          return `
-            <tr>
-              <td>${user.id}</td>
-              <td>${user.username}</td>
-              <td>${user.email}</td>
-              <td>${user.verified ? "Yes" : "No"}</td>
-              <td>
-                <button class="admin-action-btn verify" onclick="verifyUser(${user.id})">Verify</button>
-                <button class="admin-action-btn delete" onclick="deleteUser(${user.id})">Delete</button>
-              </td>
-              <td>
-                ${locked ? `<span class="lockout-timer" data-seconds="${remainingTime}">${remainingTime}</span>` : 'Not locked out'}
-                ${locked && user.role !== 'SysAdmin' ? `<button class="unlock-btn" data-user-id="${user.id}">Unlock</button>` : ''}
-              </td>
-            </tr>
-          `;
-        }).join("");
-        startLockoutTimers();
-      });
-
-    fetch("https://simplesurvivalcollectibles.site/admin/all-users", {
-      credentials: "include"
-    })
-      .then(res => res.json())
-      .then(data => {
-        const roleList = document.getElementById("roleManagementList");
-        roleList.innerHTML = data.map(user => `
-          <tr>
-            <td>${user.username}</td>
-            <td>${user.email}</td>
-            <td>${user.role}</td>
-            <td>
-              <select class="role-select" id="role-${user.id}">
-                <option value="User" ${user.role === 'User' ? 'selected' : ''}>User</option>
-                <option value="Admin" ${user.role === 'Admin' ? 'selected' : ''}>Admin</option>
-                <option value="SysAdmin" ${user.role === 'SysAdmin' ? 'selected' : ''}>SysAdmin</option>
-              </select>
-            </td>
-            <td><button class="admin-action-btn verify" onclick="changeRole(${user.id})">Update</button></td>
-          </tr>
-        `).join("");
-      });
-  }
     userRole = role;
     setupChangelogForm();
     loadChangelogEntries();
@@ -1461,6 +1401,58 @@ function formatCountdown(seconds) {
   const secs = seconds % 60;
   return `${minutes}:${secs < 10 ? '0' : ''}${secs}`;
 }
+
+function buildAllUsersQuery() {
+  const el = document.getElementById('userFilter');
+  const v = el ? el.value : 'active';
+  if (v === 'include') return '?include_deleted=1';
+  if (v === 'deleted') return '?only_deleted=1';
+  return '';
+}
+
+async function loadAccountList() {
+  // role is "SysAdmin" or "Admin" (we only call this for SysAdmin)
+  const qs = buildAllUsersQuery();
+
+  try {
+    const res = await fetch(`https://simplesurvivalcollectibles.site/admin/all-users${qs}`, {
+      credentials: "include"
+    });
+    const data = await res.json();
+
+    const tableBody = document.getElementById("accountList");
+    if (!tableBody) return;
+    tableBody.innerHTML = data.map(user => {
+      const locked = isLockedOut(user);
+      const lastFailed = new Date(user.last_failed_login);
+      const now = Date.now();
+      const diffInSeconds = Math.floor((now - lastFailed) / 1000);
+      const remainingTime = Math.max(0, 600 - diffInSeconds);
+
+      return `
+        <tr>
+          <td>${user.id}</td>
+          <td>${user.username}</td>
+          <td>${user.email}</td>
+          <td>${user.verified ? "Yes" : "No"}</td>
+          <td>
+            <button class="admin-action-btn verify" onclick="verifyUser(${user.id})">Verify</button>
+            <button class="admin-action-btn delete" onclick="deleteUser(${user.id})">Delete</button>
+          </td>
+          <td>
+            ${locked ? `<span class="lockout-timer" data-seconds="${remainingTime}">${remainingTime}</span>` : 'Not locked out'}
+            ${locked && user.role !== 'SysAdmin' ? `<button class="unlock-btn" data-user-id="${user.id}">Unlock</button>` : ''}
+          </td>
+        </tr>
+      `;
+    }).join("");
+
+    startLockoutTimers();
+  } catch (err) {
+    console.error("Failed to load user list:", err);
+  }
+}
+
 
 function exportAuditLogsAsCSV() {
   fetch("https://simplesurvivalcollectibles.site/admin/audit-logs?page=1&limit=10000", {

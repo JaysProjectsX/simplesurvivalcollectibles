@@ -1100,7 +1100,7 @@ select {
 .kbm-table tbody tr:hover { background:rgba(255,255,255,.03); }
 
 .kbm-actions{display:flex;align-items:center;gap:.5rem}
-.kbm-select--sm{font-size:.9rem;padding:.25rem .4rem}
+.kbm-select--sm{font-size:.75rem;padding:.25rem .4rem}
 
 /* Responsive: stack columns earlier so cards stay tidy */
 @media (max-width: 1200px) {

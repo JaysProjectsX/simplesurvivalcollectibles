@@ -405,30 +405,25 @@ function initializeAdminPanel(role) {
     });
   }
 
-  async function archiveDeletionRequest(id, modalId) {
+  window.archiveDeletionRequest = async function (id, modalId) {
     try {
       const res = await fetch(`https://simplesurvivalcollectibles.site/admin/deletion-requests/${id}/archive`, {
         method: 'PATCH',
         credentials: 'include'
       });
       if (!res.ok) throw new Error('Archive failed');
+
       showToast('Request removed from list');
       fadeOutAndRemove(modalId);
       window.closeTaskModal();
-      // refresh the columns
-      const tasksTabBtn = document.querySelector('[data-tab="tasksTab"]');
-      if (tasksTabBtn?.classList.contains('active')) {
-        // if already on the Tasks tab, just reload requests
-        const evt = new Event('click');
-        tasksTabBtn.dispatchEvent(evt);
-      } else {
-        // fallback
-        loadDeletionRequests?.();
-      }
-    } catch {
+
+      // refresh the Tasks columns
+      loadDeletionRequests();
+    } catch (e) {
       showToast('Could not remove request', 'error');
+      console.error(e);
     }
-  }
+  };
 
   function showReasonModal(action, id) {
     // action is 'deny' or 'cancel'

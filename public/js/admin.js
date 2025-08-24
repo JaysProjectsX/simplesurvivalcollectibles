@@ -281,53 +281,91 @@ function initializeAdminPanel(role) {
     }
   }
 
+  // --- replace your existing openPurgeArchivedDialog with this ---
   async function openPurgeArchivedDialog() {
+    // 1) initial preview (all ages)
+    let preview;
     try {
-      // preview counts first (dry run)
       const r = await api('/admin/deletion-requests/purge-archived?dry_run=1');
-      const preview = r.ok ? await r.json() : { would_delete_requests: 0, would_delete_audit: 0 };
-
-      const modalId = `purgePreview-${Date.now()}`;
-      showGlobalModal({
-        type: 'warning',
-        title: 'Purge Archived Requests',
-        message: `
-          <p>This permanently deletes <b>archived</b> deletion requests and their audit rows.</p>
-          <div class="nice-form-group" style="margin-top:.5rem">
-            <label for="purgeAgeDays">Only older than (days):</label>
-            <input id="purgeAgeDays" type="number" min="0" value="0" style="width:7rem">
-          </div>
-          <p class="kb-subtle" style="margin-top:.5rem">Current preview (all ages):</p>
-          <p><b>Requests:</b> ${preview.would_delete_requests}<br/>
-            <b>Audit rows:</b> ${preview.would_delete_audit}</p>
-        `,
-        buttons: [
-          { label: 'Cancel', onClick: `fadeOutAndRemove('${modalId}')` },
-          { label: 'Purge', onClick: `
-            (async () => {
-              const age = parseInt(document.getElementById('purgeAgeDays')?.value || '0', 10);
-              try {
-                const url = 'https://simplesurvivalcollectibles.site/admin/deletion-requests/purge-archived'
-                            + (age > 0 ? ('?older_than_days=' + age) : '');
-                const res = await fetch(url, { method: 'DELETE', credentials: 'include' });
-                if (!res.ok) throw new Error();
-                fadeOutAndRemove('${modalId}');
-                showToast('Purged archived requests');
-                ${typeof loadDeletionAuditTable === 'function' ? 'loadDeletionAuditTable();' : ''}
-              } catch (e) {
-                showToast('Purge failed', 'error');
-              }
-            })();`
-          }
-        ],
-        id: modalId
-      });
+      if (!r.ok) throw new Error();
+      preview = await r.json();
     } catch (e) {
-      console.error(e);
-      showToast('Preview failed', 'error');
+      showToast('Could not load purge preview.', 'error');
+      return; // ⬅️ do NOT open the modal if preview failed
     }
+
+    const totalWouldDelete =
+      (preview.would_delete_requests | 0) + (preview.would_delete_audit | 0);
+
+    if (totalWouldDelete === 0) {
+      showToast('There are no archived requests to purge.', 'info');
+      return; // ⬅️ nothing to do
+    }
+
+    const modalId = `purgePreview-${Date.now()}`;
+    const inputId = `purgeAgeDays-${Date.now()}`;
+
+    showGlobalModal({
+      type: 'warning',
+      title: 'Purge Archived Requests',
+      message: `
+        <p>This permanently deletes <b>archived</b> deletion requests and their audit rows.</p>
+        <div style="margin-top:.5rem">
+          <label for="${inputId}">Only older than (days):</label>
+          <input id="${inputId}" type="number" min="0" value="0" style="width:7rem">
+        </div>
+        <p class="kb-subtle" style="margin-top:.5rem">Preview (all ages):</p>
+        <p><b>Requests:</b> ${preview.would_delete_requests}<br/>
+          <b>Audit rows:</b> ${preview.would_delete_audit}</p>
+      `,
+      buttons: [
+        { label: 'Cancel', onClick: `fadeOutAndRemove('${modalId}')` },
+        { label: 'Purge',  onClick: `confirmPurgeArchived('${modalId}','${inputId}')` }
+      ],
+      id: modalId
+    });
   }
 
+  // --- add this helper (inside initializeAdminPanel so it has access to api/etc.) ---
+  window.confirmPurgeArchived = async function(modalId, ageInputId) {
+    const age = parseInt(document.getElementById(ageInputId)?.value || '0', 10);
+
+    // 2) re-check counts for the chosen age before deleting
+    try {
+      const previewUrl = `/admin/deletion-requests/purge-archived?dry_run=1` +
+        (age > 0 ? `&older_than_days=${age}` : ``);
+
+      const p = await api(previewUrl);
+      if (!p.ok) throw new Error();
+      const pre = await p.json();
+
+      const noneToDelete =
+        ((pre.would_delete_requests | 0) + (pre.would_delete_audit | 0)) === 0;
+
+      if (noneToDelete) {
+        showToast('Nothing to purge for that age.', 'info');
+        return; // ⬅️ do not call DELETE, so no “purging nothing” audit is created
+      }
+
+      // 3) perform the delete
+      const delUrl = `/admin/deletion-requests/purge-archived` +
+        (age > 0 ? `?older_than_days=${age}` : ``);
+
+      const d = await api(delUrl, { method: 'DELETE' });
+      if (!d.ok) throw new Error();
+      const result = await d.json();
+
+      fadeOutAndRemove(modalId);
+      showToast(`Purged ${result.deleted_requests} request(s) and ${result.deleted_audit} audit row(s).`);
+
+      // Refresh UI
+      await loadDeletionAuditTable();
+      const archivedNow = document.getElementById('tasksFilter')?.value === 'archived';
+      loadDeletionRequests(archivedNow ? 1 : 0);
+    } catch (e) {
+      showToast('Purge failed.', 'error');
+    }
+  };
 
   async function loadDeletionRequests(archived = 0) {
     const data = await api(`/admin/deletion-requests?archived=${archived}`).then(r => r.json()).catch(() => []);

@@ -135,14 +135,19 @@ function initializeAdminPanel(role) {
 
   // ===== Tasks (Deletion Requests) =====
   const tasksTabBtn = document.querySelector('[data-tab="tasksTab"]');
-  if (tasksTabBtn && (role === 'Admin' || role === 'SysAdmin')) {
-    tasksTabBtn.addEventListener("click", () => loadDeletionRequests());
+  const filterEl = document.getElementById('tasksFilter');
+  const getArchivedFlag = () => (filterEl?.value === 'archived' ? 1 : 0);
 
-    // If Tasks tab is the default or already active when page loads:
+  if (tasksTabBtn && (role === 'Admin' || role === 'SysAdmin')) {
+    tasksTabBtn.addEventListener("click", () => loadDeletionRequests(getArchivedFlag()));
     if (tasksTabBtn.classList.contains('active')) {
-      loadDeletionRequests();
+      loadDeletionRequests(getArchivedFlag());
     }
   }
+
+  filterEl?.addEventListener('change', () => {
+    loadDeletionRequests(getArchivedFlag());
+  });
 
   // Small helper so we always hit the same origin with cookies:
   async function api(path, init = {}) {
@@ -271,8 +276,8 @@ function initializeAdminPanel(role) {
     }
   }
 
-  async function loadDeletionRequests() {
-    const data = await api('/admin/deletion-requests').then(r => r.json()).catch(() => []);
+  async function loadDeletionRequests(archived = 0) {
+    const data = await api(`/admin/deletion-requests?archived=${archived}`).then(r => r.json()).catch(() => []);
 
     const A = document.getElementById('kb-awaiting');
     const I = document.getElementById('kb-inprogress');
@@ -362,13 +367,18 @@ function initializeAdminPanel(role) {
       document.getElementById('kbm-close')?.addEventListener('click', window.closeTaskModal);
 
     } else {
-      btnWrap.innerHTML = `
-        <button class="kbm-btn danger" id="kbm-archive">Remove Request</button>
-        <button class="kbm-btn secondary" id="kbm-close">Close</button>
-      `;
-      document.getElementById('kbm-archive')?.addEventListener('click', () =>
-        confirmArchive(r.id, r.username_snapshot, r.email_snapshot)
-      );
+      const inArchivedView = document.getElementById('tasksFilter')?.value === 'archived';
+      if (!inArchivedView) {
+        btnWrap.innerHTML = `
+          <button class="kbm-btn danger" id="kbm-archive">Remove Request</button>
+          <button class="kbm-btn secondary" id="kbm-close">Close</button>
+        `;
+        document.getElementById('kbm-archive')?.addEventListener('click', () =>
+          confirmArchive(r.id, r.username_snapshot, r.email_snapshot)
+        );
+      } else {
+        btnWrap.innerHTML = `<button class="kbm-btn secondary" id="kbm-close">Close</button>`;
+      }
       document.getElementById('kbm-close')?.addEventListener('click', window.closeTaskModal);
     }
 
@@ -381,7 +391,8 @@ function initializeAdminPanel(role) {
     await api(`/admin/deletion-requests/${id}/approve`, { method:'POST' });
     showToast('Approved and scheduled for deletion in 24h');
     window.closeTaskModal();
-    loadDeletionRequests();
+    const archivedNow = document.getElementById('tasksFilter')?.value === 'archived';
+    loadDeletionRequests(archivedNow ? 1 : 0);
   }
 
   function confirmArchive(id, uname, email) {
@@ -418,7 +429,8 @@ function initializeAdminPanel(role) {
       window.closeTaskModal();
 
       // refresh the Tasks columns
-      loadDeletionRequests();
+      const archivedNow = document.getElementById('tasksFilter')?.value === 'archived';
+      loadDeletionRequests(archivedNow ? 1 : 0);
     } catch (e) {
       showToast('Could not remove request', 'error');
       console.error(e);
@@ -474,7 +486,8 @@ function initializeAdminPanel(role) {
       showToast(action === 'deny' ? 'Request denied' : 'Deletion cancelled');
       closeReasonModal(sfx);
       window.closeTaskModal();
-      loadDeletionRequests();
+      const archivedNow = document.getElementById('tasksFilter')?.value === 'archived';
+      loadDeletionRequests(archivedNow ? 1 : 0);
     });
   }
 

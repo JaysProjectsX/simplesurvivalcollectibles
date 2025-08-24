@@ -230,8 +230,16 @@
           <!-- Tasks / Kanban Board -->
           <section id="tasksTab" class="tab-content hidden">
             <h3 class="admin-tab-title kbm-titlewrap">
-              Deletion Requests
-              <button id="kbAuditBtn" class="kbm-mini">View Audit</button>
+              <span>Deletion Requests</span>
+
+              <div class="kbm-actions">
+                <select id="tasksFilter" class="kbm-mini kbm-select--sm" aria-label="Filter">
+                  <option value="current" selected>Current</option>
+                  <option value="archived">Archived</option>
+                </select>
+
+                <button id="kbAuditBtn" class="kbm-mini">View Audit</button>
+              </div>
             </h3>
             <div id="kanbanBoard" class="kanban">
               <div class="kanban-col" data-col="awaiting">

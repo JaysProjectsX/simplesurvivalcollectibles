@@ -55,14 +55,21 @@ function hasCookie(name) {
           localStorage.setItem("created_at", u.created_at || "");
         }
       } else if (r.status === 401 || r.status === 403) {
-        localStorage.removeItem("username");
-        localStorage.removeItem("email");
-        localStorage.removeItem("role");
-        localStorage.removeItem("verified");
-        localStorage.removeItem("created_at");
+
+        if (r.status === 403) {
+          // account is deleted/anonymized – bounce to logout page
+          localStorage.clear();
+          forceLogoutAndRedirect('deleted');
+          return;
+        }
       }
     } catch {}
   }
+
+  window.__auth_ready = (async () => {
+    await resolveSession();  // /me -> refresh -> /me (only if refresh cookie exists)
+    return true;
+  })();
 
   function hidePreloader() {
     el.style.opacity = "0";
@@ -70,7 +77,7 @@ function hasCookie(name) {
   }
 
   document.addEventListener("DOMContentLoaded", async () => {
-    await resolveSession();
+    await (window.__auth_ready || Promise.resolve());
 
     try { updateNavUI(); } catch {}
     try { paintAccountInfo(); } catch {}
@@ -114,20 +121,49 @@ const AUTH = (() => {
   async function refreshOnce() {
     if (!refreshing) {
       refreshing = fetch(`${backendUrl}/refresh`, { method: "POST", credentials: "include" })
-        .then(r => r.ok).catch(() => false)
-        .finally(() => { refreshing = null; });
+      .then(r => r.status)     // 200, 401, 403, etc.
+      .catch(() => 0)          // 0 = network error / offline
+      .finally(() => { refreshing = null; });
     }
     return refreshing;
   }
 
-  // fetch that auto-refreshes once on 401
+  // fetch that auto-refreshes once on 401, and redirects on hard failures
   async function fetchWithAuth(input, init = {}) {
-    const r1 = await fetch(input, { credentials: "include", ...init });
+    const opts = { credentials: 'include', ...(init || {}) };
+
+    const r1 = await fetch(input, opts);
+
+    // Deleted/forbidden -> immediate force logout + redirect
+    if (r1.status === 403) {
+      // try to read the server's error, but don't depend on it
+      let cause = 'forbidden';
+      try {
+        const body = await r1.clone().json();
+        if (body?.error === 'Account deleted') cause = 'deleted';
+      } catch {}
+      forceLogoutAndRedirect(cause);
+      return r1;
+    }
+
+    // Anything not 401 -> return as-is
     if (r1.status !== 401) return r1;
-    // try one refresh
-    const ok = await refreshOnce();
-    if (!ok) return r1;
-    return fetch(input, { credentials: "include", ...init });
+
+    const st = await refreshOnce(); // 200 ok, 401/403 bad, 0 net error
+
+    if (st === 401 || st === 403) {
+      forceLogoutAndRedirect('expired');
+      return r1;
+    }
+    if (st === 0) {
+      return r1;
+    }
+
+    const r2 = await fetch(input, opts);
+    if (r2.status === 401 || r2.status === 403) {
+      forceLogoutAndRedirect(r2.status === 403 ? 'deleted' : 'expired');
+    }
+    return r2;
   }
 
   // expose minimal API
@@ -457,7 +493,7 @@ function isLockedOut(user) {
 
         // ----- Server request -----
         try {
-          const res = await fetch(`${backendUrl}/change-password`, {
+          const res = await AUTH.fetchWithAuth(`${backendUrl}/change-password`, {
             method: "POST",
             credentials: "include",
             headers: { "Content-Type": "application/json" },
@@ -561,7 +597,7 @@ function isLockedOut(user) {
           const loader = document.getElementById("resetLoading");
           if (loader) loader.style.display = "block";
 
-          const res = await fetch(`${backendUrl}/forgot-password`, {
+          const res = await AUTH.fetchWithAuth(`${backendUrl}/forgot-password`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ email: emailInput.value.trim() })
@@ -628,7 +664,7 @@ function isLockedOut(user) {
             const loader = document.getElementById("resetLoading");
             if (loader) loader.style.display = "block";
 
-            const res = await fetch(`${backendUrl}/reset-password`, {
+            const res = await AUTH.fetchWithAuth(`${backendUrl}/reset-password`, {
               method: "PUT",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify({ email: resetEmail, code, newPassword })
@@ -673,6 +709,8 @@ function isLockedOut(user) {
 
     /* === KPI: Total items collected across ALL crates === */
     async function computeAccountTotals() {
+      await (window.__auth_ready || Promise.resolve());
+
       const totalEl = document.getElementById("kpi-total");
       const pctEl   = document.getElementById("kpi-completion");
       if (!totalEl && !pctEl) return;
@@ -713,20 +751,27 @@ function isLockedOut(user) {
       }
     }
 
+  async function forceLogoutAndRedirect(cause = 'expired') {
+    try {
+      await fetch(`${backendUrl}/logout`, { method: 'POST', credentials: 'include' });
+    } catch {}
+
+    sessionStorage.setItem('justLoggedOut', '1');   // your preloader already reads this
+    localStorage.clear();
+    try { updateNavUI(); } catch {}
+
+    // show the static logout card; keep a reason for messaging if you want
+    const qs = cause ? `?reason=${encodeURIComponent(cause)}` : '';
+    window.location.replace(`/logout${qs}`);
+  }
 
 
   async function fetchAccountInfo() {
     try {
       const res = await AUTH.fetchWithAuth(`${backendUrl}/me`);
 
-      if (res.status === 401) {
-        const refreshed = await refreshAccessToken();
-        if (refreshed) {
-          return fetchAccountInfo(); // retry after refresh
-        } else {
-          return handleUnauthenticated();
-        }
-      }
+      if (res.status === 401) return;
+      if (!res.ok) return handleUnauthenticated();
 
       const text = await res.text();
       const data = JSON.parse(text);
@@ -983,6 +1028,8 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 async function initDeletionUI(btn, statusEl) {
+
+  await (window.__auth_ready || Promise.resolve());
 
   async function fetchStatus() {
     try {

@@ -186,27 +186,90 @@ function initializeAdminPanel(role) {
   };
 
   async function openDeletionAuditModal() {
-    const res = await api('/admin/deletion-requests/audit?limit=200');
-    const rows = res.ok ? await res.json() : [];
-    const tb = document.getElementById('auditTbody');
+    // Fill the table first
+    await loadDeletionAuditTable();
 
-    tb.innerHTML = rows.length ? rows.map(r => `
-      <tr>
-        <td>${new Date(r.at_time).toLocaleString()}</td>
-        <td><b>${escapeHTML(r.action)}</b></td>
-        <td>${r.actor_username ? escapeHTML(r.actor_username) : '—'}</td>
-        <td>${escapeHTML(r.username_snapshot)} <span class="kb-subtle">(${escapeHTML(r.email_snapshot)})</span></td>
-        <td>${r.note ? escapeHTML(r.note) : '—'}</td>
-      </tr>
-    `).join('') : `<tr><td colspan="5">No audit entries.</td></tr>`;
+    // Build footer controls
+    const foot = document.getElementById('auditModalFoot') || document.querySelector('#auditModal .kbm-foot');
+    if (foot) {
+      foot.innerHTML = '';
 
+      if (userRole === 'SysAdmin') {
+        const clearBtn = document.createElement('button');
+        clearBtn.className = 'kbm-btn danger';
+        clearBtn.textContent = 'Clear Audit Log';
+        clearBtn.addEventListener('click', clearDeletionAudit);
+        foot.appendChild(clearBtn);
+      }
+
+      const closeBtn = document.createElement('button');
+      closeBtn.className = 'kbm-btn';
+      closeBtn.textContent = 'Close';
+      closeBtn.addEventListener('click', window.closeAuditModal);
+      foot.appendChild(closeBtn);
+    }
+
+    // Show + retrigger fadeIn every time
     const bd = document.getElementById('auditModalBackdrop');
-    if (bd) bd.classList.remove('hidden');
+    const modal = document.getElementById('auditModal');
+    if (bd && modal) {
+      bd.classList.remove('hidden');
+      modal.classList.remove('fadeOut', 'fadeIn');   // reset
+      void modal.offsetWidth;                        // <-- force reflow
+      modal.classList.add('fadeIn');                 // play animation
+    }
   }
 
-  // wire the button
   document.getElementById('kbAuditBtn')?.addEventListener('click', openDeletionAuditModal);
 
+  async function loadDeletionAuditTable() {
+    try {
+      const res = await api('/admin/deletion-requests/audit?limit=200');
+      const rows = res.ok ? await res.json() : [];
+      const tb = document.getElementById('auditTbody');
+      if (!tb) return;
+
+      tb.innerHTML = rows.length
+        ? rows.map(r => `
+            <tr>
+              <td>${new Date(r.at_time).toLocaleString()}</td>
+              <td><b>${escapeHTML(r.action)}</b></td>
+              <td>${r.actor_username ? escapeHTML(r.actor_username) : '—'}</td>
+              <td>${escapeHTML(r.username_snapshot)} <span class="kb-subtle">(${escapeHTML(r.email_snapshot)})</span></td>
+              <td>${r.note ? escapeHTML(r.note) : '—'}</td>
+            </tr>
+          `).join('')
+        : `<tr><td colspan="5" style="opacity:.7">No audit entries</td></tr>`;
+    } catch (e) {
+      console.error('Failed to load audit table:', e);
+    }
+  }
+
+  async function clearDeletionAudit() {
+    try {
+      const r = await api('/admin/deletion-audit', { method: 'DELETE' });
+      if (!r.ok) throw new Error();
+
+      showGlobalModal({
+        type: 'success',
+        title: 'Audit Cleared',
+        message: 'The deletion audit log has been cleared.',
+        buttons: [{ label: 'Close', onClick: "fadeOutAndRemove('modal-auditclear-ok')" }],
+        id: 'modal-auditclear-ok'
+      });
+
+      await loadDeletionAuditTable(); // refresh table in the open modal
+    } catch (e) {
+      console.error(e);
+      showGlobalModal({
+        type: 'error',
+        title: 'Failed',
+        message: 'Could not clear the deletion audit log.',
+        buttons: [{ label: 'Close', onClick: "fadeOutAndRemove('modal-auditclear-fail')" }],
+        id: 'modal-auditclear-fail'
+      });
+    }
+  }
 
   async function loadDeletionRequests() {
     const data = await api('/admin/deletion-requests').then(r => r.json()).catch(() => []);
@@ -273,7 +336,7 @@ function initializeAdminPanel(role) {
     <div class="kbm-logline">
       ${new Date(l.at_time).toLocaleString()} — 
       <b>${escapeHTML(l.action)}</b>
-      ${l.actor_username ? ` <i>by ${escapeHTML(l.actor_username)}</i>` : ``}
+      ${l.actor_username ? ` <b>by ${escapeHTML(l.actor_username)}</b>` : ``}
       ${l.note ? ` — ${escapeHTML(l.note)}` : ``}
     </div>`).join('') : '<i style="opacity:.7">No history</i>';
 

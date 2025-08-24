@@ -253,7 +253,7 @@
 
           <!-- Deletion Audit Modal -->
           <div id="auditModalBackdrop" class="kbm-backdrop hidden">
-            <div class="kbm-modal kbm-wide fadeIn" id="auditModal">
+            <div class="kbm-modal kbm-wide" id="auditModal">
               <div class="kbm-head">
                 <h3>Deletion Audit</h3>
                 <button class="kbm-close" aria-label="Close" onclick="window.closeAuditModal()">×</button>
@@ -265,7 +265,7 @@
                       <tr>
                         <th>Date</th>
                         <th>Action</th>
-                        <th>Admin</th>
+                        <th>User</th>
                         <th>Target</th>
                         <th>Note</th>
                       </tr>
@@ -274,8 +274,8 @@
                   </table>
                 </div>
               </div>
-              <div class="kbm-foot">
-                <button class="kbm-btn" onclick="window.closeAuditModal()">Close</button>
+              <div class="kbm-foot" id="auditModalFoot">
+                <!-- buttons will be injected by JS -->
               </div>
             </div>
           </div>

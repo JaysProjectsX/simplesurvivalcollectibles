@@ -196,12 +196,20 @@ function initializeAdminPanel(role) {
     if (foot) {
       foot.innerHTML = '';
 
+
       if (userRole === 'SysAdmin') {
         const clearBtn = document.createElement('button');
         clearBtn.className = 'kbm-btn danger';
         clearBtn.textContent = 'Clear Audit Log';
         clearBtn.addEventListener('click', clearDeletionAudit);
         foot.appendChild(clearBtn);
+
+        // NEW: Purge archived requests (hard delete)
+        const purgeBtn = document.createElement('button');
+        purgeBtn.className = 'kbm-btn warn';
+        purgeBtn.textContent = 'Purge Archived Requests…';
+        purgeBtn.addEventListener('click', openPurgeArchivedDialog);
+        foot.appendChild(purgeBtn);
       }
 
       const closeBtn = document.createElement('button');
@@ -272,6 +280,54 @@ function initializeAdminPanel(role) {
       });
     }
   }
+
+  async function openPurgeArchivedDialog() {
+    try {
+      // preview counts first (dry run)
+      const r = await api('/admin/deletion-requests/purge-archived?dry_run=1');
+      const preview = r.ok ? await r.json() : { would_delete_requests: 0, would_delete_audit: 0 };
+
+      const modalId = `purgePreview-${Date.now()}`;
+      showGlobalModal({
+        type: 'warning',
+        title: 'Purge Archived Requests',
+        message: `
+          <p>This permanently deletes <b>archived</b> deletion requests and their audit rows.</p>
+          <div class="nice-form-group" style="margin-top:.5rem">
+            <label for="purgeAgeDays">Only older than (days):</label>
+            <input id="purgeAgeDays" type="number" min="0" value="0" style="width:7rem">
+          </div>
+          <p class="kb-subtle" style="margin-top:.5rem">Current preview (all ages):</p>
+          <p><b>Requests:</b> ${preview.would_delete_requests}<br/>
+            <b>Audit rows:</b> ${preview.would_delete_audit}</p>
+        `,
+        buttons: [
+          { label: 'Cancel', onClick: `fadeOutAndRemove('${modalId}')` },
+          { label: 'Purge', onClick: `
+            (async () => {
+              const age = parseInt(document.getElementById('purgeAgeDays')?.value || '0', 10);
+              try {
+                const url = 'https://simplesurvivalcollectibles.site/admin/deletion-requests/purge-archived'
+                            + (age > 0 ? ('?older_than_days=' + age) : '');
+                const res = await fetch(url, { method: 'DELETE', credentials: 'include' });
+                if (!res.ok) throw new Error();
+                fadeOutAndRemove('${modalId}');
+                showToast('Purged archived requests');
+                ${typeof loadDeletionAuditTable === 'function' ? 'loadDeletionAuditTable();' : ''}
+              } catch (e) {
+                showToast('Purge failed', 'error');
+              }
+            })();`
+          }
+        ],
+        id: modalId
+      });
+    } catch (e) {
+      console.error(e);
+      showToast('Preview failed', 'error');
+    }
+  }
+
 
   async function loadDeletionRequests(archived = 0) {
     const data = await api(`/admin/deletion-requests?archived=${archived}`).then(r => r.json()).catch(() => []);

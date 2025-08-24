@@ -1102,6 +1102,8 @@ select {
 .kbm-actions{display:flex;align-items:center;gap:.5rem}
 .kbm-select--sm{font-size:.75rem;padding:.25rem .4rem}
 
+.mini-select {padding:.3rem;font-size:.75rem;border-radius:.5rem; background-color: #252538; color: #fff}
+
 /* Responsive: stack columns earlier so cards stay tidy */
 @media (max-width: 1200px) {
   .kanban { grid-template-columns: repeat(2, minmax(320px, 1fr)); }

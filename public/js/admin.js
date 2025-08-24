@@ -176,6 +176,38 @@ function initializeAdminPanel(role) {
     return '';
   }
 
+  // open/close helpers
+  window.closeAuditModal = function () {
+    const bd = document.getElementById('auditModalBackdrop');
+    const box = document.getElementById('auditModal');
+    if (!bd) return;
+    if (box) { box.classList.remove('fadeIn'); box.classList.add('fadeOut'); }
+    setTimeout(()=>{ bd.classList.add('hidden'); if (box) box.classList.remove('fadeOut'); }, 220);
+  };
+
+  async function openDeletionAuditModal() {
+    const res = await api('/admin/deletion-requests/audit?limit=200');
+    const rows = res.ok ? await res.json() : [];
+    const tb = document.getElementById('auditTbody');
+
+    tb.innerHTML = rows.length ? rows.map(r => `
+      <tr>
+        <td>${new Date(r.at_time).toLocaleString()}</td>
+        <td><b>${escapeHTML(r.action)}</b></td>
+        <td>${r.actor_username ? escapeHTML(r.actor_username) : '—'}</td>
+        <td>${escapeHTML(r.username_snapshot)} <span class="kb-subtle">(${escapeHTML(r.email_snapshot)})</span></td>
+        <td>${r.note ? escapeHTML(r.note) : '—'}</td>
+      </tr>
+    `).join('') : `<tr><td colspan="5">No audit entries.</td></tr>`;
+
+    const bd = document.getElementById('auditModalBackdrop');
+    if (bd) bd.classList.remove('hidden');
+  }
+
+  // wire the button
+  document.getElementById('kbAuditBtn')?.addEventListener('click', openDeletionAuditModal);
+
+
   async function loadDeletionRequests() {
     const data = await api('/admin/deletion-requests').then(r => r.json()).catch(() => []);
 
@@ -237,8 +269,13 @@ function initializeAdminPanel(role) {
     // logs
     const logEl = document.getElementById('kbm-logs');
     logEl.innerHTML = logs && logs.length
-      ? logs.map(l => `<div class="kbm-logline">${new Date(l.at_time).toLocaleString()} — <b>${escapeHTML(l.action)}</b>${l.note ? ' — ' + escapeHTML(l.note): ''}</div>`).join('')
-      : '<i style="opacity:.7">No history</i>';
+      ? logs.map(l => `
+    <div class="kbm-logline">
+      ${new Date(l.at_time).toLocaleString()} — 
+      <b>${escapeHTML(l.action)}</b>
+      ${l.actor_username ? ` <i>by ${escapeHTML(l.actor_username)}</i>` : ``}
+      ${l.note ? ` — ${escapeHTML(l.note)}` : ``}
+    </div>`).join('') : '<i style="opacity:.7">No history</i>';
 
     // buttons (admin/sysadmin only)
     const btnWrap = document.getElementById('kbm-buttons');
@@ -435,7 +472,7 @@ function loadCratesAndItems() {
       const selector = document.getElementById("crate-selector");
       const form = document.getElementById("crate-edit-form");
       if (!selector || !form) return;
-      
+
       // Populate crate dropdown
       selector.innerHTML =
         "<option disabled selected>Select a crate to edit</option>";

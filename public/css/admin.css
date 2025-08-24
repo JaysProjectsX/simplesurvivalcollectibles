@@ -1087,6 +1087,13 @@ select {
   box-shadow: 0 0 0 3px rgba(99, 102, 241, .15);
 }
 
+.kbm-titlewrap { display:flex; align-items:center; gap:.75rem; }
+.kbm-mini { font-size:.85rem; padding:.35rem .6rem; border-radius:.5rem; }
+.kbm-wide { width:min(1100px, 95vw); }
+.kbm-scroll { max-height: 440px; overflow:auto; border-radius:10px; background:#161a23; }
+.kbm-table { width:100%; border-collapse:collapse; font-size:.92rem; }
+.kbm-table th, .kbm-table td { padding:.6rem .75rem; border-bottom:1px solid rgba(255,255,255,.06); text-align:left; }
+.kbm-table tbody tr:hover { background:rgba(255,255,255,.03); }
 
 /* Responsive: stack columns earlier so cards stay tidy */
 @media (max-width: 1200px) {

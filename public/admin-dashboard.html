@@ -229,7 +229,10 @@
 
           <!-- Tasks / Kanban Board -->
           <section id="tasksTab" class="tab-content hidden">
-            <h3 class="admin-tab-title">Deletion Requests</h3>
+            <h3 class="admin-tab-title kbm-titlewrap">
+              Deletion Requests
+              <button id="kbAuditBtn" class="kbm-mini">View Audit</button>
+            </h3>
             <div id="kanbanBoard" class="kanban">
               <div class="kanban-col" data-col="awaiting">
                 <div class="kanban-head">Awaiting Approval</div>
@@ -247,6 +250,35 @@
               </div>
             </div>
           </section>
+
+          <!-- Deletion Audit Modal -->
+          <div id="auditModalBackdrop" class="kbm-backdrop hidden">
+            <div class="kbm-modal kbm-wide fadeIn" id="auditModal">
+              <div class="kbm-head">
+                <h3>Deletion Audit</h3>
+                <button class="kbm-close" aria-label="Close" onclick="window.closeAuditModal()">×</button>
+              </div>
+              <div class="kbm-body">
+                <div class="kbm-scroll">
+                  <table class="kbm-table" id="auditTable">
+                    <thead>
+                      <tr>
+                        <th>Date</th>
+                        <th>Action</th>
+                        <th>Admin</th>
+                        <th>Target</th>
+                        <th>Note</th>
+                      </tr>
+                    </thead>
+                    <tbody id="auditTbody"><tr><td colspan="5">Loading…</td></tr></tbody>
+                  </table>
+                </div>
+              </div>
+              <div class="kbm-foot">
+                <button class="kbm-btn" onclick="window.closeAuditModal()">Close</button>
+              </div>
+            </div>
+          </div>
 
           <!-- Account Management -->
           <div class="tab-content" id="accountsTab" style="display: none;">

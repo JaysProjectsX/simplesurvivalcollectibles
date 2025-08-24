@@ -408,7 +408,7 @@ function initializeAdminPanel(role) {
   window.archiveDeletionRequest = async function (id, modalId) {
     try {
       const res = await fetch(`https://simplesurvivalcollectibles.site/admin/deletion-requests/${id}/archive`, {
-        method: 'PATCH',
+        method: 'POST',
         credentials: 'include'
       });
       if (!res.ok) throw new Error('Archive failed');

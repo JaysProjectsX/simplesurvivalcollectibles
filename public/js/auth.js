@@ -57,7 +57,6 @@ function hasCookie(name) {
       } else if (r.status === 401 || r.status === 403) {
 
         if (r.status === 403) {
-          // account is deleted/anonymized – bounce to logout page
           localStorage.clear();
           forceLogoutAndRedirect('deleted');
           return;

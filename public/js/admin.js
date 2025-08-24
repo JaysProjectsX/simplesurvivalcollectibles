@@ -362,7 +362,13 @@ function initializeAdminPanel(role) {
       document.getElementById('kbm-close')?.addEventListener('click', window.closeTaskModal);
 
     } else {
-      btnWrap.innerHTML = `<button class="kbm-btn secondary" id="kbm-close">Close</button>`;
+      btnWrap.innerHTML = `
+        <button class="kbm-btn danger" id="kbm-archive">Remove Request</button>
+        <button class="kbm-btn secondary" id="kbm-close">Close</button>
+      `;
+      document.getElementById('kbm-archive')?.addEventListener('click', () =>
+        confirmArchive(r.id, r.username_snapshot, r.email_snapshot)
+      );
       document.getElementById('kbm-close')?.addEventListener('click', window.closeTaskModal);
     }
 
@@ -373,9 +379,55 @@ function initializeAdminPanel(role) {
 
   async function approveDeletion(id) {
     await api(`/admin/deletion-requests/${id}/approve`, { method:'POST' });
-    showToast('Approved and scheduled in 24h');
+    showToast('Approved and scheduled for deletion in 24h');
     window.closeTaskModal();
     loadDeletionRequests();
+  }
+
+  function confirmArchive(id, uname, email) {
+    const modalId = `archiveReq-${id}`;
+    showGlobalModal({
+      type: "warning",
+      title: "Remove Completed Request",
+      message: `
+        <p>Remove this completed deletion request from the Tasks board?</p>
+        <p style="opacity:.8;margin-top:.5rem;">
+          <b>${escapeHTML(uname)}</b>
+          <span class="kb-subtle">(${escapeHTML(email)})</span>
+        </p>
+        <p style="opacity:.7;margin-top:.75rem;">Audit history will be retained.</p>
+      `,
+      buttons: [
+        { label: "Cancel", onClick: `fadeOutAndRemove('${modalId}')` },
+        { label: "Remove", onClick: `archiveDeletionRequest(${id}, '${modalId}')` }
+      ],
+      id: modalId
+    });
+  }
+
+  async function archiveDeletionRequest(id, modalId) {
+    try {
+      const res = await fetch(`https://simplesurvivalcollectibles.site/admin/deletion-requests/${id}/archive`, {
+        method: 'PATCH',
+        credentials: 'include'
+      });
+      if (!res.ok) throw new Error('Archive failed');
+      showToast('Request removed from list');
+      fadeOutAndRemove(modalId);
+      window.closeTaskModal();
+      // refresh the columns
+      const tasksTabBtn = document.querySelector('[data-tab="tasksTab"]');
+      if (tasksTabBtn?.classList.contains('active')) {
+        // if already on the Tasks tab, just reload requests
+        const evt = new Event('click');
+        tasksTabBtn.dispatchEvent(evt);
+      } else {
+        // fallback
+        loadDeletionRequests?.();
+      }
+    } catch {
+      showToast('Could not remove request', 'error');
+    }
   }
 
   function showReasonModal(action, id) {

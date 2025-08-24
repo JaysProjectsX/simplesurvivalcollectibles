@@ -1094,7 +1094,7 @@ select {
 .kbm-mini { font-size:.75rem; padding:.35rem .6rem; border-radius:.5rem; border: none; background: rgba(54, 92, 245, 0.08); color: #365CF5; cursor: pointer; }
 .kbm-mini:hover { background: rgba(54, 92, 245, 0.15); color: #365CF5;}
 .kbm-wide { width:min(1100px, 95vw); }
-.kbm-scroll { max-height: 440px; overflow:auto; border-radius:10px; background:#161a23; }
+.kbm-scroll { max-height: 440px; overflow:auto; border-radius:10px; }
 .kbm-table { width:100%; border-collapse:collapse; font-size:.92rem; }
 .kbm-table th, .kbm-table td { padding:.6rem .75rem; border-bottom:1px solid rgba(255,255,255,.06); text-align:left; }
 .kbm-table tbody tr:hover { background:rgba(255,255,255,.03); }

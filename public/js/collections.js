@@ -170,6 +170,12 @@ function closeModal() {
 // Modal save/cancel buttons
 const saveButton = document.getElementById("saveProgressBtn");
 const cancelButton = document.getElementById("cancelProgressBtn");
+const selectAllBtn = document.getElementById("selectAllBtn");
+
+selectAllBtn.addEventListener("click", () => {
+  const checkboxes = modalTable.querySelectorAll("input[type='checkbox']");
+  checkboxes.forEach(cb => { cb.checked = true; });
+});
 
 saveButton.addEventListener("click", async () => {
   document.getElementById("modalSavingOverlay").style.display = "flex";

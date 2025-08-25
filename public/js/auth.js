@@ -55,7 +55,7 @@ function hasCookie(name) {
           localStorage.setItem("created_at", u.created_at || "");
         }
       } else if (r.status === 401 || r.status === 403) {
-
+        // test for 403 first, just in case
         if (r.status === 403) {
           localStorage.clear();
           forceLogoutAndRedirect('deleted');

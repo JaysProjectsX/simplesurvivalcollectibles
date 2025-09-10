@@ -311,3 +311,106 @@ button {
   font-size: 1.1rem;
   margin: 0.25rem 0;
 }
+
+/* --- Accordion (crate modal) --- */
+.acc-wrapper {
+  max-height: 400px;
+  overflow-y: auto;
+  padding-right: 6px; /* room for scrollbar */
+}
+
+.acc-item {
+  background: #161627;
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 10px;
+  margin: 12px 0;
+  overflow: hidden;
+}
+
+.acc-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  background: #0c0c1a;
+  color: #e9e9f3;
+  border: 0;
+  padding: 14px 16px;
+  cursor: pointer;
+  border-radius: 10px;
+  transition: background 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.acc-btn:hover {
+  background: #101028;
+}
+
+.acc-btn.active {
+  background: #365CF5;
+  color: #fff;
+  box-shadow: 0 6px 18px rgba(54,92,245,0.35);
+}
+
+.acc-title {
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.acc-meta {
+  font-size: 0.82rem;
+  opacity: 0.9;
+  margin-left: 8px;
+}
+
+.acc-icon {
+  display: inline-flex;
+  width: 20px;
+  height: 20px;
+  transition: transform 0.2s ease;
+}
+
+.acc-btn.active .acc-icon {
+  transform: rotate(180deg);
+}
+
+.acc-panel {
+  background: #111125;
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.25s ease;
+}
+
+.acc-panel.open {
+  /* max-height set dynamically to scrollHeight in JS for smooth expand */
+}
+
+.acc-panel-inner {
+  padding: 10px 16px 16px;
+}
+
+/* Table inside accordion panel (reuses your modal table vibe) */
+.acc-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.acc-table th, .acc-table td {
+  padding: 10px 8px;
+  text-align: left;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+
+.acc-table th:last-child,
+.acc-table td:last-child {
+  text-align: center;
+}
+
+.acc-table img {
+  height: 24px;
+}
+
+.acc-table input[type="checkbox"] {
+  transform: scale(1.2);
+  cursor: pointer;
+}

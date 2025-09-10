@@ -3,6 +3,10 @@ const modal = document.getElementById("crateModal");
 const modalTitle = document.getElementById("crateTitle");
 const modalTable = document.getElementById("crateItemsTableBody");
 
+const modalContentEl = document.getElementById("crateModalContent");
+const accordionContainer = document.getElementById("accordionContainer");
+let openCrateId = null; // track which crate is open
+
 let userProgress = {}; // fetched per user
 const backendUrl2 = "https://simplesurvivalcollectibles.site";
 
@@ -134,25 +138,117 @@ function renderCrates(crates) {
 
 // Open modal with crate items
 function openCrateModal(crate) {
+  openCrateId = crate.id;
   modalTitle.textContent = formatCrateName(crate.name);
-  modalTable.innerHTML = "";
 
-  crate.items.forEach(item => {
-    const isChecked = userProgress[crate.id]?.items?.includes(item.id);
-    const tr = document.createElement("tr");
+  // Group items by set_name
+  const groups = crate.items.reduce((acc, item) => {
+    const key = item.set_name || "Unknown";
+    if (!acc[key]) acc[key] = [];
+    acc[key].push(item);
+    return acc;
+  }, {});
 
-    tr.innerHTML = `
-      <td>${item.item_name}</td>
-      <td>${item.set_name}</td>
-      <td><img src="${item.icon_url}" alt="${item.item_name}"></td>
-      <td><input type="checkbox" data-crate-id="${crate.id}" data-item-id="${item.id}" ${isChecked ? "checked" : ""}></td>
+  // Sort group names A->Z
+  const groupNames = Object.keys(groups).sort((a, b) => a.localeCompare(b));
+
+  // Clear old accordion content
+  accordionContainer.innerHTML = "";
+
+  // Build each accordion group
+  groupNames.forEach((groupName, idx) => {
+    // Sort items by item_name within group
+    groups[groupName].sort((a, b) => a.item_name.localeCompare(b.item_name));
+
+    const accItem = document.createElement("div");
+    accItem.className = "acc-item";
+
+    // Header button
+    const btn = document.createElement("button");
+    btn.className = "acc-btn";
+    btn.setAttribute("type", "button");
+
+    // Count checked in this group
+    const total = groups[groupName].length;
+    const checkedCount = groups[groupName].filter(it =>
+      userProgress[crate.id]?.items?.includes(it.id)
+    ).length;
+
+    btn.innerHTML = `
+      <span class="acc-title">${groupName}</span>
+      <span class="acc-meta">${checkedCount}/${total}</span>
+      <span class="acc-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+          <path d="M7 10l5 5 5-5z"></path>
+        </svg>
+      </span>
     `;
 
-    modalTable.appendChild(tr);
+    // Panel with table
+    const panel = document.createElement("div");
+    panel.className = "acc-panel";
+    const inner = document.createElement("div");
+    inner.className = "acc-panel-inner";
+
+    // Build the table
+    const table = document.createElement("table");
+    table.className = "acc-table";
+    table.innerHTML = `
+      <thead>
+        <tr>
+          <th>Item Name</th>
+          <th>Item Set</th>
+          <th>Icon</th>
+          <th>Collected</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    `;
+    const tbody = table.querySelector("tbody");
+
+    groups[groupName].forEach(item => {
+      const isChecked = userProgress[crate.id]?.items?.includes(item.id);
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td>${item.item_name}</td>
+        <td>${item.set_name || ""}</td>
+        <td><img src="${item.icon_url}" alt="${item.item_name}"></td>
+        <td><input type="checkbox"
+                   data-crate-id="${crate.id}"
+                   data-item-id="${item.id}"
+                   ${isChecked ? "checked" : ""}></td>
+      `;
+      tbody.appendChild(tr);
+    });
+
+    inner.appendChild(table);
+    panel.appendChild(inner);
+
+    // Toggle logic
+    btn.addEventListener("click", () => {
+      const isOpen = panel.classList.contains("open");
+      if (isOpen) {
+        panel.classList.remove("open");
+        panel.style.maxHeight = null;
+        btn.classList.remove("active");
+      } else {
+        panel.classList.add("open");
+        panel.style.maxHeight = panel.scrollHeight + "px";
+        btn.classList.add("active");
+      }
+    });
+
+    // Default: keep all collapsed (optional: open first one)
+    // if (idx === 0) btn.click();
+
+    accItem.appendChild(btn);
+    accItem.appendChild(panel);
+    accordionContainer.appendChild(accItem);
   });
 
   modal.classList.add("show");
 }
+
 
 function closeModal() {
   modal.classList.remove("show");
@@ -173,14 +269,14 @@ const cancelButton = document.getElementById("cancelProgressBtn");
 const selectAllBtn = document.getElementById("selectAllBtn");
 
 selectAllBtn.addEventListener("click", () => {
-  const checkboxes = modalTable.querySelectorAll("input[type='checkbox']");
+  const checkboxes = modalContentEl.querySelectorAll("input[type='checkbox']");
   checkboxes.forEach(cb => { cb.checked = true; });
 });
 
 saveButton.addEventListener("click", async () => {
   document.getElementById("modalSavingOverlay").style.display = "flex";
 
-  const checkboxes = modalTable.querySelectorAll("input[type='checkbox']");
+  const checkboxes = modalContentEl.querySelectorAll("input[type='checkbox']");
   const savePromises = [];
 
   for (const checkbox of checkboxes) {

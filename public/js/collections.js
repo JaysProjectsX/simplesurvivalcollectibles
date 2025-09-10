@@ -31,36 +31,43 @@ async function fetchCratesWithItems() {
   return cratesWithItems;
 }
 
-// Fetch per-user progress
-async function fetchUserProgress() {
+async function silentRepairSession() {
+  // Ping /me to refresh/validate session using refresh cookie
   try {
-    const res = await fetch(`${backendUrl2}/api/user/progress`, { credentials: "include" });
+    const res = await fetch(`${backendUrl2}/me`, {
+      credentials: "include"
+    });
+    return res.ok; // true if session is good now
+  } catch {
+    return false;
+  }
+}
+
+// Fetch per-user progress
+// Fetch per-user progress (401 -> try /me silently, then retry once)
+async function fetchUserProgress() {
+  const tryFetch = () =>
+    fetch(`${backendUrl2}/api/user/progress`, {
+      credentials: "include"
+    });
+
+  try {
+    let res = await tryFetch();
+
+    if (res.status === 401) {
+      // attempt silent repair
+      const repaired = await silentRepairSession();
+      if (repaired) {
+        res = await tryFetch(); // retry once after repair
+      }
+    }
 
     if (!res.ok) {
       if (res.status === 401) {
+        // truly unauthorized after repair → redirect (don’t nuke the body)
         document.getElementById("preloader").style.display = "none";
-
-        // Show full-page error
-        document.body.innerHTML = `
-          <div class="unauthorized-container">
-            <h2>Unauthorized</h2>
-            <p>Your session has expired or you are not logged in.</p>
-            <p>Redirecting to home page in <span id="redirectTimer">5</span> seconds...</p>
-          </div>
-        `;
-
-        // Countdown + redirect
-        let countdown = 5;
-        const timer = setInterval(() => {
-          countdown--;
-          document.getElementById("redirectTimer").textContent = countdown;
-          if (countdown <= 0) {
-            clearInterval(timer);
-            window.location.href = "/";
-          }
-        }, 1000);
-
-        throw new Error("Unauthorized - stopping further execution");
+        window.location.replace("/?redirectReason=sessionExpired");
+        throw new Error("Unauthorized after silent repair");
       }
       throw new Error(`HTTP error! Status: ${res.status}`);
     }
@@ -68,9 +75,10 @@ async function fetchUserProgress() {
     userProgress = await res.json();
   } catch (err) {
     console.error("Error fetching user progress:", err);
-    throw err; // so the calling code won't try to render crates
+    throw err; // keep caller behavior
   }
 }
+
 
 // Determine progress bar percentage and tag class
 function calculateProgress(crateId, itemCount) {

@@ -74,6 +74,29 @@ function hasCookie(name) {
     setTimeout(() => { el.style.display = "none"; }, 250);
   }
 
+  // === Redirect reason handler (global) ===
+  window.addEventListener("DOMContentLoaded", () => {
+  const params = new URLSearchParams(window.location.search);
+  const reason = params.get("redirectReason");
+
+  if (reason === "sessionExpired") {
+    // Use your global modal/toast system
+        showGlobalModal({
+        type: "error",
+        title: "Session Expired",
+        message: "Your session token has expired and you were redirected to the home page.",
+        buttons: [{ label: "Close", onClick: `fadeOutAndRemove('modal-sessionExpired');` }],
+        id: "modal-sessionExpired"
+          });
+  }
+
+  // Clean up the URL so it doesn't stick around
+  if (reason) {
+    params.delete("redirectReason");
+    window.history.replaceState({}, "", window.location.pathname);
+  }
+});
+
   document.addEventListener("DOMContentLoaded", async () => {
     await (window.__auth_ready || Promise.resolve());
 

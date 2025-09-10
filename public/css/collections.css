@@ -329,6 +329,7 @@ button {
 
 .acc-btn {
   width: 100%;
+  text-align: start;
   background: #0c0c1a;
   color: #e9e9f3;
   border: 0;

@@ -225,12 +225,12 @@ button {
 }
 
 .btn-primary, .btn-secondary {
-  padding: 0.6rem 1.4rem;
+  padding: 0.6rem 1rem;
   border: none;
-  border-radius: 6px;
+  border-radius: 4px;
   font-weight: bold;
   cursor: pointer;
-  font-size: 0.95rem;
+  font-size: 0.85rem;
   transition: background 0.2s ease-in-out;
 }
 .btn-primary {
@@ -241,11 +241,11 @@ button {
   background-color: #4854cc;
 }
 .btn-secondary {
-  background-color: #666;
+  background-color: #141427;
   color: white;
 }
 .btn-secondary:hover {
-  background-color: #555;
+  background-color: #202035;
 }
 
 /* Fade-in animation */

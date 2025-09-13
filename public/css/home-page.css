@@ -2313,114 +2313,161 @@ nav {
   }
   @keyframes spin { to { transform: rotate(360deg); } }
 
-  /* --- Advent calendars: gradient + glass tiles --- */
-  .advent-page {
-    display: grid;
-    margin-top: 3rem;
-    grid-template-columns: 240px 1fr;
-    gap: 24px;
-    padding: 40px 20px;
-    min-height: 70vh;
-  }
-  @media (max-width: 900px) {
-    .advent-page { grid-template-columns: 1fr; }
-  }
+/* ===========================
+   Advent Calendars (page-only)
+   =========================== */
 
-  .advent-sidebar {
-    background: #141427;
-    margin-top: 7rem;
-    border: 1px solid #202035;
-    border-radius: 6px;
-    padding: 18px;
-    backdrop-filter: blur(4px);
-    -webkit-backdrop-filter: blur(4px);
-    height: fit-content;
-  }
-  .advent-sidebar h2 {
-    margin: 0 0 12px 0; font-weight: 600;
-  }
-  .advent-sidebar .hint {
-    font-size: 0.85rem; opacity: 0.85; margin-top: 10px;
-  }
-  .year-btn {
-    width: 100%;
-    margin-bottom: 10px;
-    padding: 10px 12px;
-    border: 0;
-    border-radius: 10px;
-    cursor: pointer;
-    background: #0c0c1a;
-    color: #e9e9f3;
-    transition: background .2s ease, box-shadow .2s ease;
-  }
-  .year-btn:hover { background: #101028; }
-  .year-btn.active {
-    background: #365CF5; color: #fff;
-    box-shadow: 0 6px 18px rgba(54,92,245,0.35);
-  }
+/* Page wrapper (not a grid) */
+.advent-page {
+  margin-top: 3rem;
+  padding: 40px 20px;
+  min-height: 70vh;
+}
 
-  .advent-wrap {
-    max-width: 1200px;
-    margin: 0 auto;
-    display: grid;
-    grid-template-columns: 240px 1fr;    /* sidebar | calendar */
-    gap: 20px;                           /* tighter than before */
-    align-items: start;
-  }
-  @media (max-width: 980px) {
-    .advent-wrap { grid-template-columns: 1fr; }
-  }
+/* Sidebar + Calendar container */
+.advent-wrap {
+  max-width: 1200px;
+  margin: 0 auto;                  /* center the whole section */
+  display: grid;
+  grid-template-columns: 240px 1fr; /* sidebar | calendar */
+  gap: 20px;
+  align-items: start;
+}
 
-  .advent-content { display: flex; flex-direction: column; align-items: center; }
-  #adventTitle { font-weight: 800; margin: 0 0 6px 0; }
-  .advent-subtitle { margin: 0 0 18px 0; opacity: 0.9; }
+@media (max-width: 980px) {
+  .advent-wrap { grid-template-columns: 1fr; }
+}
 
-  .advent-grid {
-    display: grid;
-    grid-template-columns: repeat(7, minmax(140px, 1fr));
-    gap: 12px;
-    list-style: none;
-    padding: 0;
-    width: 100%;
-    max-width: 1200px;
-  }
-  @media (max-width: 900px) {
-    .advent-grid { grid-template-columns: repeat(3, minmax(120px, 1fr)); }
-  }
-  .advent-grid li {
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
-    height: 140px;
-    padding: 16px;
-    border-radius: 6px;
-    font-size: 0.92rem;
-    background: #141427;
-    color: #ccc;
-  }
-  .advent-grid li .weekday {
-    font-size: 0.75rem;
-    letter-spacing: .02em;
-    opacity: .8;
-    margin-bottom: 4px;
-  }
-  .advent-grid li time {
-    font-size: 1.8rem;
-    font-weight: 600;
-    margin-bottom: 10px;
-    color: #ccc;
-  }
-  .advent-img {
-    margin-top: 10px;
-    height: 48px;              /* adjust as you like */
-    width: auto;
-    object-fit: contain;
-    filter: drop-shadow(0 2px 4px rgba(0,0,0,.35));
-  }
-  .advent-grid li.today { outline: 2px solid #4f63ff; }
+/* Sidebar card */
+.advent-sidebar {
+  background: #141427;
+  border: 1px solid #202035;
+  border-radius: 6px;
+  padding: 18px;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  height: fit-content;
+}
 
-  .advent-item {
-    font-weight: 400;
-    line-height: 1.25rem;
-    margin-top: 2px;
-  }
+.advent-sidebar h2 {
+  margin: 0 0 12px 0;
+  font-weight: 600;
+  color: #e9e9f3;
+}
+
+.advent-sidebar .hint {
+  font-size: 0.85rem;
+  opacity: 0.85;
+  margin-top: 10px;
+  color: #c9c9db;
+}
+
+/* Year buttons */
+.year-btn {
+  width: 100%;
+  margin-bottom: 10px;
+  padding: 10px 12px;
+  border: 0;
+  border-radius: 10px;
+  cursor: pointer;
+  background: #0c0c1a;
+  color: #e9e9f3;
+  transition: background .2s ease, box-shadow .2s ease;
+}
+.year-btn:hover { background: #101028; }
+.year-btn.active {
+  background: #365CF5;
+  color: #fff;
+  box-shadow: 0 6px 18px rgba(54,92,245,0.35);
+}
+
+/* Calendar content (title + grid) */
+.advent-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+#adventTitle {
+  font-weight: 800;
+  margin: 0 0 6px 0;
+  color: #e9e9f3;
+}
+
+.advent-subtitle {
+  margin: 0 0 18px 0;
+  opacity: 0.9;
+  color: #c9c9db;
+}
+
+/* Calendar grid */
+.advent-grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(140px, 1fr));
+  gap: 12px;
+  list-style: none;
+  padding: 0;
+  width: 100%;
+  max-width: 1200px;
+}
+@media (max-width: 900px) {
+  .advent-grid { grid-template-columns: repeat(3, minmax(120px, 1fr)); }
+}
+
+/* Day tile */
+.advent-grid li {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  /* room for weekday + number + text + (optional) image */
+  min-height: 190px;
+  padding: 16px;
+  border-radius: 6px;
+  font-size: 0.92rem;
+  background: #141427;
+  color: #ccc;
+  border: 1px solid #202035;
+  overflow: hidden; /* keep images contained */
+}
+
+/* Weekday inside tile (above number) */
+.advent-grid li .weekday {
+  font-size: 0.75rem;
+  letter-spacing: .02em;
+  opacity: .8;
+  margin-bottom: 4px;
+  color: #cfd3ff;
+}
+
+/* Day number */
+.advent-grid li time {
+  font-size: 1.8rem;
+  font-weight: 600;
+  line-height: 1;
+  margin-bottom: 8px;
+  color: #e7edff;
+}
+
+/* Item label */
+.advent-item {
+  font-weight: 400;
+  line-height: 1.25rem;
+  margin-top: 2px;
+  min-height: 34px; /* keeps space even when image present */
+  color: #dde1ff;
+}
+
+/* Optional item image (under label) */
+.advent-img {
+  margin-top: 8px;
+  max-height: 36px;   /* cap size so it never overlaps */
+  width: auto;
+  object-fit: contain;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,.35));
+}
+
+/* Visual hint for the current day (only when viewing current Dec) */
+.advent-grid li.today {
+  outline: 2px solid #4f63ff;
+  outline-offset: -2px;
+}

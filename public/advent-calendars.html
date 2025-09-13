@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Crates - SimpleSurvival Collectibles</title>
+    <link rel="stylesheet" href="/css/home-page.css" />
+    <link rel="stylesheet" href="/css/globalModal.css" />
+    <link
+      href="https://unpkg.com/boxicons@2.1.1/css/boxicons.min.css"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="icon" href="/favicon.png" type="image/png" />
+  </head>
+  <body>
+
+    <!-- Preloader overlay -->
+    <div id="preloader">
+      <div class="loader"></div>
+    </div>
+
+    <nav>
+      <div class="nav-content">
+        <div class="nav-logo">
+          <a href="/">
+            <img src="/assets/Logo.png" alt="SimpleSurvival Collectibles Logo" />
+          </a>
+        </div>
+        <ul class="nav-links">
+          <li><a href="/">Home</a></li>
+          <li><a href="/info">About</a></li>
+          <li><a href="/crates">Cosmetic Crates</a></li>
+          <li><a href="/othercrates">Other Crates</a></li>
+          <li><a href="/advent-calendars" class="active">Advent Calendars</a></li>
+        </ul>
+        <ul class="nav-login" id="navLogin">
+          <!-- This will be dynamically updated -->
+          <li id="loginItem"><a href="#" onclick="toggleModal()">Login</a></li>
+        </ul>
+      </div>
+    </nav>
+
+    <main>
+    <section class="advent-page">
+    <aside class="advent-sidebar">
+        <h2>Advent Years</h2>
+        <button class="year-btn active" data-year="2024">2024</button>
+        <button class="year-btn" data-year="2023">2023</button>
+        <button class="year-btn" data-year="2022">2022</button>
+        <p class="hint">Static page — no login required.</p>
+    </aside>
+
+    <div class="advent-content">
+        <h1 id="adventTitle">December 2024</h1>
+        <p class="advent-subtitle">SimpleSurvival Advent Calendar Items</p>
+
+        <ul id="adventGrid" class="advent-grid" aria-live="polite"></ul>
+    </div>
+    </section>
+    </main>
+
+    <div id="global-tooltip" style="
+      position: absolute;
+      background-color: rgb(37, 37, 37);
+      color: white;
+      padding: 6px 10px;
+      border-radius: 5px;
+      white-space: normal;
+      font-size: 0.85rem;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+      max-width: 320px;
+      display: none;
+      z-index: 9999;
+      pointer-events: none;
+    "></div>
+
+    <div id="toastContainer"></div>
+
+    <footer>
+      <div class="footer-creator">
+        <p>Created by YooEm</p>
+      </div>
+      <div class="footer-links">
+        <p><strong>Disclaimer:</strong> This is a fan-made website and is not affiliated with or endorsed by the SimpleSurvival Minecraft server or its owners.</p>
+        <p><a href="/privacy">Privacy Policy</a> | <a href="/terms">Terms of Use</a></p>
+      </div>
+    </footer>
+    <script defer src="/js/globalModal.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
+    <script src="/js/auth.js"></script>
+    <script>
+    /**
+     * Static data for Dec 1..31, per year.
+     * Fill these arrays with the exact item names you want to show.
+     * Leave empty strings "" for unused days if any.
+     */
+    const ADVENT_DATA = {
+    2024: {
+        monthName: "December",
+        startWeekday: new Date(2024, 11, 1).getDay(), // 0=Sun..6=Sat
+        days: [
+        /* 1..31 */ 
+        "Item name for Dec 1", "Item for Dec 2", "Item for Dec 3", "Item for Dec 4",
+        "Item for Dec 5", "Item for Dec 6", "Item for Dec 7", "Item for Dec 8",
+        "Item for Dec 9", "Item for Dec 10", "Item for Dec 11", "Item for Dec 12",
+        "Item for Dec 13", "Item for Dec 14", "Item for Dec 15", "Item for Dec 16",
+        "Item for Dec 17", "Item for Dec 18", "Item for Dec 19", "Item for Dec 20",
+        "Item for Dec 21", "Item for Dec 22", "Item for Dec 23", "Item for Dec 24",
+        "Item for Dec 25", "Item for Dec 26", "Item for Dec 27", "Item for Dec 28",
+        "Item for Dec 29", "Item for Dec 30", "Item for Dec 31"
+        ]
+    },
+    2023: {
+        monthName: "December",
+        startWeekday: new Date(2023, 11, 1).getDay(),
+        days: [
+        "2023 item 1","2023 item 2","2023 item 3","2023 item 4","2023 item 5","2023 item 6","2023 item 7",
+        "2023 item 8","2023 item 9","2023 item 10","2023 item 11","2023 item 12","2023 item 13",
+        "2023 item 14","2023 item 15","2023 item 16","2023 item 17","2023 item 18","2023 item 19",
+        "2023 item 20","2023 item 21","2023 item 22","2023 item 23","2023 item 24","2023 item 25",
+        "2023 item 26","2023 item 27","2023 item 28","2023 item 29","2023 item 30","2023 item 31"
+        ]
+    },
+    2022: {
+        monthName: "December",
+        startWeekday: new Date(2022, 11, 1).getDay(),
+        days: [
+        "2022 item 1","2022 item 2","2022 item 3","2022 item 4","2022 item 5","2022 item 6","2022 item 7",
+        "2022 item 8","2022 item 9","2022 item 10","2022 item 11","2022 item 12","2022 item 13",
+        "2022 item 14","2022 item 15","2022 item 16","2022 item 17","2022 item 18","2022 item 19",
+        "2022 item 20","2022 item 21","2022 item 22","2022 item 23","2022 item 24","2022 item 25",
+        "2022 item 26","2022 item 27","2022 item 28","2022 item 29","2022 item 30","2022 item 31"
+        ]
+    }
+    };
+
+    const grid = document.getElementById("adventGrid");
+    const titleEl = document.getElementById("adventTitle");
+
+    // Optional weekday header row (uncomment to show)
+    /*
+    const weekdays = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+    const header = document.createElement("div");
+    header.className = "advent-weekdays";
+    weekdays.forEach(d => {
+    const s = document.createElement("span"); s.textContent = d; header.appendChild(s);
+    });
+    titleEl.insertAdjacentElement("afterend", header);
+    */
+
+    function renderYear(year) {
+    const data = ADVENT_DATA[year];
+    if (!data) return;
+
+    titleEl.textContent = `${data.monthName} ${year}`;
+
+    const today = new Date();
+    const isCurrentDec = (today.getFullYear() === year && today.getMonth() === 11);
+    const todayDate = isCurrentDec ? today.getDate() : -1;
+
+    // Build empty prefix cells so the 1st lands on the right weekday column
+    const prefix = data.startWeekday; // 0=Sun..6=Sat
+    const items = [];
+
+    for (let i = 0; i < prefix; i++) {
+        items.push(`<li aria-hidden="true" style="visibility:hidden;"></li>`);
+    }
+
+    data.days.forEach((label, idx) => {
+        const day = idx + 1;
+        const isToday = (day === todayDate);
+        items.push(`
+        <li class="${isToday ? "today" : ""}">
+            <time datetime="${year}-12-${String(day).padStart(2,"0")}">${day}</time>
+            <div class="advent-item">${label || ""}</div>
+        </li>
+        `);
+    });
+
+    grid.innerHTML = items.join("");
+    }
+
+    document.querySelectorAll(".year-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+        document.querySelectorAll(".year-btn").forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        const year = parseInt(btn.dataset.year, 10);
+        renderYear(year);
+    });
+    });
+
+    // default: 2024
+    renderYear(2024);
+    </script>
+  </body>
+</html>

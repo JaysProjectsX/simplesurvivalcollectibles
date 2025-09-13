@@ -757,6 +757,8 @@ function editCrate(crateId) {
       document.getElementById("edit-crate-type").value = crate.is_cosmetic
         ? "1"
         : "0";
+      document.getElementById("edit-crate-hidden").checked = !!crate.is_hidden;
+
 
       // Show modal
       const modal = document.getElementById("editCrateModalAdmin");
@@ -815,6 +817,7 @@ document
     const updatedData = {
       crate_name: document.getElementById("edit-crate-name").value,
       is_cosmetic: parseInt(document.getElementById("edit-crate-type").value),
+      is_hidden: document.getElementById("edit-crate-hidden").checked ? 1 : 0,
     };
 
     fetch(`https://simplesurvivalcollectibles.site/admin/crates/${id}`, {
@@ -1173,6 +1176,10 @@ function validateItems() {
 function submitCrate() {
   const crateName = document.getElementById("crate-name").value.trim();
   const crateType = document.querySelector('input[name="crate-type"]:checked')?.value;
+  const isHidden = parseInt(
+    document.querySelector('input[name="crate-visibility"]:checked')?.value || "0",
+    10
+  );
 
   // Validate crate name
   if (!crateName) {
@@ -1208,7 +1215,8 @@ function submitCrate() {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       crate_name: crateName,
-      is_cosmetic: parseInt(crateType)
+      is_cosmetic: parseInt(crateType),
+      is_hidden: isHidden
     })
   })
     .then(res => res.json())

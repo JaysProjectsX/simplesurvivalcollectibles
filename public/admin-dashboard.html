@@ -31,6 +31,7 @@
           <li><a href="/info">About</a></li>
           <li><a href="/crates">Cosmetic Crates</a></li>
           <li><a href="/othercrates">Other Crates</a></li>
+          <li><a href="/advent-calendars">Advent Calendars</a></li>
         </ul>
         <ul class="nav-login" id="navLogin">
           <!-- This will be dynamically updated -->
@@ -110,6 +111,11 @@
                           <div class="crate-type-options">
                             <label><input type="radio" name="crate-type" value="1" checked /> Cosmetic</label>
                             <label><input type="radio" name="crate-type" value="0" /> Non-Cosmetic</label>
+                          </div>
+                          <!-- New: Visibility (Step 1) -->
+                          <div class="crate-type-options" style="margin-top:12px">
+                            <label><input type="radio" name="crate-visibility" value="0" checked /> Visible</label>
+                            <label><input type="radio" name="crate-visibility" value="1" /> Hidden</label>
                           </div>
                         </div>
                       </div>
@@ -471,6 +477,10 @@
             <option value="0">Non-Cosmetic</option>
           </select>
 
+          <label class="inline-checkbox" style="margin-top:10px;">
+            <input type="checkbox" id="edit-crate-hidden" />
+            Hidden
+          </label>
           <div class="form-actions">
             <button type="submit" class="admin-button save-btn">Save Changes</button>
             <button type="button" class="admin-button cancel-btn" onclick="closeEditCrateModal()">Cancel</button>

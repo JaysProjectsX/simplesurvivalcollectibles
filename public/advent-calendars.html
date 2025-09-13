@@ -44,11 +44,11 @@
     <main>
     <section class="advent-page">
     <aside class="advent-sidebar">
-        <h2>Advent Years</h2>
+        <h2>Calendar Years</h2>
         <button class="year-btn active" data-year="2024">2024</button>
         <button class="year-btn" data-year="2023">2023</button>
         <button class="year-btn" data-year="2022">2022</button>
-        <p class="hint">Static page — no login required.</p>
+        <p class="hint">Choose a year to view rewards.</p>
     </aside>
 
     <div class="advent-content">
@@ -139,7 +139,7 @@
     const titleEl = document.getElementById("adventTitle");
 
     // Optional weekday header row (uncomment to show)
-    /*
+
     const weekdays = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
     const header = document.createElement("div");
     header.className = "advent-weekdays";
@@ -147,7 +147,7 @@
     const s = document.createElement("span"); s.textContent = d; header.appendChild(s);
     });
     titleEl.insertAdjacentElement("afterend", header);
-    */
+
 
     function renderYear(year) {
     const data = ADVENT_DATA[year];

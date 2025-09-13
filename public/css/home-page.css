@@ -2410,9 +2410,15 @@ nav {
     margin-bottom: 10px;
     color: #ccc;
   }
-  .advent-grid li.today {
-    background: #ffffff70;
+  .advent-img {
+    margin-top: 10px;
+    height: 48px;              /* adjust as you like */
+    width: auto;
+    object-fit: contain;
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,.35));
   }
+  .advent-grid li.today { outline: 2px solid #4f63ff; }
+
   .advent-item {
     font-weight: 400;
     line-height: 1.25rem;

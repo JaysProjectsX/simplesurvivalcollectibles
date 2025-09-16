@@ -144,61 +144,109 @@ function renderCrates(crates) {
 }
 
 
-// Open modal with crate items
+// state for search/filter and single-open accordion
+let currentFilter = "default";
+let currentSearch = "";
+let currentlyOpenPanel = null; // only one open at a time
+
 function openCrateModal(crate) {
   openCrateId = crate.id;
   modalTitle.textContent = formatCrateName(crate.name);
 
+  // wire up controls
+  const searchInput = document.getElementById("crateSearch");
+  const filterSel   = document.getElementById("crateFilter");
+
+  // hydrate with last used values
+  searchInput.value = currentSearch;
+  filterSel.value = currentFilter;
+
+  // render everything once
+  renderAccordion(crate);
+
+  // listeners (debounced search)
+  let tId;
+  searchInput.oninput = () => {
+    currentSearch = searchInput.value.trim().toLowerCase();
+    clearTimeout(tId);
+    tId = setTimeout(() => {
+      renderAccordion(crate, /*keepOpen*/true);
+      if (currentSearch) focusFirstSearchHit();
+    }, 120);
+  };
+
+  filterSel.onchange = () => {
+    currentFilter = filterSel.value;
+    renderAccordion(crate, /*keepOpen*/true);
+  };
+
+  modal.classList.add("show");
+}
+
+/** Render the grouped accordions with the current filter/search settings */
+function renderAccordion(crate, keepOpen = false) {
   // Group items by set_name
   const groups = crate.items.reduce((acc, item) => {
     const key = item.set_name || "Unknown";
-    if (!acc[key]) acc[key] = [];
-    acc[key].push(item);
+    (acc[key] ||= []).push(item);
     return acc;
   }, {});
 
-  // Sort group names A->Z
-  const groupNames = Object.keys(groups).sort((a, b) => a.localeCompare(b));
+  // Sort group names A→Z
+  const groupNames = Object.keys(groups).sort((a,b) => a.localeCompare(b));
 
-  // Clear old accordion content
   accordionContainer.innerHTML = "";
+  const previouslyOpenId = keepOpen && currentlyOpenPanel?.dataset.groupId;
 
-  // Build each accordion group
-  groupNames.forEach((groupName, idx) => {
-    // Sort items by item_name within group
-    groups[groupName].sort((a, b) => a.item_name.localeCompare(b.item_name));
+  groupNames.forEach((groupName) => {
+    // base sort: A-Z by item_name
+    let items = groups[groupName].slice().sort((a,b)=>a.item_name.localeCompare(b.item_name));
+
+    // apply filter modes
+    if (currentFilter === "missing-only") {
+      items = items.filter(it => !userProgress[crate.id]?.items?.includes(it.id));
+    } else if (currentFilter === "missing-first") {
+      items.sort((a,b) => {
+        const aChecked = userProgress[crate.id]?.items?.includes(a.id) ? 1 : 0;
+        const bChecked = userProgress[crate.id]?.items?.includes(b.id) ? 1 : 0;
+        return aChecked - bChecked || a.item_name.localeCompare(b.item_name);
+      });
+    }
+
+    // apply search term (soft filter: keep all, but we’ll highlight & jump;
+    // if you'd rather hide non-matches, uncomment the filter below)
+    const term = currentSearch;
+    // if (term) items = items.filter(it => it.item_name.toLowerCase().includes(term));
 
     const accItem = document.createElement("div");
     accItem.className = "acc-item";
 
-    // Header button
     const btn = document.createElement("button");
     btn.className = "acc-btn";
     btn.setAttribute("type", "button");
 
-    // Count checked in this group
-    const total = groups[groupName].length;
-    const checkedCount = groups[groupName].filter(it =>
+    // counts use original (unfiltered) group totals to show collection status
+    const totalInGroup   = groups[groupName].length;
+    const checkedInGroup = groups[groupName].filter(it =>
       userProgress[crate.id]?.items?.includes(it.id)
     ).length;
 
     btn.innerHTML = `
       <span class="acc-title">${groupName}</span>
-      <span class="acc-count">Total items collected: ${checkedCount}/${total}</span>
+      <span class="acc-count">Total items collected: ${checkedInGroup}/${totalInGroup}</span>
+      <button class="set-select-btn" type="button">Select set</button>
       <span class="acc-icon" aria-hidden="true">
-        <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
-          <path d="M7 10l5 5 5-5z"></path>
-        </svg>
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M7 10l5 5 5-5z"/></svg>
       </span>
     `;
 
-    // Panel with table
     const panel = document.createElement("div");
     panel.className = "acc-panel";
+    panel.dataset.groupId = groupName;  // for restoring open state
     const inner = document.createElement("div");
     inner.className = "acc-panel-inner";
 
-    // Build the table
+    // build table
     const table = document.createElement("table");
     table.className = "acc-table";
     table.innerHTML = `
@@ -214,9 +262,12 @@ function openCrateModal(crate) {
     `;
     const tbody = table.querySelector("tbody");
 
-    groups[groupName].forEach(item => {
+    items.forEach(item => {
       const isChecked = userProgress[crate.id]?.items?.includes(item.id);
+      const match = term && item.item_name.toLowerCase().includes(term);
       const tr = document.createElement("tr");
+      tr.dataset.itemId = item.id;
+      tr.dataset.groupId = groupName;
       tr.innerHTML = `
         <td>${item.item_name}</td>
         <td>${item.set_name || ""}</td>
@@ -226,36 +277,77 @@ function openCrateModal(crate) {
                    data-item-id="${item.id}"
                    ${isChecked ? "checked" : ""}></td>
       `;
+      if (match) tr.classList.add("highlight-row");
       tbody.appendChild(tr);
     });
 
     inner.appendChild(table);
     panel.appendChild(inner);
 
-    // Toggle logic
-    btn.addEventListener("click", () => {
-      const isOpen = panel.classList.contains("open");
-      if (isOpen) {
-        panel.classList.remove("open");
-        panel.style.maxHeight = null;
-        btn.classList.remove("active");
-      } else {
-        panel.classList.add("open");
-        panel.style.maxHeight = panel.scrollHeight + "px";
-        btn.classList.add("active");
-      }
+    // only-one-open behavior
+    btn.addEventListener("click", () => toggleAccordion(btn, panel));
+
+    // "Select set" button
+    btn.querySelector(".set-select-btn").addEventListener("click", (ev) => {
+      ev.stopPropagation(); // don’t toggle accordion
+      panel.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = true);
     });
 
-    // Default: keep all collapsed (optional: open first one)
-    // if (idx === 0) btn.click();
+    // restore previously opened panel if requested
+    if (previouslyOpenId && previouslyOpenId === groupName) {
+      openPanel(btn, panel);
+    }
 
     accItem.appendChild(btn);
     accItem.appendChild(panel);
     accordionContainer.appendChild(accItem);
   });
 
-  modal.classList.add("show");
+  // if we searched, jump to first hit (after DOM exists)
+  if (currentSearch) focusFirstSearchHit();
 }
+
+/* toggle helpers (single-open) */
+function openPanel(btn, panel){
+  // close others
+  document.querySelectorAll(".acc-panel.open").forEach(p => {
+    if (p !== panel) {
+      p.classList.remove("open");
+      p.style.maxHeight = null;
+      p.previousSibling.classList.remove("active");
+    }
+  });
+  panel.classList.add("open");
+  panel.style.maxHeight = panel.scrollHeight + "px";
+  btn.classList.add("active");
+  currentlyOpenPanel = panel;
+}
+function toggleAccordion(btn, panel){
+  const isOpen = panel.classList.contains("open");
+  if (isOpen){
+    panel.classList.remove("open");
+    panel.style.maxHeight = null;
+    btn.classList.remove("active");
+    currentlyOpenPanel = null;
+  } else {
+    openPanel(btn, panel);
+  }
+}
+
+/* search: focus first matching row, ensure its panel is open, and highlight */
+function focusFirstSearchHit(){
+  const hit = accordionContainer.querySelector("tr.highlight-row");
+  if (!hit) return;
+  const panel = hit.closest(".acc-panel");
+  const btn   = panel.previousSibling;
+  if (!panel.classList.contains("open")) openPanel(btn, panel);
+
+  hit.scrollIntoView({behavior:"smooth", block:"center"});
+  // pulse highlight then remove the temp effect (keep subtle bg)
+  hit.classList.add("pulse");
+  setTimeout(()=> hit.classList.remove("pulse"), 900);
+}
+
 
 
 function closeModal() {

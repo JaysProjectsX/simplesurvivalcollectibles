@@ -71,6 +71,22 @@
         <button class="close-btn" onclick="closeModal()">&times;</button>
         </div>
         <hr class="about-divider">
+
+        <div class="search-controls">
+        <div class="search-input">
+          <svg class="search-icon" width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <path d="M21 20l-5.6-5.6a7.5 7.5 0 10-1.4 1.4L20 21l1-1zM4 10a6 6 0 1112 0A6 6 0 014 10z"/>
+          </svg>
+          <input id="crateSearch" type="text" placeholder="Search item by name..." />
+        </div>
+
+        <select id="crateFilter" class="filter-select" aria-label="Filter items">
+          <option value="default">Default (A–Z)</option>
+          <option value="missing-first">Missing items first</option>
+          <option value="missing-only">Missing items only</option>
+        </select>
+      </div>
+      
         <div class="modal-body">
         <div id="accordionContainer" class="acc-wrapper"></div>
         </div>

@@ -429,10 +429,18 @@ button {
 
 /* --- modal search / filter controls --- */
 .search-controls{
-  display:flex; gap:12px; align-items:center;
-  margin:10px 2px 6px 2px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
+  margin: 12px 0 8px;
+  flex-wrap: wrap;
 }
-.search-input{ position:relative; flex:1; }
+.search-input{
+  position: relative;
+  flex: 0 1 520px;
+  min-width: 320px;
+}
 .search-input input{
   width:100%;
   background:#0c0c1a;
@@ -452,6 +460,7 @@ button {
   color:#e9e9f3;
   padding:10px 12px;
   border-radius:8px;
+  min-width: 140px;
 }
 
 /* row highlight when searching */
@@ -471,3 +480,10 @@ button {
   font-size:.8rem;
 }
 .set-select-btn:hover{ background:#26284b; }
+
+@keyframes rowPulse {
+  0%   { outline-color:#365CF5; }
+  50%  { outline-color:rgba(54,92,245,0.2); }
+  100% { outline-color:#365CF5; }
+}
+.pulse { animation: rowPulse .9s ease; }

@@ -314,7 +314,7 @@ function openPanel(btn, panel){
     if (p !== panel) {
       p.classList.remove("open");
       p.style.maxHeight = null;
-      p.previousSibling.classList.remove("active");
+      p.previousElementSibling.classList.remove("active");
     }
   });
   panel.classList.add("open");
@@ -338,15 +338,23 @@ function toggleAccordion(btn, panel){
 function focusFirstSearchHit(){
   const hit = accordionContainer.querySelector("tr.highlight-row");
   if (!hit) return;
-  const panel = hit.closest(".acc-panel");
-  const btn   = panel.previousSibling;
-  if (!panel.classList.contains("open")) openPanel(btn, panel);
 
-  hit.scrollIntoView({behavior:"smooth", block:"center"});
-  // pulse highlight then remove the temp effect (keep subtle bg)
-  hit.classList.add("pulse");
-  setTimeout(()=> hit.classList.remove("pulse"), 900);
+  const panel = hit.closest(".acc-panel");
+  const btn   = panel.previousElementSibling; // <— important change
+
+  if (!panel.classList.contains("open")) {
+    openPanel(btn, panel);
+  }
+
+  // Scroll after layout updates so height is correct
+  requestAnimationFrame(() => {
+    hit.scrollIntoView({ behavior: "smooth", block: "center" });
+    // quick pulse so it's obvious
+    hit.classList.add("pulse");
+    setTimeout(() => hit.classList.remove("pulse"), 900);
+  });
 }
+
 
 
 

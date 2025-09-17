@@ -430,16 +430,16 @@ button {
 /* --- modal search / filter controls --- */
 .search-controls{
   display: flex;
+  width: 100%;
   justify-content: center;
   align-items: center;
   gap: 16px;
-  margin: 12px 0 8px;
-  flex-wrap: wrap;
+  margin: auto;
 }
 .search-input{
   position: relative;
   flex: 0 1 520px;
-  min-width: 320px;
+  min-width: 170px;
 }
 .search-input input{
   width:100%;
@@ -460,7 +460,7 @@ button {
   color:#e9e9f3;
   padding:10px 12px;
   border-radius:8px;
-  min-width: 140px;
+  margin-left: 4rem;
 }
 
 /* row highlight when searching */
@@ -472,8 +472,8 @@ button {
 
 /* small "Select set" button in header */
 .set-select-btn{
-  background:#202035;
-  color:#cfd3ff;
+  background:#141427;
+  color:#ccc;
   border:1px solid #2b2c45;
   border-radius:8px;
   padding:6px 10px;

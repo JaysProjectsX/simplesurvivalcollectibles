@@ -294,7 +294,7 @@ function renderAccordion(crate, keepOpen = false) {
     });
 
     // restore previously opened panel if requested
-    if (previouslyOpenId && previouslyOpenId === groupName) {
+    if (!currentSearch && previouslyOpenId && previouslyOpenId === groupName) {
       openPanel(btn, panel);
     }
 
@@ -307,21 +307,23 @@ function renderAccordion(crate, keepOpen = false) {
   if (currentSearch) focusFirstSearchHit();
 }
 
-/* toggle helpers (single-open) */
+/* toggle helpers */
 function openPanel(btn, panel){
-  // close others
   document.querySelectorAll(".acc-panel.open").forEach(p => {
     if (p !== panel) {
       p.classList.remove("open");
       p.style.maxHeight = null;
-      p.previousElementSibling.classList.remove("active");
+      const hdr = p.previousElementSibling;
+      if (hdr) hdr.classList.remove("active");
     }
   });
+
   panel.classList.add("open");
   panel.style.maxHeight = panel.scrollHeight + "px";
   btn.classList.add("active");
   currentlyOpenPanel = panel;
 }
+
 function toggleAccordion(btn, panel){
   const isOpen = panel.classList.contains("open");
   if (isOpen){
@@ -334,26 +336,26 @@ function toggleAccordion(btn, panel){
   }
 }
 
+
 /* search: focus first matching row, ensure its panel is open, and highlight */
 function focusFirstSearchHit(){
   const hit = accordionContainer.querySelector("tr.highlight-row");
   if (!hit) return;
 
   const panel = hit.closest(".acc-panel");
-  const btn   = panel.previousElementSibling; // <— important change
+  if (!panel) return;
 
-  if (!panel.classList.contains("open")) {
-    openPanel(btn, panel);
-  }
+  const btn = panel.previousElementSibling; // header button
+  if (!panel.classList.contains("open")) openPanel(btn, panel);
 
-  // Scroll after layout updates so height is correct
+  // scroll after layout is ready so maxHeight reflects content
   requestAnimationFrame(() => {
     hit.scrollIntoView({ behavior: "smooth", block: "center" });
-    // quick pulse so it's obvious
     hit.classList.add("pulse");
     setTimeout(() => hit.classList.remove("pulse"), 900);
   });
 }
+
 
 
 

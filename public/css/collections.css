@@ -596,7 +596,7 @@ body.modal-open{
 
 /* Page title wrapper */
 .page-title-wrap {
-  margin: 32px 0 18px;
+  margin: 32px 0 0;
 }
 
 .page-title-container {
@@ -618,7 +618,7 @@ body.modal-open{
 
 .link-primary.text-sm {
   font-size: 0.9rem;
-  color: #365CF5;
+  color: #6ea8ff;
   text-decoration: none;
 }
 

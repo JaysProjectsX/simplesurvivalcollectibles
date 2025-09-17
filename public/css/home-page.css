@@ -1887,6 +1887,65 @@ nav {
   transform: scale(1.05);
 }
 
+/* --- FAQ --- */
+.faq-section{
+  max-width: 1000px;
+  margin: 32px auto 16px;
+  padding: 0 16px;
+  position: relative;
+  z-index: 1; /* above particles */
+}
+.faq-title{
+  margin: 0 0 14px;
+  font-weight: 800;
+}
+
+.faq-list{
+  background: #141427;
+  border: 1px solid #22233a;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+/* each item gets a subtle divider */
+.faq-item + .faq-item{
+  border-top: 1px solid #22233a;
+}
+
+/* header button */
+.faq-btn{
+  width: 100%;
+  display: grid;
+  grid-template-columns: 1fr 20px; /* title | chevron */
+  align-items: center;
+  gap: 12px;
+  background: #0c0c1a;
+  color: #e9e9f3;
+  border: 0;
+  padding: 14px 16px;
+  cursor: pointer;
+  transition: background .2s ease-in-out, color .2s;
+}
+.faq-btn:hover{ background:#101028; }
+.faq-q{ text-align: left; font-weight: 600; }
+.faq-icon svg{ transition: transform .2s ease; }
+.faq-btn.active .faq-icon svg{ transform: rotate(180deg); }
+
+/* animated panel */
+.faq-panel{
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height .25s ease;
+  background: #0c0c1a;
+}
+.faq-panel.open{ /* max-height set via JS for smooth animation */ }
+.faq-panel-inner{
+  padding: 14px 16px 18px;
+  color: #cfd3ff;
+  line-height: 1.55;
+}
+
+
 /* Updated changelog modal styling */
 
 .changelog-modal-wrapper {

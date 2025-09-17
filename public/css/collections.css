@@ -428,7 +428,7 @@ button {
 }
 
 /* --- modal search / filter controls --- */
-.search-controls-card{
+.search-controls-card {
   position: relative;
   background: #141427;
   border: 1px solid #22233a;
@@ -450,13 +450,13 @@ button {
   color: #cfd3ff;
 }
 
-.search-controls{
+.search-controls {
   display: flex;
   width: 100%;
   justify-content: center;
   align-items: center;
-  gap: 16px;
-  flex-wrap: wrap;
+  gap: 20px;          /* more spacing between search and filter */
+  flex-wrap: nowrap;  /* force one row */
 }
 .search-input{
   position: relative;
@@ -476,11 +476,11 @@ button {
   position:absolute; left:10px; top:50%; transform:translateY(-50%);
   color:#9aa0b7;
 }
-.filter-group{
+.filter-group {
   display: flex;
   align-items: center;
   gap: 8px;
-  min-width: 210px;   /* prevents jumpiness */
+  white-space: nowrap; /* prevent wrapping of "Filter by:" */
 }
 .filter-label{
   color:#cfd3ff;
@@ -492,7 +492,7 @@ button {
   border:1px solid #22233a;
   color:#e9e9f3;
   padding:10px 12px;
-  border-radius:8px;
+  border-radius:6px;
   min-width: 170px;
 }
 

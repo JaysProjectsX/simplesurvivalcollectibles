@@ -1890,7 +1890,7 @@ nav {
 /* --- FAQ --- */
 .faq-section{
   max-width: 1000px;
-  margin: 32px auto 16px;
+  margin: 32px auto 150px;
   padding: 0 16px;
   position: relative;
   z-index: 1; /* above particles */
@@ -1898,6 +1898,12 @@ nav {
 .faq-title{
   margin: 0 0 14px;
   font-weight: 800;
+  font-size: 1rem;
+  letter-spacing: 2px;
+  background: #4083ff;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-transform: uppercase;
 }
 
 .faq-list{
@@ -1927,7 +1933,7 @@ nav {
   transition: background .2s ease-in-out, color .2s;
 }
 .faq-btn:hover{ background:#101028; }
-.faq-q{ text-align: left; font-weight: 600; }
+.faq-q{ text-align: left; font-weight: 600; font-size: 14px; }
 .faq-icon svg{ transition: transform .2s ease; }
 .faq-btn.active .faq-icon svg{ transform: rotate(180deg); }
 
@@ -1943,6 +1949,7 @@ nav {
   padding: 14px 16px 18px;
   color: #cfd3ff;
   line-height: 1.55;
+  font-size: 14px;
 }
 
 

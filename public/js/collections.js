@@ -193,6 +193,7 @@ function openCrateModal(crate) {
   };
 
   modal.classList.add("show");
+  lockBodyScroll();
 }
 
 /** Render the grouped accordions with the current filter/search settings */
@@ -389,9 +390,30 @@ function focusFirstSearchHit(){
 
 }
 
+let __pageScrollY = 0;
+
+function lockBodyScroll() {
+  __pageScrollY = window.scrollY || document.documentElement.scrollTop || 0;
+
+  // Optional: prevent layout shift by compensating for the scrollbar
+  const sbw = window.innerWidth - document.documentElement.clientWidth;
+  if (sbw > 0) document.body.style.paddingRight = `${sbw}px`;
+
+  document.body.style.top = `-${__pageScrollY}px`;
+  document.body.classList.add('modal-open');
+}
+
+function unlockBodyScroll() {
+  document.body.classList.remove('modal-open');
+  document.body.style.top = '';
+  document.body.style.paddingRight = '';
+  window.scrollTo(0, __pageScrollY);
+}
+
 
 function closeModal() {
   modal.classList.remove("show");
+  unlockBodyScroll();
 }
 
 // Initialize the page

@@ -520,3 +520,10 @@ button {
   font-size:.8rem;
 }
 .set-select-btn:hover{ background:#26284b; }
+
+/* When a modal is open, freeze the page behind it */
+body.modal-open{
+  position: fixed;
+  overflow: hidden;
+  width: 100%;
+}

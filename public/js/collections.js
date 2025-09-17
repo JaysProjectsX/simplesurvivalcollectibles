@@ -100,6 +100,82 @@ function formatCrateName(rawName) {
     .replace(/\b\w/g, char => char.toUpperCase()); // capitalize first letter of each word
 }
 
+/* === KPI helpers === */
+function calcPercent(collected, total){
+  if (!total) return 0;
+  return Math.round((collected / total) * 100);
+}
+
+function updateCollectionKpis(crates){
+  if (!Array.isArray(crates) || crates.length === 0) return;
+
+  // Map crateId -> totals
+  const totals = {};
+  crates.forEach(c => { totals[c.id] = c.items.length; });
+
+  // 1) Last crate updated (most recent updatedAt)
+  let last = null; // { id, time: Date }
+  for (const [cid, data] of Object.entries(userProgress || {})) {
+    if (!data || !data.updatedAt) continue;
+    const t = new Date(data.updatedAt);
+    if (!isNaN(t)) {
+      if (!last || t > last.time) last = { id: Number(cid), time: t };
+    }
+  }
+  const lastName = last ? crates.find(c => c.id === last.id)?.name : null;
+  document.getElementById("kpi-last-updated").textContent =
+    lastName ? formatCrateName(lastName) : "—";
+  document.getElementById("kpi-last-updated-foot").textContent =
+    last ? last.time.toLocaleString() : "No saves yet";
+
+  // 2) Top crate progress (highest %; prefer <100%; if all 100, pick any 100 with more items)
+  let top = null; // { name, pct, collected, total }
+  crates.forEach(c => {
+    const collected = (userProgress[c.id]?.items?.length) || 0;
+    const total = totals[c.id] || 0;
+    const pct = calcPercent(collected, total);
+    const candidate = { name: c.name, pct, collected, total };
+
+    if (!top) {
+      top = candidate;
+    } else {
+      // Prefer higher pct; if tie, prefer larger total set
+      if (candidate.pct > top.pct ||
+         (candidate.pct === top.pct && candidate.total > top.total)) {
+        top = candidate;
+      }
+    }
+  });
+
+  // If the top is 100% but there exists a <100% with highest pct, prefer the best incomplete crate
+  const bestIncomplete = crates
+    .map(c => {
+      const collected = (userProgress[c.id]?.items?.length) || 0;
+      const total = totals[c.id] || 0;
+      return { name: c.name, pct: calcPercent(collected, total), total };
+    })
+    .filter(x => x.pct < 100)
+    .sort((a,b) => b.pct - a.pct || b.total - a.total)[0];
+
+  const topDisplay = bestIncomplete || top;
+
+  document.getElementById("kpi-top-crate").textContent =
+    topDisplay ? formatCrateName(topDisplay.name) : "—";
+  document.getElementById("kpi-top-crate-foot").textContent =
+    topDisplay ? `${topDisplay.pct}% complete` : "—";
+
+  // 3) Crates completed
+  let completed = 0;
+  crates.forEach(c => {
+    const collected = (userProgress[c.id]?.items?.length) || 0;
+    const total = totals[c.id] || 0;
+    if (total > 0 && collected >= total) completed += 1;
+  });
+
+  document.getElementById("kpi-crates-completed").textContent = `${completed}`;
+  document.getElementById("kpi-crates-total").textContent = `of ${crates.length} crates`;
+}
+
 // Render cards for each crate
 function renderCrates(crates) {
   collectionsContainer.innerHTML = ""; // clear before rendering
@@ -410,19 +486,26 @@ function unlockBodyScroll() {
   window.scrollTo(0, __pageScrollY);
 }
 
-
 function closeModal() {
   modal.classList.remove("show");
   unlockBodyScroll();
 }
 
-// Initialize the page
+// Initialize the page (fetch progress -> crates -> KPIs -> cards)
 (async () => {
-  await fetchUserProgress();
-  const crates = await fetchCratesWithItems();
-  collectionsContainer.innerHTML = "";
-  renderCrates(crates);
-  document.getElementById("preloader").style.display = "none";
+  try {
+    await fetchUserProgress();                 // fills userProgress
+    const crates = await fetchCratesWithItems(); // [{id, name, items:[]}, ...]
+
+    updateCollectionKpis(crates);              // <-- NEW: paint KPIs
+    collectionsContainer.innerHTML = "";
+    renderCrates(crates);                      // existing grid/cards
+  } catch (e) {
+    console.error(e);
+  } finally {
+    const pre = document.getElementById("preloader");
+    if (pre) pre.style.display = "none";
+  }
 })();
 
 // Modal save/cancel buttons
@@ -461,6 +544,7 @@ saveButton.addEventListener("click", async () => {
   // Refresh userProgress and crate data once
   await fetchUserProgress();
   const allCrates = await fetchCratesWithItems();
+  updateCollectionKpis(allCrates);
 
   // Update the specific crate card in real-time
   const crateId = checkboxes[0]?.dataset.crateId;
@@ -516,6 +600,7 @@ cancelButton.addEventListener("click", async () => {
   modal.classList.remove("show");
   await fetchUserProgress();
   const crates = await fetchCratesWithItems();
+  updateCollectionKpis(crates);
   collectionsContainer.innerHTML = "";
   renderCrates(crates);
 });

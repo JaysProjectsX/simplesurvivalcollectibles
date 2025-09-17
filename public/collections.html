@@ -19,6 +19,7 @@
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
     />
+    <link href="https://cdn.lineicons.com/4.0/lineicons.css" rel="stylesheet" />
     <link rel="icon" href="/favicon.png" type="image/png" />
   </head>
   <body>
@@ -53,8 +54,57 @@
     </nav>
 
   <div class="collections-board">
-    <div class="collections-header">
-      <h2>My Collections</h2>
+    <!-- ===== Page Title (matches source title-wrapper) ===== -->
+    <section class="page-title-wrap pt-4rm">
+      <div class="container page-title-container">
+        <div class="page-title-row">
+          <h1 class="page-title">Account</h1>
+          <a href="/" class="link-primary text-sm">Back to Home</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Collections KPI Row -->
+    <div class="kpis-grid collections-kpis" id="collectionsKpis">
+      <!-- Last crate updated -->
+      <div class="kpi-card">
+        <span class="kpi-icon kpi-blue"><i class="lni lni-timer"></i></span>
+        <div class="kpi-meta">
+          <span class="kpi-title">Last crate updated</span>
+          <span class="kpi-value" id="kpi-last-updated">—</span>
+        </div>
+        <span class="kpi-foot" id="kpi-last-updated-foot">No saves yet</span>
+      </div>
+
+      <!-- Top crate progress -->
+      <div class="kpi-card">
+        <span class="kpi-icon kpi-green"><i class="lni lni-graph"></i></span>
+        <div class="kpi-meta">
+          <span class="kpi-title">Top crate progress</span>
+          <span class="kpi-value" id="kpi-top-crate">—</span>
+        </div>
+        <span class="kpi-foot" id="kpi-top-crate-foot">—</span>
+      </div>
+
+      <!-- Crates completed -->
+      <div class="kpi-card">
+        <span class="kpi-icon kpi-purple"><i class="lni lni-archive"></i></span>
+        <div class="kpi-meta">
+          <span class="kpi-title">Crates completed</span>
+          <span class="kpi-value" id="kpi-crates-completed">—</span>
+        </div>
+        <span class="kpi-foot" id="kpi-crates-total">—</span>
+      </div>
+
+      <!-- Reserved button card (disabled) -->
+      <div class="kpi-card">
+        <span class="kpi-icon kpi-orange"><i class="lni lni-share"></i></span>
+        <div class="kpi-meta">
+          <span class="kpi-title">Share Collection</span>
+          <button id="shareCollectionBtn" class="mini-btn" disabled title="Coming soon">Coming soon</button>
+        </div>
+        <span class="kpi-foot"></span>
+      </div>
     </div>
 
     <div class="collections-body" id="collectionsContainer">

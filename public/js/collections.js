@@ -167,9 +167,21 @@ function openCrateModal(crate) {
   // listeners (debounced search)
   let tId;
   searchInput.oninput = () => {
+    const prevHadSearch = !!currentSearch;
     currentSearch = searchInput.value.trim().toLowerCase();
     clearTimeout(tId);
     tId = setTimeout(() => {
+
+      if (prevHadSearch && !currentSearch && currentlyOpenPanel) {
+        const btn = currentlyOpenPanel.previousElementSibling;
+        toggleAccordion(btn, currentlyOpenPanel);
+        setTimeout(() => {
+          // keepOpen = false
+          renderAccordion(crate, false);
+        }, 260);
+        return;
+      }
+
       renderAccordion(crate, /*keepOpen*/true);
       if (currentSearch) focusFirstSearchHit();
     }, 120);
@@ -336,6 +348,14 @@ function toggleAccordion(btn, panel){
   }
 }
 
+function scrollRowIntoViewInContainer(container, target){
+  const cRect = container.getBoundingClientRect();
+  const tRect = target.getBoundingClientRect();
+  const top = container.scrollTop + (tRect.top - cRect.top) - (container.clientHeight/2 - target.offsetHeight/2);
+  container.scrollTo({ top, behavior: "smooth" });
+}
+
+
 
 /* search: focus first matching row, ensure its panel is open, and highlight */
 function focusFirstSearchHit(){
@@ -345,16 +365,18 @@ function focusFirstSearchHit(){
   const panel = hit.closest(".acc-panel");
   if (!panel) return;
 
-  const btn = panel.previousElementSibling; // header button
+  const btn = panel.previousElementSibling;
   if (!panel.classList.contains("open")) openPanel(btn, panel);
 
-  // scroll after layout is ready so maxHeight reflects content
+  // scroll after layout is ready so maxHeight is set
   requestAnimationFrame(() => {
-    hit.scrollIntoView({ behavior: "smooth", block: "center" });
+    const scrollContainer = accordionContainer; // .acc-wrapper is the scroller
+    scrollRowIntoViewInContainer(scrollContainer, hit);
     hit.classList.add("pulse");
     setTimeout(() => hit.classList.remove("pulse"), 900);
   });
 }
+
 
 
 

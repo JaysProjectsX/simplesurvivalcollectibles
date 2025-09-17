@@ -83,15 +83,17 @@
               <input id="crateSearch" type="text" placeholder="Search item by name..." />
             </div>
 
-            <label class="filter-label" for="crateFilter">Filter by:</label>
-            <select id="crateFilter" class="filter-select" aria-label="Filter items">
-              <option value="default">Default (A–Z)</option>
-              <option value="missing-first">Missing items first</option>
-              <option value="missing-only">Missing items only</option>
-            </select>
+            <div class="filter-group">
+              <label class="filter-label" for="crateFilter">Filter by:</label>
+              <select id="crateFilter" class="filter-select" aria-label="Filter items">
+                <option value="default">Default (A–Z)</option>
+                <option value="missing-first">Missing items first</option>
+                <option value="missing-only">Missing items only</option>
+              </select>
+            </div>
           </div>
         </div>
-
+        
         <div class="modal-body">
         <div id="accordionContainer" class="acc-wrapper"></div>
         </div>

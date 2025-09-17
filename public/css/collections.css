@@ -436,6 +436,7 @@ button {
   padding: 22px 18px 16px;
   margin: 14px 0 8px;
 }
+
 .search-controls-title{
   position: absolute;
   top: -12px;
@@ -455,6 +456,7 @@ button {
   justify-content: center;
   align-items: center;
   gap: 16px;
+  flex-wrap: wrap;
 }
 .search-input{
   position: relative;
@@ -466,7 +468,7 @@ button {
   background:#0c0c1a;
   border:1px solid #22233a;
   color:#e9e9f3;
-  padding:10px 12px 10px 34px;
+  padding:10px 12px 10px 36px; /* space for icon */
   border-radius:8px;
   outline:none;
 }
@@ -474,11 +476,16 @@ button {
   position:absolute; left:10px; top:50%; transform:translateY(-50%);
   color:#9aa0b7;
 }
+.filter-group{
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 210px;   /* prevents jumpiness */
+}
 .filter-label{
   color:#cfd3ff;
   opacity: .9;
   font-size: .9rem;
-  margin-left: 2px;
 }
 .filter-select{
   background:#0c0c1a;
@@ -486,7 +493,7 @@ button {
   color:#e9e9f3;
   padding:10px 12px;
   border-radius:8px;
-  margin-left: 4rem;
+  min-width: 170px;
 }
 
 /* row highlight when searching */

@@ -348,6 +348,19 @@ function toggleAccordion(btn, panel){
   }
 }
 
+// Find the first scrollable ancestor (overflow-y auto/scroll with clipping)
+function getScrollableParent(el) {
+  let p = el.parentElement;
+  while (p && p !== document.body) {
+    const style = getComputedStyle(p);
+    const oy = style.overflowY;
+    if ((oy === 'auto' || oy === 'scroll') && p.scrollHeight > p.clientHeight) return p;
+    p = p.parentElement;
+  }
+  return document.scrollingElement || document.documentElement;
+}
+
+// Smoothly center target within a scroll container
 function scrollRowIntoViewInContainer(container, target){
   const cRect = container.getBoundingClientRect();
   const tRect = target.getBoundingClientRect();
@@ -366,20 +379,25 @@ function focusFirstSearchHit(){
   if (!panel) return;
 
   const btn = panel.previousElementSibling;
-  if (!panel.classList.contains("open")) openPanel(btn, panel);
+  const willOpen = !panel.classList.contains("open");
 
-  // scroll after layout is ready so maxHeight is set
-  requestAnimationFrame(() => {
-    const scrollContainer = accordionContainer; // .acc-wrapper is the scroller
-    scrollRowIntoViewInContainer(scrollContainer, hit);
+  if (willOpen) openPanel(btn, panel);
+
+  // Wait until the panel has expanded so measurements are correct
+  const afterOpen = () => {
+    // pick the actual scrollable container for this modal
+    const container = getScrollableParent(panel) || accordionContainer;
+    scrollRowIntoViewInContainer(container, hit);
     hit.classList.add("pulse");
     setTimeout(() => hit.classList.remove("pulse"), 900);
+  };
+
+  // Use rAF + a timeout roughly matching your CSS transition (0.25s)
+  requestAnimationFrame(() => {
+    setTimeout(afterOpen, 260);
   });
+
 }
-
-
-
-
 
 
 function closeModal() {

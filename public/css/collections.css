@@ -582,6 +582,7 @@ body.modal-open{
   color:#fff;
   border:none;
   width: 90%;
+  margin-top: 8px;
   padding:6px 10px;
   border-radius:8px;
   font-weight:600;

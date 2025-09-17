@@ -603,4 +603,5 @@ cancelButton.addEventListener("click", async () => {
   updateCollectionKpis(crates);
   collectionsContainer.innerHTML = "";
   renderCrates(crates);
+  unlockBodyScroll();
 });

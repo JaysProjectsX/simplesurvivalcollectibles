@@ -1898,7 +1898,7 @@ nav {
 .faq-title{
   margin: 0 0 14px;
   font-weight: 800;
-  font-size: 1rem;
+  font-size: 28px;
   letter-spacing: 2px;
   background: #4083ff;
   -webkit-background-clip: text;
@@ -1931,6 +1931,7 @@ nav {
   padding: 14px 16px;
   cursor: pointer;
   transition: background .2s ease-in-out, color .2s;
+  text-transform: uppercase;
 }
 .faq-btn:hover{ background:#101028; }
 .faq-q{ text-align: left; font-weight: 600; font-size: 14px; }

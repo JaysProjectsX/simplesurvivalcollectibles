@@ -254,7 +254,7 @@ function renderAccordion(crate, keepOpen = false) {
 
     const panel = document.createElement("div");
     panel.className = "acc-panel";
-    panel.dataset.groupId = groupName;  // for restoring open state
+    panel.dataset.groupId = groupName;
     const inner = document.createElement("div");
     inner.className = "acc-panel-inner";
 
@@ -296,16 +296,13 @@ function renderAccordion(crate, keepOpen = false) {
     inner.appendChild(table);
     panel.appendChild(inner);
 
-    // only-one-open behavior
     btn.addEventListener("click", () => toggleAccordion(btn, panel));
 
-    // "Select set" button
     btn.querySelector(".set-select-btn").addEventListener("click", (ev) => {
-      ev.stopPropagation(); // don’t toggle accordion
+      ev.stopPropagation();
       panel.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = true);
     });
 
-    // restore previously opened panel if requested
     if (!currentSearch && previouslyOpenId && previouslyOpenId === groupName) {
       openPanel(btn, panel);
     }
@@ -315,7 +312,6 @@ function renderAccordion(crate, keepOpen = false) {
     accordionContainer.appendChild(accItem);
   });
 
-  // if we searched, jump to first hit (after DOM exists)
   if (currentSearch) focusFirstSearchHit();
 }
 
@@ -348,7 +344,6 @@ function toggleAccordion(btn, panel){
   }
 }
 
-// Find the first scrollable ancestor (overflow-y auto/scroll with clipping)
 function getScrollableParent(el) {
   let p = el.parentElement;
   while (p && p !== document.body) {
@@ -360,7 +355,6 @@ function getScrollableParent(el) {
   return document.scrollingElement || document.documentElement;
 }
 
-// Smoothly center target within a scroll container
 function scrollRowIntoViewInContainer(container, target){
   const cRect = container.getBoundingClientRect();
   const tRect = target.getBoundingClientRect();
@@ -368,9 +362,6 @@ function scrollRowIntoViewInContainer(container, target){
   container.scrollTo({ top, behavior: "smooth" });
 }
 
-
-
-/* search: focus first matching row, ensure its panel is open, and highlight */
 function focusFirstSearchHit(){
   const hit = accordionContainer.querySelector("tr.highlight-row");
   if (!hit) return;
@@ -392,7 +383,6 @@ function focusFirstSearchHit(){
     setTimeout(() => hit.classList.remove("pulse"), 900);
   };
 
-  // Use rAF + a timeout roughly matching your CSS transition (0.25s)
   requestAnimationFrame(() => {
     setTimeout(afterOpen, 260);
   });

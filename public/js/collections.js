@@ -173,7 +173,7 @@ function updateCollectionKpis(crates){
   });
 
   document.getElementById("kpi-crates-completed").textContent = `${completed}`;
-  document.getElementById("kpi-crates-total").textContent = `of ${crates.length} crates`;
+  document.getElementById("kpi-crates-total").textContent = `out of ${crates.length} crates`;
 }
 
 // Render cards for each crate

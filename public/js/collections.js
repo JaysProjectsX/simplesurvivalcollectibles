@@ -246,7 +246,7 @@ function renderAccordion(crate, keepOpen = false) {
     btn.innerHTML = `
       <span class="acc-title">${groupName}</span>
       <span class="acc-count">Total items collected: ${checkedInGroup}/${totalInGroup}</span>
-      <button class="set-select-btn" type="button">Select set</button>
+      <button class="set-select-btn" type="button">Select All</button>
       <span class="acc-icon" aria-hidden="true">
         <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M7 10l5 5 5-5z"/></svg>
       </span>

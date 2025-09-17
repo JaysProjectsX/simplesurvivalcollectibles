@@ -433,8 +433,8 @@ button {
   background: #141427;
   border: 1px solid #22233a;
   border-radius: 10px;
-  padding: 22px 18px 16px;
-  margin: 14px 0 8px;
+  padding: 22px 18px 4px;
+  margin: 14px 0 6px;
 }
 
 .search-controls-title{
@@ -486,6 +486,7 @@ button {
   color:#cfd3ff;
   opacity: .9;
   font-size: .9rem;
+  margin-left: 4rem;
 }
 .filter-select{
   background:#0c0c1a;

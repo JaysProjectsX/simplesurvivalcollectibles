@@ -544,7 +544,7 @@ body.modal-open{
   padding:20px;
   display:grid;
   grid-template-columns:auto 1fr;
-  align-items:center;
+  align-content: center;
   min-height:86px;
 }
 
@@ -567,7 +567,7 @@ body.modal-open{
   align-items: center;     /* center horizontally */
   text-align: center;      /* center text */
 }
-.collections-kpis .kpi-title{ font-size:.85rem; opacity:.8; }
+.collections-kpis .kpi-title{ font-size:.85rem; opacity:.8; margin-bottom: 6px;}
 .collections-kpis .kpi-value{ font-weight:600; font-size:13px; }
 .collections-kpis .kpi-foot {
   grid-column: 2;
@@ -582,7 +582,6 @@ body.modal-open{
   color:#fff;
   border:none;
   width: 90%;
-  margin-top: 8px;
   padding:6px 10px;
   border-radius:8px;
   font-weight:600;

@@ -567,7 +567,7 @@ body.modal-open{
   align-items: center;     /* center horizontally */
   text-align: center;      /* center text */
 }
-.collections-kpis .kpi-title{ font-size:.85rem; opacity:.8; margin-bottom: 6px;}
+.collections-kpis .kpi-title{ font-size:.85rem; opacity:.8;}
 .collections-kpis .kpi-value{ font-weight:600; font-size:13px; }
 .collections-kpis .kpi-foot {
   grid-column: 2;
@@ -587,6 +587,7 @@ body.modal-open{
   font-weight:600;
   cursor:not-allowed; /* disabled for now */
   opacity:.65;
+  margin-top: 12px;
 }
 
 /* Responsive match to account page */

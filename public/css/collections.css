@@ -430,7 +430,7 @@ button {
 /* --- modal search / filter controls --- */
 .search-controls-card {
   position: relative;
-  background: #141427;
+  background: #0c0c1a;
   border: 1px solid #22233a;
   border-radius: 10px;
   padding: 22px 18px 4px;
@@ -442,13 +442,13 @@ button {
   top: -12px;
   left: 50%;
   transform: translateX(-50%);
-  background: #141427;
+  background: #0c0c1a;
   padding: 2px 10px;
   border: 1px solid #22233a;
   border-radius: 999px;
   font-size: .75rem;
   text-transform: uppercase;
-  color: #cfd3ff;
+  color: #ccc;
 }
 
 .search-controls {
@@ -484,7 +484,7 @@ button {
   white-space: nowrap; /* prevent wrapping of "Filter by:" */
 }
 .filter-label{
-  color:#cfd3ff;
+  color:#ccc;
   opacity: .9;
   font-size: .9rem;
   margin-left: 4rem;
@@ -492,7 +492,7 @@ button {
 .filter-select{
   background:#0c0c1a;
   border:1px solid #22233a;
-  color:#e9e9f3;
+  color:#ccc;
   padding:10px 12px;
   border-radius:6px;
   min-width: 170px;

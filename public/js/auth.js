@@ -362,8 +362,23 @@ function isLockedOut(user) {
     if (loginForm) {
       loginForm.addEventListener("submit", async function (e) {
         e.preventDefault();
-        const email = this.querySelector('input[type="text"], input[type="email"]').value.trim();
-        const password = this.querySelector('input[type="password"]').value;
+
+        const emailInput = this.querySelector('input[type="email"], input[type="text"]');
+        const passInput  = this.querySelector('input[type="password"]');
+        const email = (emailInput?.value || "").trim();
+        const password = passInput?.value || "";
+
+        // Optional: basic front-end guard
+        if (!email || !password) {
+          showGlobalModal({
+            type: "error",
+            title: "Missing Info",
+            message: "Please enter both email and password.",
+            buttons: [{ label: "Close", onClick: `fadeOutAndRemove('modal-missingCreds')` }],
+            id: "modal-missingCreds"
+          });
+          return;
+        }
 
         try {
           const res = await fetch(`${backendUrl}/login`, {
@@ -373,55 +388,94 @@ function isLockedOut(user) {
             body: JSON.stringify({ email, password }),
           });
 
+          const data = await res.json().catch(() => ({}));
+
           if (res.status === 429) {
-            const data = await res.json().catch(() => ({}));
-            if (data.lockoutRemaining) {
+            if (data && typeof data.lockoutRemaining === "number") {
               showLockoutModal(data.lockoutRemaining);
               return;
             }
+            // Fallback if 429 but no structured payload
+            showGlobalModal({
+              type: "error",
+              title: "Too Many Attempts",
+              message: "Please wait a bit before trying again.",
+              buttons: [{ label: "Close", onClick: `fadeOutAndRemove('modal-429')` }],
+              id: "modal-429"
+            });
+            return;
           }
 
-          const data = await res.json().catch(() => ({}));
           if (res.ok) {
             await fetchAccountInfo();
             const username = localStorage.getItem("username");
             showGlobalModal({
-            type: "success",
-            title: "Successfully Logged In",
-            message: `Welcome back, ${username || "User"}!`,
-            buttons: [{ label: "Close", onClick: `fadeOutAndRemove('modal-successLogin'); setTimeout(() => {window.location.href = '/';}, 900);` }],
-            id: "modal-successLogin"
-          });
-          } else {
-            if (data.error && data.error.includes("active session")) {
-                showGlobalModal({
-                type: "error",
-                title: "Login Failed",
-                message: "This account already has an existing session. Please log out first or wait for the session to expire.",
-                buttons: [{ label: "Close", onClick: `fadeOutAndRemove('modal-sessionFailed');` }],
-                id: "modal-sessionFailed"
-              });
-            } else {
-                showGlobalModal({
-                type: "error",
-                title: "Login Failed",
-                message: "An error occurred while logging in.",
-                buttons: [{ label: "Close", onClick: `fadeOutAndRemove('modal-loginFailed');` }],
-                id: "modal-loginFailed"
-              });
-            }
+              type: "success",
+              title: "Successfully Logged In",
+              message: `Welcome back, ${username || "User"}!`,
+              buttons: [{
+                label: "Close",
+                onClick: `fadeOutAndRemove('modal-successLogin'); setTimeout(() => { window.location.href = '/'; }, 900);`
+              }],
+              id: "modal-successLogin"
+            });
+            return;
           }
-        } catch (err) {
+
+          // 403: unverified email
+          if (res.status === 403 && data && typeof data.error === "string" &&
+              /email\s+not\s+verified/i.test(data.error)) {
+            const safeEmail = escapeHtml(email);
             showGlobalModal({
+              type: "error",
+              title: "Verify Your Email",
+              message: `Your account has been created but your email isn’t verified yet.<br>Please click the link we sent to <b>${safeEmail}</b>.`,
+              buttons: [{ label: "Close", onClick: `fadeOutAndRemove('modal-unverified')` }],
+              id: "modal-unverified"
+            });
+            return;
+          }
+
+          // Active session error
+          if (data && typeof data.error === "string" && data.error.includes("active session")) {
+            showGlobalModal({
+              type: "error",
+              title: "Login Failed",
+              message: "This account already has an existing session. Please log out first or wait for the session to expire.",
+              buttons: [{ label: "Close", onClick: `fadeOutAndRemove('modal-sessionFailed')` }],
+              id: "modal-sessionFailed"
+            });
+            return;
+          }
+
+          // Generic error fallback
+          showGlobalModal({
+            type: "error",
+            title: "Login Failed",
+            message: data && data.error ? String(data.error) : "An error occurred while logging in.",
+            buttons: [{ label: "Close", onClick: `fadeOutAndRemove('modal-loginFailed')` }],
+            id: "modal-loginFailed"
+          });
+        } catch (err) {
+          showGlobalModal({
             type: "error",
             title: "Login Request Failed",
             message: "A network error occurred while trying to log in.",
-            buttons: [{ label: "Close", onClick: `fadeOutAndRemove('modal-loginErrFailed');` }],
+            buttons: [{ label: "Close", onClick: `fadeOutAndRemove('modal-loginErrFailed')` }],
             id: "modal-loginErrFailed"
           });
           console.error(err);
         }
       });
+    }
+
+    function escapeHtml(s) {
+      return String(s)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
     }
 
     if (document.getElementById("kpi-total")) {

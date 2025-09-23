@@ -5,7 +5,7 @@ const modalTable = document.getElementById("crateItemsTableBody");
 
 const modalContentEl = document.getElementById("crateModalContent");
 const accordionContainer = document.getElementById("accordionContainer");
-let openCrateId = null; // track which crate is open
+let openCrateId = null; 
 
 let userProgress = {}; // fetched per user
 const backendUrl2 = "https://simplesurvivalcollectibles.site";
@@ -20,6 +20,9 @@ async function fetchCratesWithItems() {
       const itemRes = await fetch(`${backendUrl2}/api/crates/${crate.id}/items`);
       const items = await itemRes.json();
 
+      items = filterBanned(items);
+      allowedItemIdsByCrate.set(crate.id, new Set(items.map(i => Number(i.id) || i.id)));
+
       return {
         id: crate.id,
         name: crate.crate_name,
@@ -32,19 +35,18 @@ async function fetchCratesWithItems() {
 }
 
 async function silentRepairSession() {
-  // Ping /me to refresh/validate session using refresh cookie
+  
   try {
     const res = await fetch(`${backendUrl2}/me`, {
       credentials: "include"
     });
-    return res.ok; // true if session is good now
+    return res.ok;
   } catch {
     return false;
   }
 }
 
 // Fetch per-user progress
-// Fetch per-user progress (401 -> try /me silently, then retry once)
 async function fetchUserProgress() {
   const tryFetch = () =>
     fetch(`${backendUrl2}/api/user/progress`, {
@@ -55,16 +57,16 @@ async function fetchUserProgress() {
     let res = await tryFetch();
 
     if (res.status === 401) {
-      // attempt silent repair
+      
       const repaired = await silentRepairSession();
       if (repaired) {
-        res = await tryFetch(); // retry once after repair
+        res = await tryFetch();
       }
     }
 
     if (!res.ok) {
       if (res.status === 401) {
-        // truly unauthorized after repair → redirect (don’t nuke the body)
+        
         document.getElementById("preloader").style.display = "none";
         window.location.replace("/?redirectReason=sessionExpired");
         throw new Error("Unauthorized after silent repair");
@@ -75,29 +77,44 @@ async function fetchUserProgress() {
     userProgress = await res.json();
   } catch (err) {
     console.error("Error fetching user progress:", err);
-    throw err; // keep caller behavior
+    throw err;
   }
 }
+
+function isBanned(item) {
+  const pool = []
+    .concat(item.tags || [])
+    .concat(item.tag_names || [])
+    .concat(item.tag_name ? [item.tag_name] : []);
+  return pool.some(t => String(t).trim().toLowerCase() === "banned item");
+}
+function filterBanned(items) {
+  return (items || []).filter(it => !isBanned(it));
+}
+const allowedItemIdsByCrate = new Map();
 
 
 // Determine progress bar percentage and tag class
 function calculateProgress(crateId, itemCount) {
-  const collected = userProgress[crateId]?.items?.length || 0;
-  const percent = Math.round((collected / itemCount) * 100);
+  const allowed = allowedItemIdsByCrate.get(Number(crateId)) || new Set();
+  const picked = (userProgress[crateId]?.items || []).map(x => Number(x) || x);
+  const collected = picked.filter(id => allowed.has(id)).length;
+
+  const percent = itemCount ? Math.round((collected / itemCount) * 100) : 0;
 
   let tagClass = "tag-not-started";
-  if (percent === 100) tagClass = "tag-complete";
+  if (percent === 100 && itemCount > 0) tagClass = "tag-complete";
   else if (percent > 0) tagClass = "tag-incomplete";
 
-  return { percent, tagClass };
+  return { percent, tagClass, collectedCount: collected };
 }
 
 // Utility to format crate names
 function formatCrateName(rawName) {
   return rawName
-    .replace(/([a-z])([A-Z])/g, '$1 $2') // split camelCase
-    .replace(/_/g, ' ') // replace underscores with space
-    .replace(/\b\w/g, char => char.toUpperCase()); // capitalize first letter of each word
+    .replace(/([a-z])([A-Z])/g, '$1 $2')
+    .replace(/_/g, ' ')
+    .replace(/\b\w/g, char => char.toUpperCase());
 }
 
 /* === KPI helpers === */
@@ -105,6 +122,13 @@ function calcPercent(collected, total){
   if (!total) return 0;
   return Math.round((collected / total) * 100);
 }
+
+const __countAllowed = (crateId) => {
+  const set = allowedItemIdsByCrate.get(Number(crateId)) || new Set();
+  return (userProgress[crateId]?.items || [])
+    .map(x => Number(x) || x)
+    .filter(id => set.has(id)).length;
+};
 
 function updateCollectionKpis(crates){
   if (!Array.isArray(crates) || crates.length === 0) return;
@@ -131,7 +155,7 @@ function updateCollectionKpis(crates){
   // 2) Top crate progress (highest %; prefer <100%; if all 100, pick any 100 with more items)
   let top = null; // { name, pct, collected, total }
   crates.forEach(c => {
-    const collected = (userProgress[c.id]?.items?.length) || 0;
+    const collected = __countAllowed(c.id);
     const total = totals[c.id] || 0;
     const pct = calcPercent(collected, total);
     const candidate = { name: c.name, pct, collected, total };
@@ -184,7 +208,9 @@ function renderCrates(crates) {
     const { percent, tagClass } = calculateProgress(crate.id, crate.items.length);
     const lastSaved = userProgress[crate.id]?.updatedAt || "Never";
 
-    const collectedCount = userProgress[crate.id]?.items?.length || 0;
+    const collectedCount = (userProgress[crate.id]?.items || [])
+      .map(x => Number(x) || x)
+      .filter(id => (allowedItemIdsByCrate.get(crate.id) || new Set()).has(id)).length;
     const totalCount = crate.items.length;
 
     const card = document.createElement("div");

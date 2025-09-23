@@ -134,7 +134,6 @@ function hasCookie(name) {
 })();
 
 
-/* === ADDED: robust fetch wrapper & idle guard (non-destructive) === */
 const AUTH = (() => {
   const backendUrl = "https://simplesurvivalcollectibles.site";
   let refreshing = null;
@@ -142,8 +141,8 @@ const AUTH = (() => {
   async function refreshOnce() {
     if (!refreshing) {
       refreshing = fetch(`${backendUrl}/refresh`, { method: "POST", credentials: "include" })
-      .then(r => r.status)     // 200, 401, 403, etc.
-      .catch(() => 0)          // 0 = network error / offline
+      .then(r => r.status)
+      .catch(() => 0)
       .finally(() => { refreshing = null; });
     }
     return refreshing;
@@ -782,6 +781,14 @@ function isLockedOut(user) {
     }
   });
 
+    function isBanned(item) {
+      const pool = []
+        .concat(item.tags || [])
+        .concat(item.tag_names || [])
+        .concat(item.tag_name ? [item.tag_name] : []);
+      return pool.some(t => String(t).trim().toLowerCase() === "banned item");
+    }
+
     /* === KPI: Total items collected across ALL crates === */
     async function computeAccountTotals() {
       await (window.__auth_ready || Promise.resolve());
@@ -803,17 +810,28 @@ function isLockedOut(user) {
         const crates   = await cratesRes.json();
         const progress = progressRes.ok ? await progressRes.json() : {};
 
-        // Count total items across all crates
         const counts = await Promise.all(
           crates.map(async c => {
             const r = await fetch(`${backendUrl}/api/crates/${c.id}/items`, { credentials: "include" });
-            const items = await r.json().catch(() => []);
-            return { id: c.id, total: Array.isArray(items) ? items.length : 0 };
+            let items = await r.json().catch(() => []);
+            items = (Array.isArray(items) ? items : []).filter(it => !isBanned(it));
+
+            return {
+              id: c.id,
+              total: items.length,
+              allowedIds: new Set(items.map(i => Number(i.id) || i.id))
+            };
           })
         );
 
-        const grandTotal = counts.reduce((sum, c) => sum + c.total, 0);
-        const grandOwned = counts.reduce((sum, c) => sum + ((progress[c.id]?.items?.length) || 0), 0);
+        let grandTotal = 0;
+        let grandOwned = 0;
+
+        for (const c of counts) {
+          grandTotal += c.total;
+          const picked = (progress[c.id]?.items || []).map(x => Number(x) || x);
+          grandOwned += picked.filter(id => c.allowedIds.has(id)).length;
+        }
 
         if (totalEl) totalEl.textContent = `${grandOwned}/${grandTotal} items`;
 

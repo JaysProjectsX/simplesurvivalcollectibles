@@ -18,7 +18,7 @@ async function fetchCratesWithItems() {
   const cratesWithItems = await Promise.all(
     crates.map(async (crate) => {
       const itemRes = await fetch(`${backendUrl2}/api/crates/${crate.id}/items`);
-      const items = await itemRes.json();
+      let items = await itemRes.json();
 
       items = filterBanned(items);
       allowedItemIdsByCrate.set(crate.id, new Set(items.map(i => Number(i.id) || i.id)));
@@ -174,7 +174,7 @@ function updateCollectionKpis(crates){
   // If the top is 100% but there exists a <100% with highest pct, prefer the best incomplete crate
   const bestIncomplete = crates
     .map(c => {
-      const collected = (userProgress[c.id]?.items?.length) || 0;
+      const collected = __countAllowed(c.id);
       const total = totals[c.id] || 0;
       return { name: c.name, pct: calcPercent(collected, total), total };
     })
@@ -191,7 +191,7 @@ function updateCollectionKpis(crates){
   // 3) Crates completed
   let completed = 0;
   crates.forEach(c => {
-    const collected = (userProgress[c.id]?.items?.length) || 0;
+    const collected = __countAllowed(c.id);
     const total = totals[c.id] || 0;
     if (total > 0 && collected >= total) completed += 1;
   });
@@ -604,8 +604,11 @@ saveButton.addEventListener("click", async () => {
       `;
 
       // Update collected count
-      const collectedCount = userProgress[crateId]?.items?.length || 0;
-      crateCard.querySelector(".crate-count").textContent =
+      const allowedSet = allowedItemIdsByCrate.get(Number(crateId)) || new Set();
+      const collectedCount = (userProgress[crateId]?.items || [])
+        .map(x => Number(x) || x)
+        .filter(id => allowedSet.has(id)).length;
+        crateCard.querySelector(".crate-count").textContent =
         `${collectedCount}/${crateData.items.length} items`;
 
       // Update border color

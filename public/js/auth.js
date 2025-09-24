@@ -35,7 +35,7 @@ function hasCookie(name) {
 
   // If we’re on logout page, or we clearly don’t have an auth cookie,
   // skip hitting /me and /refresh entirely (prevents 401 spam).
-  const shouldAttemptSession = !IS_LOGOUT_PAGE && hasCookie("refreshToken");
+  const shouldAttemptSession = !IS_LOGOUT_PAGE;
 
   async function resolveSession() {
     if (!shouldAttemptSession) return;
@@ -135,7 +135,6 @@ function hasCookie(name) {
 
 
 const AUTH = (() => {
-  const backendUrl = "https://simplesurvivalcollectibles.site";
   let refreshing = null;
 
   async function refreshOnce() {
@@ -196,7 +195,7 @@ let __auth_last_activity = Date.now();
   window.addEventListener(ev, () => { __auth_last_activity = Date.now(); }, {passive:true})
 );
 setInterval(async () => {
-  if (!hasCookie("refreshToken")) return; // <-- no cookie, don’t ping
+  if (!localStorage.getItem("username")) return; // <-- no cookie, don’t ping
 
   if (Date.now() - __auth_last_activity < 2 * 60 * 1000) {
     try { await AUTH.refreshOnce(); } catch {}

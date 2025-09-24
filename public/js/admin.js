@@ -1,42 +1,21 @@
 let currentPage = 1;
 const logsPerPage = 10;
 
+const api = (path, init) =>
+AUTH.fetchWithAuth(`https://simplesurvivalcollectibles.site${path}`, init);
+
 document.addEventListener("DOMContentLoaded", async () => {
   try {
-    const res = await fetch("https://simplesurvivalcollectibles.site/me", {
-      credentials: "include",
-    });
+    const res = await api('/me');
+    if (!res.ok) throw new Error('Auth check failed');
+    const data = await res.json();
 
-    if (res.status === 401) {
-      // Try refreshing the token
-      const refreshRes = await fetch("https://simplesurvivalcollectibles.site/refresh", {
-        method: "POST",
-        credentials: "include",
-      });
-
-      if (refreshRes.ok) {
-        // Retry /me after refresh
-        const retry = await fetch("https://simplesurvivalcollectibles.site/me", {
-          credentials: "include",
-        });
-        const retryData = await retry.json();
-
-        if (retry.ok && retryData.role && (retryData.role === "Admin" || retryData.role === "SysAdmin")) {
-          document.getElementById("adminContent").style.display = "block";
-          initializeAdminPanel(retryData.role);
-        } else {
-          throw new Error("Retry failed or role invalid");
-        }
-      } else {
-        throw new Error("Token refresh failed");
-      }
-    } else {
-      const data = await res.json();
-      if (!data.role || (data.role !== "Admin" && data.role !== "SysAdmin")) throw new Error("Unauthorized");
-
-      document.getElementById("adminContent").style.display = "block";
-      initializeAdminPanel(data.role);
+    if (!data.role || (data.role !== "Admin" && data.role !== "SysAdmin")) {
+      throw new Error("Unauthorized");
     }
+
+    document.getElementById("adminContent").style.display = "block";
+    initializeAdminPanel(data.role);
   } catch (err) {
     console.error("Auth check failed:", err);
     document.body.innerHTML = "";
@@ -111,9 +90,7 @@ function initializeAdminPanel(role) {
     document.getElementById('userFilter')?.addEventListener('change', () => loadAccountList());
 
     // Keep Role Management list as-is (usually you DON'T want deleted users here)
-    fetch("https://simplesurvivalcollectibles.site/admin/all-users", {
-      credentials: "include"
-    })
+    api('/admin/all-users')
       .then(res => res.json())
       .then(data => {
         const roleList = document.getElementById("roleManagementList");
@@ -160,14 +137,6 @@ function initializeAdminPanel(role) {
   filterEl?.addEventListener('change', () => {
     loadDeletionRequests(getArchivedFlag());
   });
-
-  // Small helper so we always hit the same origin with cookies:
-  async function api(path, init = {}) {
-    return fetch(`https://simplesurvivalcollectibles.site${path}`, {
-      credentials: 'include',
-      ...init
-    });
-  }
 
   const STATUS_MAP = {
     awaiting:     { label: 'Awaiting Approval', modalClass: 'kbm-awaiting', tagClass: 'awaiting' },
@@ -509,10 +478,7 @@ function initializeAdminPanel(role) {
 
   window.archiveDeletionRequest = async function (id, modalId) {
     try {
-      const res = await fetch(`https://simplesurvivalcollectibles.site/admin/deletion-requests/${id}/archive`, {
-        method: 'POST',
-        credentials: 'include'
-      });
+      const res = await api(`/admin/deletion-requests/${id}/archive`, { method: 'POST' });
       if (!res.ok) throw new Error('Archive failed');
 
       showToast('Request removed from list');
@@ -595,9 +561,7 @@ function initializeAdminPanel(role) {
 
 
   // Load Active Users
-  fetch("https://simplesurvivalcollectibles.site/admin/active-users", {
-    credentials: "include"
-  })
+  api('/admin/active-users')
     .then(res => res.json())
     .then(data => {
       const list = document.getElementById("activeUserList");
@@ -618,12 +582,8 @@ function initializeAdminPanel(role) {
 
 function loadCratesAndItems() {
   Promise.all([
-    fetch("https://simplesurvivalcollectibles.site/admin/crates", {
-      credentials: "include"
-    }).then((res) => res.json()),
-    fetch("https://simplesurvivalcollectibles.site/admin/items", {
-      credentials: "include"
-    }).then((res) => res.json()),
+    api('/admin/crates').then(res => res.json()),
+    api('/admin/items').then(res => res.json()),
   ])
     .then(([crates, items]) => {
       const selector = document.getElementById("crate-selector");
@@ -743,9 +703,7 @@ function loadCratesAndItems() {
 }
 
 function editCrate(crateId) {
-  fetch("https://simplesurvivalcollectibles.site/admin/crates", {
-    credentials: "include"
-  })
+  api('/admin/crates')
     .then((res) => res.json())
     .then((crates) => {
       const crate = crates.find((c) => c.id === crateId);
@@ -778,9 +736,7 @@ function closeEditCrateModal() {
 }
 
 function editItem(itemId) {
-  fetch(`https://simplesurvivalcollectibles.site/admin/items`, {
-    credentials: "include"
-  })
+  api('/admin/items')
     .then((res) => res.json())
     .then((items) => {
       const item = items.find((i) => i.id === itemId);
@@ -820,12 +776,9 @@ document
       is_hidden: document.getElementById("edit-crate-hidden").checked ? 1 : 0,
     };
 
-    fetch(`https://simplesurvivalcollectibles.site/admin/crates/${id}`, {
+    api(`/admin/crates/${id}`, {
       method: "PUT",
-      credentials: "include",
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify(updatedData),
     })
       .then((res) => res.json())
@@ -854,12 +807,9 @@ document
       tooltip: document.getElementById("edit-tooltip").value,
     };
 
-    fetch(`https://simplesurvivalcollectibles.site/admin/items/${id}`, {
+    api(`/admin/items/${id}`, {
       method: "PUT",
-      credentials: "include",
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify(updatedData),
     })
       .then((res) => res.json())
@@ -907,12 +857,9 @@ document.getElementById("addItemForm").addEventListener("submit", function (e) {
     .map((t) => t.trim());
   const tooltip = document.getElementById("add-tooltip").value;
 
-  fetch("https://simplesurvivalcollectibles.site/admin/items", {
+  api('/admin/items', {
     method: "POST",
-    credentials: "include",
-    headers: {
-      "Content-Type": "application/json",
-    },
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       crate_id,
       item_name,
@@ -952,10 +899,8 @@ function deleteCrate(crateId) {
 }
 
 function confirmDeleteCrate(crateId, modalId) {
-  fetch(`https://simplesurvivalcollectibles.site/admin/crates/${crateId}`, {
-    method: "DELETE",
-    credentials: "include"
-  }).then(() => {
+  api(`/admin/crates/${crateId}`, { method: "DELETE" })
+    .then(() => {
     showToast("Crate deleted successfully.");
     loadCratesAndItems();
     fadeOutAndRemove(modalId);
@@ -983,10 +928,8 @@ function deleteItem(itemId) {
 }
 
 function confirmDeleteItem(itemId, modalId) {
-  fetch(`https://simplesurvivalcollectibles.site/admin/items/${itemId}`, {
-    method: "DELETE",
-    credentials: "include"
-  }).then(() => {
+  api(`/admin/items/${itemId}`, { method: "DELETE" })
+    .then(() => {
     showToast("Item deleted successfully.");
     loadCratesAndItems();
     fadeOutAndRemove(modalId);
@@ -1209,9 +1152,8 @@ function submitCrate() {
   if (!validateItems()) return;
 
   // Submit crate
-  fetch("https://simplesurvivalcollectibles.site/admin/crates", {
+  api('/admin/crates', {
     method: "POST",
-    credentials: "include",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       crate_name: crateName,
@@ -1223,9 +1165,8 @@ function submitCrate() {
     .then(crate => {
       // Submit all items with the returned crate ID
       const promises = items.map(item =>
-        fetch("https://simplesurvivalcollectibles.site/admin/items", {
+        api('/admin/items', {
           method: "POST",
-          credentials: "include",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             crate_id: crate.id,
@@ -1278,12 +1219,7 @@ function submitCrate() {
 }
 
 function loadAuditLogs(page = 1) {
-  fetch(
-    `https://simplesurvivalcollectibles.site/admin/audit-logs?page=${page}&limit=10`,
-    {
-      credentials: "include",
-    }
-  )
+  api(`/admin/audit-logs?page=${page}&limit=10`)
     .then((res) => res.json())
     .then(({ logs, total }) => {
       const tbody = document.getElementById("auditLogTable");
@@ -1353,10 +1289,8 @@ function deleteLog(logId) {
 }
 
 function confirmDeleteLog(logId, modalId) {
-  fetch(`https://simplesurvivalcollectibles.site/admin/audit-logs/${logId}`, {
-    method: "DELETE",
-    credentials: "include"
-  }).then(() => {
+  api(`/admin/audit-logs/${logId}`, { method: "DELETE" })
+    .then(() => {
     showToast("Log entry deleted.");
     loadAuditLogs(currentPage);
     fadeOutAndRemove(modalId);
@@ -1384,10 +1318,8 @@ function clearAuditLogs() {
 }
 
 function confirmClearAuditLogs(modalId) {
-  fetch("https://simplesurvivalcollectibles.site/admin/audit-logs", {
-    method: "DELETE",
-    credentials: "include"
-  }).then(() => {
+  api('/admin/audit-logs', { method: "DELETE" })
+    .then(() => {
     showToast("Audit log successfully cleared.");
     loadAuditLogs(1);
     fadeOutAndRemove(modalId);
@@ -1396,12 +1328,9 @@ function confirmClearAuditLogs(modalId) {
 
 
 function verifyUser(userId) {
-  fetch("https://simplesurvivalcollectibles.site/admin/verify-user", {
+  api('/admin/verify-user', {
     method: "POST",
-    credentials: "include",
-    headers: {
-      "Content-Type": "application/json",
-    },
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ userId }),
   }).then(() => {
     showToast("User verified successfully");
@@ -1430,12 +1359,9 @@ function deleteUser(userId) {
 }
 
 function confirmDeleteUser(userId, modalId) {
-  fetch("https://simplesurvivalcollectibles.site/admin/delete-user", {
+  api('/admin/delete-user', {
     method: "DELETE",
-    credentials: "include",
-    headers: {
-      "Content-Type": "application/json"
-    },
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ userId })
   }).then(() => {
     showToast("User deleted successfully.");
@@ -1446,12 +1372,9 @@ function confirmDeleteUser(userId, modalId) {
 
 function changeRole(userId) {
   const newRole = document.getElementById(`role-${userId}`).value;
-  fetch("https://simplesurvivalcollectibles.site/admin/change-role", {
+  api('/admin/change-role', {
     method: "POST",
-    credentials: "include",
-    headers: {
-      "Content-Type": "application/json",
-    },
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ userId, newRole }),
   })
     .then((res) => res.json())
@@ -1517,9 +1440,7 @@ async function loadAccountList() {
   const qs = buildAllUsersQuery();
 
   try {
-    const res = await fetch(`https://simplesurvivalcollectibles.site/admin/all-users${qs}`, {
-      credentials: "include"
-    });
+    const res = await api(`/admin/all-users${qs}`);
     const data = await res.json();
 
     const tableBody = document.getElementById("accountList");
@@ -1557,9 +1478,7 @@ async function loadAccountList() {
 
 
 function exportAuditLogsAsCSV() {
-  fetch("https://simplesurvivalcollectibles.site/admin/audit-logs?page=1&limit=10000", {
-    credentials: "include"
-  })
+  api('/admin/audit-logs?page=1&limit=10000')
     .then((res) => res.json())
     .then(({ logs }) => {
       if (!logs || logs.length === 0) {
@@ -1648,10 +1567,7 @@ function fadeOutAndRemove(modalId) {
 document.addEventListener("click", function (e) {
   if (e.target.classList.contains("unlock-btn")) {
     const userId = e.target.getAttribute("data-user-id");
-    fetch(`https://simplesurvivalcollectibles.site/admin/unlock-user/${userId}`, {
-      method: "POST",
-      credentials: "include"
-    })
+    api(`/admin/unlock-user/${userId}`, { method: "POST" })
     .then(res => res.json())
     .then(data => {
       if (data.success) {
@@ -1695,9 +1611,8 @@ function setupChangelogForm() {
     }
 
     try {
-      const res = await fetch("https://simplesurvivalcollectibles.site/admin/changelog", {
+      const res = await api('/admin/changelog', {
         method: "POST",
-        credentials: "include",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ message, page })
       });
@@ -1736,9 +1651,7 @@ async function loadChangelogEntries() {
   const page = document.querySelector('input[name="changelog-page-filter"]:checked')?.value || "cosmetic";
 
   try {
-    const res = await fetch(`https://simplesurvivalcollectibles.site/changelog?page=${page}`, {
-      credentials: "include"
-    });
+    const res = await api(`/changelog?page=${page}`);
 
     const entries = await res.json();
     renderChangelogTable(entries);
@@ -1809,12 +1722,11 @@ function confirmEditChangelog(id, modalId) {
   const message = document.getElementById("editChangelogTextarea")?.value.trim();
   if (!message) return;
 
-  fetch(`https://simplesurvivalcollectibles.site/admin/changelog/${id}`, {
-    method: "PUT",
-    credentials: "include",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ message })
-  })
+    api(`/admin/changelog/${id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ message })
+    })
     .then(res => res.json())
     .then(() => {
       fadeOutAndRemove(modalId);
@@ -1853,10 +1765,7 @@ function deleteChangelog(id) {
 }
 
 function confirmDeleteChangelog(id, modalId) {
-  fetch(`https://simplesurvivalcollectibles.site/admin/changelog/${id}`, {
-    method: "DELETE",
-    credentials: "include"
-  })
+  api(`/admin/changelog/${id}`, { method: "DELETE" })
     .then(() => {
       fadeOutAndRemove(modalId);
       showGlobalModal({

@@ -35,7 +35,7 @@ function hasCookie(name) {
 
   // If we’re on logout page, or we clearly don’t have an auth cookie,
   // skip hitting /me and /refresh entirely (prevents 401 spam).
-  const shouldAttemptSession = !IS_LOGOUT_PAGE;
+  const shouldAttemptSession = !IS_LOGOUT_PAGE && hasCookie("refreshToken");
 
   async function resolveSession() {
     if (!shouldAttemptSession) return;

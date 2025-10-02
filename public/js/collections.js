@@ -8,8 +8,7 @@ const accordionContainer = document.getElementById("accordionContainer");
 let openCrateId = null; 
 
 let userProgress = {};
-const backendUrl  = "https://simplesurvivalcollectibles.site";
-const backendUrl2 = backendUrl;
+const backendUrl2  = "https://simplesurvivalcollectibles.site";
 
 function api(pathOrUrl, init) {
   const url = pathOrUrl.startsWith("http") ? pathOrUrl : `${backendUrl2}${pathOrUrl}`;

@@ -69,6 +69,10 @@ function hasCookie(name) {
     return true;
   })();
 
+  window.waitForAuthReady = function () {
+    return (window.__auth_ready || Promise.resolve());
+  };
+
   function hidePreloader() {
     el.style.opacity = "0";
     setTimeout(() => { el.style.display = "none"; }, 250);

@@ -7,8 +7,40 @@ const modalContentEl = document.getElementById("crateModalContent");
 const accordionContainer = document.getElementById("accordionContainer");
 let openCrateId = null; 
 
-let userProgress = {}; // fetched per user
-const backendUrl2 = "https://simplesurvivalcollectibles.site";
+let userProgress = {};
+const backendUrl  = "https://simplesurvivalcollectibles.site";
+const backendUrl2 = backendUrl;
+
+function api(pathOrUrl, init) {
+  const url = pathOrUrl.startsWith("http") ? pathOrUrl : `${backendUrl2}${pathOrUrl}`;
+  return AUTH.fetchWithAuth(url, init);
+}
+
+function getCurrentCrateProgressSet(crateId) {
+  return new Set((userProgress[crateId]?.items || []).map(n => Number(n)));
+}
+
+function readModalCheckedSet(crateId) {
+  const boxes = modalContentEl.querySelectorAll(`input[type="checkbox"][data-crate-id="${crateId}"]`);
+  const set = new Set();
+  boxes.forEach(cb => { if (cb.checked) set.add(Number(cb.dataset.itemId)); });
+  return set;
+}
+
+function diffSets(beforeSet, afterSet) {
+  const toAdd = [];
+  const toRemove = [];
+  beforeSet.forEach(id => { if (!afterSet.has(id)) toRemove.push(id); });
+  afterSet.forEach(id => { if (!beforeSet.has(id)) toAdd.push(id); });
+  return { toAdd, toRemove };
+}
+
+async function runInBatches(factories, batchSize = 5) {
+  for (let i = 0; i < factories.length; i += batchSize) {
+    const slice = factories.slice(i, i + batchSize).map(fn => fn());
+    await Promise.all(slice);
+  }
+}
 
 // Fetch crates and their items
 async function fetchCratesWithItems() {
@@ -17,7 +49,7 @@ async function fetchCratesWithItems() {
 
   const cratesWithItems = await Promise.all(
     crates.map(async (crate) => {
-      const itemRes = await fetch(`${backendUrl2}/api/crates/${crate.id}/items`);
+      const itemRes = await api(`/api/crates/${crate.id}/items`);
       let items = await itemRes.json();
 
       items = filterBanned(items);
@@ -35,39 +67,26 @@ async function fetchCratesWithItems() {
 }
 
 async function silentRepairSession() {
-  
-  try {
-    const res = await fetch(`${backendUrl2}/me`, {
-      credentials: "include"
-    });
-    return res.ok;
-  } catch {
-    return false;
-  }
+  const code = await AUTH.refreshOnce();
+  return code === 200;
 }
 
 // Fetch per-user progress
 async function fetchUserProgress() {
-  const tryFetch = () =>
-    fetch(`${backendUrl2}/api/user/progress`, {
-      credentials: "include"
-    });
-
   try {
-    let res = await tryFetch();
+    let res = await api(`/api/user/progress`);
 
+    // If access token is expired, try a one-time silent repair and retry once
     if (res.status === 401) {
-      
       const repaired = await silentRepairSession();
-      if (repaired) {
-        res = await tryFetch();
-      }
+      if (repaired) res = await api(`/api/user/progress`);
     }
 
     if (!res.ok) {
       if (res.status === 401) {
-        
-        document.getElementById("preloader").style.display = "none";
+        // Hard expired — hide preloader and redirect
+        const pre = document.getElementById("preloader");
+        if (pre) pre.style.display = "none";
         window.location.replace("/?redirectReason=sessionExpired");
         throw new Error("Unauthorized after silent repair");
       }
@@ -80,6 +99,7 @@ async function fetchUserProgress() {
     throw err;
   }
 }
+
 
 function isBanned(item) {
   const pool = []
@@ -520,12 +540,15 @@ function closeModal() {
 // Initialize the page (fetch progress -> crates -> KPIs -> cards)
 (async () => {
   try {
-    await fetchUserProgress();                 // fills userProgress
-    const crates = await fetchCratesWithItems(); // [{id, name, items:[]}, ...]
 
-    updateCollectionKpis(crates);              // <-- NEW: paint KPIs
+    await (window.waitForAuthReady ? window.waitForAuthReady() : Promise.resolve());
+
+    await fetchUserProgress();
+    const crates = await fetchCratesWithItems();
+
+    updateCollectionKpis(crates);
     collectionsContainer.innerHTML = "";
-    renderCrates(crates);                      // existing grid/cards
+    renderCrates(crates);
   } catch (e) {
     console.error(e);
   } finally {
@@ -545,84 +568,104 @@ selectAllBtn.addEventListener("click", () => {
 });
 
 saveButton.addEventListener("click", async () => {
-  document.getElementById("modalSavingOverlay").style.display = "flex";
+  const overlay = document.getElementById("modalSavingOverlay");
+  overlay.style.display = "flex";
 
-  const checkboxes = modalContentEl.querySelectorAll("input[type='checkbox']");
-  const savePromises = [];
+  try {
+    // Identify the crate we’re saving from the modal
+    const anyBox = modalContentEl.querySelector("input[type='checkbox']");
+    const crateId = anyBox?.dataset?.crateId;
+    if (!crateId) throw new Error("No crateId found in modal");
 
-  for (const checkbox of checkboxes) {
-    const crateId = checkbox.dataset.crateId;
-    const itemId = checkbox.dataset.itemId;
-    const checked = checkbox.checked;
+    const before = getCurrentCrateProgressSet(Number(crateId));
+    const after  = readModalCheckedSet(Number(crateId));
+    const { toAdd, toRemove } = diffSets(before, after);
 
-    savePromises.push(
-      fetch(`${backendUrl2}/api/user/progress`, {
+    // Build a small list of API calls (only changed items)
+    const jobs = [];
+
+    toAdd.forEach(itemId => {
+      jobs.push(() => api('/api/user/progress', {
         method: "POST",
-        credentials: "include",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ crateId, itemId, checked }),
-      })
-    );
-  }
+        body: JSON.stringify({ crateId, itemId, checked: true }),
+      }).catch(err => {
+        console.warn('Failed to add item', { crateId, itemId, err });
+      }));
+    });
 
-  await Promise.all(savePromises);
+    toRemove.forEach(itemId => {
+      jobs.push(() => api('/api/user/progress', {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ crateId, itemId, checked: false }),
+      }).catch(err => {
+        console.warn('Failed to remove item', { crateId, itemId, err });
+      }));
+    });
 
-  // Refresh userProgress and crate data once
-  await fetchUserProgress();
-  const allCrates = await fetchCratesWithItems();
-  updateCollectionKpis(allCrates);
+    // Run in small batches
+    await runInBatches(jobs, 5);
 
-  // Update the specific crate card in real-time
-  const crateId = checkboxes[0]?.dataset.crateId;
-  if (crateId) {
-    const crateData = allCrates.find(c => c.id == crateId);
-    const crateCard = [...document.querySelectorAll(".crate-card")]
-      .find(card => card.querySelector("h3").textContent === formatCrateName(crateData.name));
+    // Refresh data once and update UI
+    await fetchUserProgress();
+    const allCrates = await fetchCratesWithItems();
+    updateCollectionKpis(allCrates);
 
-    if (crateCard) {
-      const { percent, tagClass } = calculateProgress(crateId, crateData.items.length);
+    const crateData = allCrates.find(c => Number(c.id) === Number(crateId));
+    if (crateData) {
+      // update the visible crate card live
+      const crateCard = [...document.querySelectorAll(".crate-card")]
+        .find(card => card.querySelector("h3").textContent === formatCrateName(crateData.name));
 
-      // Update tag
-      const tagEl = crateCard.querySelector(".card-tag");
-      tagEl.className = `card-tag ${tagClass}`;
-      tagEl.textContent =
-        tagClass === "tag-complete" ? "Completed" :
-        tagClass === "tag-incomplete" ? "Incomplete" : "Not Started";
+      if (crateCard) {
+        const { percent, tagClass } = calculateProgress(crateId, crateData.items.length);
 
-      // Update progress bar
-      const progressFill = crateCard.querySelector(".progress-bar-fill");
-      progressFill.style.width = `${percent}%`;
-      progressFill.textContent = `${percent}%`;
+        // tag badge
+        const tagEl = crateCard.querySelector(".card-tag");
+        tagEl.className = `card-tag ${tagClass}`;
+        tagEl.textContent =
+          tagClass === "tag-complete" ? "Completed" :
+          tagClass === "tag-incomplete" ? "Incomplete" : "Not Started";
 
-      // Update last saved date
-      const dateEl = crateCard.querySelector(".crate-date");
-      dateEl.innerHTML = `
-        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 24 24" style="vertical-align: middle; margin-right: 5px;">
-          <path d="M12 1a11 11 0 1 0 11 11A11.013 11.013 0 0 0 12 1Zm0 20a9 9 0 1 1 9-9a9.01 9.01 0 0 1-9 9Zm.5-9.793V7a1 1 0 0 0-2 0v5a1 1 0 0 0 .293.707l3.5 3.5a1 1 0 0 0 1.414-1.414Z"/>
-        </svg>
-        ${new Date(userProgress[crateId]?.updatedAt || Date.now()).toLocaleDateString()}
-      `;
+        // progress bar
+        const progressFill = crateCard.querySelector(".progress-bar-fill");
+        progressFill.style.width = `${percent}%`;
+        progressFill.textContent = `${percent}%`;
 
-      // Update collected count
-      const allowedSet = allowedItemIdsByCrate.get(Number(crateId)) || new Set();
-      const collectedCount = (userProgress[crateId]?.items || [])
-        .map(x => Number(x) || x)
-        .filter(id => allowedSet.has(id)).length;
+        // last saved
+        const dateEl = crateCard.querySelector(".crate-date");
+        dateEl.innerHTML = `
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 24 24" style="vertical-align: middle; margin-right: 5px;">
+            <path d="M12 1a11 11 0 1 0 11 11A11.013 11.013 0 0 0 12 1Zm0 20a9 9 0 1 1 9-9a9.01 9.01 0 0 1-9 9Zm.5-9.793V7a1 1 0 0 0-2 0v5a1 1 0 0 0 .293.707l3.5 3.5a1 1 0 0 0 1.414-1.414Z"/>
+          </svg>
+          ${new Date(userProgress[crateId]?.updatedAt || Date.now()).toLocaleDateString()}
+        `;
+
+        // collected count
+        const allowedSet = allowedItemIdsByCrate.get(Number(crateId)) || new Set();
+        const collectedCount = (userProgress[crateId]?.items || [])
+          .map(x => Number(x) || x)
+          .filter(id => allowedSet.has(id)).length;
         crateCard.querySelector(".crate-count").textContent =
-        `${collectedCount}/${crateData.items.length} items`;
+          `${collectedCount}/${crateData.items.length} items`;
 
-      // Update border color
-      let borderColor;
-      if (tagClass === "tag-complete") borderColor = "rgb(66, 210, 157)";
-      else if (tagClass === "tag-incomplete") borderColor = "#f7c800";
-      else borderColor = "rgb(250, 90, 120)";
-      crateCard.style.borderBottom = `3px solid ${borderColor}`;
+        // border color
+        let borderColor;
+        if (tagClass === "tag-complete") borderColor = "rgb(66, 210, 157)";
+        else if (tagClass === "tag-incomplete") borderColor = "#f7c800";
+        else borderColor = "rgb(250, 90, 120)";
+        crateCard.style.borderBottom = `3px solid ${borderColor}`;
+      }
     }
-  }
 
-  // Hide overlay & modal
-  document.getElementById("modalSavingOverlay").style.display = "none";
-  closeModal();
+    closeModal();
+  } catch (e) {
+    console.error(e);
+    showToast('Some items failed to save. Please try again.', 'error');
+  } finally {
+    overlay.style.display = "none";
+  }
 });
 
 cancelButton.addEventListener("click", async () => {

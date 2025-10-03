@@ -149,6 +149,14 @@ const __countAllowed = (crateId) => {
     .filter(id => set.has(id)).length;
 };
 
+function getUpdatedAtFromEntry(entry) {
+  if (!entry) return null;
+  const raw = entry.updatedAt ?? entry.updated_at ?? null;
+  if (!raw) return null;
+  const d = typeof raw === 'number' ? new Date(raw) : new Date(String(raw));
+  return isNaN(d) ? null : d;
+}
+
 function updateCollectionKpis(crates){
   if (!Array.isArray(crates) || crates.length === 0) return;
 
@@ -156,20 +164,25 @@ function updateCollectionKpis(crates){
   const totals = {};
   crates.forEach(c => { totals[c.id] = c.items.length; });
 
-  // 1) Last crate updated (most recent updatedAt)
+  // 1) Last crate updated (most recent updatedAt / updated_at)
   let last = null; // { id, time: Date }
-  for (const [cid, data] of Object.entries(userProgress || {})) {
-    if (!data || !data.updatedAt) continue;
-    const t = new Date(data.updatedAt);
-    if (!isNaN(t)) {
-      if (!last || t > last.time) last = { id: Number(cid), time: t };
-    }
+  for (const c of crates) {
+    const data = userProgress[c.id] || userProgress[String(c.id)];
+    const t = getUpdatedAtFromEntry(data);
+    if (!t) continue;
+    if (!last || t > last.time) last = { id: Number(c.id), time: t };
   }
-  const lastName = last ? crates.find(c => c.id === last.id)?.name : null;
-  document.getElementById("kpi-last-updated").textContent =
-    lastName ? formatCrateName(lastName) : "—";
-  document.getElementById("kpi-last-updated-foot").textContent =
-    last ? last.time.toLocaleString() : "No saves yet";
+
+  const lastName = last ? crates.find(c => Number(c.id) === last.id)?.name : null;
+  const lastTitleEl = document.getElementById("kpi-last-updated");
+  const lastFootEl  = document.getElementById("kpi-last-updated-foot");
+
+  if (lastTitleEl) {
+    lastTitleEl.textContent = lastName ? formatCrateName(lastName) : "—";
+  }
+  if (lastFootEl) {
+    lastFootEl.textContent = last ? last.time.toLocaleString() : "No saves yet";
+  }
 
   // 2) Top crate progress (highest %; prefer <100%; if all 100, pick any 100 with more items)
   let top = null; // { name, pct, collected, total }

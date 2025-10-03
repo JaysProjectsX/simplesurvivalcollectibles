@@ -34,13 +34,6 @@ function diffSets(beforeSet, afterSet) {
   return { toAdd, toRemove };
 }
 
-async function runInBatches(factories, batchSize = 5) {
-  for (let i = 0; i < factories.length; i += batchSize) {
-    const slice = factories.slice(i, i + batchSize).map(fn => fn());
-    await Promise.all(slice);
-  }
-}
-
 // Fetch crates and their items
 async function fetchCratesWithItems() {
   const res = await fetch(`${backendUrl2}/api/crates`);
@@ -605,35 +598,32 @@ saveButton.addEventListener("click", async () => {
     const after  = readModalCheckedSet(Number(crateId));
     const { toAdd, toRemove } = diffSets(before, after);
 
-    // Build a small list of API calls (only changed items)
-    const jobs = [];
+    if (!toAdd.length && !toRemove.length) {
+      overlay.style.display = "none";
+      closeModal();
+      return;
+    }
 
-    toAdd.forEach(itemId => {
-      jobs.push(() => api('/api/user/progress', {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ crateId, itemId, checked: true }),
-      }).catch(err => {
-        console.warn('Failed to add item', { crateId, itemId, err });
-      }));
+    const bulkRes = await api('/api/user/progress/bulk', {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        crateId,
+        add: toAdd,
+        remove: toRemove
+      })
     });
 
-    toRemove.forEach(itemId => {
-      jobs.push(() => api('/api/user/progress', {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ crateId, itemId, checked: false }),
-      }).catch(err => {
-        console.warn('Failed to remove item', { crateId, itemId, err });
-      }));
-    });
+    if (!bulkRes.ok) throw new Error('Bulk save failed');
 
-    // Run in small batches
-    await runInBatches(jobs, 5);
-
-    const nowMs = Date.now();
+    const bulkJson = await bulkRes.json().catch(() => ({}));
+    // Optimistically update local timestamp so UI reflects the save immediately
     if (!userProgress[crateId]) userProgress[crateId] = { items: [] };
-    userProgress[crateId].updatedAt = nowMs;
+    if (bulkJson?.updatedAt) {
+      userProgress[crateId].updatedAt = bulkJson.updatedAt;
+    } else {
+      userProgress[crateId].updatedAt = Date.now();
+    }
 
     // Refresh data once and update UI
     await fetchUserProgress();

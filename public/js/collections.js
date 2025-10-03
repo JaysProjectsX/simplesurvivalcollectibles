@@ -151,11 +151,22 @@ const __countAllowed = (crateId) => {
 
 function getUpdatedAtFromEntry(entry) {
   if (!entry) return null;
+
   const raw = entry.updatedAt ?? entry.updated_at ?? null;
   if (!raw) return null;
-  const d = typeof raw === 'number' ? new Date(raw) : new Date(String(raw));
+
+  let d;
+
+  if (typeof raw === "number") {
+    const ms = raw < 1e12 ? raw * 1000 : raw;
+    d = new Date(ms);
+  } else {
+    d = new Date(String(raw));
+  }
+
   return isNaN(d) ? null : d;
 }
+
 
 function updateCollectionKpis(crates){
   if (!Array.isArray(crates) || crates.length === 0) return;
@@ -238,7 +249,8 @@ function renderCrates(crates) {
 
   crates.forEach(crate => {
     const { percent, tagClass } = calculateProgress(crate.id, crate.items.length);
-    const lastSaved = userProgress[crate.id]?.updatedAt || "Never";
+    const lastSavedDate = getUpdatedAtFromEntry(userProgress[crate.id]);
+    const lastSaved = lastSavedDate ? lastSavedDate : "Never";
 
     const collectedCount = (userProgress[crate.id]?.items || [])
       .map(x => Number(x) || x)
@@ -267,7 +279,7 @@ function renderCrates(crates) {
         <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 24 24" style="vertical-align: middle; margin-right: 5px;">
           <path d="M12 1a11 11 0 1 0 11 11A11.013 11.013 0 0 0 12 1Zm0 20a9 9 0 1 1 9-9a9.01 9.01 0 0 1-9 9Zm.5-9.793V7a1 1 0 0 0-2 0v5a1 1 0 0 0 .293.707l3.5 3.5a1 1 0 0 0 1.414-1.414Z"/>
         </svg>
-        ${lastSaved !== "Never" ? new Date(lastSaved).toLocaleDateString() : "Never"}
+        ${lastSaved !== "Never" ? lastSaved.toLocaleDateString() : "Never"}
       </div>
       <div class="crate-count">${collectedCount}/${totalCount} items</div>
     `;
@@ -618,6 +630,10 @@ saveButton.addEventListener("click", async () => {
 
     // Run in small batches
     await runInBatches(jobs, 5);
+
+    const nowMs = Date.now();
+    if (!userProgress[crateId]) userProgress[crateId] = { items: [] };
+    userProgress[crateId].updatedAt = nowMs;
 
     // Refresh data once and update UI
     await fetchUserProgress();

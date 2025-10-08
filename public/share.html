@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Shared Collection</title>
+
+  <!-- Reuse your site styles (includes the accordion/table rules) -->
+  <link rel="stylesheet" href="/css/collections.css"/>
+</head>
+<body class="share-body">
+  <div class="share-layout">
+    <aside class="share-sidebar">
+      <div class="share-sidebar-header">
+        <h3 id="shareUser" class="share-username">Shared by —</h3>
+      </div>
+      <nav id="crateList" class="share-crate-list"></nav>
+    </aside>
+
+    <main class="share-main">
+      <header class="share-header">
+        <div class="share-kpi">
+          <div class="share-kpi-title" id="crateTitle">Select a crate</div>
+          <div class="share-kpi-count" id="crateCount">—</div>
+        </div>
+
+        <div class="share-search">
+          <input id="searchInput" type="text" placeholder="Search item by name…"/>
+        </div>
+      </header>
+
+      <section id="accRoot" class="acc-wrapper"></section>
+    </main>
+  </div>
+
+  <script src="/js/share.js"></script>
+</body>
+</html>

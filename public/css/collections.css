@@ -634,3 +634,124 @@ body.modal-open{
   background: rgba(255, 255, 255, 0.1); /* subtle line */
   margin: 40px 0; /* space above and below */
 }
+
+/* ===== Shared Link Viewer Layout ===== */
+.share-body {
+  background: #0b0b19;
+  color: #e9e9f3;
+  min-height: 100vh;
+}
+
+.share-layout {
+  display: flex;
+  min-height: 100vh;
+}
+
+/* Sidebar */
+.share-sidebar {
+  width: 280px;
+  background: #0c0c1a;
+  border-right: 1px solid #22233a;
+  padding: 16px;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow: auto;
+}
+
+.share-sidebar-header {
+  margin-bottom: 10px;
+}
+
+.share-username {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #cfd3ff;
+  margin: 0 0 6px 0;
+}
+
+.share-crate-list .crate-btn {
+  width: 100%;
+  text-align: left;
+  margin: 6px 0;
+  padding: 10px 12px;
+  background: #111125;
+  color: #fff;
+  border: 1px solid #22233a;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: box-shadow .2s ease, background .2s ease, transform .05s ease;
+}
+
+.share-crate-list .crate-btn:hover {
+  background: #14142b;
+}
+
+.share-crate-list .crate-btn.active {
+  background: #365CF5;
+  box-shadow: 0 6px 18px rgba(54, 92, 245, .35);
+}
+
+/* Main */
+.share-main {
+  flex: 1;
+  padding: 24px;
+  min-width: 0; /* prevent overflow on smaller screens */
+}
+
+.share-header {
+  margin-bottom: 12px;
+}
+
+/* KPI chip */
+.share-kpi {
+  background: #141427;
+  border-radius: 12px;
+  padding: 14px 16px;
+  margin-bottom: 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.share-kpi-title {
+  font-weight: 600;
+  font-size: 1rem;
+}
+.share-kpi-count {
+  color: #a9b3d6;
+  font-size: .95rem;
+}
+
+/* Search */
+.share-search {
+  max-width: 520px;
+  margin: 0 0 12px;
+}
+.share-search input {
+  width: 100%;
+  background: #0c0c1a;
+  border: 1px solid #22233a;
+  color: #e9e9f3;
+  padding: 10px 12px;
+  border-radius: 10px;
+  outline: none;
+}
+
+/* Accordion wrapper (reuses your .acc-* rules) */
+.acc-wrapper {
+  margin-top: 8px;
+}
+
+/* Responsiveness */
+@media (max-width: 980px) {
+  .share-sidebar {
+    position: static;
+    height: auto;
+    width: 100%;
+    border-right: 0;
+    border-bottom: 1px solid #22233a;
+  }
+  .share-layout {
+    flex-direction: column;
+  }
+}

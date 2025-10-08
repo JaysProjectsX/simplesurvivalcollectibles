@@ -600,6 +600,123 @@ function closeModal() {
   }
 })();
 
+// --- Share Collection: Admin/SysAdmin only for testing purposes ---
+(async function wireShareButton() {
+  const btn = document.getElementById('shareCollectionBtn');
+  const foot = document.getElementById('shareCountdown');
+  if (!btn) return;
+
+  // Get /me to check role
+  let me = null;
+  try {
+    const r = await fetch(`${backendUrl2}/me`, { credentials: 'include' });
+    if (r.ok) me = await r.json();
+  } catch (e) {}
+
+  const role = (me?.role || '').toLowerCase();
+  const allowed = role === 'admin' || role === 'sysadmin';
+  btn.disabled = !allowed;
+  btn.textContent = allowed ? 'Share Collection' : 'Coming soon';
+  if (!allowed) return;
+
+  btn.addEventListener("click", () => {
+    showGlobalModal({
+      type: "warning",
+      title: "Share Collection",
+      message:
+        "This will generate a temporary public link (read-only) that expires in 60 minutes. Anyone with the link will be able to view your collection progress.<br><br>Do you want to continue?",
+      buttons: [
+        {
+          label: "Cancel",
+          style: "secondary",
+          onClick: "fadeOutAndRemove('modal-shareConfirm')"
+        },
+        {
+          label: "Continue",
+          style: "primary",
+          onClick: `
+            document.querySelector('#modalSavingOverlay p').textContent = 'Generating your public collection list link...';
+            document.getElementById('modalSavingOverlay').style.display = 'flex';
+            fadeOutAndRemove('modal-shareConfirm');
+            generateShareLink();
+          `
+        }
+      ],
+      id: "modal-shareConfirm"
+    });
+  });
+
+    async function generateShareLink() {
+      const overlay = document.getElementById("modalSavingOverlay");
+      const btn = document.getElementById("shareCollectionBtn");
+      const foot = document.getElementById("shareCountdown");
+
+      btn.disabled = true;
+      btn.textContent = "Creating…";
+
+      try {
+        const res = await fetch(`${backendUrl2}/api/share-links`, {
+          method: "POST",
+          credentials: "include",
+          headers: { "Content-Type": "application/json" },
+        });
+        if (!res.ok) throw new Error("Failed to create share link");
+        const { url, expiresAt } = await res.json();
+
+        // ✅ Hide overlay after success
+        overlay.style.display = "none";
+
+        try {
+          await navigator.clipboard.writeText(url);
+          showGlobalModal({
+            type: "success",
+            title: "Link Generated",
+            message: `Your share link has been copied to your clipboard!<br><br><strong>Expires in 60 minutes.</strong>`,
+            buttons: [{ label: "Close", onClick: "fadeOutAndRemove('modal-shareSuccess')" }],
+            id: "modal-shareSuccess"
+          });
+        } catch {
+          showGlobalModal({
+            type: "success",
+            title: "Link Generated",
+            message: `Your share link is:<br><br><code>${url}</code><br><br><strong>Expires in 60 minutes.</strong>`,
+            buttons: [{ label: "Close", onClick: "fadeOutAndRemove('modal-shareSuccess')" }],
+            id: "modal-shareSuccess"
+          });
+        }
+
+        // Countdown timer logic (unchanged)
+        const end = Number(expiresAt);
+        const tick = () => {
+          const ms = end - Date.now();
+          if (ms <= 0) {
+            foot.textContent = "Expired";
+            btn.disabled = false;
+            btn.textContent = "Share Collection";
+            return;
+          }
+          const m = String(Math.floor(ms / 60000)).padStart(2, "0");
+          const s = String(Math.floor((ms % 60000) / 1000)).padStart(2, "0");
+          foot.textContent = `Expires in ${m}:${s}`;
+          requestAnimationFrame(tick);
+        };
+        tick();
+      } catch (e) {
+        console.error(e);
+        overlay.style.display = "none"; // ✅ also hide on error
+        showGlobalModal({
+          type: "error",
+          title: "Error",
+          message: "Failed to create share link. Please try again.",
+          buttons: [{ label: "Close", onClick: "fadeOutAndRemove('modal-shareFail')" }],
+          id: "modal-shareFail"
+        });
+      }
+    }
+
+
+})();
+
 // Modal save/cancel buttons
 const saveButton = document.getElementById("saveProgressBtn");
 const cancelButton = document.getElementById("cancelProgressBtn");

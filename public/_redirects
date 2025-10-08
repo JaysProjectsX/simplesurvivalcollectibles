@@ -1,0 +1,5 @@
+# Shared Collection Viewer
+/s/*   /share.html   200
+
+# Fallback for the rest of the SPA
+/*     /index.html   200

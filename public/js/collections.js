@@ -36,10 +36,15 @@ function diffSets(beforeSet, afterSet) {
 
 // countdown manager for KPI card
 let __shareCountdownRAF = null;
+
 function startShareCountdown(expiresAtMs) {
   if (!Number.isFinite(expiresAtMs)) return;
   const foot = document.getElementById('shareCountdown');
   const btn  = document.getElementById('shareCollectionBtn');
+
+  // Make sure the countdown is visible again
+  if (foot) foot.style.visibility = 'visible';
+
   cancelShareCountdown();
   const tick = () => {
     const ms = expiresAtMs - Date.now();
@@ -47,16 +52,17 @@ function startShareCountdown(expiresAtMs) {
       foot.textContent = "Expired";
       btn.disabled = false;
       btn.textContent = "Share Collection";
-      btn.onclick = null; // will be re-wired by wireShareButton
+      btn.onclick = null;
       return;
     }
-    const m = String(Math.floor(ms/60000)).padStart(2,'0');
-    const s = String(Math.floor((ms%60000)/1000)).padStart(2,'0');
+    const m = String(Math.floor(ms / 60000)).padStart(2, '0');
+    const s = String(Math.floor((ms % 60000) / 1000)).padStart(2, '0');
     foot.textContent = `Expires in ${m}:${s}`;
     __shareCountdownRAF = requestAnimationFrame(tick);
   };
   tick();
 }
+
 function cancelShareCountdown(){
   if (__shareCountdownRAF) cancelAnimationFrame(__shareCountdownRAF);
   __shareCountdownRAF = null;
@@ -827,7 +833,7 @@ function closeModal() {
     fadeOutAndRemove(modalId);
   };
 
-  window.__share_delete = async function() {
+  window.__share_delete = async function () {
     try {
       await fetch(`${backendUrl2}/api/share-links/active`, {
         method: 'DELETE',
@@ -835,11 +841,15 @@ function closeModal() {
       });
     } catch (e) {}
 
-    // reset UI back to "create link" flow
+    // Stop any running countdown
     cancelShareCountdown();
     const foot = document.getElementById('shareCountdown');
-    if (foot) foot.textContent = '';
+    if (foot) {
+      foot.textContent = '';
+      foot.style.visibility = 'hidden';
+    }
 
+    // Reset button state back to default
     const btn = document.getElementById('shareCollectionBtn');
     if (btn) {
       btn.disabled = false;
@@ -848,9 +858,9 @@ function closeModal() {
       attachConfirmHandler(btn);
     }
 
+    // Remove the Options modal
     fadeOutAndRemove('modal-shareOptions');
   };
-
 
   function showShareOptionsModal(active) {
     const url = (active && active.url) ? active.url : '';

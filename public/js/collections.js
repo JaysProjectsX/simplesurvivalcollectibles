@@ -600,13 +600,12 @@ function closeModal() {
   }
 })();
 
-// --- Share Collection: Admin/SysAdmin only for testing purposes ---
+// Share Collection: Admin/SysAdmin only for testing purposes
 (async function wireShareButton() {
   const btn = document.getElementById('shareCollectionBtn');
   const foot = document.getElementById('shareCountdown');
   if (!btn) return;
 
-  // helper that retries /me after silent repair
   const getMeEnsured = async () => {
     const tryFetch = () => fetch(`${backendUrl2}/me`, { credentials: 'include' });
     let res = await tryFetch();
@@ -623,7 +622,6 @@ function closeModal() {
   const role = (me?.role || '').toLowerCase();
   const allowed = role === 'admin' || role === 'sysadmin';
 
-  // set both disabled and title so the tooltip matches the state
   btn.disabled = !allowed;
   btn.textContent = allowed ? 'Share Collection' : 'Coming soon';
   btn.title = allowed ? '' : 'Coming soon';
@@ -657,6 +655,8 @@ function closeModal() {
     });
   });
 
+})();
+
     async function generateShareLink() {
       const overlay = document.getElementById("modalSavingOverlay");
       const btn = document.getElementById("shareCollectionBtn");
@@ -674,7 +674,7 @@ function closeModal() {
         if (!res.ok) throw new Error("Failed to create share link");
         const { url, expiresAt } = await res.json();
 
-        // ✅ Hide overlay after success
+        // Hide overlay after success
         overlay.style.display = "none";
 
         try {
@@ -696,7 +696,7 @@ function closeModal() {
           });
         }
 
-        // Countdown timer logic (unchanged)
+        // Countdown timer logic 
         const end = Number(expiresAt);
         const tick = () => {
           const ms = end - Date.now();
@@ -714,7 +714,7 @@ function closeModal() {
         tick();
       } catch (e) {
         console.error(e);
-        overlay.style.display = "none"; // ✅ also hide on error
+        overlay.style.display = "none"; // also hide the overlay on error
         showGlobalModal({
           type: "error",
           title: "Error",
@@ -724,9 +724,6 @@ function closeModal() {
         });
       }
     }
-
-
-})();
 
 // Modal save/cancel buttons
 const saveButton = document.getElementById("saveProgressBtn");

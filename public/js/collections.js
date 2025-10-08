@@ -37,6 +37,7 @@ function diffSets(beforeSet, afterSet) {
 // countdown manager for KPI card
 let __shareCountdownRAF = null;
 function startShareCountdown(expiresAtMs) {
+  if (!Number.isFinite(expiresAtMs)) return;
   const foot = document.getElementById('shareCountdown');
   const btn  = document.getElementById('shareCollectionBtn');
   cancelShareCountdown();
@@ -657,14 +658,32 @@ function closeModal() {
     // check if user already has an active share link
     try {
       const r = await fetch(`${backendUrl2}/api/share-links/active`, { credentials: 'include' });
-      if (r.ok) {
-        const active = await r.json();
+      if (!r.ok) throw new Error('active check failed');
+      const data = await r.json();   // could be { ok:false } OR { ok:true, url, createdAt, expiresAt }
+
+      // ---- Only treat as active when ok === true and expiresAt is sane ----
+      if (data && data.ok === true && Number.isFinite(Number(data.expiresAt))) {
+        const active = data; // { ok:true, url, createdAt, expiresAt }
         btn.disabled = false;
         btn.textContent = 'Options';
         btn.onclick = () => showShareOptionsModal(active);
         startShareCountdown(Number(active.expiresAt));
+      } else {
+        // No active link, reset UI to “Share Collection”
+        cancelShareCountdown?.(); // if you added the helper
+        foot.textContent = '';
+        btn.disabled = false;
+        btn.textContent = 'Share Collection';
+        btn.onclick = null; // will be wired below to “create” flow
       }
-    } catch (e) { /* ignore */ }
+    } catch (e) {
+      // network hiccup → behave like “no active link”
+      cancelShareCountdown?.();
+      foot.textContent = '';
+      btn.disabled = false;
+      btn.textContent = 'Share Collection';
+      btn.onclick = null;
+    }
 
     // If not active, wire create flow
     if (btn.textContent === 'Share Collection') {

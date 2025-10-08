@@ -606,17 +606,28 @@ function closeModal() {
   const foot = document.getElementById('shareCountdown');
   if (!btn) return;
 
-  // Get /me to check role
-  let me = null;
-  try {
-    const r = await fetch(`${backendUrl2}/me`, { credentials: 'include' });
-    if (r.ok) me = await r.json();
-  } catch (e) {}
+  // helper that retries /me after silent repair
+  const getMeEnsured = async () => {
+    const tryFetch = () => fetch(`${backendUrl2}/me`, { credentials: 'include' });
+    let res = await tryFetch();
+    if (res.status === 401) {
+      const repaired = await silentRepairSession();
+      if (repaired) res = await tryFetch();
+    }
+    if (!res.ok) return null;
+    try { return await res.json(); } catch { return null; }
+  };
+
+  const me = await getMeEnsured();
 
   const role = (me?.role || '').toLowerCase();
   const allowed = role === 'admin' || role === 'sysadmin';
+
+  // set both disabled and title so the tooltip matches the state
   btn.disabled = !allowed;
   btn.textContent = allowed ? 'Share Collection' : 'Coming soon';
+  btn.title = allowed ? '' : 'Coming soon';
+
   if (!allowed) return;
 
   btn.addEventListener("click", () => {

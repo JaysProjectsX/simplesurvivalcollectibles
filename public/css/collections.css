@@ -585,7 +585,7 @@ body.modal-open{
   padding:6px 10px;
   border-radius:8px;
   font-weight:600;
-  cursor:not-allowed; /* disabled for now */
+  cursor: pointer;
   opacity:.65;
   margin-top: 12px;
 }

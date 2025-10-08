@@ -661,21 +661,28 @@ function closeModal() {
       if (!r.ok) throw new Error('active check failed');
       const data = await r.json();   // could be { ok:false } OR { ok:true, url, createdAt, expiresAt }
 
-      // ---- Only treat as active when ok === true and expiresAt is sane ----
-      if (data && data.ok === true && Number.isFinite(Number(data.expiresAt))) {
-        const active = data; // { ok:true, url, createdAt, expiresAt }
+      const isActive =
+        data &&
+        (data.ok === true || (data.url && Number.isFinite(Number(data.expiresAt))));
+
+      if (isActive) {
+        const active = {
+          url: data.url,
+          createdAt: Number(data.createdAt),
+          expiresAt: Number(data.expiresAt),
+        };
         btn.disabled = false;
         btn.textContent = 'Options';
         btn.onclick = () => showShareOptionsModal(active);
-        startShareCountdown(Number(active.expiresAt));
+        startShareCountdown(active.expiresAt);
       } else {
-        // No active link, reset UI to “Share Collection”
-        cancelShareCountdown?.(); // if you added the helper
+        cancelShareCountdown?.();
         foot.textContent = '';
         btn.disabled = false;
         btn.textContent = 'Share Collection';
-        btn.onclick = null; // will be wired below to “create” flow
+        btn.onclick = null; // will be wired to "create" below
       }
+
     } catch (e) {
       // network hiccup → behave like “no active link”
       cancelShareCountdown?.();
@@ -750,11 +757,11 @@ function closeModal() {
           });
         } catch {
           showGlobalModal({
-            type: "success",
-            title: "Link Generated",
-            message: `Your share link is:<br><br><code>${url}</code><br><br><strong>Expires in 60 minutes.</strong>`,
-            buttons: [{ label: "Close", onClick: "fadeOutAndRemove('modal-shareSuccess')" }],
-            id: "modal-shareSuccess"
+            type: "error",
+            title: "Failed to generate link",
+            message: `There was an issue when creating your share link. Please try again later.`,
+            buttons: [{ label: "Close", onClick: "fadeOutAndRemove('modal-shareError')" }],
+            id: "modal-shareError"
           });
         }
 
@@ -788,46 +795,45 @@ function closeModal() {
     }
 
 
-    function showShareOptionsModal(active) {
-      const url = active?.url || '';
-      showGlobalModal({
-        type: "info",
-        title: "Share Collection – Options",
-        message: `Your public link:<br><br><code>${url}</code><br><br>What would you like to do?`,
-        buttons: [
-          {
-            label: "Copy link",
-            style: "primary",
-            onClick: `
-              (async () => {
-                try { await navigator.clipboard.writeText('${url}'); } catch(e){}
-                fadeOutAndRemove('modal-shareOptions');
-              })();
-            `
-          },
-          {
-            label: "Delete link",
-            style: "destructive",
-            onClick: `
-              (async () => {
-                try {
-                  await fetch('${backendUrl2}/api/share-links/active', { method: 'DELETE', credentials: 'include' });
-                } catch(e){}
-                document.getElementById('shareCountdown').textContent = '';
-                const btn = document.getElementById('shareCollectionBtn');
-                btn.disabled = false;
-                btn.textContent = 'Share Collection';
-                btn.onclick = null;
-                fadeOutAndRemove('modal-shareOptions');
-              })();
-            `
-          },
-          { label: "Close", style: "secondary", onClick: "fadeOutAndRemove('modal-shareOptions')" }
-        ],
-        id: "modal-shareOptions"
-      });
-    }
-
+  function showShareOptionsModal(active) {
+    const url = (active && active.url) ? active.url : '';
+    showGlobalModal({
+      type: "info",
+      title: "Share Collection – Options",
+      message: `Your public link:<br><small><code>${url}</code></small><br>What would you like to do?`,
+      buttons: [
+        {
+          label: "Copy link",
+          style: "primary",
+          onClick: `
+            (async () => {
+              try { await navigator.clipboard.writeText('${url}'); } catch(e){}
+              fadeOutAndRemove('modal-shareOptions');
+            })();
+          `
+        },
+        {
+          label: "Delete link",
+          style: "destructive",
+          onClick: `
+            (async () => {
+              try {
+                await fetch('${backendUrl2}/api/share-links/active', { method: 'DELETE', credentials: 'include' });
+              } catch(e){}
+              document.getElementById('shareCountdown').textContent = '';
+              const btn = document.getElementById('shareCollectionBtn');
+              btn.disabled = false;
+              btn.textContent = 'Share Collection';
+              btn.onclick = null;
+              fadeOutAndRemove('modal-shareOptions');
+            })();
+          `
+        },
+        { label: "Close", style: "secondary", onClick: "fadeOutAndRemove('modal-shareOptions')" }
+      ],
+      id: "modal-shareOptions"
+    });
+  }
 
 // Modal save/cancel buttons
 const saveButton = document.getElementById("saveProgressBtn");

@@ -586,7 +586,6 @@ body.modal-open{
   border-radius:8px;
   font-weight:600;
   cursor: pointer;
-  margin-top: 12px;
 }
 
 /* Responsive match to account page */
@@ -739,6 +738,11 @@ body.modal-open{
 /* Accordion wrapper */
 .acc-wrapper {
   margin-top: 8px;
+}
+
+#shareCollectionBtn {
+  margin-top: 6px;
+  margin-bottom: 6px;
 }
 
 #accRoot {

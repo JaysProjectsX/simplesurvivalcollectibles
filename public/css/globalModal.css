@@ -126,6 +126,11 @@
   opacity: 1;
   transition: opacity 0.3s ease;
 }
+.global-modal.info {
+  background: radial-gradient(ellipse at right top, #3367bb 0%, #151419 47%, #151419 100%);
+  opacity: 1;
+  transition: opacity 0.3s ease;
+}
 .global-modal.warning .icon {
   color: #fec46c;
 }
@@ -135,3 +140,4 @@
 .global-modal.error .icon {
   color: #fe6c9b;
 }
+.global-modal.info .icon { color: #3b82f6; }

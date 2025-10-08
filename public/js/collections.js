@@ -629,6 +629,52 @@ function closeModal() {
   }
 })();
 
+  let shareConfirmHandlerRef = null;
+  let shareCountdownRAF = null;
+
+  function cancelShareCountdown() {
+    if (shareCountdownRAF) {
+      cancelAnimationFrame(shareCountdownRAF);
+      shareCountdownRAF = null;
+    }
+  }
+
+  function attachConfirmHandler(btn) {
+    if (shareConfirmHandlerRef) return; // already attached
+
+    shareConfirmHandlerRef = () => {
+      showGlobalModal({
+        type: "warning",
+        title: "Share Collection",
+        message:
+          "This will generate a temporary public link (read-only) that expires in 60 minutes. Anyone with the link will be able to view your collection progress.<br><br>Do you want to continue?",
+        buttons: [
+          { label: "Cancel", style: "secondary", onClick: "fadeOutAndRemove('modal-shareConfirm')" },
+          {
+            label: "Continue",
+            style: "primary",
+            onClick: `
+              document.querySelector('#modalSavingOverlay p').textContent = 'Generating your public collection list link...';
+              document.getElementById('modalSavingOverlay').style.display = 'flex';
+              fadeOutAndRemove('modal-shareConfirm');
+              window.generateShareLink();
+            `
+          }
+        ],
+        id: "modal-shareConfirm"
+      });
+    };
+
+    btn.addEventListener('click', shareConfirmHandlerRef);
+  }
+
+  function detachConfirmHandler(btn) {
+    if (!shareConfirmHandlerRef) return;
+    btn.removeEventListener('click', shareConfirmHandlerRef);
+    shareConfirmHandlerRef = null;
+  }
+
+
   // Share Collection: Admin/SysAdmin only
   (async function wireShareButton() {
     const btn  = document.getElementById('shareCollectionBtn');
@@ -659,7 +705,7 @@ function closeModal() {
     try {
       const r = await fetch(`${backendUrl2}/api/share-links/active`, { credentials: 'include' });
       if (!r.ok) throw new Error('active check failed');
-      const data = await r.json();   // could be { ok:false } OR { ok:true, url, createdAt, expiresAt }
+      const data = await r.json();   // { ok:false } OR { ok:true, url, createdAt, expiresAt }
 
       const isActive =
         data &&
@@ -671,51 +717,30 @@ function closeModal() {
           createdAt: Number(data.createdAt),
           expiresAt: Number(data.expiresAt),
         };
+
+        // ACTIVE: remove confirm flow, show Options, start countdown
+        detachConfirmHandler(btn);
         btn.disabled = false;
         btn.textContent = 'Options';
         btn.onclick = () => showShareOptionsModal(active);
         startShareCountdown(active.expiresAt);
       } else {
-        cancelShareCountdown?.();
+        // NOT ACTIVE: clear options handler, attach confirm flow
+        cancelShareCountdown();
         foot.textContent = '';
         btn.disabled = false;
         btn.textContent = 'Share Collection';
-        btn.onclick = null; // will be wired to "create" below
+        btn.onclick = null;
+        attachConfirmHandler(btn);
       }
-
     } catch (e) {
       // network hiccup → behave like “no active link”
-      cancelShareCountdown?.();
+      cancelShareCountdown();
       foot.textContent = '';
       btn.disabled = false;
       btn.textContent = 'Share Collection';
       btn.onclick = null;
-    }
-
-    // If not active, wire create flow
-    if (btn.textContent === 'Share Collection') {
-      btn.addEventListener("click", () => {
-        showGlobalModal({
-          type: "warning",
-          title: "Share Collection",
-          message:
-            "This will generate a temporary public link (read-only) that expires in 60 minutes. Anyone with the link will be able to view your collection progress.<br><br>Do you want to continue?",
-          buttons: [
-            { label: "Cancel", style: "secondary", onClick: "fadeOutAndRemove('modal-shareConfirm')" },
-            {
-              label: "Continue",
-              style: "primary",
-              onClick: `
-                document.querySelector('#modalSavingOverlay p').textContent = 'Generating your public collection list link...';
-                document.getElementById('modalSavingOverlay').style.display = 'flex';
-                fadeOutAndRemove('modal-shareConfirm');
-                window.generateShareLink();
-              `
-            }
-          ],
-          id: "modal-shareConfirm"
-        });
-      });
+      attachConfirmHandler(btn);
     }
   })();
 
@@ -740,6 +765,7 @@ function closeModal() {
         // Hide overlay after success
         overlay.style.display = "none";
 
+        detachConfirmHandler(btn);
         btn.disabled = false;
         btn.textContent = "Options";
         btn.onclick = () => showShareOptionsModal({ url, expiresAt });
@@ -792,6 +818,7 @@ function closeModal() {
           id: "modal-shareFail"
         });
       }
+      window.generateShareLink = generateShareLink;
     }
 
 
@@ -822,9 +849,11 @@ function closeModal() {
               } catch(e){}
               document.getElementById('shareCountdown').textContent = '';
               const btn = document.getElementById('shareCollectionBtn');
+              (${cancelShareCountdown.toString()})();
               btn.disabled = false;
               btn.textContent = 'Share Collection';
               btn.onclick = null;
+              (${attachConfirmHandler.toString()})(btn);
               fadeOutAndRemove('modal-shareOptions');
             })();
           `

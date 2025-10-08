@@ -699,13 +699,9 @@ function closeModal() {
     };
 
     const me = await getMeEnsured();
-    const role = (me?.role || '').trim().toLowerCase();
-    const allowed = role === 'admin' || role === 'sysadmin';
-
-    btn.disabled = !allowed;
-    btn.textContent = allowed ? 'Share Collection' : 'Coming soon';
-    btn.title = allowed ? '' : 'Coming soon';
-    if (!allowed) return;
+    btn.disabled = false;
+    btn.textContent = 'Share Collection';
+    btn.title = '';
 
     // check if user already has an active share link
     try {

@@ -34,6 +34,34 @@ function diffSets(beforeSet, afterSet) {
   return { toAdd, toRemove };
 }
 
+// countdown manager for KPI card
+let __shareCountdownRAF = null;
+function startShareCountdown(expiresAtMs) {
+  const foot = document.getElementById('shareCountdown');
+  const btn  = document.getElementById('shareCollectionBtn');
+  cancelShareCountdown();
+  const tick = () => {
+    const ms = expiresAtMs - Date.now();
+    if (ms <= 0) {
+      foot.textContent = "Expired";
+      btn.disabled = false;
+      btn.textContent = "Share Collection";
+      btn.onclick = null; // will be re-wired by wireShareButton
+      return;
+    }
+    const m = String(Math.floor(ms/60000)).padStart(2,'0');
+    const s = String(Math.floor((ms%60000)/1000)).padStart(2,'0');
+    foot.textContent = `Expires in ${m}:${s}`;
+    __shareCountdownRAF = requestAnimationFrame(tick);
+  };
+  tick();
+}
+function cancelShareCountdown(){
+  if (__shareCountdownRAF) cancelAnimationFrame(__shareCountdownRAF);
+  __shareCountdownRAF = null;
+}
+
+
 // Fetch crates and their items
 async function fetchCratesWithItems() {
   const res = await fetch(`${backendUrl2}/api/crates`);
@@ -600,62 +628,71 @@ function closeModal() {
   }
 })();
 
-// Share Collection: Admin/SysAdmin only for testing purposes
-(async function wireShareButton() {
-  const btn = document.getElementById('shareCollectionBtn');
-  const foot = document.getElementById('shareCountdown');
-  if (!btn) return;
+  // Share Collection: Admin/SysAdmin only
+  (async function wireShareButton() {
+    const btn  = document.getElementById('shareCollectionBtn');
+    const foot = document.getElementById('shareCountdown');
+    if (!btn) return;
 
-  const getMeEnsured = async () => {
-    const tryFetch = () => fetch(`${backendUrl2}/me`, { credentials: 'include' });
-    let res = await tryFetch();
-    if (res.status === 401) {
-      const repaired = await silentRepairSession();
-      if (repaired) res = await tryFetch();
+    const getMeEnsured = async () => {
+      const tryFetch = () => fetch(`${backendUrl2}/me`, { credentials: 'include' });
+      let res = await tryFetch();
+      if (res.status === 401) {
+        const repaired = await silentRepairSession();
+        if (repaired) res = await tryFetch();
+      }
+      if (!res.ok) return null;
+      try { return await res.json(); } catch { return null; }
+    };
+
+    const me = await getMeEnsured();
+    const role = (me?.role || '').trim().toLowerCase();
+    const allowed = role === 'admin' || role === 'sysadmin';
+
+    btn.disabled = !allowed;
+    btn.textContent = allowed ? 'Share Collection' : 'Coming soon';
+    btn.title = allowed ? '' : 'Coming soon';
+    if (!allowed) return;
+
+    // check if user already has an active share link
+    try {
+      const r = await fetch(`${backendUrl2}/api/share-links/active`, { credentials: 'include' });
+      if (r.ok) {
+        const active = await r.json();
+        btn.disabled = false;
+        btn.textContent = 'Options';
+        btn.onclick = () => showShareOptionsModal(active);
+        startShareCountdown(Number(active.expiresAt));
+      }
+    } catch (e) { /* ignore */ }
+
+    // If not active, wire create flow
+    if (btn.textContent === 'Share Collection') {
+      btn.addEventListener("click", () => {
+        showGlobalModal({
+          type: "warning",
+          title: "Share Collection",
+          message:
+            "This will generate a temporary public link (read-only) that expires in 60 minutes. Anyone with the link will be able to view your collection progress.<br><br>Do you want to continue?",
+          buttons: [
+            { label: "Cancel", style: "secondary", onClick: "fadeOutAndRemove('modal-shareConfirm')" },
+            {
+              label: "Continue",
+              style: "primary",
+              onClick: `
+                document.querySelector('#modalSavingOverlay p').textContent = 'Generating your public collection list link...';
+                document.getElementById('modalSavingOverlay').style.display = 'flex';
+                fadeOutAndRemove('modal-shareConfirm');
+                window.generateShareLink();
+              `
+            }
+          ],
+          id: "modal-shareConfirm"
+        });
+      });
     }
-    if (!res.ok) return null;
-    try { return await res.json(); } catch { return null; }
-  };
+  })();
 
-  const me = await getMeEnsured();
-
-  const role = (me?.role || '').toLowerCase();
-  const allowed = role === 'admin' || role === 'sysadmin';
-
-  btn.disabled = !allowed;
-  btn.textContent = allowed ? 'Share Collection' : 'Coming soon';
-  btn.title = allowed ? '' : 'Coming soon';
-
-  if (!allowed) return;
-
-  btn.addEventListener("click", () => {
-    showGlobalModal({
-      type: "warning",
-      title: "Share Collection",
-      message:
-        "This will generate a temporary public link (read-only) that expires in 60 minutes. Anyone with the link will be able to view your collection progress.<br><br>Do you want to continue?",
-      buttons: [
-        {
-          label: "Cancel",
-          style: "secondary",
-          onClick: "fadeOutAndRemove('modal-shareConfirm')"
-        },
-        {
-          label: "Continue",
-          style: "primary",
-          onClick: `
-            document.querySelector('#modalSavingOverlay p').textContent = 'Generating your public collection list link...';
-            document.getElementById('modalSavingOverlay').style.display = 'flex';
-            fadeOutAndRemove('modal-shareConfirm');
-            generateShareLink();
-          `
-        }
-      ],
-      id: "modal-shareConfirm"
-    });
-  });
-
-})();
 
     async function generateShareLink() {
       const overlay = document.getElementById("modalSavingOverlay");
@@ -677,12 +714,18 @@ function closeModal() {
         // Hide overlay after success
         overlay.style.display = "none";
 
+        btn.disabled = false;
+        btn.textContent = "Options";
+        btn.onclick = () => showShareOptionsModal({ url, expiresAt });
+
+        startShareCountdown(Number(expiresAt));
+
         try {
           await navigator.clipboard.writeText(url);
           showGlobalModal({
             type: "success",
             title: "Link Generated",
-            message: `Your share link has been copied to your clipboard!<br><br><strong>Expires in 60 minutes.</strong>`,
+            message: `Your share link has been copied to your clipboard!<br><strong>Expires in 60 minutes.</strong>`,
             buttons: [{ label: "Close", onClick: "fadeOutAndRemove('modal-shareSuccess')" }],
             id: "modal-shareSuccess"
           });
@@ -724,6 +767,48 @@ function closeModal() {
         });
       }
     }
+
+
+    function showShareOptionsModal(active) {
+      const url = active?.url || '';
+      showGlobalModal({
+        type: "info",
+        title: "Share Collection – Options",
+        message: `Your public link:<br><br><code>${url}</code><br><br>What would you like to do?`,
+        buttons: [
+          {
+            label: "Copy link",
+            style: "primary",
+            onClick: `
+              (async () => {
+                try { await navigator.clipboard.writeText('${url}'); } catch(e){}
+                fadeOutAndRemove('modal-shareOptions');
+              })();
+            `
+          },
+          {
+            label: "Delete link",
+            style: "destructive",
+            onClick: `
+              (async () => {
+                try {
+                  await fetch('${backendUrl2}/api/share-links/active', { method: 'DELETE', credentials: 'include' });
+                } catch(e){}
+                document.getElementById('shareCountdown').textContent = '';
+                const btn = document.getElementById('shareCollectionBtn');
+                btn.disabled = false;
+                btn.textContent = 'Share Collection';
+                btn.onclick = null;
+                fadeOutAndRemove('modal-shareOptions');
+              })();
+            `
+          },
+          { label: "Close", style: "secondary", onClick: "fadeOutAndRemove('modal-shareOptions')" }
+        ],
+        id: "modal-shareOptions"
+      });
+    }
+
 
 // Modal save/cancel buttons
 const saveButton = document.getElementById("saveProgressBtn");

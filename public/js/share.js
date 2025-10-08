@@ -33,22 +33,67 @@ const $crateTitle = () => document.getElementById('crateTitle');
 const $crateCount = () => document.getElementById('crateCount');
 const $accRoot = () => document.getElementById('accRoot');
 const $search = () => document.getElementById('searchInput');
+const $created = () => document.getElementById('shareCreated');
+const $expires = () => document.getElementById('shareExpires');
+
+function startSidebarExpiryCountdown(expiresAt) {
+  const tick = () => {
+    const ms = expiresAt - Date.now();
+    if (ms <= 0) { $expires().textContent = 'Expired'; return; }
+    const m = String(Math.floor(ms/60000)).padStart(2,'0');
+    const s = String(Math.floor((ms%60000)/1000)).padStart(2,'0');
+    $expires().textContent = `Expires in ${m}:${s}`;
+    requestAnimationFrame(tick);
+  };
+  tick();
+}
+
+// ===== Search Helpers =====
+function openPanel(panelEl, btnEl) {
+  document.querySelectorAll('.acc-panel.open').forEach((p) => {
+    p.classList.remove('open');
+    p.style.maxHeight = null;
+    p.previousElementSibling?.classList.remove('active');
+  });
+  panelEl.classList.add('open');
+  panelEl.style.maxHeight = panelEl.scrollHeight + 'px';
+  btnEl.classList.add('active');
+}
+
+function scrollRowIntoView(container, target) {
+  const cRect = container.getBoundingClientRect();
+  const tRect = target.getBoundingClientRect();
+  const top =
+    container.scrollTop +
+    (tRect.top - cRect.top) -
+    (container.clientHeight / 2 - target.offsetHeight / 2);
+  container.scrollTo({ top, behavior: 'smooth' });
+}
+
+function focusFirstSearchHit() {
+  const hit = document.querySelector('#accRoot tr.search-hit');
+  if (!hit) return;
+  const panel = hit.closest('.acc-panel');
+  const btn = panel.previousElementSibling;
+  const container = document.scrollingElement || document.documentElement;
+  if (!panel.classList.contains('open')) openPanel(panel, btn);
+  setTimeout(() => scrollRowIntoView(container, hit), 250);
+}
 
 // ===== Init =====
 (async function init() {
   try {
     const token = tokenFromPath();
-    if (!token) throw new Error('Missing token');
-
     const r = await fetch(`${BACKEND_API}/api/share-links/${token}`);
     if (!r.ok) throw new Error('Link invalid or expired');
 
-    const { snapshot } = await r.json();
+    const { snapshot, createdAt, expiresAt } = await r.json(); // ensure backend returns createdAt/expiresAt
     state.snapshot = snapshot;
 
-    // Header user
     $user().textContent = `Shared by ${snapshot.user?.username ?? 'Unknown'}`;
     document.title = `${snapshot.user?.username ?? 'Shared'} — Collections`;
+    if (createdAt) $created().textContent = `Link created: ${new Date(Number(createdAt)).toLocaleString()}`;
+    if (expiresAt) startSidebarExpiryCountdown(Number(expiresAt));
 
     // Build sidebar
     $crateList().innerHTML = '';
@@ -66,9 +111,18 @@ const $search = () => document.getElementById('searchInput');
 
     // Wire search
     $search().addEventListener('input', () => {
-      state.search = $search().value.trim().toLowerCase();
-      if (state.currentCrate) renderAccordions(state.currentCrate);
-    });
+        state.search = $search().value.trim().toLowerCase();
+        if (state.currentCrate) {
+            renderAccordions(state.currentCrate);
+            if (state.search) {
+            const first = document.querySelector('#accRoot tbody tr.match');
+            if (first) {
+                first.classList.add('search-hit');
+                focusFirstSearchHit();
+            }
+            }
+        }
+        });
   } catch (e) {
     // Friendly failure
     document.body.innerHTML = `
@@ -151,7 +205,7 @@ function renderAccordions(crate) {
                 <td>${it.item_name}</td>
                 <td>${it.set_name || ''}</td>
                 <td><img src="${it.icon_url}" alt="${it.item_name}"></td>
-                <td>${owned.has(Number(it.id)) ? '✅' : ''}</td>
+                <td>${owned.has(Number(it.id)) ? '✓' : ''}</td>
               </tr>`
               )
               .join('')}

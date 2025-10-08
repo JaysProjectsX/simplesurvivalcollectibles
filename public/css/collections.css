@@ -695,7 +695,7 @@ body.modal-open{
 .share-main {
   flex: 1;
   padding: 24px;
-  min-width: 0; /* prevent overflow on smaller screens */
+  min-width: 0;
 }
 
 .share-header {
@@ -736,10 +736,21 @@ body.modal-open{
   outline: none;
 }
 
-/* Accordion wrapper (reuses your .acc-* rules) */
+/* Accordion wrapper */
 .acc-wrapper {
   margin-top: 8px;
 }
+
+#accRoot {
+  margin-top: 8px;
+  overflow-y: auto;
+  max-height: 700px;
+  padding-right: 6px;
+}
+
+.share-meta { color:#a9b3d6; font-size:.9rem; margin:.25rem 0; }
+.share-meta.label { color:#cfd3ff; margin-top:.75rem; font-weight:600; }
+
 
 /* Responsiveness */
 @media (max-width: 980px) {

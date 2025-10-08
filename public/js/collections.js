@@ -821,6 +821,36 @@ function closeModal() {
       window.generateShareLink = generateShareLink;
     }
 
+  // Small globals used by the Options modal buttons.
+  window.__share_copy = async function(url, modalId = 'modal-shareOptions') {
+    try { await navigator.clipboard.writeText(url); } catch (e) {}
+    fadeOutAndRemove(modalId);
+  };
+
+  window.__share_delete = async function() {
+    try {
+      await fetch(`${backendUrl2}/api/share-links/active`, {
+        method: 'DELETE',
+        credentials: 'include'
+      });
+    } catch (e) {}
+
+    // reset UI back to "create link" flow
+    cancelShareCountdown();
+    const foot = document.getElementById('shareCountdown');
+    if (foot) foot.textContent = '';
+
+    const btn = document.getElementById('shareCollectionBtn');
+    if (btn) {
+      btn.disabled = false;
+      btn.textContent = 'Share Collection';
+      btn.onclick = null;
+      attachConfirmHandler(btn);
+    }
+
+    fadeOutAndRemove('modal-shareOptions');
+  };
+
 
   function showShareOptionsModal(active) {
     const url = (active && active.url) ? active.url : '';
@@ -832,37 +862,19 @@ function closeModal() {
         {
           label: "Copy link",
           style: "primary",
-          onClick: `
-            (async () => {
-              try { await navigator.clipboard.writeText('${url}'); } catch(e){}
-              fadeOutAndRemove('modal-shareOptions');
-            })();
-          `
+          onClick: `__share_copy('${url}','modal-shareOptions')`
         },
         {
           label: "Delete link",
           style: "destructive",
-          onClick: `
-            (async () => {
-              try {
-                await fetch('${backendUrl2}/api/share-links/active', { method: 'DELETE', credentials: 'include' });
-              } catch(e){}
-              document.getElementById('shareCountdown').textContent = '';
-              const btn = document.getElementById('shareCollectionBtn');
-              (${cancelShareCountdown.toString()})();
-              btn.disabled = false;
-              btn.textContent = 'Share Collection';
-              btn.onclick = null;
-              (${attachConfirmHandler.toString()})(btn);
-              fadeOutAndRemove('modal-shareOptions');
-            })();
-          `
+          onClick: `__share_delete()`
         },
         { label: "Close", style: "secondary", onClick: "fadeOutAndRemove('modal-shareOptions')" }
       ],
       id: "modal-shareOptions"
     });
   }
+
 
 // Modal save/cancel buttons
 const saveButton = document.getElementById("saveProgressBtn");

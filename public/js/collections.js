@@ -255,9 +255,9 @@ function renderCrates(crates) {
 
     // Set the bottom border color based on tagClass
     let borderColor;
-    if (tagClass === "tag-complete") borderColor = "rgb(66, 210, 157)"; // green
-    else if (tagClass === "tag-incomplete") borderColor = "#f7c800"; // yellow
-    else borderColor = "rgb(250, 90, 120)"; // red
+    if (tagClass === "tag-complete") borderColor = "rgb(66, 210, 157)";
+    else if (tagClass === "tag-incomplete") borderColor = "#f7c800";
+    else borderColor = "rgb(250, 90, 120)";
     card.style.borderBottom = `3px solid ${borderColor}`;
 
     card.innerHTML = `
@@ -286,24 +286,21 @@ function renderCrates(crates) {
 // state for search/filter and single-open accordion
 let currentFilter = "default";
 let currentSearch = "";
-let currentlyOpenPanel = null; // only one open at a time
+let currentlyOpenPanel = null;
 
 function openCrateModal(crate) {
   openCrateId = crate.id;
   modalTitle.textContent = formatCrateName(crate.name);
 
-  // wire up controls
   const searchInput = document.getElementById("crateSearch");
   const filterSel   = document.getElementById("crateFilter");
 
-  // hydrate with last used values
   searchInput.value = currentSearch;
   filterSel.value = currentFilter;
 
-  // render everything once
   renderAccordion(crate);
 
-  // listeners (debounced search)
+  // listeners
   let tId;
   searchInput.oninput = () => {
     const prevHadSearch = !!currentSearch;
@@ -321,7 +318,7 @@ function openCrateModal(crate) {
         return;
       }
 
-      renderAccordion(crate, /*keepOpen*/true);
+      renderAccordion(crate, true);
       if (currentSearch) focusFirstSearchHit();
     }, 120);
   };
@@ -335,7 +332,7 @@ function openCrateModal(crate) {
   lockBodyScroll();
 }
 
-/** Render the grouped accordions with the current filter/search settings */
+/* Render the grouped accordions with the current filter/search settings */
 function renderAccordion(crate, keepOpen = false) {
   // Group items by set_name
   const groups = crate.items.reduce((acc, item) => {
@@ -365,10 +362,7 @@ function renderAccordion(crate, keepOpen = false) {
       });
     }
 
-    // apply search term (soft filter: keep all, but we’ll highlight & jump;
-    // if you'd rather hide non-matches, uncomment the filter below)
     const term = currentSearch;
-    // if (term) items = items.filter(it => it.item_name.toLowerCase().includes(term));
 
     const accItem = document.createElement("div");
     accItem.className = "acc-item";
@@ -436,12 +430,44 @@ function renderAccordion(crate, keepOpen = false) {
     inner.appendChild(table);
     panel.appendChild(inner);
 
-    btn.addEventListener("click", () => toggleAccordion(btn, panel));
+    // keep header count in sync & toggle Select/Deselect
+    const countEl   = btn.querySelector(".acc-count");
+    const selectBtn = btn.querySelector(".set-select-btn");
 
-    btn.querySelector(".set-select-btn").addEventListener("click", (ev) => {
+    function computeCountsInPanel() {
+      const cbs = panel.querySelectorAll('input[type="checkbox"]');
+      let checked = 0;
+      cbs.forEach(cb => { if (cb.checked) checked++; });
+      return { total: cbs.length, checked };
+    }
+
+    function refreshHeaderForPanel() {
+      const { total, checked } = computeCountsInPanel();
+      countEl.textContent = `Total items collected: ${checked}/${total}`;
+      selectBtn.textContent = (total > 0 && checked === total) ? 'Deselect All' : 'Select All';
+    }
+
+    // set initial state based on current checkboxes
+    refreshHeaderForPanel();
+
+    // Toggle all on header button click
+    selectBtn.addEventListener("click", (ev) => {
       ev.stopPropagation();
-      panel.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = true);
+      const { total, checked } = computeCountsInPanel();
+      const shouldCheckAll = !(total > 0 && checked === total); // all checked => deselect, else select all
+      panel.querySelectorAll('input[type="checkbox"]').forEach(cb => { cb.checked = shouldCheckAll; });
+      refreshHeaderForPanel();
     });
+
+    // When any single checkbox changes, update header text & button
+    table.querySelector("tbody").addEventListener("change", (e) => {
+      if (e.target && e.target.matches('input[type="checkbox"]')) {
+        refreshHeaderForPanel();
+      }
+    });
+
+
+    btn.addEventListener("click", () => toggleAccordion(btn, panel));
 
     if (!currentSearch && previouslyOpenId && previouslyOpenId === groupName) {
       openPanel(btn, panel);

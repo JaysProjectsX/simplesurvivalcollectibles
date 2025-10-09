@@ -105,14 +105,6 @@ function renderSidebarFromSnapshot() {
   const root = $crateList();
   root.innerHTML = '';
 
-  // Top identity + meta
-  const meta = document.createElement('div');
-  meta.className = 'share-meta';
-  meta.innerHTML = `
-    <div class="share-title">Available Crates</div>
-    `;
-  root.appendChild(meta);
-
   // Split crates by is_cosmetic (backend now provides it)
   const cosmetic = [];
   const other = [];

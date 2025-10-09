@@ -633,6 +633,14 @@ body.modal-open{
   margin: 40px 0; /* space above and below */
 }
 
+.collections-share-divider {
+    background: linear-gradient(to right, transparent, rgb(87 87 87 / 60%), transparent);
+    margin-bottom: 20px;
+    margin-top: 6px;
+    border: 0;
+    height: 1px;
+}
+
 /* ===== Shared Link Viewer Layout ===== */
 .share-body {
   background: #0b0b19;
@@ -659,6 +667,7 @@ body.modal-open{
 
 .share-sidebar-header {
   margin-bottom: 10px;
+  text-align: center;
 }
 
 .share-username {
@@ -687,7 +696,6 @@ body.modal-open{
 
 .share-crate-list .crate-btn.active {
   background: #365CF5;
-  box-shadow: 0 6px 18px rgba(54, 92, 245, .35);
 }
 
 /* Main */
@@ -768,7 +776,7 @@ body.modal-open{
   gap: 10px;
   padding: 14px 12px;
   border-radius: 12px;
-  background: rgba(255,255,255,0.03);
+  margin-bottom: 8px;
 }
 
 .share-brand img {
@@ -794,21 +802,16 @@ body.modal-open{
   display: flex;
   flex-direction: column;
   border-radius: 10px;
-  overflow: hidden;                 /* makes buttons look conjoined */
-  border: 1px solid rgba(255,255,255,0.06);
+  overflow: hidden;
 }
 
 .crate-group .crate-btn {
   justify-content: flex-start;
   width: 100%;
-  border-radius: 0;                 /* unified pill */
+  border-radius: 4px;
   border: none;
   background: rgba(255,255,255,0.02);
   transition: background .15s ease, color .15s ease;
-}
-
-.crate-group .crate-btn + .crate-btn {
-  border-top: 1px solid rgba(255,255,255,0.06);
 }
 
 .crate-group .crate-btn:hover {

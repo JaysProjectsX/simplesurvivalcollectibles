@@ -68,6 +68,24 @@ function cancelShareCountdown(){
   __shareCountdownRAF = null;
 }
 
+// --- overlay helpers ---
+function setSavingOverlayText(msg) {
+  const p = document.querySelector('#modalSavingOverlay p');
+  if (p) p.textContent = msg;
+}
+function showSavingOverlay(msg = 'Saving your crate data...') {
+  setSavingOverlayText(msg);
+  const el = document.getElementById('modalSavingOverlay');
+  if (el) el.style.display = 'flex';
+}
+function hideSavingOverlay() {
+  const el = document.getElementById('modalSavingOverlay');
+  if (el) el.style.display = 'none';
+  setSavingOverlayText('Saving your crate data...');
+}
+window.showSavingOverlay = showSavingOverlay;
+window.hideSavingOverlay = hideSavingOverlay;
+
 
 // Fetch crates and their items
 async function fetchCratesWithItems() {
@@ -660,8 +678,7 @@ function closeModal() {
             label: "Continue",
             style: "primary",
             onClick: `
-              document.querySelector('#modalSavingOverlay p').textContent = 'Generating your public collection list link...';
-              document.getElementById('modalSavingOverlay').style.display = 'flex';
+              window.showSavingOverlay('Generating your public collection list link...');
               fadeOutAndRemove('modal-shareConfirm');
               window.generateShareLink();
             `
@@ -765,7 +782,7 @@ function closeModal() {
         const { url, expiresAt } = await res.json();
 
         // Hide overlay after success
-        overlay.style.display = "none";
+        hideSavingOverlay();
 
         detachConfirmHandler(btn);
         btn.disabled = false;
@@ -893,8 +910,7 @@ selectAllBtn.addEventListener("click", () => {
 });
 
 saveButton.addEventListener("click", async () => {
-  const overlay = document.getElementById("modalSavingOverlay");
-  overlay.style.display = "flex";
+  showSavingOverlay('Saving your crate data...');
 
   try {
     // Identify the crate we’re saving from the modal
@@ -907,7 +923,7 @@ saveButton.addEventListener("click", async () => {
     const { toAdd, toRemove } = diffSets(before, after);
 
     if (!toAdd.length && !toRemove.length) {
-      overlay.style.display = "none";
+      hideSavingOverlay();
       closeModal();
       return;
     }
@@ -990,7 +1006,7 @@ saveButton.addEventListener("click", async () => {
     console.error(e);
     showToast('Some items failed to save. Please try again.', 'error');
   } finally {
-    overlay.style.display = "none";
+    hideSavingOverlay();
   }
 });
 

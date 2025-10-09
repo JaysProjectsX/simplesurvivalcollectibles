@@ -75,13 +75,21 @@ function scrollRowIntoView(container, target) {
 }
 
 function focusFirstSearchHit() {
-  const hit = document.querySelector('#accRoot tr.search-hit');
+  const hit = document.querySelector('#accRoot tr.highlight-row');
   if (!hit) return;
+
   const panel = hit.closest('.acc-panel');
   const btn = panel.previousElementSibling;
   const container = document.scrollingElement || document.documentElement;
+
   if (!panel.classList.contains('open')) openPanel(panel, btn);
-  setTimeout(() => scrollRowIntoView(container, hit), 250);
+
+  // give the panel time to expand, then center + pulse
+  setTimeout(() => {
+    scrollRowIntoView(container, hit);
+    hit.classList.add('pulse');
+    setTimeout(() => hit.classList.remove('pulse'), 900);
+  }, 250);
 }
 
 function isCosmeticCrate(name) {
@@ -166,18 +174,20 @@ function renderSidebarFromSnapshot() {
 
     // Wire search
     $search().addEventListener('input', () => {
-        state.search = $search().value.trim().toLowerCase();
-        if (state.currentCrate) {
-            renderAccordions(state.currentCrate);
-            if (state.search) {
-            const first = document.querySelector('#accRoot tbody tr.match');
-            if (first) {
-                first.classList.add('search-hit');
-                focusFirstSearchHit();
-            }
-            }
+      state.search = $search().value.trim().toLowerCase();
+      if (state.currentCrate) {
+        renderAccordions(state.currentCrate);
+
+        // after re-render, jump to first hit (like crate modal)
+        if (state.search) {
+          const first = document.querySelector('#accRoot tbody tr.highlight-row');
+          if (first) {
+            first.classList.add('search-hit');
+            focusFirstSearchHit();
+          }
         }
-        });
+      }
+    });
   } catch (e) {
     // Friendly failure
     document.body.innerHTML = `
@@ -214,6 +224,7 @@ function renderAccordions(crate) {
   root.innerHTML = '';
 
   const owned = new Set(crate.owned.map(Number));
+
   // Group by set_name
   const groups = crate.items.reduce((acc, it) => {
     const key = it.set_name || 'Unknown';
@@ -222,21 +233,18 @@ function renderAccordions(crate) {
   }, {});
 
   const names = Object.keys(groups).sort((a, b) => a.localeCompare(b));
+  const term = state.search;
 
   names.forEach((name) => {
-    let items = groups[name].slice().sort(byName);
+    // Sort A→Z
+    const items = groups[name].slice().sort(byName);
 
-    // Search filter
-    const term = state.search;
-    if (term) {
-      items = items.filter((i) => i.item_name.toLowerCase().includes(term));
-    }
-
+    // Count “have” on the full set
     const have = items.filter((i) => owned.has(Number(i.id))).length;
 
-    const item = document.createElement('div');
-    item.className = 'acc-item';
-    item.innerHTML = `
+    const wrap = document.createElement('div');
+    wrap.className = 'acc-item';
+    wrap.innerHTML = `
       <button class="acc-btn" type="button">
         <span class="acc-title">${name}</span>
         <span class="acc-count">Total items collected: ${have}/${items.length}</span>
@@ -254,28 +262,32 @@ function renderAccordions(crate) {
               <th>Collected</th>
             </tr>
           </thead>
-          <tbody>
-            ${items
-              .map(
-                (it) => `
-              <tr>
-                <td>${it.item_name}</td>
-                <td>${it.set_name || ''}</td>
-                <td><img src="${it.icon_url}" alt="${it.item_name}"></td>
-                <td>${owned.has(Number(it.id)) ? '✓' : ''}</td>
-              </tr>`
-              )
-              .join('')}
-          </tbody>
+          <tbody></tbody>
         </table>
       </div></div>
     `;
 
-    const btn = item.querySelector('.acc-btn');
-    const panel = item.querySelector('.acc-panel');
-    btn.addEventListener('click', () => togglePanel(panel, btn));
+    const btn   = wrap.querySelector('.acc-btn');
+    const panel = wrap.querySelector('.acc-panel');
+    const tbody = wrap.querySelector('tbody');
 
-    root.appendChild(item);
+    // Build all rows, but mark matches
+    items.forEach((it) => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${it.item_name}</td>
+        <td>${it.set_name || ''}</td>
+        <td><img src="${it.icon_url}" alt="${it.item_name}"></td>
+        <td>${owned.has(Number(it.id)) ? '✓' : ''}</td>
+      `;
+      if (term && it.item_name.toLowerCase().includes(term)) {
+        tr.classList.add('highlight-row');
+      }
+      tbody.appendChild(tr);
+    });
+
+    btn.addEventListener('click', () => togglePanel(panel, btn));
+    root.appendChild(wrap);
   });
 }
 

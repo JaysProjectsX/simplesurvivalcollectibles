@@ -84,7 +84,6 @@ function hasCookie(name) {
   const reason = params.get("redirectReason");
 
   if (reason === "sessionExpired") {
-    // Use your global modal/toast system
         showGlobalModal({
         type: "error",
         title: "Session Expired",
@@ -92,6 +91,16 @@ function hasCookie(name) {
         buttons: [{ label: "Close", onClick: `fadeOutAndRemove('modal-sessionExpired');` }],
         id: "modal-sessionExpired"
           });
+  }
+
+  if (reason === "shareExpired") {
+      showGlobalModal({
+        type: "warning",
+        title: "Share Link Expired",
+        message: "The shared collection link you were viewing has expired, so you were redirected to the home page.",
+        buttons: [{ label: "Close", onClick: "fadeOutAndRemove('modal-shareExpired')" }],
+        id: "modal-shareExpired"
+      });
   }
 
   // Clean up the URL so it doesn't stick around

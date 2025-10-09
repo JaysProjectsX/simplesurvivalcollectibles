@@ -39,9 +39,13 @@ const $expires = () => document.getElementById('shareExpires');
 function startSidebarExpiryCountdown(expiresAt) {
   const tick = () => {
     const ms = expiresAt - Date.now();
-    if (ms <= 0) { $expires().textContent = 'Expired'; return; }
-    const m = String(Math.floor(ms/60000)).padStart(2,'0');
-    const s = String(Math.floor((ms%60000)/1000)).padStart(2,'0');
+    if (ms <= 0) {
+      $expires().textContent = 'Expired';
+      setTimeout(() => { window.location.replace('/?redirectReason=shareExpired'); }, 250);
+      return;
+    }
+    const m = String(Math.floor(ms / 60000)).padStart(2, '0');
+    const s = String(Math.floor((ms % 60000) / 1000)).padStart(2, '0');
     $expires().textContent = `Expires in ${m}:${s}`;
     requestAnimationFrame(tick);
   };
@@ -80,8 +84,27 @@ function focusFirstSearchHit() {
   setTimeout(() => scrollRowIntoView(container, hit), 250);
 }
 
+function isCosmeticCrate(name) {
+  return /cosmetic/i.test(name || '');
+}
+
+function sectionTitleEl(text) {
+  const t = document.createElement('div');
+  t.className = 'share-username';
+  t.textContent = text;
+  return t;
+}
+
+function dividerEl() {
+  const hr = document.createElement('hr');
+  hr.className = 'collections-divider';
+  return hr;
+}
+
+
 // ===== Init =====
 (async function init() {
+  const pre = document.getElementById('preloader');
   try {
     const token = tokenFromPath();
     const r = await fetch(`${BACKEND_API}/api/share-links/${token}`);
@@ -95,15 +118,40 @@ function focusFirstSearchHit() {
     if (createdAt) $created().textContent = `Link created: ${new Date(Number(createdAt)).toLocaleString()}`;
     if (expiresAt) startSidebarExpiryCountdown(Number(expiresAt));
 
-    // Build sidebar
+    // Build grouped sidebar (Cosmetic Crates first, then other crates)
     $crateList().innerHTML = '';
+
+    const cosmetics = [];
+    const others = [];
     snapshot.crates.forEach((c) => {
-      const b = document.createElement('button');
-      b.className = 'crate-btn';
-      b.textContent = prettyCrateName(c.name);
-      b.addEventListener('click', () => selectCrate(c, b));
-      $crateList().appendChild(b);
+      (isCosmeticCrate(c.name) ? cosmetics : others).push(c);
     });
+
+    // Cosmetic section
+    if (cosmetics.length) {
+      $crateList().appendChild(sectionTitleEl('Available Crates'));
+      $crateList().appendChild(sectionTitleEl('Cosmetic Crates'));
+      cosmetics.forEach((c) => {
+        const b = document.createElement('button');
+        b.className = 'crate-btn';
+        b.textContent = prettyCrateName(c.name);
+        b.addEventListener('click', () => selectCrate(c, b));
+        $crateList().appendChild(b);
+      });
+      $crateList().appendChild(dividerEl());
+    }
+
+    // Other section
+    if (others.length) {
+      $crateList().appendChild(sectionTitleEl('Other Crates'));
+      others.forEach((c) => {
+        const b = document.createElement('button');
+        b.className = 'crate-btn';
+        b.textContent = prettyCrateName(c.name);
+        b.addEventListener('click', () => selectCrate(c, b));
+        $crateList().appendChild(b);
+      });
+    }
 
     // Auto-select first crate
     const first = $crateList().querySelector('button');
@@ -130,6 +178,8 @@ function focusFirstSearchHit() {
         <h2>Link not available</h2>
         <p>This share link is invalid or has expired.</p>
       </div>`;
+  } finally {
+    if (pre) pre.style.display = 'none';
   }
 })();
 

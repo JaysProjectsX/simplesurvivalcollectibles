@@ -772,21 +772,34 @@ body.modal-open{
 
 .share-brand {
   display: flex;
+  flex-direction: column;
   align-items: center;
+  justify-content: center;
   gap: 10px;
-  padding: 14px 12px;
+  padding: 20px 12px;
   border-radius: 12px;
-  margin-bottom: 8px;
+  margin-bottom: 12px;
+  text-align: center;
 }
 
 .share-brand img {
-  width: 28px; height: 28px;
-  border-radius: 8px;
+  width: 72px;
+  height: auto;
+  border-radius: 12px;
+  object-fit: contain;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.4));
+  transition: transform 0.25s ease-in-out;
+}
+
+.share-brand img:hover {
+  transform: scale(1.05);
 }
 
 .share-brand .brand-name {
   font-weight: 600;
-  font-size: 14px;
+  font-size: 15px;
+  color: #e9e9f3;
+  line-height: 1.3;
 }
 
 .share-section-title {

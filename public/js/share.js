@@ -80,17 +80,24 @@ function focusFirstSearchHit() {
 
   const panel = hit.closest('.acc-panel');
   const btn = panel.previousElementSibling;
-  const container = document.scrollingElement || document.documentElement;
+  const inner = hit.closest('.acc-panel-inner'); // scrollable container
 
   if (!panel.classList.contains('open')) openPanel(panel, btn);
 
-  // give the panel time to expand, then center + pulse
   setTimeout(() => {
-    scrollRowIntoView(container, hit);
+    if (inner) {
+      const rect = hit.getBoundingClientRect();
+      const parentRect = inner.getBoundingClientRect();
+      inner.scrollTop += (rect.top - parentRect.top) - inner.clientHeight / 2 + rect.height / 2;
+    } else {
+      hit.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+
     hit.classList.add('pulse');
     setTimeout(() => hit.classList.remove('pulse'), 900);
   }, 250);
 }
+
 
 function isCosmeticCrate(name) {
   return /cosmetic/i.test(name || '');

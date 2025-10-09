@@ -36,6 +36,59 @@ const $search = () => document.getElementById('searchInput');
 const $created = () => document.getElementById('shareCreated');
 const $expires = () => document.getElementById('shareExpires');
 
+// === Jump-to-match helpers (share page) ===
+function scrollRowIntoAccRoot(target) {
+  const container = document.getElementById('accRoot');
+  if (!container || !target) return;
+
+  const cRect = container.getBoundingClientRect();
+  const tRect = target.getBoundingClientRect();
+  const top =
+    container.scrollTop +
+    (tRect.top - cRect.top) -
+    (container.clientHeight / 2 - target.offsetHeight / 2);
+
+  container.scrollTo({ top, behavior: 'smooth' });
+}
+
+function jumpToFirstSearchHit() {
+  const container = document.getElementById('accRoot');
+  if (!container) return;
+
+  const hit =
+    container.querySelector('tr.highlight-row') ||
+    container.querySelector('tr[data-hit="1"]');
+
+  if (!hit) return;
+
+  const panel = hit.closest('.acc-panel');
+  const btn = panel ? panel.previousElementSibling : null;
+  const willOpen = panel && !panel.classList.contains('open');
+
+  const afterOpen = () => {
+    scrollRowIntoAccRoot(hit);
+    hit.classList.add('pulse');
+    setTimeout(() => hit.classList.remove('pulse'), 900);
+  };
+
+  if (willOpen) {
+    // open this one & close others like your accordion does
+    document.querySelectorAll('.acc-panel.open').forEach(p => {
+      p.classList.remove('open');
+      p.style.maxHeight = null;
+      p.previousElementSibling?.classList.remove('active');
+    });
+    panel.classList.add('open');
+    panel.style.maxHeight = panel.scrollHeight + 'px';
+    btn?.classList.add('active');
+
+    // wait for the expand transition so measurements are correct
+    setTimeout(afterOpen, 260);
+  } else {
+    afterOpen();
+  }
+}
+
 function startSidebarExpiryCountdown(expiresAt) {
   const tick = () => {
     const ms = expiresAt - Date.now();
@@ -203,8 +256,12 @@ function renderSidebarFromSnapshot() {
         <p>This share link is invalid or has expired.</p>
       </div>`;
   } finally {
-    if (pre) pre.style.display = 'none';
-  }
+        if (pre) {
+          setTimeout(() => {
+            pre.style.display = 'none';
+          }, 1000);
+        }
+      }
 })();
 
 // ===== Crate selection =====
@@ -296,6 +353,10 @@ function renderAccordions(crate) {
     btn.addEventListener('click', () => togglePanel(panel, btn));
     root.appendChild(wrap);
   });
+
+    if (state.search && $accRoot().querySelector('.highlight-row')) {
+    requestAnimationFrame(() => setTimeout(jumpToFirstSearchHit, 0));
+  }
 }
 
 function togglePanel(panel, btn) {

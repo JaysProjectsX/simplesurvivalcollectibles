@@ -755,6 +755,70 @@ body.modal-open{
 .share-meta { color:#a9b3d6; font-size:.9rem; margin:.25rem 0; }
 .share-meta.label { color:#cfd3ff; margin-top:.75rem; font-weight:600; }
 
+/* ==== share.html — sidebar polish ==== */
+.share-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.share-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 12px;
+  border-radius: 12px;
+  background: rgba(255,255,255,0.03);
+}
+
+.share-brand img {
+  width: 28px; height: 28px;
+  border-radius: 8px;
+}
+
+.share-brand .brand-name {
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.share-section-title {
+  margin: 14px 0 8px;
+  font-weight: 600;
+  opacity: .8;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+}
+
+.crate-group {
+  display: flex;
+  flex-direction: column;
+  border-radius: 10px;
+  overflow: hidden;                 /* makes buttons look conjoined */
+  border: 1px solid rgba(255,255,255,0.06);
+}
+
+.crate-group .crate-btn {
+  justify-content: flex-start;
+  width: 100%;
+  border-radius: 0;                 /* unified pill */
+  border: none;
+  background: rgba(255,255,255,0.02);
+  transition: background .15s ease, color .15s ease;
+}
+
+.crate-group .crate-btn + .crate-btn {
+  border-top: 1px solid rgba(255,255,255,0.06);
+}
+
+.crate-group .crate-btn:hover {
+  background: rgba(255,255,255,0.06);
+}
+
+.crate-group .crate-btn.active {
+  background: var(--btn-primary, #3158ff);
+  color: #fff;
+}
 
 /* Responsiveness */
 @media (max-width: 980px) {

@@ -101,6 +101,53 @@ function dividerEl() {
   return hr;
 }
 
+function renderSidebarFromSnapshot() {
+  const root = $crateList();
+  root.innerHTML = '';
+
+  // Top identity + meta
+  const meta = document.createElement('div');
+  meta.className = 'share-meta';
+  meta.innerHTML = `
+    <div class="share-title">Available Crates</div>
+    `;
+  root.appendChild(meta);
+
+  // Split crates by is_cosmetic (backend now provides it)
+  const cosmetic = [];
+  const other = [];
+  for (const c of state.snapshot.crates) {
+    (c.is_cosmetic ? cosmetic : other).push(c);
+  }
+
+  // Helper to add a section
+  const addSection = (title, crates) => {
+    if (!crates.length) return;
+    const header = document.createElement('div');
+    header.className = 'share-section-title';
+    header.textContent = title;
+    root.appendChild(header);
+
+    const group = document.createElement('div');
+    group.className = 'crate-group';
+    crates.forEach(c => {
+      const b = document.createElement('button');
+      b.className = 'crate-btn';
+      b.textContent = prettyCrateName(c.name);
+      b.addEventListener('click', () => selectCrate(c, b));
+      group.appendChild(b);
+    });
+    root.appendChild(group);
+  };
+
+  // Sections: Cosmetic Crates, Other Crates
+  addSection('Cosmetic Crates', cosmetic);
+  addSection('Other Crates', other);
+
+  // Auto-select first available
+  const firstBtn = root.querySelector('.crate-group .crate-btn');
+  firstBtn?.click();
+}
 
 // ===== Init =====
 (async function init() {
@@ -110,7 +157,7 @@ function dividerEl() {
     const r = await fetch(`${BACKEND_API}/api/share-links/${token}`);
     if (!r.ok) throw new Error('Link invalid or expired');
 
-    const { snapshot, createdAt, expiresAt } = await r.json(); // ensure backend returns createdAt/expiresAt
+    const { snapshot, createdAt, expiresAt } = await r.json();
     state.snapshot = snapshot;
 
     $user().textContent = `Shared by ${snapshot.user?.username ?? 'Unknown'}`;
@@ -118,40 +165,8 @@ function dividerEl() {
     if (createdAt) $created().textContent = `Link created: ${new Date(Number(createdAt)).toLocaleString()}`;
     if (expiresAt) startSidebarExpiryCountdown(Number(expiresAt));
 
-    // Build grouped sidebar (Cosmetic Crates first, then other crates)
-    $crateList().innerHTML = '';
-
-    const cosmetics = [];
-    const others = [];
-    snapshot.crates.forEach((c) => {
-      (isCosmeticCrate(c.name) ? cosmetics : others).push(c);
-    });
-
-    // Cosmetic section
-    if (cosmetics.length) {
-      $crateList().appendChild(sectionTitleEl('Available Crates'));
-      $crateList().appendChild(sectionTitleEl('Cosmetic Crates'));
-      cosmetics.forEach((c) => {
-        const b = document.createElement('button');
-        b.className = 'crate-btn';
-        b.textContent = prettyCrateName(c.name);
-        b.addEventListener('click', () => selectCrate(c, b));
-        $crateList().appendChild(b);
-      });
-      $crateList().appendChild(dividerEl());
-    }
-
-    // Other section
-    if (others.length) {
-      $crateList().appendChild(sectionTitleEl('Other Crates'));
-      others.forEach((c) => {
-        const b = document.createElement('button');
-        b.className = 'crate-btn';
-        b.textContent = prettyCrateName(c.name);
-        b.addEventListener('click', () => selectCrate(c, b));
-        $crateList().appendChild(b);
-      });
-    }
+    // === Sidebar rendering ===
+    renderSidebarFromSnapshot();
 
     // Auto-select first crate
     const first = $crateList().querySelector('button');

@@ -162,6 +162,7 @@ const AUTH = (() => {
   // fetch that auto-refreshes once on 401, and redirects on hard failures
   async function fetchWithAuth(input, init = {}) {
     const opts = { credentials: 'include', ...(init || {}) };
+    const onLogoutPage = location.pathname.replace(/\/+$/, "").toLowerCase().endsWith("/logout");
 
     const r1 = await fetch(input, opts);
 
@@ -173,7 +174,7 @@ const AUTH = (() => {
         const body = await r1.clone().json();
         if (body?.error === 'Account deleted') cause = 'deleted';
       } catch {}
-      forceLogoutAndRedirect(cause);
+      if (!onLogoutPage) forceLogoutAndRedirect(cause);
       return r1;
     }
 
@@ -183,7 +184,7 @@ const AUTH = (() => {
     const st = await refreshOnce(); // 200 ok, 401/403 bad, 0 net error
 
     if (st === 401 || st === 403) {
-      forceLogoutAndRedirect('expired');
+      if (!onLogoutPage) forceLogoutAndRedirect('expired');
       return r1;
     }
     if (st === 0) {
@@ -192,7 +193,9 @@ const AUTH = (() => {
 
     const r2 = await fetch(input, opts);
     if (r2.status === 401 || r2.status === 403) {
-      forceLogoutAndRedirect(r2.status === 403 ? 'deleted' : 'expired');
+    if (!onLogoutPage) {
+        forceLogoutAndRedirect(r2.status === 403 ? 'deleted' : 'expired');
+      }
     }
     return r2;
   }
@@ -263,13 +266,18 @@ function isLockedOut(user) {
   document.addEventListener("DOMContentLoaded", () => {
     updateNavUI();
 
-    fetchAccountInfo().catch(() => {});
-
-    if (document.getElementById("accUsername")) {
-      paintAccountInfo();
-      if (!localStorage.getItem("username")) {
-        fetchAccountInfo().catch(() => {});
+    const onLogout = location.pathname.replace(/\/+$/, "").toLowerCase().endsWith("/logout");
+    if (!onLogout) {
+      fetchAccountInfo().catch(() => {});
+      if (document.getElementById("accUsername")) {
+        paintAccountInfo();
+        if (!localStorage.getItem("username")) {
+          fetchAccountInfo().catch(() => {});
+        }
       }
+    } else {
+      // On the static logout page, just paint from storage (likely empty)
+      paintAccountInfo();
     }
 
     // Registration page
@@ -873,13 +881,20 @@ function isLockedOut(user) {
       await fetch(`${backendUrl}/logout`, { method: 'POST', credentials: 'include' });
     } catch {}
 
-    sessionStorage.setItem('justLoggedOut', '1');   // your preloader already reads this
+    sessionStorage.setItem('justLoggedOut', '1');
     localStorage.clear();
     try { updateNavUI(); } catch {}
 
     // show the static logout card; keep a reason for messaging if you want
     const qs = cause ? `?reason=${encodeURIComponent(cause)}` : '';
-    window.location.replace(`/logout${qs}`);
+    const logoutUrl = `/logout${qs}`;
+    const onLogout = location.pathname.replace(/\/+$/, "").toLowerCase().endsWith("/logout");
+    if (onLogout) {
+      // Already on logout page, avoid a reload loop; just update the reason (if different)
+      if (location.search !== qs) history.replaceState({}, "", logoutUrl);
+      return;
+    }
+    window.location.replace(logoutUrl);
   }
 
 

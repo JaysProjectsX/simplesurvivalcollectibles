@@ -4,18 +4,33 @@ const logsPerPage = 10;
 const backendUrl = "/api";
 const api = (path, init) => AUTH.fetchWithAuth(`${backendUrl}${path}`, init);
 
-document.addEventListener("DOMContentLoaded", async () => {
-  try {
-    const res = await api('/me');
-    if (!res.ok) throw new Error('Auth check failed');
-    const data = await res.json();
+async function softMe() {
+  return fetch(`${backendUrl}/me`, { credentials: 'include' });
+}
 
-    if (!data.role || (data.role !== "Admin" && data.role !== "SysAdmin")) {
-      throw new Error("Unauthorized");
+document.addEventListener("DOMContentLoaded", async () => {
+
+  if (window.waitForAuthReady) {
+    try { await window.waitForAuthReady(); } catch {}
+  }
+
+  try {
+    const res = await softMe();
+    if (res.status === 401) {
+      // Not logged in, send to 404 page
+      window.location.replace('/404');
+      return;
+    }
+    if (!res.ok) throw new Error('Auth check failed');
+
+    const user = await res.json();
+    if (user.role !== 'Admin' && user.role !== 'SysAdmin') {
+      window.location.replace('/404');
+      return;
     }
 
     document.getElementById("adminContent").style.display = "block";
-    initializeAdminPanel(data.role);
+    initializeAdminPanel(user.role);
   } catch (err) {
     console.error("Auth check failed:", err);
     document.body.innerHTML = "";

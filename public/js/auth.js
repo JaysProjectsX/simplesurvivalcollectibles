@@ -163,36 +163,28 @@ const AUTH = (() => {
   // fetch that auto-refreshes once on 401, and redirects on hard failures
   async function fetchWithAuth(input, init = {}) {
     const opts = { credentials: 'include', ...(init || {}) };
+    const onLogoutPage = location.pathname.replace(/\/+$/, "").toLowerCase().endsWith("/logout");
 
     const r1 = await fetch(input, opts);
 
-    // Deleted/forbidden -> immediate force logout + redirect
     if (r1.status === 403) {
-      // try to read the server's error, but don't depend on it
-      let cause = 'forbidden';
-      try {
-        const body = await r1.clone().json();
-        if (body?.error === 'Account deleted') cause = 'deleted';
-      } catch {}
-      forceLogoutAndRedirect(cause);
+      if (!onLogoutPage) forceLogoutAndRedirect('forbidden');
       return r1;
     }
 
-    // Anything not 401 -> return as-is
     if (r1.status !== 401) return r1;
 
-    const st = await refreshOnce(); // 200 ok, 401/403 bad, 0 net error
+    const st = await refreshOnce();
 
     if (st === 401 || st === 403) {
-      forceLogoutAndRedirect('expired');
-      return r1;
-    }
-    if (st === 0) {
+      if (!onLogoutPage) forceLogoutAndRedirect('expired');
       return r1;
     }
 
+    if (st === 0) return r1;
+
     const r2 = await fetch(input, opts);
-    if (r2.status === 401 || r2.status === 403) {
+    if ((r2.status === 401 || r2.status === 403) && !onLogoutPage) {
       forceLogoutAndRedirect(r2.status === 403 ? 'deleted' : 'expired');
     }
     return r2;

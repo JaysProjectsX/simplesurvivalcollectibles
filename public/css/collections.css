@@ -641,6 +641,8 @@ body.modal-open{
     height: 1px;
 }
 
+.filtered-out { display: none; }
+
 /* ===== Shared Link Viewer Layout ===== */
 .share-body {
   background: #0b0b19;

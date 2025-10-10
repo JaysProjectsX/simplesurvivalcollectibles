@@ -387,6 +387,8 @@ function openCrateModal(crate) {
 
 /* Render the grouped accordions with the current filter/search settings */
 function renderAccordion(crate, keepOpen = false) {
+  const transientChecked = readModalCheckedSet(crate.id);
+
   // Group items by set_name
   const groups = crate.items.reduce((acc, item) => {
     const key = item.set_name || "Unknown";
@@ -401,21 +403,21 @@ function renderAccordion(crate, keepOpen = false) {
   const previouslyOpenId = keepOpen && currentlyOpenPanel?.dataset.groupId;
 
   groupNames.forEach((groupName) => {
-    // base sort: A-Z by item_name
+    // base sort: A→Z by item_name
     let items = groups[groupName].slice().sort((a,b)=>a.item_name.localeCompare(b.item_name));
 
-    // apply filter modes
-    if (currentFilter === "missing-only") {
-      items = items.filter(it => !userProgress[crate.id]?.items?.includes(it.id));
-    } else if (currentFilter === "missing-first") {
+    // remove rows for filters; only change order for missing-first
+    if (currentFilter === "missing-first") {
       items.sort((a,b) => {
-        const aChecked = userProgress[crate.id]?.items?.includes(a.id) ? 1 : 0;
-        const bChecked = userProgress[crate.id]?.items?.includes(b.id) ? 1 : 0;
-        return aChecked - bChecked || a.item_name.localeCompare(b.item_name);
+        const aIsChecked = transientChecked.has(Number(a.id)) ||
+          (userProgress[crate.id]?.items?.includes(a.id) ?? false);
+        const bIsChecked = transientChecked.has(Number(b.id)) ||
+          (userProgress[crate.id]?.items?.includes(b.id) ?? false);
+        return (aIsChecked - bIsChecked) || a.item_name.localeCompare(b.item_name);
       });
     }
 
-    const term = currentSearch;
+    const term = (currentSearch || "").toLowerCase();
 
     const accItem = document.createElement("div");
     accItem.className = "acc-item";
@@ -424,7 +426,7 @@ function renderAccordion(crate, keepOpen = false) {
     btn.className = "acc-btn";
     btn.setAttribute("type", "button");
 
-    // counts use original (unfiltered) group totals to show collection status
+    // header uses saved progress (we'll refresh from checkboxes after rows render)
     const totalInGroup   = groups[groupName].length;
     const checkedInGroup = groups[groupName].filter(it =>
       userProgress[crate.id]?.items?.includes(it.id)
@@ -462,21 +464,32 @@ function renderAccordion(crate, keepOpen = false) {
     const tbody = table.querySelector("tbody");
 
     items.forEach(item => {
-      const isChecked = userProgress[crate.id]?.items?.includes(item.id);
-      const match = term && item.item_name.toLowerCase().includes(term);
+      const userHad = userProgress[crate.id]?.items?.includes(item.id) ?? false;
+      const isCheckedNow = transientChecked.has(Number(item.id)) || userHad;
+      const matchesSearch = term ? item.item_name.toLowerCase().includes(term) : true;
+
+      // Determine row visibility; KEEP ROW, just hide it
+      let hide = false;
+      if (currentFilter === "missing-only" && isCheckedNow) hide = true;
+      if (currentSearch && !matchesSearch) hide = true;
+
       const tr = document.createElement("tr");
       tr.dataset.itemId = item.id;
       tr.dataset.groupId = groupName;
+      if (hide) tr.classList.add("filtered-out");
+      if (matchesSearch && term) tr.classList.add("highlight-row");
+
       tr.innerHTML = `
         <td>${item.item_name}</td>
         <td>${item.set_name || ""}</td>
         <td><img src="${item.icon_url}" alt="${item.item_name}"></td>
-        <td><input type="checkbox"
-                   data-crate-id="${crate.id}"
-                   data-item-id="${item.id}"
-                   ${isChecked ? "checked" : ""}></td>
+        <td>
+          <input type="checkbox"
+                 data-crate-id="${crate.id}"
+                 data-item-id="${item.id}"
+                 ${isCheckedNow ? "checked" : ""}>
+        </td>
       `;
-      if (match) tr.classList.add("highlight-row");
       tbody.appendChild(tr);
     });
 
@@ -488,10 +501,10 @@ function renderAccordion(crate, keepOpen = false) {
     const selectBtn = btn.querySelector(".set-select-btn");
 
     function computeCountsInPanel() {
-      const cbs = panel.querySelectorAll('input[type="checkbox"]');
+      const cbs = panel.querySelectorAll('tbody input[type="checkbox"]');
       let checked = 0;
       cbs.forEach(cb => { if (cb.checked) checked++; });
-      return { total: cbs.length, checked };
+      return { total: cbs.length, checked }; // counts ALL rows (visible+hidden)
     }
 
     function refreshHeaderForPanel() {
@@ -500,25 +513,24 @@ function renderAccordion(crate, keepOpen = false) {
       selectBtn.textContent = (total > 0 && checked === total) ? 'Deselect All' : 'Select All';
     }
 
-    // set initial state based on current checkboxes
+    // initial header refresh based on rendered checkboxes
     refreshHeaderForPanel();
 
-    // Toggle all on header button click
+    // Select/Deselect visible rows only
     selectBtn.addEventListener("click", (ev) => {
       ev.stopPropagation();
-      const { total, checked } = computeCountsInPanel();
-      const shouldCheckAll = !(total > 0 && checked === total); // all checked => deselect, else select all
-      panel.querySelectorAll('input[type="checkbox"]').forEach(cb => { cb.checked = shouldCheckAll; });
+      const rows = panel.querySelectorAll('tbody tr:not(.filtered-out)');
+      const cbs = Array.from(rows).map(r => r.querySelector('input[type="checkbox"]'));
+      const allVisibleChecked = cbs.length > 0 && cbs.every(cb => cb.checked);
+      cbs.forEach(cb => { cb.checked = !allVisibleChecked; });
       refreshHeaderForPanel();
     });
 
-    // When any single checkbox changes, update header text & button
     table.querySelector("tbody").addEventListener("change", (e) => {
       if (e.target && e.target.matches('input[type="checkbox"]')) {
         refreshHeaderForPanel();
       }
     });
-
 
     btn.addEventListener("click", () => toggleAccordion(btn, panel));
 
@@ -526,6 +538,7 @@ function renderAccordion(crate, keepOpen = false) {
       openPanel(btn, panel);
     }
 
+    const accItemContainer = document.createElement("div");
     accItem.appendChild(btn);
     accItem.appendChild(panel);
     accordionContainer.appendChild(accItem);
@@ -654,17 +667,9 @@ function closeModal() {
 })();
 
   let shareConfirmHandlerRef = null;
-  let shareCountdownRAF = null;
-
-  function cancelShareCountdown() {
-    if (shareCountdownRAF) {
-      cancelAnimationFrame(shareCountdownRAF);
-      shareCountdownRAF = null;
-    }
-  }
 
   function attachConfirmHandler(btn) {
-    if (shareConfirmHandlerRef) return; // already attached
+    if (shareConfirmHandlerRef) return;
 
     shareConfirmHandlerRef = () => {
       showGlobalModal({

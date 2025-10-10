@@ -119,12 +119,12 @@ async function silentRepairSession() {
 // Fetch per-user progress
 async function fetchUserProgress() {
   try {
-    let res = await api(`/api/user/progress`);
+    let res = await api(`/user/progress`);
 
     // If access token is expired, try a one-time silent repair and retry once
     if (res.status === 401) {
       const repaired = await silentRepairSession();
-      if (repaired) res = await api(`/api/user/progress`);
+      if (repaired) res = await api(`/user/progress`);
     }
 
     if (!res.ok) {
@@ -933,7 +933,7 @@ saveButton.addEventListener("click", async () => {
       return;
     }
 
-    const bulkRes = await api('/api/user/progress/bulk', {
+    const bulkRes = await api('/user/progress/bulk', {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({

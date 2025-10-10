@@ -3,3 +3,5 @@
 
 # Fallback for the rest of the SPA
 /*     /index.html   200
+
+/api/*  https://simplesurvivalcollectibles.site/:splat  200

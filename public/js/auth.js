@@ -19,22 +19,23 @@ function hasCookie(name) {
   // Normalize path:
   //   - lowercase
   //   - strip trailing slash
-  const PATH = location.pathname.toLowerCase().replace(/\/+$/, "");
-  const LAST = (PATH.split("/").filter(Boolean).pop() || "index")
-               .replace(/\.html$/, "");
+  //   - derive LAST = last segment without ".html"
+  const PATH = location.pathname.toLowerCase().replace(/\/+$/, "");        // e.g. "/login", "/logout", "/index", "/login.html"
+  const LAST = (PATH.split("/").filter(Boolean).pop() || "index")          // e.g. "login", "logout", "index", "login.html"
+               .replace(/\.html$/, "");                                    // -> "login"
 
   const JUST_LOGGED_OUT = sessionStorage.getItem("justLoggedOut") === "1";
 
   const IS_LOGOUT_PAGE = LAST === "logout";
   const IS_LOGIN_PAGE  = LAST === "login";
-  const HOME_URL       = "/";
+  const HOME_URL       = "/"; // or "/index.html" if you prefer hard file
 
-  const isProbablyLoggedIn = () => !!localStorage.getItem("username");
+  const isProbablyLoggedIn = () =>
+    hasCookie("refreshToken") || !!localStorage.getItem("username");
 
   // If we’re on logout page, or we clearly don’t have an auth cookie,
   // skip hitting /me and /refresh entirely (prevents 401 spam).
-  const shouldAttemptSession = !IS_LOGOUT_PAGE;
-
+  const shouldAttemptSession = !IS_LOGOUT_PAGE && hasCookie("refreshToken");
 
   async function resolveSession() {
     if (!shouldAttemptSession) return;
@@ -162,7 +163,6 @@ const AUTH = (() => {
   // fetch that auto-refreshes once on 401, and redirects on hard failures
   async function fetchWithAuth(input, init = {}) {
     const opts = { credentials: 'include', ...(init || {}) };
-    const onLogoutPage = location.pathname.replace(/\/+$/, "").toLowerCase().endsWith("/logout");
 
     const r1 = await fetch(input, opts);
 
@@ -174,7 +174,7 @@ const AUTH = (() => {
         const body = await r1.clone().json();
         if (body?.error === 'Account deleted') cause = 'deleted';
       } catch {}
-      if (!onLogoutPage) forceLogoutAndRedirect(cause);
+      forceLogoutAndRedirect(cause);
       return r1;
     }
 
@@ -184,7 +184,7 @@ const AUTH = (() => {
     const st = await refreshOnce(); // 200 ok, 401/403 bad, 0 net error
 
     if (st === 401 || st === 403) {
-      if (!onLogoutPage) forceLogoutAndRedirect('expired');
+      forceLogoutAndRedirect('expired');
       return r1;
     }
     if (st === 0) {
@@ -193,9 +193,7 @@ const AUTH = (() => {
 
     const r2 = await fetch(input, opts);
     if (r2.status === 401 || r2.status === 403) {
-    if (!onLogoutPage) {
-        forceLogoutAndRedirect(r2.status === 403 ? 'deleted' : 'expired');
-      }
+      forceLogoutAndRedirect(r2.status === 403 ? 'deleted' : 'expired');
     }
     return r2;
   }
@@ -266,19 +264,21 @@ function isLockedOut(user) {
   document.addEventListener("DOMContentLoaded", () => {
     updateNavUI();
 
-    const onLogout = location.pathname.replace(/\/+$/, "").toLowerCase().endsWith("/logout");
-    if (!onLogout) {
-      fetchAccountInfo().catch(() => {});
+    const p = location.pathname.replace(/\/+$/, "").toLowerCase();
+      const onLogout = p.endsWith("/logout");
+      const onLogin  = p.endsWith("/login");
+
+      // Never probe /me on login/logout pages; it can 401→refresh→force redirect.
+      if (!onLogout && !onLogin && hasCookie("refreshToken")) {
+        fetchAccountInfo();
+      }
+
       if (document.getElementById("accUsername")) {
         paintAccountInfo();
-        if (!localStorage.getItem("username")) {
+        if (!onLogout && !onLogin && hasCookie("refreshToken") && !localStorage.getItem("username")) {
           fetchAccountInfo().catch(() => {});
         }
       }
-    } else {
-      // On the static logout page, just paint from storage (likely empty)
-      paintAccountInfo();
-    }
 
     // Registration page
     const registerForm = document.getElementById("registerForm");
@@ -423,12 +423,13 @@ function isLockedOut(user) {
           }
 
           if (res.ok) {
-            // Give Safari a tick to commit Set-Cookie, then probe /me without force-logout
-            await new Promise(r => setTimeout(r, 75));
-            await fetch(`${backendUrl}/me`, { credentials: "include" })
-              .then(r => (r.ok ? r.json() : null))
-              .then(u => {
-                if (!u) return;
+            // Safari-safe: wait briefly for Set-Cookie, then probe /me without triggering redirects
+            async function probeAccountInfoOnce() {
+              try {
+                const r = await fetch(`${backendUrl}/me`, { credentials: "include" });
+                if (!r.ok) return false;
+                const u = await r.json().catch(() => null);
+                if (!u) return false;
                 localStorage.setItem("username", u.username || "");
                 localStorage.setItem("email", u.email || "");
                 localStorage.setItem("role", u.role || "User");
@@ -436,8 +437,15 @@ function isLockedOut(user) {
                 localStorage.setItem("created_at", u.created_at || "");
                 updateNavUI();
                 paintAccountInfo();
-              })
-              .catch(() => {});
+                return true;
+              } catch { return false; }
+            }
+
+            // a couple of short retries handles Safari’s cookie commit timing
+            for (let i = 0; i < 3; i++) {
+              await new Promise(r => setTimeout(r, i === 0 ? 60 : 120));
+              if (await probeAccountInfoOnce()) break;
+            }
 
             const username = localStorage.getItem("username");
             showGlobalModal({
@@ -828,6 +836,7 @@ function isLockedOut(user) {
       const totalEl = document.getElementById("kpi-total");
       const pctEl   = document.getElementById("kpi-completion");
       if (!totalEl && !pctEl) return;
+      const loggedIn = !!localStorage.getItem("username") || hasCookie("refreshToken");
 
       try {
         if (totalEl) totalEl.textContent = "—";
@@ -836,7 +845,7 @@ function isLockedOut(user) {
         // Pull crates list + user progress together
         const [cratesRes, progressRes] = await Promise.all([
           fetch(`${backendUrl}/api/crates`, { credentials: "include" }),
-          AUTH.fetchWithAuth(`${backendUrl}/api/user/progress`)
+          loggedIn ? AUTH.fetchWithAuth(`${backendUrl}/api/user/progress`) : Promise.resolve(new Response(null, { status: 204 }))
         ]);
         if (!cratesRes.ok) throw new Error("Failed to load crates");
         const crates   = await cratesRes.json();
@@ -881,20 +890,13 @@ function isLockedOut(user) {
       await fetch(`${backendUrl}/logout`, { method: 'POST', credentials: 'include' });
     } catch {}
 
-    sessionStorage.setItem('justLoggedOut', '1');
+    sessionStorage.setItem('justLoggedOut', '1');   // your preloader already reads this
     localStorage.clear();
     try { updateNavUI(); } catch {}
 
     // show the static logout card; keep a reason for messaging if you want
     const qs = cause ? `?reason=${encodeURIComponent(cause)}` : '';
-    const logoutUrl = `/logout${qs}`;
-    const onLogout = location.pathname.replace(/\/+$/, "").toLowerCase().endsWith("/logout");
-    if (onLogout) {
-      // Already on logout page, avoid a reload loop; just update the reason (if different)
-      if (location.search !== qs) history.replaceState({}, "", logoutUrl);
-      return;
-    }
-    window.location.replace(logoutUrl);
+    window.location.replace(`/logout${qs}`);
   }
 
 

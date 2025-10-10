@@ -8,7 +8,7 @@ const accordionContainer = document.getElementById("accordionContainer");
 let openCrateId = null; 
 
 let userProgress = {};
-const backendUrl2  = "https://simplesurvivalcollectibles.site";
+const backendUrl2  = "/api";
 
 function api(pathOrUrl, init) {
   const url = pathOrUrl.startsWith("http") ? pathOrUrl : `${backendUrl2}${pathOrUrl}`;
@@ -89,7 +89,7 @@ window.hideSavingOverlay = hideSavingOverlay;
 
 // Fetch crates and their items
 async function fetchCratesWithItems() {
-  const res = await fetch(`${backendUrl2}/api/crates`);
+  const res = await fetch(`${backendUrl2}/crates`);
   const crates = await res.json();
 
   const cratesWithItems = await Promise.all(
@@ -727,7 +727,7 @@ function closeModal() {
 
     // check if user already has an active share link
     try {
-      const r = await fetch(`${backendUrl2}/api/share-links/active`, { credentials: 'include' });
+      const r = await fetch(`${backendUrl2}/share-links/active`, { credentials: 'include' });
       if (!r.ok) throw new Error('active check failed');
       const data = await r.json();   // { ok:false } OR { ok:true, url, createdAt, expiresAt }
 
@@ -778,7 +778,7 @@ function closeModal() {
       btn.textContent = "Creating…";
 
       try {
-        const res = await fetch(`${backendUrl2}/api/share-links`, {
+        const res = await fetch(`${backendUrl2}/share-links`, {
           method: "POST",
           credentials: "include",
           headers: { "Content-Type": "application/json" },
@@ -853,7 +853,7 @@ function closeModal() {
 
   window.__share_delete = async function () {
     try {
-      await fetch(`${backendUrl2}/api/share-links/active`, {
+      await fetch(`${backendUrl2}/share-links/active`, {
         method: 'DELETE',
         credentials: 'include'
       });

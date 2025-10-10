@@ -1,4 +1,4 @@
-const backendUrl1 = "https://simplesurvivalcollectibles.site";
+const backendUrl1 = "/api";
 let globalItems = [];
 let currentItems = [];
 
@@ -59,7 +59,7 @@ function showCrateDataError(customMessage = "Failed to load crate data") {
 }
 
 if (dropdownContainer && crateTableContainer) {
-  fetch(`${backendUrl1}/api/crates/cosmetic`)
+  fetch(`${backendUrl1}/crates/cosmetic`)
     .then((res) => res.json())
     .then((crates) => {
       populateCrateDropdown(crates);
@@ -69,7 +69,7 @@ if (dropdownContainer && crateTableContainer) {
       showCrateDataError("Failed to load crate list");
     });
 
-  fetch(`${backendUrl1}/api/tags?type=cosmetic`)
+  fetch(`${backendUrl1}/tags?type=cosmetic`)
     .then((res) => res.json())
     .then((tags) => {
       populateTagDropdown(tags);
@@ -79,7 +79,7 @@ if (dropdownContainer && crateTableContainer) {
       showCrateDataError("Failed to load tag list");
     });
 
-  fetch(`${backendUrl1}/api/items`)
+  fetch(`${backendUrl1}/items`)
     .then((res) => res.json())
     .then((items) => {
       globalItems = items;
@@ -129,7 +129,7 @@ if (dropdownContainer && crateTableContainer) {
         li.classList.add("active");
         dropdownContainer.classList.remove("open");
 
-        fetch(`${backendUrl1}/api/crates/${crate.id}/items`)
+        fetch(`${backendUrl1}/crates/${crate.id}/items`)
           .then((res) => res.json())
           .then((items) => {
             currentItems = items; // Store crate-specific items

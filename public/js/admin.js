@@ -1,8 +1,8 @@
 let currentPage = 1;
 const logsPerPage = 10;
 
-const api = (path, init) =>
-AUTH.fetchWithAuth(`https://simplesurvivalcollectibles.site${path}`, init);
+const backendUrl = "/api";
+const api = (path, init) => AUTH.fetchWithAuth(`${backendUrl}${path}`, init);
 
 document.addEventListener("DOMContentLoaded", async () => {
   try {
@@ -19,7 +19,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   } catch (err) {
     console.error("Auth check failed:", err);
     document.body.innerHTML = "";
-    window.location.href = "404";
+    window.location.href = "/404";
   }
 });
 

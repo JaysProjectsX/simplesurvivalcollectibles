@@ -1,5 +1,5 @@
 // ===== Config =====
-const BACKEND_API = 'https://simplesurvivalcollectibles.site';
+const BACKEND_API = '/api';
 
 // ===== Utilities =====
 function tokenFromPath() {
@@ -214,7 +214,7 @@ function renderSidebarFromSnapshot() {
   const pre = document.getElementById('preloader');
   try {
     const token = tokenFromPath();
-    const r = await fetch(`${BACKEND_API}/api/share-links/${token}`);
+    const r = await fetch(`${BACKEND_API}/share-links/${token}`);
     if (!r.ok) throw new Error('Link invalid or expired');
 
     const { snapshot, createdAt, expiresAt } = await r.json();

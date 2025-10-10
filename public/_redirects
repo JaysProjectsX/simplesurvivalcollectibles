@@ -1,15 +1,26 @@
 # Shared Collection Viewer
 /s/* /share.html 200
 
-# Auth endpoints (your backend exposes these WITHOUT the /api prefix)
-# These MUST come BEFORE the generic /api/* rule
-/api/login    https://simplesurvivalcollectibles.site/login    200!
-/api/logout   https://simplesurvivalcollectibles.site/logout   200!
-/api/refresh  https://simplesurvivalcollectibles.site/refresh  200!
-/api/me       https://simplesurvivalcollectibles.site/me       200!
+# --- Auth & account endpoints (server has NO /api prefix) ---
+/api/register           https://simplesurvivalcollectibles.site/register           200!
+/api/login              https://simplesurvivalcollectibles.site/login              200!
+/api/logout             https://simplesurvivalcollectibles.site/logout             200!
+/api/refresh            https://simplesurvivalcollectibles.site/refresh            200!
+/api/me                 https://simplesurvivalcollectibles.site/me                 200!
+/api/verify/*           https://simplesurvivalcollectibles.site/verify/:splat      200!
 
-# Everything else that already has /api on the backend
-/api/*        https://simplesurvivalcollectibles.site/api/:splat 200!
+/api/forgot-password    https://simplesurvivalcollectibles.site/forgot-password    200!
+/api/reset-password     https://simplesurvivalcollectibles.site/reset-password     200!
+/api/change-password    https://simplesurvivalcollectibles.site/change-password    200!
 
-# SPA fallback LAST
-/* /index.html 200
+/api/account/*          https://simplesurvivalcollectibles.site/account/:splat     200!
+/api/changelog          https://simplesurvivalcollectibles.site/changelog          200!
+
+# --- Admin endpoints (server has NO /api prefix) ---
+/api/admin/*            https://simplesurvivalcollectibles.site/admin/:splat       200!
+
+# --- Everything that ALREADY has /api on the server ---
+/api/*                  https://simplesurvivalcollectibles.site/api/:splat         200!
+
+# --- SPA fallback (must be LAST) ---
+/*                      /index.html                                                200

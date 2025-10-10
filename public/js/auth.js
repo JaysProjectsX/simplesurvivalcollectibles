@@ -844,8 +844,8 @@ function isLockedOut(user) {
 
         // Pull crates list + user progress together
         const [cratesRes, progressRes] = await Promise.all([
-          fetch(`${backendUrl}/api/crates`, { credentials: "include" }),
-          loggedIn ? AUTH.fetchWithAuth(`${backendUrl}/api/user/progress`) : Promise.resolve(new Response(null, { status: 204 }))
+          fetch(`${backendUrl}/crates`, { credentials: "include" }),
+          loggedIn ? AUTH.fetchWithAuth(`${backendUrl}/user/progress`) : Promise.resolve(new Response(null, { status: 204 }))
         ]);
         if (!cratesRes.ok) throw new Error("Failed to load crates");
         const crates   = await cratesRes.json();
@@ -853,7 +853,7 @@ function isLockedOut(user) {
 
         const counts = await Promise.all(
           crates.map(async c => {
-            const r = await fetch(`${backendUrl}/api/crates/${c.id}/items`, { credentials: "include" });
+            const r = await fetch(`${backendUrl}/crates/${c.id}/items`, { credentials: "include" });
             let items = await r.json().catch(() => []);
             items = (Array.isArray(items) ? items : []).filter(it => !isBanned(it));
 

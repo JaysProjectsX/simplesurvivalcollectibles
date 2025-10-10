@@ -94,7 +94,7 @@ async function fetchCratesWithItems() {
 
   const cratesWithItems = await Promise.all(
     crates.map(async (crate) => {
-      const itemRes = await api(`/api/crates/${crate.id}/items`);
+      const itemRes = await api(`/crates/${crate.id}/items`);
       let items = await itemRes.json();
 
       items = filterBanned(items);

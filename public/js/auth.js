@@ -20,15 +20,15 @@ function hasCookie(name) {
   //   - lowercase
   //   - strip trailing slash
   //   - derive LAST = last segment without ".html"
-  const PATH = location.pathname.toLowerCase().replace(/\/+$/, "");        // e.g. "/login", "/logout", "/index", "/login.html"
-  const LAST = (PATH.split("/").filter(Boolean).pop() || "index")          // e.g. "login", "logout", "index", "login.html"
-               .replace(/\.html$/, "");                                    // -> "login"
+  const PATH = location.pathname.toLowerCase().replace(/\/+$/, "");
+  const LAST = (PATH.split("/").filter(Boolean).pop() || "index")
+               .replace(/\.html$/, "");
 
   const JUST_LOGGED_OUT = sessionStorage.getItem("justLoggedOut") === "1";
 
   const IS_LOGOUT_PAGE = LAST === "logout";
   const IS_LOGIN_PAGE  = LAST === "login";
-  const HOME_URL       = "/"; // or "/index.html" if you prefer hard file
+  const HOME_URL       = "/";
 
   const isProbablyLoggedIn = () =>
     hasCookie("refreshToken") || !!localStorage.getItem("username");

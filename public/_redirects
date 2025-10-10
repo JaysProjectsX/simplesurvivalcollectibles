@@ -1,7 +1,8 @@
 # Shared Collection Viewer
-/s/*   /share.html   200
+/s/* /share.html 200
 
-# Fallback for the rest of the SPA
-/*     /index.html   200
+# Proxy API requests to backend
+/api/* https://simplesurvivalcollectibles.site/:splat 200
 
-/api/*  https://simplesurvivalcollectibles.site/:splat  200
+# Fallback for SPA
+/* /index.html 200

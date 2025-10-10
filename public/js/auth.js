@@ -19,23 +19,22 @@ function hasCookie(name) {
   // Normalize path:
   //   - lowercase
   //   - strip trailing slash
-  //   - derive LAST = last segment without ".html"
-  const PATH = location.pathname.toLowerCase().replace(/\/+$/, "");        // e.g. "/login", "/logout", "/index", "/login.html"
-  const LAST = (PATH.split("/").filter(Boolean).pop() || "index")          // e.g. "login", "logout", "index", "login.html"
-               .replace(/\.html$/, "");                                    // -> "login"
+  const PATH = location.pathname.toLowerCase().replace(/\/+$/, "");
+  const LAST = (PATH.split("/").filter(Boolean).pop() || "index")
+               .replace(/\.html$/, "");
 
   const JUST_LOGGED_OUT = sessionStorage.getItem("justLoggedOut") === "1";
 
   const IS_LOGOUT_PAGE = LAST === "logout";
   const IS_LOGIN_PAGE  = LAST === "login";
-  const HOME_URL       = "/"; // or "/index.html" if you prefer hard file
+  const HOME_URL       = "/";
 
-  const isProbablyLoggedIn = () =>
-    hasCookie("refreshToken") || !!localStorage.getItem("username");
+  const isProbablyLoggedIn = () => !!localStorage.getItem("username");
 
   // If we’re on logout page, or we clearly don’t have an auth cookie,
   // skip hitting /me and /refresh entirely (prevents 401 spam).
-  const shouldAttemptSession = !IS_LOGOUT_PAGE && hasCookie("refreshToken");
+  const shouldAttemptSession = !IS_LOGOUT_PAGE;
+
 
   async function resolveSession() {
     if (!shouldAttemptSession) return;
@@ -264,13 +263,11 @@ function isLockedOut(user) {
   document.addEventListener("DOMContentLoaded", () => {
     updateNavUI();
 
-    if (hasCookie("refreshToken")) {
-      fetchAccountInfo();
-    }
+    fetchAccountInfo().catch(() => {});
 
     if (document.getElementById("accUsername")) {
       paintAccountInfo();
-      if (hasCookie("refreshToken") && !localStorage.getItem("username")) {
+      if (!localStorage.getItem("username")) {
         fetchAccountInfo().catch(() => {});
       }
     }
@@ -418,7 +415,22 @@ function isLockedOut(user) {
           }
 
           if (res.ok) {
-            await fetchAccountInfo();
+            // Give Safari a tick to commit Set-Cookie, then probe /me without force-logout
+            await new Promise(r => setTimeout(r, 75));
+            await fetch(`${backendUrl}/me`, { credentials: "include" })
+              .then(r => (r.ok ? r.json() : null))
+              .then(u => {
+                if (!u) return;
+                localStorage.setItem("username", u.username || "");
+                localStorage.setItem("email", u.email || "");
+                localStorage.setItem("role", u.role || "User");
+                localStorage.setItem("verified", u.verified ? "1" : "0");
+                localStorage.setItem("created_at", u.created_at || "");
+                updateNavUI();
+                paintAccountInfo();
+              })
+              .catch(() => {});
+
             const username = localStorage.getItem("username");
             showGlobalModal({
               type: "success",

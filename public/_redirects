@@ -1,8 +1,11 @@
 # Shared Collection Viewer
 /s/* /share.html 200
 
-# Proxy API requests to backend
-/api/* https://simplesurvivalcollectibles.site/:splat 200
+# Proxy API requests to backend (.site server)
+# The :splat forwards everything after /api/
+# The "force" (200) flag ensures Netlify proxies even if file exists locally
+/api/* https://simplesurvivalcollectibles.site/:splat 200!
 
-# Fallback for SPA
+# Fallback for SPA (must remain LAST)
+# The exclamation mark (!) prevents it from overriding /api rules
 /* /index.html 200

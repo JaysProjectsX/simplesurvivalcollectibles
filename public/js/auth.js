@@ -1,4 +1,4 @@
-const backendUrl = "/api";
+window.backendUrl = "/api";
 let currentUser = null;
 
 /* === ADDED: Preloader-driven session bootstrap (uses your existing nav/update code) === */

@@ -1,8 +1,8 @@
 let currentPage = 1;
 const logsPerPage = 10;
 
-const backendUrl = "/api";
-const api = (path, init) => AUTH.fetchWithAuth(`${backendUrl}${path}`, init);
+const api = (path, init) =>
+AUTH.fetchWithAuth(`${(window.backendUrl || "/api")}${path}`, init);
 
 async function softMe() {
   return fetch(`${backendUrl}/me`, { credentials: 'include' });

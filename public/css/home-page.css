@@ -1994,8 +1994,7 @@ nav {
 
 .panel__list li {
   position: relative;
-  padding: 28px;
-  padding-left: 40px;
+  padding: 24px 28px;
   border-bottom: 1px solid #ececec;
   font-family: 'Open Sans', sans-serif;
   font-size: 14px;
@@ -2055,14 +2054,12 @@ nav {
 }
 
 /* Icon styling */
-.panel__list li .icon {
-  position: absolute;
-  left: 40px;
-  top: 50%;
-  transform: translateY(-50%);
+.entry-row .icon {
   font-size: 36px;
   color: #2775ff;
-  opacity: 0.5;
+  opacity: 0.7;
+  flex-shrink: 0;
+  margin-top: 4px;
   transition: all 0.3s ease;
 }
 
@@ -2099,6 +2096,22 @@ nav {
 .panel__list li .timestamp {
   font-size: 0.85rem;
   color: #888;
+}
+
+.entry-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 16px;
+  padding-left: 4px;
+}
+
+.entry-row .changelog-text-block {
+  flex: 1;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  line-height: 1.5;
 }
 
 .changelog-pagination .page-btn {

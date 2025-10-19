@@ -300,18 +300,20 @@ async function loadChangelog(page = "noncosmetic", currentPage = 1, itemsPerPage
     const visibleLogs = logs.slice(startIndex, startIndex + itemsPerPage);
 
     modalBody.innerHTML = visibleLogs.map(entry => `
-      <li>
-        <span class="line"></span>
-        <i class="icon ${entry.role === 'SysAdmin' ? 'fas fa-shield-alt' : 'fas fa-user'}"></i>
-        <div class="changelog-text-block">
-          <div class="user-info">
-            <span class="role-tag ${entry.role}">${entry.role}</span>
-            <strong>${entry.username}</strong>
+        <li>
+          <span class="line"></span>
+          <div class="entry-row">
+            <i class="icon ${entry.role === 'SysAdmin' ? 'fas fa-shield-alt' : 'fas fa-user'}"></i>
+            <div class="changelog-text-block">
+              <div class="user-info">
+                <span class="role-tag ${entry.role}">${entry.role}</span>
+                <strong>${entry.username}</strong>
+              </div>
+              <div class="message">${entry.message}</div>
+              <small class="timestamp">${new Date(entry.timestamp).toLocaleString()}</small>
+            </div>
           </div>
-          <div class="message">${entry.message}</div>
-          <small class="timestamp">${new Date(entry.timestamp).toLocaleString()}</small>
-        </div>
-      </li>
+        </li>
     `).join("");
 
     pagination.innerHTML = '';

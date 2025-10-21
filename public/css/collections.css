@@ -851,3 +851,127 @@ body.modal-open{
     flex-direction: column;
   }
 }
+
+/* ===== PRICE CALCULATOR ===== */
+
+.item-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #0e0f1c;
+  border: 1px solid #22233a;
+  padding: 8px 12px;
+  margin: 4px 0;
+  border-radius: 6px;
+}
+
+.money-btn {
+  background: #111;
+  color: #cfd3ff;
+  border: 1px solid #365cf5;
+  border-radius: 6px;
+  padding: 4px 8px;
+  cursor: pointer;
+  transition: all .15s ease;
+}
+
+.money-btn:hover {
+  background: #365cf5;
+  color: #fff;
+}
+
+.modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+}
+
+.modal.hidden { display: none; }
+
+.modal-content {
+  background: #0b0b19;
+  color: #e9e9f3;
+  padding: 20px;
+  border-radius: 10px;
+  width: min(600px, 90%);
+  position: relative;
+  box-shadow: 0 10px 25px rgba(0,0,0,.5);
+}
+
+.close-btn {
+  position: absolute;
+  top: 8px;
+  right: 12px;
+  font-size: 22px;
+  cursor: pointer;
+}
+
+.economy-buttons {
+  display: flex;
+  gap: 10px;
+  margin: 12px 0;
+}
+
+.econ-btn {
+  background: #111125;
+  border: 1px solid #22233a;
+  border-radius: 6px;
+  padding: 8px 12px;
+  color: #cfd3ff;
+  cursor: pointer;
+  transition: background .2s ease;
+}
+
+.econ-btn.active {
+  background: #365cf5;
+  color: #fff;
+  border-color: #365cf5;
+}
+
+.price-values {
+  background: #141427;
+  border: 1px solid #22233a;
+  border-radius: 10px;
+  padding: 10px 12px;
+}
+
+#commentSection {
+  margin-top: 12px;
+}
+
+#commentBox {
+  width: 100%;
+  min-height: 80px;
+  background: #0c0c1a;
+  color: #e9e9f3;
+  border: 1px solid #22233a;
+  border-radius: 8px;
+  padding: 10px;
+  resize: none;
+}
+
+.char-counter {
+  text-align: right;
+  color: #a9b3d6;
+  font-size: 0.85rem;
+  margin-top: 4px;
+}
+
+.submit-btn {
+  margin-top: 8px;
+  padding: 8px 12px;
+  background: #365cf5;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background .2s ease;
+}
+
+.submit-btn:hover {
+  background: #2448d8;
+}

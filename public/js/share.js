@@ -133,7 +133,7 @@ function focusFirstSearchHit() {
 
   const panel = hit.closest('.acc-panel');
   const btn = panel.previousElementSibling;
-  const inner = hit.closest('.acc-panel-inner'); // scrollable container
+  const inner = hit.closest('.acc-panel-inner');
 
   if (!panel.classList.contains('open')) openPanel(panel, btn);
 

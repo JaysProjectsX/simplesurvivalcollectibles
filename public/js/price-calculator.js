@@ -17,6 +17,7 @@ function hidePreloader() {
     const res = await fetch(`${backendUrl}/me`, { credentials: 'include' });
     if (!res.ok) return redirectHome();
     const user = await res.json();
+
     if (user.role !== 'Admin' && user.role !== 'SysAdmin') return redirectHome();
 
     document.body.hidden = false;
@@ -39,49 +40,65 @@ async function loadCrates() {
   renderSidebar(crates);
 }
 
-// ---- Sidebar Accordion ----
+// ===== Sidebar Accordion Rendering =====
 function renderSidebar(crates) {
   const cosmetic = crates.filter(c => c.is_cosmetic);
   const other = crates.filter(c => !c.is_cosmetic);
 
-  crateSidebar.innerHTML = `
-    ${makeAccordion('Cosmetic Crates', cosmetic)}
-    ${makeAccordion('Other Crates', other)}
-  `;
+  crateSidebar.innerHTML = '';
+  crateSidebar.appendChild(makeAccordion('Cosmetic Crates', cosmetic));
+  crateSidebar.appendChild(makeAccordion('Other Crates', other));
 
-  document.querySelectorAll('.acc-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const panel = btn.nextElementSibling;
-      btn.classList.toggle('active');
-      if (panel.style.maxHeight) {
-        panel.style.maxHeight = null;
-      } else {
-        panel.style.maxHeight = panel.scrollHeight + 'px';
-      }
-    });
+  // Attach accordion behavior
+  document.querySelectorAll('.pc-acc-btn').forEach(btn => {
+    btn.addEventListener('click', () => togglePanel(btn.nextElementSibling, btn));
   });
 }
 
 function makeAccordion(title, list) {
-  return `
-    <button class="acc-btn">${title}</button>
-    <div class="acc-panel">
-      ${list
-        .map(
-          c =>
-            `<button class="crate-btn" onclick="selectCrate(${c.id}, '${c.name}')">${c.name}</button>`
-        )
-        .join('')}
+  const wrapper = document.createElement('div');
+  wrapper.className = 'pc-acc-wrapper';
+  wrapper.innerHTML = `
+    <button class="pc-acc-btn" type="button">
+      <span>${title}</span>
+      <svg class="pc-acc-icon" viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
+        <path d="M7 10l5 5 5-5z"/>
+      </svg>
+    </button>
+    <div class="pc-acc-panel">
+      <div class="pc-acc-inner">
+        ${list.map(c => `
+          <button class="pc-crate-btn" onclick="selectCrate(${c.id}, '${c.name}')">${c.name}</button>
+        `).join('')}
+      </div>
     </div>
   `;
+  return wrapper;
 }
 
-// ---- Crate & Modal Logic ----
+function togglePanel(panel, btn) {
+  const isOpen = panel.classList.contains('open');
+  document.querySelectorAll('.pc-acc-panel.open').forEach(p => {
+    p.classList.remove('open');
+    p.style.maxHeight = null;
+    p.previousElementSibling?.classList.remove('active');
+  });
+
+  if (!isOpen) {
+    panel.classList.add('open');
+    panel.style.maxHeight = panel.scrollHeight + 'px';
+    btn.classList.add('active');
+  }
+}
+
+// ===== Crate and Modal Logic =====
 async function selectCrate(id, name) {
   const res = await fetch(`${backendUrl}/calculator/crates`, { credentials: 'include' });
   const { crates } = await res.json();
   const crate = crates.find(c => c.id === id);
   renderItems(crate);
+  document.getElementById('crateTitle').textContent = name;
+  document.getElementById('crateCount').textContent = crate.items.length + ' items';
 }
 
 function renderItems(crate) {
@@ -102,8 +119,8 @@ async function openModal(itemId) {
   const itemRes = await fetch(`${backendUrl}/prices/${itemId}`);
   const item = await itemRes.json();
   currentItem = item;
-
   document.getElementById('itemName').textContent = item.item_name;
+
   const cerberusBtn = document.getElementById('cerberusBtn');
   cerberusBtn.style.display = item.crate_name?.toLowerCase().includes('cerberus')
     ? 'inline-block'
@@ -116,7 +133,6 @@ async function openModal(itemId) {
   modal.querySelector('.close-btn').onclick = () => modal.classList.add('hidden');
 }
 
-// ---- Economy Display ----
 function updateEconomyDisplay() {
   const base = document.getElementById('baseValue');
   const max = document.getElementById('maxValue');
@@ -151,7 +167,7 @@ document.querySelectorAll('.econ-btn').forEach(btn => {
   });
 });
 
-// ---- Comments ----
+// ===== Comments =====
 async function loadComments(itemId) {
   const res = await fetch(`${backendUrl}/comments?itemId=${itemId}&economy=${selectedEconomy}`);
   const comments = await res.json();

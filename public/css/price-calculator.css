@@ -3,12 +3,6 @@
   --nav-height: 70px;
 }
 
-body {
-  background: #0b0b19;
-  color: #e9e9f3;
-  min-height: 100vh;
-}
-
 /* ===== LAYOUT ===== */
 .pc-layout {
   display: flex;
@@ -21,29 +15,20 @@ body {
   width: 280px;
   background: #0c0c1a;
   border-right: 1px solid #22233a;
-  padding: 16px;
-  overflow: auto;
+  padding: 20px 16px;
   height: calc(100vh - var(--nav-height));
+  overflow-y: auto;
 }
 
 .pc-brand {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  padding: 20px 12px;
-  border-radius: 12px;
-  margin-bottom: 12px;
   text-align: center;
+  margin-bottom: 16px;
 }
 
 .pc-brand img {
   width: 72px;
-  height: auto;
   border-radius: 12px;
   object-fit: contain;
-  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.4));
   transition: transform 0.25s ease-in-out;
 }
 
@@ -52,37 +37,41 @@ body {
 }
 
 .pc-brand-name {
-  font-weight: 600;
-  font-size: 15px;
-  color: #e9e9f3;
+  font-weight: 700;
+  font-size: 16px;
+  color: #fff;
+  margin-top: 8px;
 }
 
 .pc-section-title {
-  margin: 14px 0 8px;
-  font-weight: 600;
-  opacity: .8;
   font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  color: #a9b3d6;
   text-transform: uppercase;
-  letter-spacing: .04em;
+  margin-bottom: 8px;
 }
 
-/* Accordion */
+/* ===== MODERN ACCORDION STYLE ===== */
 .acc-btn {
-  background: #111125;
-  color: #fff;
-  cursor: pointer;
-  padding: 12px;
-  border: 1px solid #22233a;
-  border-radius: 6px;
-  text-align: left;
   width: 100%;
-  transition: background 0.2s ease;
+  text-align: left;
+  background: #121227;
+  color: #fff;
+  padding: 12px 14px;
+  border: 1px solid #1d1d33;
+  border-radius: 8px;
+  cursor: pointer;
   font-weight: 600;
-  margin-top: 6px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: background 0.2s ease, color 0.2s ease;
+  margin-top: 8px;
 }
 
 .acc-btn:hover {
-  background: #14142b;
+  background: #181835;
 }
 
 .acc-btn.active {
@@ -90,33 +79,52 @@ body {
   color: #fff;
 }
 
+.acc-btn svg {
+  transition: transform 0.25s ease;
+}
+
+.acc-btn.active svg {
+  transform: rotate(180deg);
+}
+
+/* Accordion panel animation */
 .acc-panel {
-  background: #0c0c1a;
-  max-height: 0;
+  background: #0e0e20;
+  border-radius: 0 0 8px 8px;
+  margin-top: 2px;
   overflow: hidden;
-  transition: max-height 0.25s ease-out;
-  border-left: 1px solid #22233a;
-  border-right: 1px solid #22233a;
-  border-bottom: 1px solid #22233a;
-  border-radius: 0 0 6px 6px;
+  max-height: 0;
+  transition: max-height 0.35s ease;
+  border: 1px solid transparent;
+}
+
+.acc-panel.open {
+  border: 1px solid #1d1d33;
 }
 
 .acc-panel .crate-btn {
   display: block;
   width: 100%;
   text-align: left;
-  padding: 10px 14px;
-  border: none;
   background: transparent;
   color: #e9e9f3;
+  border: none;
+  padding: 10px 14px;
+  border-radius: 6px;
   transition: background 0.2s ease;
+  font-size: 14px;
 }
 
 .acc-panel .crate-btn:hover {
-  background: rgba(255,255,255,0.08);
+  background: rgba(255, 255, 255, 0.08);
 }
 
-/* ===== MAIN ===== */
+.acc-panel .crate-btn.active {
+  background: #365CF5;
+  color: #fff;
+}
+
+/* ===== MAIN AREA ===== */
 .pc-main {
   flex: 1;
   padding: 24px;

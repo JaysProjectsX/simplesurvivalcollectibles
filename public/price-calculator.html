@@ -5,10 +5,10 @@
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
   <title>Price Calculator</title>
   <link rel="stylesheet" href="/css/home-page.css"/>
-  <link rel="stylesheet" href="/css/collections.css"/>
+  <link rel="stylesheet" href="/css/price-calculator.css"/>
   <link rel="stylesheet" href="/css/globalModal.css"/>
 </head>
-<body>
+<body hidden>
 
   <div id="preloader"><div class="loader"></div></div>
 
@@ -30,24 +30,24 @@
     </div>
   </nav>
 
-  <div class="share-layout">
-    <aside class="share-sidebar">
-      <div class="share-brand">
+  <div class="pc-layout">
+    <aside class="pc-sidebar">
+      <div class="pc-brand">
         <img src="/assets/ssc_icon.png" alt="Logo">
-        <div class="brand-name">Price Calculator</div>
+        <div class="pc-brand-name">Price Calculator</div>
       </div>
 
-      <div class="share-section-title">Crates</div>
+      <div class="pc-section-title">Crates</div>
       <div id="crateSidebar"></div>
     </aside>
 
-    <main class="share-main">
-      <header class="share-header">
-        <div class="share-kpi">
-          <div class="share-kpi-title" id="crateTitle">Select a crate</div>
-          <div class="share-kpi-count" id="crateCount">—</div>
+    <main class="pc-main">
+      <header class="pc-header">
+        <div class="pc-kpi">
+          <div class="pc-kpi-title" id="crateTitle">Select a crate</div>
+          <div class="pc-kpi-count" id="crateCount">—</div>
         </div>
-        <div class="share-search">
+        <div class="pc-search">
           <input id="searchInput" type="text" placeholder="Search item by name…"/>
         </div>
       </header>
@@ -85,6 +85,8 @@
     </div>
   </div>
 
+  <script src="/js/auth.js"></script>
   <script src="/js/price-calculator.js"></script>
+  <script src="/js/globalModal.js"></script>
 </body>
 </html>

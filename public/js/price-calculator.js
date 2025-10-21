@@ -9,23 +9,29 @@ function hidePreloader() {
   if (!preloader) return;
   preloader.style.opacity = '0';
   preloader.style.transition = 'opacity 0.6s ease';
-  setTimeout(() => preloader.style.display = 'none', 600);
+  setTimeout(() => (preloader.style.display = 'none'), 600);
 }
 
 (async function init() {
   try {
     const res = await fetch(`${backendUrl}/me`, { credentials: 'include' });
-    if (!res.ok) return (location.href = '/');
+    if (!res.ok) return redirectHome();
     const user = await res.json();
-    if (user.role !== 'Admin' && user.role !== 'SysAdmin') return (location.href = '/');
+    if (user.role !== 'Admin' && user.role !== 'SysAdmin') return redirectHome();
 
+    document.body.hidden = false;
     await loadCrates();
   } catch (err) {
     console.error('Initialization failed:', err);
+    redirectHome();
   } finally {
     hidePreloader();
   }
 })();
+
+function redirectHome() {
+  location.replace('/');
+}
 
 async function loadCrates() {
   const res = await fetch(`${backendUrl}/calculator/crates`, { credentials: 'include' });
@@ -33,19 +39,44 @@ async function loadCrates() {
   renderSidebar(crates);
 }
 
+// ---- Sidebar Accordion ----
 function renderSidebar(crates) {
   const cosmetic = crates.filter(c => c.is_cosmetic);
   const other = crates.filter(c => !c.is_cosmetic);
 
-  const makeAccordion = (title, list) => `
-    <button class="acc-btn">${title}</button>
-    <div class="acc-panel">
-      ${list.map(c => `<button class="crate-btn" onclick="selectCrate(${c.id}, '${c.name}')">${c.name}</button>`).join('')}
-    </div>
+  crateSidebar.innerHTML = `
+    ${makeAccordion('Cosmetic Crates', cosmetic)}
+    ${makeAccordion('Other Crates', other)}
   `;
-  crateSidebar.innerHTML = makeAccordion('Cosmetic Crates', cosmetic) + makeAccordion('Other Crates', other);
+
+  document.querySelectorAll('.acc-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const panel = btn.nextElementSibling;
+      btn.classList.toggle('active');
+      if (panel.style.maxHeight) {
+        panel.style.maxHeight = null;
+      } else {
+        panel.style.maxHeight = panel.scrollHeight + 'px';
+      }
+    });
+  });
 }
 
+function makeAccordion(title, list) {
+  return `
+    <button class="acc-btn">${title}</button>
+    <div class="acc-panel">
+      ${list
+        .map(
+          c =>
+            `<button class="crate-btn" onclick="selectCrate(${c.id}, '${c.name}')">${c.name}</button>`
+        )
+        .join('')}
+    </div>
+  `;
+}
+
+// ---- Crate & Modal Logic ----
 async function selectCrate(id, name) {
   const res = await fetch(`${backendUrl}/calculator/crates`, { credentials: 'include' });
   const { crates } = await res.json();
@@ -68,14 +99,15 @@ function renderItems(crate) {
 
 async function openModal(itemId) {
   const modal = document.getElementById('priceModal');
-  const body = document.getElementById('modalBody');
   const itemRes = await fetch(`${backendUrl}/prices/${itemId}`);
   const item = await itemRes.json();
   currentItem = item;
-  document.getElementById('itemName').textContent = item.item_name;
 
+  document.getElementById('itemName').textContent = item.item_name;
   const cerberusBtn = document.getElementById('cerberusBtn');
-  cerberusBtn.style.display = item.crate_name?.toLowerCase().includes('cerberus') ? 'inline-block' : 'none';
+  cerberusBtn.style.display = item.crate_name?.toLowerCase().includes('cerberus')
+    ? 'inline-block'
+    : 'none';
 
   updateEconomyDisplay();
   await loadComments(itemId);
@@ -84,6 +116,7 @@ async function openModal(itemId) {
   modal.querySelector('.close-btn').onclick = () => modal.classList.add('hidden');
 }
 
+// ---- Economy Display ----
 function updateEconomyDisplay() {
   const base = document.getElementById('baseValue');
   const max = document.getElementById('maxValue');
@@ -118,6 +151,7 @@ document.querySelectorAll('.econ-btn').forEach(btn => {
   });
 });
 
+// ---- Comments ----
 async function loadComments(itemId) {
   const res = await fetch(`${backendUrl}/comments?itemId=${itemId}&economy=${selectedEconomy}`);
   const comments = await res.json();

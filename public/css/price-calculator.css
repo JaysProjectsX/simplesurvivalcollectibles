@@ -1,0 +1,217 @@
+/* ===== PRICE CALCULATOR PAGE ===== */
+:root {
+  --nav-height: 70px;
+}
+
+body {
+  background: #0b0b19;
+  color: #e9e9f3;
+  min-height: 100vh;
+}
+
+/* ===== LAYOUT ===== */
+.pc-layout {
+  display: flex;
+  margin-top: var(--nav-height);
+  min-height: calc(100vh - var(--nav-height));
+}
+
+/* ===== SIDEBAR ===== */
+.pc-sidebar {
+  width: 280px;
+  background: #0c0c1a;
+  border-right: 1px solid #22233a;
+  padding: 16px;
+  overflow: auto;
+  height: calc(100vh - var(--nav-height));
+}
+
+.pc-brand {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 20px 12px;
+  border-radius: 12px;
+  margin-bottom: 12px;
+  text-align: center;
+}
+
+.pc-brand img {
+  width: 72px;
+  height: auto;
+  border-radius: 12px;
+  object-fit: contain;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.4));
+  transition: transform 0.25s ease-in-out;
+}
+
+.pc-brand img:hover {
+  transform: scale(1.05);
+}
+
+.pc-brand-name {
+  font-weight: 600;
+  font-size: 15px;
+  color: #e9e9f3;
+}
+
+.pc-section-title {
+  margin: 14px 0 8px;
+  font-weight: 600;
+  opacity: .8;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+}
+
+/* Accordion */
+.acc-btn {
+  background: #111125;
+  color: #fff;
+  cursor: pointer;
+  padding: 12px;
+  border: 1px solid #22233a;
+  border-radius: 6px;
+  text-align: left;
+  width: 100%;
+  transition: background 0.2s ease;
+  font-weight: 600;
+  margin-top: 6px;
+}
+
+.acc-btn:hover {
+  background: #14142b;
+}
+
+.acc-btn.active {
+  background: #365CF5;
+  color: #fff;
+}
+
+.acc-panel {
+  background: #0c0c1a;
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.25s ease-out;
+  border-left: 1px solid #22233a;
+  border-right: 1px solid #22233a;
+  border-bottom: 1px solid #22233a;
+  border-radius: 0 0 6px 6px;
+}
+
+.acc-panel .crate-btn {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 10px 14px;
+  border: none;
+  background: transparent;
+  color: #e9e9f3;
+  transition: background 0.2s ease;
+}
+
+.acc-panel .crate-btn:hover {
+  background: rgba(255,255,255,0.08);
+}
+
+/* ===== MAIN ===== */
+.pc-main {
+  flex: 1;
+  padding: 24px;
+}
+
+.pc-header {
+  margin-bottom: 12px;
+}
+
+.pc-kpi {
+  background: #141427;
+  border-radius: 12px;
+  padding: 14px 16px;
+  margin-bottom: 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.pc-kpi-title {
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+.pc-kpi-count {
+  color: #a9b3d6;
+  font-size: .95rem;
+}
+
+.pc-search input {
+  width: 100%;
+  background: #0c0c1a;
+  border: 1px solid #22233a;
+  color: #e9e9f3;
+  padding: 10px 12px;
+  border-radius: 10px;
+  outline: none;
+}
+
+/* ===== ITEM ROWS ===== */
+.item-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 0;
+  border-bottom: 1px solid #22233a;
+}
+
+.money-btn {
+  background: #365CF5;
+  border: none;
+  border-radius: 6px;
+  color: white;
+  padding: 4px 8px;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+}
+
+.money-btn:hover {
+  opacity: 0.85;
+}
+
+/* ===== ECONOMY BUTTONS ===== */
+.economy-buttons {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.econ-btn {
+  background: #141427;
+  color: #fff;
+  border: 1px solid #22233a;
+  padding: 8px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.econ-btn:hover {
+  background: #1b1b33;
+}
+
+.econ-btn.active {
+  background: #365CF5;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 980px) {
+  .pc-layout {
+    flex-direction: column;
+  }
+  .pc-sidebar {
+    width: 100%;
+    height: auto;
+    border-right: 0;
+    border-bottom: 1px solid #22233a;
+  }
+}

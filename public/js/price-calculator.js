@@ -137,23 +137,42 @@ async function loadItems(crateId) {
 // ================== SEARCH (Enhanced) ==================
 searchInput.addEventListener("input", (e) => {
   currentSearch = e.target.value.trim().toLowerCase();
+
   if (currentCrate) {
     renderItemsAsAccordions(currentCrate);
-    if (currentSearch) focusFirstSearchHit(currentSearch);
+    if (currentSearch) {
+      setTimeout(() => focusFirstSearchHit(currentSearch), 100);
+    }
   }
 });
 
 function focusFirstSearchHit(term) {
-  const rows = accRoot.querySelectorAll("tbody tr");
-  if (!rows.length) return;
+  const accItems = accRoot.querySelectorAll(".acc-item");
 
-  for (const row of rows) {
-    const text = row.textContent.toLowerCase();
-    if (text.includes(term)) {
-      row.classList.add("search-hit");
-      row.scrollIntoView({ behavior: "smooth", block: "center" });
-      setTimeout(() => row.classList.remove("search-hit"), 1200);
-      break;
+  for (const acc of accItems) {
+    const rows = acc.querySelectorAll("tbody tr");
+
+    for (const row of rows) {
+      const name = row.querySelector("td")?.textContent?.toLowerCase() || "";
+      if (name.includes(term)) {
+        // Open this accordion if it's closed
+        const btn = acc.querySelector(".acc-btn");
+        const panel = acc.querySelector(".acc-panel");
+        if (!panel.classList.contains("open")) {
+          togglePanel(panel, btn);
+        }
+
+        // Scroll to the row smoothly once accordion is open
+        setTimeout(() => {
+          row.scrollIntoView({ behavior: "smooth", block: "center" });
+
+          // Highlight the found row
+          row.classList.add("search-hit");
+          setTimeout(() => row.classList.remove("search-hit"), 1200);
+        }, 250);
+
+        return; // Stop after first match
+      }
     }
   }
 }

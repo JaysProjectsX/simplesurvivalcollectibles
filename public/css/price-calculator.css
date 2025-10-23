@@ -97,7 +97,6 @@ body {
 /* === Table Row Hover Highlight === */
 .acc-table tbody tr {
   transition: background 0.15s ease, transform 0.1s ease;
-  cursor: pointer;
 }
 
 .acc-table tbody tr:hover {
@@ -262,12 +261,11 @@ body {
 #accRoot {
   display: block;
   overflow-y: auto;
-  max-height: calc(100vh - 120px); /* adjust offset to match your header height */
+  max-height: calc(92vh - 120px); /* adjust offset to match your header height */
   padding-right: 6px;
   scroll-behavior: smooth;
 }
 
-/* Optional: hide scrollbars on some browsers while keeping scroll functional */
 #accRoot::-webkit-scrollbar {
   width: 8px;
 }

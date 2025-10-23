@@ -121,7 +121,7 @@ body {
   border-radius: 10px; padding: 20px 24px; width: 400px;
 }
 .close-btn { float: right; cursor: pointer; font-size: 22px; }
-.economy-buttons { display: flex; gap: 10px; margin-bottom: 12px; }
+.economy-buttons { display: flex; gap: 10px; margin-bottom: 12px; justfiy-content: center;}
 .econ-btn { background: #141427; color: #fff; border: 1px solid #22233a;
   padding: 8px 14px; border-radius: 6px; cursor: pointer; }
 .econ-btn.active { background: #365CF5; }
@@ -305,11 +305,11 @@ body {
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
 }
 
-.modal-content.large {
+.modal-content-price.large {
   width: 700px;
   max-height: 90vh;
   overflow-y: auto;
-  background: #141427;
+  background: #1e1e2f;
   color: #fff;
   border-radius: 10px;
   padding: 24px 28px;
@@ -321,6 +321,22 @@ body {
   display: flex;
   flex-direction: column;
   gap: 10px;
+}
+
+.modal-content-price button {
+  width: 95%;
+  padding: 12px;
+  background-color: #141427;
+  color: white;
+  font-weight: bold;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.modal-content-price button:hover {
+  background-color: #202035;
 }
 
 .item-header {

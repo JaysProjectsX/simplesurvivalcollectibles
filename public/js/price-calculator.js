@@ -2,12 +2,14 @@ const backendUrl = "/api";
 const crateSidebar = document.getElementById("crateSidebar");
 const accRoot = document.getElementById("accRoot");
 const preloader = document.getElementById("preloader");
+const searchInput = document.getElementById("searchInput");
 
 let allCrates = [];
 let currentCrate = null;
 let selectedEconomy = "Phoenix";
 let currentItem = null;
 let searchTerm = "";
+let currentSearch = "";
 
 // ================== UTILITIES ==================
 function prettyCrateName(name) {
@@ -132,11 +134,39 @@ async function loadItems(crateId) {
   return await res.json();
 }
 
-// ================== SEARCH ==================
-document.getElementById("searchInput").addEventListener("input", (e) => {
-  searchTerm = e.target.value.trim().toLowerCase();
-  if (currentCrate) renderItemsAsAccordions(currentCrate);
+// ================== SEARCH (Enhanced) ==================
+searchInput.addEventListener("input", (e) => {
+  currentSearch = e.target.value.trim().toLowerCase();
+  if (currentCrate) {
+    renderItemsAsAccordions(currentCrate);
+    if (currentSearch) focusFirstSearchHit(currentSearch);
+  }
 });
+
+function focusFirstSearchHit(term) {
+  const rows = accRoot.querySelectorAll("tbody tr");
+  if (!rows.length) return;
+
+  for (const row of rows) {
+    const text = row.textContent.toLowerCase();
+    if (text.includes(term)) {
+      row.classList.add("search-hit");
+      row.scrollIntoView({ behavior: "smooth", block: "center" });
+      setTimeout(() => row.classList.remove("search-hit"), 1200);
+      break;
+    }
+  }
+}
+
+// Add highlight CSS dynamically
+const style = document.createElement("style");
+style.textContent = `
+  .search-hit {
+    background: rgba(54, 92, 245, 0.25) !important;
+    transition: background 0.4s ease;
+  }
+`;
+document.head.appendChild(style);
 
 // ================== ACCORDION RENDERING ==================
 function renderItemsAsAccordions(crate) {

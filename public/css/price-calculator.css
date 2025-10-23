@@ -67,9 +67,11 @@ body {
   text-align: left;
   padding: 10px 14px;
   border: none;
-  background: transparent;
+  margin-bottom: 4px;
+  border-radius: 4px;
+  background: rgba(255,255,255,0.02);
   color: #e9e9f3;
-  transition: background 0.2s;
+  transition: background .15s ease, color .15s ease;
 }
 .crate-btn:hover { background: rgba(255,255,255,0.08); }
 .crate-btn.active { background: #365CF5; color: #fff; }
@@ -91,6 +93,17 @@ body {
 }
 .acc-table th { color: #a9b3d6; text-align: left; }
 .acc-table img { height: 24px; }
+
+/* === Table Row Hover Highlight === */
+.acc-table tbody tr {
+  transition: background 0.15s ease, transform 0.1s ease;
+  cursor: pointer;
+}
+
+.acc-table tbody tr:hover {
+  background: rgba(54, 92, 245, 0.15);
+}
+
 .money-btn {
   background: transparent; border: none; border-radius: 6px; color: white;
   padding: 4px 8px; cursor: pointer; transition: opacity 0.2s ease;
@@ -236,4 +249,32 @@ body {
   height: 36px;
   object-fit: contain;
   border-radius: 6px;
+}
+
+.collections-divider {
+  border: 0;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.1); /* subtle line */
+  margin: 40px 0; /* space above and below */
+}
+
+/* === Accordion Root Scroll Fix === */
+#accRoot {
+  display: block;
+  overflow-y: auto;
+  max-height: calc(100vh - 120px); /* adjust offset to match your header height */
+  padding-right: 6px;
+  scroll-behavior: smooth;
+}
+
+/* Optional: hide scrollbars on some browsers while keeping scroll functional */
+#accRoot::-webkit-scrollbar {
+  width: 8px;
+}
+#accRoot::-webkit-scrollbar-thumb {
+  background-color: rgba(255, 255, 255, 0.15);
+  border-radius: 8px;
+}
+#accRoot::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(255, 255, 255, 0.3);
 }

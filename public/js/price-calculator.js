@@ -63,53 +63,52 @@ async function loadCrates() {
 function renderSidebar(crates) {
   crateSidebar.innerHTML = "";
 
-  // mimic share.js style: two categorized groups
-  const cosmetic = crates.filter((c) => c.is_cosmetic);
-  const other = crates.filter((c) => !c.is_cosmetic);
+  // Separate crates based on is_cosmetic flag
+  const cosmeticCrates = crates.filter(c => c.is_cosmetic);
+  const otherCrates = crates.filter(c => !c.is_cosmetic);
 
-  const cosmeticGroup = makeCrateGroup("Cosmetic Crates", cosmetic);
-  const otherGroup = makeCrateGroup("Other Crates", other);
+  // Create titled sections like share.html
+  const cosmeticSection = document.createElement("div");
+  cosmeticSection.className = "crate-section";
+  cosmeticSection.innerHTML = `<div class="pc-section-title">COSMETIC CRATES</div>`;
+  cosmeticSection.appendChild(makeCrateGroup(cosmeticCrates));
 
-  crateSidebar.appendChild(cosmeticGroup);
-  crateSidebar.appendChild(otherGroup);
+  const otherSection = document.createElement("div");
+  otherSection.className = "crate-section";
+  otherSection.innerHTML = `<div class="pc-section-title">OTHER CRATES</div>`;
+  otherSection.appendChild(makeCrateGroup(otherCrates));
+
+  crateSidebar.appendChild(cosmeticSection);
+  crateSidebar.appendChild(otherSection);
 }
 
-function makeCrateGroup(title, list) {
+function makeCrateGroup(list) {
   const group = document.createElement("div");
   group.className = "crate-group";
 
-  // Use share.html-style header class
-  group.innerHTML = `<div class="share-section-title">${title.toUpperCase()}</div>`;
-
-  list.forEach((crate) => {
+  list.forEach(crate => {
     const btn = document.createElement("button");
     btn.className = "crate-btn";
     btn.textContent = prettyCrateName(crate.crate_name);
 
     btn.addEventListener("click", async () => {
-      crateSidebar
-        .querySelectorAll(".crate-btn")
-        .forEach((b) => b.classList.remove("active"));
+      crateSidebar.querySelectorAll(".crate-btn").forEach(b => b.classList.remove("active"));
       btn.classList.add("active");
 
-      document.getElementById("crateTitle").textContent = prettyCrateName(
-        crate.crate_name
-      );
+      document.getElementById("crateTitle").textContent = prettyCrateName(crate.crate_name);
       document.getElementById("crateCount").textContent = "Loading items...";
 
       const items = await loadItems(crate.id);
       crate.items = items;
       currentCrate = crate;
 
-      document.getElementById(
-        "crateCount"
-      ).textContent = `${crate.items.length} items`;
-
+      document.getElementById("crateCount").textContent = `${crate.items.length} items`;
       renderItemsAsAccordions(crate);
     });
 
     group.appendChild(btn);
   });
+
   return group;
 }
 

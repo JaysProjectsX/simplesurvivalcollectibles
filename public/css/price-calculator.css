@@ -215,6 +215,7 @@ body {
   width: 100%;
   border-collapse: collapse;
   margin-top: 6px;
+  font-size: 14px;
 }
 
 .acc-table th,

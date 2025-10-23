@@ -41,7 +41,6 @@ body {
   justify-content: space-between;
   align-items: center;
   font-weight: 600;
-  margin-top: 6px;
   transition: background 0.2s;
 }
 .acc-btn:hover { background: #14142b; }
@@ -92,7 +91,7 @@ body {
 .acc-table th { color: #a9b3d6; text-align: left; }
 .acc-table img { height: 24px; }
 .money-btn {
-  background: #365CF5; border: none; border-radius: 6px; color: white;
+  background: transparent; border: none; border-radius: 6px; color: white;
   padding: 4px 8px; cursor: pointer; transition: opacity 0.2s ease;
 }
 .money-btn:hover { opacity: 0.8; }
@@ -131,4 +130,21 @@ body {
 .acc-panel,
 .acc-panel-inner {
   transition: all 0.3s ease;
+}
+
+/* ===== Modal Fade Animations ===== */
+#priceModal {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+#priceModal.show {
+  opacity: 1;
+  pointer-events: all;
+}
+
+/* optional: dim the background a little */
+#priceModal:not(.hidden) {
+  backdrop-filter: blur(2px);
 }

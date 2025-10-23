@@ -49,38 +49,50 @@ function redirectHome() {
 // ================== LOAD CRATES ==================
 async function loadCrates() {
   try {
-    const res = await fetch(`${backendUrl}/crates`, { credentials: "include" });
-    if (!res.ok) throw new Error("Failed to load crates");
-    const crates = await res.json();
-    allCrates = Array.isArray(crates) ? crates : [];
-    renderSidebar(allCrates);
+    // Fetch both crate categories in parallel
+    const [cosmeticRes, nonCosmeticRes] = await Promise.all([
+      fetch(`${backendUrl}/crates/cosmetic`, { credentials: "include" }),
+      fetch(`${backendUrl}/crates/noncosmetic`, { credentials: "include" })
+    ]);
+
+    if (!cosmeticRes.ok || !nonCosmeticRes.ok)
+      throw new Error("Failed to load crates");
+
+    const [cosmeticCrates, nonCosmeticCrates] = await Promise.all([
+      cosmeticRes.json(),
+      nonCosmeticRes.json()
+    ]);
+
+    // Combine for shared reference but still categorize in renderSidebar
+    allCrates = [...cosmeticCrates, ...nonCosmeticCrates];
+
+    renderSidebar({
+      cosmetic: cosmeticCrates,
+      noncosmetic: nonCosmeticCrates
+    });
   } catch (err) {
     console.error("Error loading crates:", err);
   }
 }
 
 // ================== SIDEBAR ==================
-function renderSidebar(crates) {
+function renderSidebar(groups) {
   crateSidebar.innerHTML = "";
 
-  // Separate crates based on is_cosmetic flag
-  const cosmeticCrates = crates.filter(c => c.is_cosmetic);
-  const otherCrates = crates.filter(c => !c.is_cosmetic);
-
-  // Create titled sections like share.html
   const cosmeticSection = document.createElement("div");
   cosmeticSection.className = "crate-section";
   cosmeticSection.innerHTML = `<div class="pc-section-title">COSMETIC CRATES</div>`;
-  cosmeticSection.appendChild(makeCrateGroup(cosmeticCrates));
+  cosmeticSection.appendChild(makeCrateGroup(groups.cosmetic));
 
   const otherSection = document.createElement("div");
   otherSection.className = "crate-section";
   otherSection.innerHTML = `<div class="pc-section-title">OTHER CRATES</div>`;
-  otherSection.appendChild(makeCrateGroup(otherCrates));
+  otherSection.appendChild(makeCrateGroup(groups.noncosmetic));
 
   crateSidebar.appendChild(cosmeticSection);
   crateSidebar.appendChild(otherSection);
 }
+
 
 function makeCrateGroup(list) {
   const group = document.createElement("div");

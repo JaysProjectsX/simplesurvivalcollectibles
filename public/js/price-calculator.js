@@ -247,7 +247,10 @@ function renderItemsAsAccordions(crate) {
 
       const tr = document.createElement("tr");
       tr.innerHTML = `
-        <td>${it.item_name}</td>
+        <td class="item-name-cell">
+          ${it.item_name}
+          ${it.tooltip ? `<span class="info-icon" data-tooltip="${it.tooltip.replace(/^"+|"+$/g, "")}">🛈</span>` : ""}
+        </td>
         <td>${it.set_name || ""}</td>
         <td>${
           it.icon_url
@@ -404,3 +407,38 @@ document
     "input",
     (e) => (document.getElementById("charCount").textContent = e.target.value.length)
   );
+
+// ================== GLOBAL TOOLTIP LOGIC ==================
+const globalTooltip = document.getElementById("global-tooltip");
+
+document.addEventListener("mouseover", (e) => {
+  const infoIcon = e.target.closest(".info-icon");
+  if (!infoIcon) return;
+
+  const tooltipText = infoIcon.getAttribute("data-tooltip");
+  if (!tooltipText) return;
+
+  globalTooltip.textContent = tooltipText;
+  globalTooltip.style.display = "block";
+
+  const rect = infoIcon.getBoundingClientRect();
+  const scrollTop = window.scrollY || document.documentElement.scrollTop;
+  const tooltipHeight = globalTooltip.offsetHeight || 40;
+
+  // Default: position above icon, fallback below if too close to top
+  let top = rect.top + scrollTop - tooltipHeight - 10;
+  if (top < scrollTop + 20) {
+    top = rect.bottom + scrollTop + 10;
+  }
+
+  globalTooltip.style.top = `${top}px`;
+  globalTooltip.style.left = `${rect.left + rect.width / 2}px`;
+  globalTooltip.style.transform = "translateX(-50%)";
+});
+
+document.addEventListener("mouseout", (e) => {
+  const infoIcon = e.target.closest(".info-icon");
+  if (infoIcon) {
+    globalTooltip.style.display = "none";
+  }
+});

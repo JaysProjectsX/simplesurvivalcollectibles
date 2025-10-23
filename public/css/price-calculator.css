@@ -276,3 +276,31 @@ body {
 #accRoot::-webkit-scrollbar-thumb:hover {
   background-color: rgba(255, 255, 255, 0.3);
 }
+
+.info-icon {
+  margin-left: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  color: #9cb3ff;
+  transition: color 0.2s ease;
+}
+
+.info-icon:hover {
+  color: #ffffff;
+}
+
+.global-tooltip {
+  position: absolute;
+  display: none;
+  background: rgba(0, 0, 0, 0.85);
+  color: #fff;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 13px;
+  max-width: 260px;
+  line-height: 1.4;
+  z-index: 9999;
+  pointer-events: none;
+  white-space: normal;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
+}

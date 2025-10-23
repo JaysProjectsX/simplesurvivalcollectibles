@@ -73,7 +73,7 @@ body {
   color: #e9e9f3;
   transition: background .15s ease, color .15s ease;
 }
-.crate-btn:hover { background: rgba(255,255,255,0.08); }
+.crate-btn:hover { background: #21213b; }
 .crate-btn.active { background: #365CF5; color: #fff; }
 
 /* MAIN AREA */
@@ -174,8 +174,8 @@ body {
   text-align: left;
   padding: 10px 12px;
   background: #111125;
-  color: #fff;
-  border: 1px solid #22233a;
+  color: #a9b3d6;
+  border: none;
   border-radius: 4px;
   cursor: pointer;
   font-weight: 500;
@@ -183,7 +183,7 @@ body {
 }
 
 .crate-btn:hover {
-  background: #14142b;
+  background: #21213b;
 }
 
 .crate-btn.active {

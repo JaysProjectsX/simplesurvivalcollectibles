@@ -8,12 +8,13 @@ const preloader = document.getElementById('preloader');
 // State
 let selectedEconomy = 'Phoenix';
 let currentItem = null;
-let allCrates = [];           // store once after load
+let allCrates = [];
 let currentCrate = null;
 let searchTerm = '';
 
-// helpers (same spirit as share.js)
+// ===== HELPER FUNCTIONS =====
 function byName(a, b) { return a.item_name.localeCompare(b.item_name); }
+
 function prettyCrateName(s) {
   return (s || '')
     .replace(/([a-z])([A-Z])/g, '$1 $2')
@@ -21,7 +22,6 @@ function prettyCrateName(s) {
     .replace(/\b\w/g, m => m.toUpperCase());
 }
 
-// preloader
 function hidePreloader() {
   if (!preloader) return;
   preloader.style.opacity = '0';
@@ -29,6 +29,26 @@ function hidePreloader() {
   setTimeout(() => (preloader.style.display = 'none'), 600);
 }
 
+// ===== IMMEDIATE AUTH CHECK =====
+(async function authCheck() {
+  try {
+    const res = await fetch(`${backendUrl}/me`, { credentials: 'include' });
+    if (!res.ok) return redirectHome();
+    const user = await res.json();
+    if (user.role !== 'Admin' && user.role !== 'SysAdmin') return redirectHome();
+    document.body.hidden = false;
+    await init(); // only run main init after auth confirmed
+  } catch (err) {
+    console.error('Authorization failed:', err);
+    redirectHome();
+  }
+})();
+
+function redirectHome() {
+  location.replace('/');
+}
+
+// ===== SEARCH HANDLER =====
 (function attachSearch() {
   const input = document.getElementById('searchInput');
   if (!input) return;
@@ -38,15 +58,9 @@ function hidePreloader() {
   });
 })();
 
-(async function init() {
+// ===== MAIN INIT =====
+async function init() {
   try {
-    // auth + role gate (hide body until pass)
-    const me = await fetch(`${backendUrl}/me`, { credentials: 'include' });
-    if (!me.ok) return redirectHome();
-    const user = await me.json();
-    if (user.role !== 'Admin' && user.role !== 'SysAdmin') return redirectHome();
-    document.body.hidden = false;
-
     await loadCrates();
   } catch (err) {
     console.error('Initialization failed:', err);
@@ -54,42 +68,31 @@ function hidePreloader() {
   } finally {
     hidePreloader();
   }
-})();
-
-function redirectHome() {
-  location.replace('/');
 }
 
+// ===== LOAD CRATES =====
 async function loadCrates() {
   const res = await fetch(`${backendUrl}/calculator/crates`, { credentials: 'include' });
   const data = await res.json();
 
-  // Expect { crates:[ {id, crate_name, is_cosmetic, items:[...]} ] }
   allCrates = (data?.crates || []).map(c => ({
     ...c,
-    // be defensive: ensure items array
     items: Array.isArray(c.items) ? c.items : []
   }));
 
   renderSidebar(allCrates);
-
-  // auto-select first crate if present
-  const firstBtn = crateSidebar.querySelector('.crate-btn');
-  firstBtn?.click();
+  crateSidebar.querySelector('.crate-btn')?.click();
 }
 
-// ============ SIDEBAR ============
-// Build two accordions (Cosmetic / Other) using the *same* classes
-// .acc-btn / .acc-panel / .crate-btn that your CSS already styles.
+// ===== SIDEBAR =====
 function renderSidebar(crates) {
   const cosmetic = crates.filter(c => !!c.is_cosmetic);
-  const other    = crates.filter(c => !c.is_cosmetic);
+  const other = crates.filter(c => !c.is_cosmetic);
 
   crateSidebar.innerHTML = '';
   crateSidebar.appendChild(makeCrateAccordion('Cosmetic Crates', cosmetic));
   crateSidebar.appendChild(makeCrateAccordion('Other Crates', other));
 
-  // attach behavior like share.js (open one at a time)
   crateSidebar.querySelectorAll('.acc-btn').forEach(btn => {
     btn.addEventListener('click', () => togglePanel(btn.nextElementSibling, btn));
   });
@@ -108,7 +111,7 @@ function makeCrateAccordion(title, list) {
   wrap.innerHTML = `
     <button class="acc-btn" type="button">
       <span class="acc-title">${title}</span>
-      <span class="acc-icon" aria-hidden="true">
+      <span class="acc-icon arrow" aria-hidden="true">
         <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M7 10l5 5 5-5z"/></svg>
       </span>
     </button>
@@ -117,20 +120,17 @@ function makeCrateAccordion(title, list) {
     </div>
   `;
 
-  // wire each crate button
   wrap.querySelectorAll('.crate-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       const id = Number(btn.dataset.crateId);
       const crate = allCrates.find(c => c.id === id);
       if (!crate) return;
 
-      // active state in list
       crateSidebar.querySelectorAll('.crate-btn').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
 
-      // KPI
       document.getElementById('crateTitle').textContent = prettyCrateName(crate.crate_name);
-      document.getElementById('crateCount').textContent  = `${crate.items.length} items`;
+      document.getElementById('crateCount').textContent = `${crate.items.length} items`;
 
       currentCrate = crate;
       renderItemsAsAccordions(crate);
@@ -146,20 +146,20 @@ function togglePanel(panel, btn) {
     p.classList.remove('open');
     p.style.maxHeight = null;
     p.previousElementSibling?.classList.remove('active');
+    p.previousElementSibling?.querySelector('.arrow')?.classList.remove('rotated');
   });
   if (!isOpen) {
     panel.classList.add('open');
     panel.style.maxHeight = panel.scrollHeight + 'px';
     btn.classList.add('active');
+    btn.querySelector('.arrow')?.classList.add('rotated');
   }
 }
 
-// ============ CENTER: ITEMS IN ACCORDIONS ============
-// Match share.html table/accordion vibe (group by set_name) and keep 💰 button.
+// ===== CENTER ACCORDIONS =====
 function renderItemsAsAccordions(crate) {
   accRoot.innerHTML = '';
 
-  // group by set_name
   const groups = crate.items.reduce((acc, it) => {
     const key = it.set_name || 'Unknown';
     (acc[key] ||= []).push(it);
@@ -176,7 +176,7 @@ function renderItemsAsAccordions(crate) {
       <button class="acc-btn" type="button">
         <span class="acc-title">${setName}</span>
         <span class="acc-count">Total items: ${items.length}</span>
-        <span class="acc-icon" aria-hidden="true">
+        <span class="acc-icon arrow" aria-hidden="true">
           <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M7 10l5 5 5-5z"/></svg>
         </span>
       </button>
@@ -197,14 +197,14 @@ function renderItemsAsAccordions(crate) {
       </div>
     `;
 
-    const btn   = wrap.querySelector('.acc-btn');
+    const btn = wrap.querySelector('.acc-btn');
     const panel = wrap.querySelector('.acc-panel');
     const tbody = wrap.querySelector('tbody');
     btn.addEventListener('click', () => togglePanel(panel, btn));
 
     items.forEach(it => {
-      // filter by search (highlight/keep similar to share page)
       const matches = !searchTerm || it.item_name.toLowerCase().includes(searchTerm);
+      if (!matches) return;
 
       const tr = document.createElement('tr');
       if (matches && searchTerm) tr.classList.add('highlight-row');
@@ -213,45 +213,31 @@ function renderItemsAsAccordions(crate) {
         <td>${it.item_name}</td>
         <td>${it.set_name || ''}</td>
         <td>${it.icon_url ? `<img src="${it.icon_url}" alt="${it.item_name}">` : ''}</td>
-        <td>
-          <button class="money-btn" title="Open Price Modal" data-item-id="${it.id}">💰</button>
-        </td>
+        <td><button class="money-btn" title="Open Price Modal" data-item-id="${it.id}">💰</button></td>
       `;
-      // show row only if searching is empty or it matches
-      if (matches) tbody.appendChild(tr);
+      tbody.appendChild(tr);
     });
 
     accRoot.appendChild(wrap);
   });
 
-  // wire money buttons (delegation or direct)
   accRoot.querySelectorAll('.money-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const id = Number(btn.dataset.itemId);
-      openModal(id);
-    });
+    btn.addEventListener('click', () => openModal(Number(btn.dataset.itemId)));
   });
 }
 
-// ============ MODAL / ECONOMY / COMMENTS ============
-
+// ===== MODAL / ECONOMIES / COMMENTS =====
 async function openModal(itemId) {
   const modal = document.getElementById('priceModal');
-
-  // item data
   const itemRes = await fetch(`${backendUrl}/prices/${itemId}`);
   const item = await itemRes.json();
   currentItem = item;
 
   document.getElementById('itemName').textContent = item.item_name || 'Item';
-
-  // Only show Cerberus if the item’s crate looks like Cerberus
   const cerb = document.getElementById('cerberusBtn');
   const isCerb = (item.crate_name || '').toLowerCase().includes('cerberus');
   cerb.style.display = isCerb ? 'inline-block' : 'none';
-  if (!isCerb && selectedEconomy === 'Cerberus') {
-    selectedEconomy = 'Phoenix';
-  }
+  if (!isCerb && selectedEconomy === 'Cerberus') selectedEconomy = 'Phoenix';
 
   updateEconomyDisplay();
   await loadComments(itemId);
@@ -262,21 +248,21 @@ async function openModal(itemId) {
 
 function updateEconomyDisplay() {
   const base = document.getElementById('baseValue');
-  const max  = document.getElementById('maxValue');
-  const avg  = document.getElementById('avgValue');
-  const it   = currentItem || {};
+  const max = document.getElementById('maxValue');
+  const avg = document.getElementById('avgValue');
+  const it = currentItem || {};
 
   let baseVal, maxVal;
   switch (selectedEconomy) {
-    case 'Phoenix':  [baseVal, maxVal] = [it.px_base_value, it.px_max_value]; break;
-    case 'Lynx':     [baseVal, maxVal] = [it.lx_base_value, it.lx_max_value]; break;
-    case 'Wyvern':   [baseVal, maxVal] = [it.wyv_base_value, it.wyv_max_value]; break;
+    case 'Phoenix': [baseVal, maxVal] = [it.px_base_value, it.px_max_value]; break;
+    case 'Lynx': [baseVal, maxVal] = [it.lx_base_value, it.lx_max_value]; break;
+    case 'Wyvern': [baseVal, maxVal] = [it.wyv_base_value, it.wyv_max_value]; break;
     case 'Cerberus': [baseVal, maxVal] = [it.cb_base_value, it.cb_max_value]; break;
   }
 
   base.textContent = baseVal ?? '—';
-  max.textContent  = maxVal  ?? '—';
-  avg.textContent  = (baseVal && maxVal) ? ((+baseVal + +maxVal) / 2).toFixed(2) : '—';
+  max.textContent = maxVal ?? '—';
+  avg.textContent = (baseVal && maxVal) ? ((+baseVal + +maxVal) / 2).toFixed(2) : '—';
   highlightEconomy();
 }
 
@@ -289,7 +275,6 @@ function highlightEconomy() {
 document.querySelectorAll('.econ-btn').forEach(btn => {
   btn.addEventListener('click', () => {
     const econ = btn.dataset.econ;
-    // guard: if Cerberus is hidden, ignore click
     if (econ === 'Cerberus' && btn.style.display === 'none') return;
     selectedEconomy = econ;
     updateEconomyDisplay();
@@ -302,9 +287,7 @@ async function loadComments(itemId) {
   const comments = await res.json();
   const list = document.getElementById('commentList');
   list.innerHTML = comments.length
-    ? comments.map(c =>
-        `<div><b>${c.minecraft_username ?? c.username}:</b> ${c.comment}</div>`
-      ).join('')
+    ? comments.map(c => `<div><b>${c.minecraft_username ?? c.username}:</b> ${c.comment}</div>`).join('')
     : '<p>No comments yet.</p>';
 }
 

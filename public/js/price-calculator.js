@@ -63,17 +63,23 @@ async function loadCrates() {
 function renderSidebar(crates) {
   crateSidebar.innerHTML = "";
 
+  // mimic share.js style: two categorized groups
   const cosmetic = crates.filter((c) => c.is_cosmetic);
   const other = crates.filter((c) => !c.is_cosmetic);
 
-  crateSidebar.appendChild(makeCrateGroup("Cosmetic Crates", cosmetic));
-  crateSidebar.appendChild(makeCrateGroup("Other Crates", other));
+  const cosmeticGroup = makeCrateGroup("Cosmetic Crates", cosmetic);
+  const otherGroup = makeCrateGroup("Other Crates", other);
+
+  crateSidebar.appendChild(cosmeticGroup);
+  crateSidebar.appendChild(otherGroup);
 }
 
 function makeCrateGroup(title, list) {
   const group = document.createElement("div");
   group.className = "crate-group";
-  group.innerHTML = `<div class="pc-section-title">${title}</div>`;
+
+  // Use share.html-style header class
+  group.innerHTML = `<div class="share-section-title">${title.toUpperCase()}</div>`;
 
   list.forEach((crate) => {
     const btn = document.createElement("button");
@@ -160,7 +166,7 @@ function renderItemsAsAccordions(crate) {
                 <th>Item Name</th>
                 <th>Item Set</th>
                 <th>Icon</th>
-                <th></th>
+                <th>Value</th> <!-- added header for 💰 column -->
               </tr>
             </thead>
             <tbody></tbody>
@@ -334,4 +340,7 @@ document.getElementById("submitComment").onclick = async () => {
 
 document
   .getElementById("commentBox")
-  .addEventListener("input", (e) => (document.getElementById("charCount").textContent = e.target.value.length));
+  .addEventListener(
+    "input",
+    (e) => (document.getElementById("charCount").textContent = e.target.value.length)
+  );

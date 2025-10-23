@@ -287,24 +287,33 @@ function togglePanel(panel, btn) {
 // ================== MODAL ==================
 async function openModal(itemId) {
   const modal = document.getElementById("priceModal");
-  const itemRes = await fetch(`${backendUrl}/prices/${itemId}`, {
-    credentials: "include",
-  });
-  const item = await itemRes.json();
+  const res = await fetch(`${backendUrl}/prices/${itemId}`, { credentials: "include" });
+  const item = await res.json();
   currentItem = item;
-  document.getElementById("itemName").textContent = item.item_name || "Item";
 
-  const cerbBtn = document.getElementById("cerberusBtn");
+  // === Header info ===
+  document.getElementById("itemName").textContent = item.item_name || "Item";
+  document.getElementById("itemSet").textContent = item.set_name || "";
+  document.getElementById("itemIcon").src = item.icon_url || "/assets/default_icon.png";
+
+  // === Economy visibility ===
   const isCerb = (item.crate_name || "").toLowerCase().includes("cerberus");
-  cerbBtn.style.display = isCerb ? "inline-block" : "none";
-  if (!isCerb && selectedEconomy === "Cerberus") selectedEconomy = "Phoenix";
+  document.getElementById("cerberusBtn").style.display = isCerb ? "inline-block" : "none";
+  ["phoenixBtn","lynxBtn","wyvernBtn"].forEach(id =>
+    document.getElementById(id).style.display = isCerb ? "none" : "inline-block"
+  );
+  if (isCerb) selectedEconomy = "Cerberus";
+  else if (selectedEconomy === "Cerberus") selectedEconomy = "Phoenix";
 
   updateEconomyDisplay();
   await loadComments(itemId);
 
   modal.classList.remove("hidden");
   requestAnimationFrame(() => modal.classList.add("show"));
-  modal.querySelector(".close-btn").onclick = () => closeModal(modal);
+
+  modal.querySelectorAll(".close-btn").forEach(btn =>
+    btn.onclick = () => closeModal(modal)
+  );
 }
 
 function closeModal(modal) {

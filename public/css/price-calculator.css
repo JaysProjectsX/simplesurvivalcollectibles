@@ -339,7 +339,8 @@ body {
   transition: color .2s ease;
 }
 .modal-header .close-btn:hover {
-  color: #fff;
+  color: #b5b5b5;
+  background: transparent;
 }
 
 .modal-content-price button {
@@ -452,6 +453,7 @@ body {
   padding: 12px 44px 28px 12px;
   resize: none;
   box-sizing: border-box;
+  margin-top: 20px;
   position: relative;
 }
 
@@ -502,20 +504,24 @@ body {
   display: flex;
   justify-content: flex-end;
   gap: 10px;
+  padding-right: 6px !important;
   padding-top: 10px;
+  padding-bottom: 0 !important;
   margin-top: 16px;
 }
 
 .modal-footer .btn-secondary {
-  background: #22233a;
-  color: #fff;
-  border: none;
-  padding: 8px 16px;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: background 0.2s ease;
+    font-size: 0.85rem;
+    width: auto !important;
+    background: #0d0d1a;
+    color: #fff;
+    border: none;
+    padding: 0.6rem 1rem;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background 0.2s ease;
 }
 
 .modal-footer .btn-secondary:hover {
-  background: #2e2f4a;
+  background: #0a0a12;
 }

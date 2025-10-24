@@ -320,8 +320,8 @@ body {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  border-bottom: 1px solid #22233a;
   position: relative;
+  text-align: center;
 }
 
 .modal-header .close-btn {
@@ -329,11 +329,14 @@ body {
   top: 12px;
   right: 16px;
   background: none;
-  border: none;
-  color: #aaa;
-  font-size: 22px;
+  border: 0;
+  color: #ccc;
+  font-size: 20px;
+  line-height: 1;
+  width: auto;
+  padding: 0;
   cursor: pointer;
-  transition: color 0.2s ease;
+  transition: color .2s ease;
 }
 .modal-header .close-btn:hover {
   color: #fff;
@@ -425,7 +428,6 @@ body {
   overflow-y: auto;
 }
 .comment-list div {
-  border-bottom: 1px solid rgba(255,255,255,0.05);
   padding: 6px 0;
 }
 .comment-list div:last-child { border-bottom: none; }
@@ -440,34 +442,39 @@ body {
 
 .comment-input textarea {
   width: 95%;
+  height: 100px;
+  max-height: 150px;
   max-width: 95%;
   background: #0c0c1a;
   border: 1px solid #22233a;
   border-radius: 8px;
   color: #e9e9f3;
-  padding: 10px;
+  padding: 12px 44px 28px 12px;
   resize: none;
   box-sizing: border-box;
   position: relative;
 }
 
-.comment-input .char-counter {
+.char-counter {
   position: absolute;
-  bottom: 16px;
-  right: 30px;
+  right: 12px;
+  bottom: 10px;
   font-size: 12px;
-  color: #888;
+  color: #9ca3c9;
+  opacity: .85;
+  pointer-events: none;
 }
 
 .comment-actions {
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
   margin-top: 10px;
 }
 .comment-actions .btn-primary {
-  width: fit-content;
-  padding: 8px 20px;
+  width: auto;
+  padding: 10px 14px;
   background: #365CF5;
   color: #fff;
   border: none;
@@ -494,7 +501,7 @@ body {
 .modal-footer {
   display: flex;
   justify-content: flex-end;
-  border-top: 1px solid #22233a;
+  gap: 10px;
   padding-top: 10px;
   margin-top: 16px;
 }

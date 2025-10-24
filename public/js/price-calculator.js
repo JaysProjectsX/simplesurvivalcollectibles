@@ -384,11 +384,13 @@ async function loadComments(itemId) {
     : "<p>No comments yet.</p>";
 }
 
+const MAX = 250;
+
 document.getElementById("submitComment").onclick = async () => {
   const box = document.getElementById("commentBox");
   const comment = box.value.trim();
   if (!comment) return;
-  if (comment.length > 250) return alert("Comment too long");
+  if (comment.length > MAX) return alert("Comment too long");
 
   const res = await fetch(`${backendUrl}/comments`, {
     method: "POST",
@@ -403,19 +405,17 @@ document.getElementById("submitComment").onclick = async () => {
   const out = await res.json();
   if (res.ok) {
     box.value = "";
-    document.getElementById("charCount").textContent = "0";
+    document.getElementById("charCount").textContent = `0/${MAX}`;
     loadComments(currentItem.id);
   } else {
     alert(out.error || "Failed to post comment");
   }
 };
 
-document
-  .getElementById("commentBox")
-  .addEventListener(
-    "input",
-    (e) => (document.getElementById("charCount").textContent = e.target.value.length)
-  );
+document.getElementById("commentBox").addEventListener("input", (e) => {
+  const n = e.target.value.length;
+  document.getElementById("charCount").textContent = `${n}/${MAX}`;
+});
 
 // ================== GLOBAL TOOLTIP LOGIC ==================
 const globalTooltip = document.getElementById("global-tooltip");

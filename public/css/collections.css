@@ -633,8 +633,8 @@ body.modal-open{
 .collections-divider {
   border: 0;
   height: 1px;
-  background: rgba(255, 255, 255, 0.1); /* subtle line */
-  margin: 40px 0; /* space above and below */
+  background: rgba(255, 255, 255, 0.1);
+  margin: 40px 0;
 }
 
 .collections-share-divider {

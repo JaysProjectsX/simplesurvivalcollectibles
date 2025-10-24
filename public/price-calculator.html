@@ -60,16 +60,16 @@
   <div id="priceModal" class="modal hidden">
     <div class="modal-content-price large">
       <header class="modal-header">
-        <span class="close-btn" title="Close">×</span>
+        <button class="close-btn" title="Close">×</button>
         <div class="item-header">
           <img id="itemIcon" src="" alt="Item Icon" />
-          <div>
+          <div class="item-info">
             <h2 id="itemName">Item Name</h2>
             <p id="itemSet" class="item-set"></p>
           </div>
         </div>
       </header>
-
+      <hr class="pricing-divider"/>
       <section class="modal-economy">
         <div class="economy-buttons">
           <button class="econ-btn" id="phoenixBtn" data-econ="Phoenix">Phoenix</button>
@@ -83,19 +83,19 @@
           <div><label>Max</label><span id="maxValue">—</span></div>
         </div>
       </section>
-
+      <hr class="pricing-divider"/>
       <section class="modal-comments">
         <h3>Comments</h3>
         <div id="commentList" class="comment-list"></div>
-        <div class="comment-input">
-          <textarea id="commentBox" maxlength="250" placeholder="Write a comment… (max 250 chars)"></textarea>
-          <div class="comment-actions">
-            <span id="charCount">0</span>/250
-            <button id="submitComment" class="btn-primary">Post Comment</button>
+          <div class="comment-input">
+            <textarea id="commentBox" maxlength="250" placeholder="Write a comment… (max 250 chars)"></textarea>
+            <span id="charCount" class="char-counter">0/250</span>
+            <div class="comment-actions">
+              <button id="submitComment" class="btn-primary">Post Comment</button>
+            </div>
           </div>
-        </div>
       </section>
-
+      <hr class="pricing-divider"/>
       <footer class="modal-footer">
         <button class="btn-secondary close-btn">Close</button>
       </footer>

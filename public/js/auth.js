@@ -1050,7 +1050,7 @@ function renderMinecraftRow() {
   const list = document.querySelector(".details-list");
   if (!list) return;
 
-  // Find the Verified Email row to insert after
+  // Find the "Verified Email" row to insert after
   const verifiedRow = Array.from(list.querySelectorAll(".detail-row"))
     .find(li => li.textContent.toLowerCase().includes("verified email"));
 
@@ -1066,6 +1066,7 @@ function renderMinecraftRow() {
       list.appendChild(row);
     }
   } else {
+    // keep it positioned directly after Verified Email if layout changes
     if (verifiedRow && row.previousElementSibling !== verifiedRow) {
       list.insertBefore(row, verifiedRow.nextSibling);
     }
@@ -1074,9 +1075,9 @@ function renderMinecraftRow() {
   const mcName = (localStorage.getItem("minecraft_username") || "").trim();
   const isLinked = !!mcName;
 
-  // Right-side button (only when not linked)
+  // Right-side control: Link when not linked; Unlink when linked
   const rightHtml = isLinked
-    ? ""
+    ? `<button id="mcUnlinkBtn" class="mini-btn" type="button">Unlink</button>`
     : `<button id="mcLinkBtn" class="mini-btn" type="button">Link</button>`;
 
   row.innerHTML = `
@@ -1093,12 +1094,31 @@ function renderMinecraftRow() {
     ${rightHtml}
   `;
 
-  // Wire the Link button to start OAuth
-  const btn = document.getElementById("mcLinkBtn");
-  if (btn) {
-    btn.addEventListener("click", () => {
-      const backTo = encodeURIComponent(window.location.href);
-      window.location.href = `${backendUrl}/auth/microsoft/start?`;
+  // --- Link button: start OAuth (backendUrl already equals "/api") ---
+  const linkBtn = document.getElementById("mcLinkBtn");
+  if (linkBtn) {
+    linkBtn.addEventListener("click", () => {
+      const base = (backendUrl || "/api").replace(/\/+$/, ""); // strip trailing slash if present
+      window.location.href = `${base}/auth/microsoft/start`;
+    });
+  }
+
+  // --- Unlink button: clear association on server, repaint UI ---
+  const unlinkBtn = document.getElementById("mcUnlinkBtn");
+  if (unlinkBtn) {
+    unlinkBtn.addEventListener("click", async () => {
+      try {
+        const r = await AUTH.fetchWithAuth(`/api/account/minecraft/unlink`, { method: "POST" });
+        if (r.ok) {
+          localStorage.removeItem("minecraft_username");
+          paintAccountInfo();
+          if (typeof showToast === "function") showToast("Minecraft account unlinked.", "success");
+        } else {
+          if (typeof showToast === "function") showToast("Failed to unlink Minecraft account.", "error");
+        }
+      } catch {
+        if (typeof showToast === "function") showToast("Failed to unlink Minecraft account.", "error");
+      }
     });
   }
 }

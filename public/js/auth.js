@@ -275,19 +275,13 @@ function isLockedOut(user) {
     // --- Minecraft OAuth callback handling ---
     (function handleMinecraftCallback() {
       const params = new URLSearchParams(window.location.search);
-      const mc = params.get("mc") || params.get("mc_link"); // support old name
+      const mc  = params.get("mc") || params.get("mc_link");
+      const why = params.get("why");               // <— read reason
+
       const inflight = sessionStorage.getItem("mc_oauth_inflight") === "1";
+      if (!mc) { sessionStorage.removeItem("mc_oauth_inflight"); return; }
 
-      if (!mc) {
-        // no result; clear inflight so a stale flag doesn't misfire later
-        sessionStorage.removeItem("mc_oauth_inflight");
-        return;
-      }
-
-      // Clean the URL FIRST (prevents repeated toasts)
-      params.delete("mc"); params.delete("mc_link");
-      history.replaceState({}, "", location.pathname);
-
+      // Clean URL AFTER we read it (and after we show toast below)
       (async () => {
         try {
           if (mc === "linked") {
@@ -299,10 +293,13 @@ function isLockedOut(user) {
               showToast?.("Minecraft account linked!", "success");
             }
           } else if (mc === "fail") {
-            // Only show a fail toast when the backend explicitly sent mc=fail
-            showToast?.("Minecraft linking failed.", "error");
+            const reason = why ? ` (${why})` : "";
+            showToast?.(`Minecraft linking failed: ${reason}.`, "error");  // <— include why
           }
         } finally {
+          // now clean the URL so toasts don't repeat on refresh
+          params.delete("mc"); params.delete("mc_link"); params.delete("why");
+          history.replaceState({}, "", location.pathname);
           sessionStorage.removeItem("mc_oauth_inflight");
         }
       })();

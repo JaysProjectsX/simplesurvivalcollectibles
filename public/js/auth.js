@@ -1141,10 +1141,10 @@ window.__mc_submitToken = async function(modalId = 'modal-mcLink') {
   }
 
   try {
-    const res = await AUTH.fetchWithAuth(`${backendUrl}/account/minecraft/resolve`, {
+    const res = await AUTH.fetchWithAuth(`${backendUrl}/account/minecraft/verify`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ token })
+      body: JSON.stringify({ code: token })
     });
 
     const data = await res.json().catch(() => ({}));

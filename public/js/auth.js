@@ -275,36 +275,36 @@ function isLockedOut(user) {
     // --- Minecraft OAuth callback handling ---
     (function handleMinecraftCallback() {
       const params = new URLSearchParams(window.location.search);
+      const mc = params.get("mc") || params.get("mc_link"); // support old name
+      const inflight = sessionStorage.getItem("mc_oauth_inflight") === "1";
 
-      // Prefer the new flag (?mc=linked). Fallback to old (?mc_link=success|fail)
-      const mc = params.get("mc");
-      const mcLink = params.get("mc_link");
+      if (!mc) {
+        // no result; clear inflight so a stale flag doesn't misfire later
+        sessionStorage.removeItem("mc_oauth_inflight");
+        return;
+      }
 
-      const isSuccess = (mc === "linked") || (mcLink === "success");
-      const isFail    = (mc === "fail")   || (mcLink === "fail");
-
-      if (!isSuccess && !isFail) return;
+      // Clean the URL FIRST (prevents repeated toasts)
+      params.delete("mc"); params.delete("mc_link");
+      history.replaceState({}, "", location.pathname);
 
       (async () => {
-        if (isSuccess) {
-          try {
-            // /api/me will be proxied by your _redirects; backendUrl is also fine if you prefer
-            const r = await AUTH.fetchWithAuth(`${backendUrl}/me`);
+        try {
+          if (mc === "linked") {
+            const r = await AUTH.fetchWithAuth(`/api/me`);
             if (r.ok) {
               const data = await r.json();
               localStorage.setItem("minecraft_username", data.minecraft_username || "");
               paintAccountInfo();
-              if (typeof showToast === "function") showToast("Minecraft account linked!", "success");
+              showToast?.("Minecraft account linked!", "success");
             }
-          } catch {}
-        } else {
-          if (typeof showToast === "function") showToast("Minecraft linking failed.", "error");
+          } else if (mc === "fail") {
+            // Only show a fail toast when the backend explicitly sent mc=fail
+            showToast?.("Minecraft linking failed.", "error");
+          }
+        } finally {
+          sessionStorage.removeItem("mc_oauth_inflight");
         }
-
-        // Clean both possible flags from the URL
-        params.delete("mc");
-        params.delete("mc_link");
-        history.replaceState({}, "", location.pathname);
       })();
     })();
 
@@ -1098,7 +1098,8 @@ function renderMinecraftRow() {
   const linkBtn = document.getElementById("mcLinkBtn");
   if (linkBtn) {
     linkBtn.addEventListener("click", () => {
-      const base = (backendUrl || "/api").replace(/\/+$/, ""); // strip trailing slash if present
+      const base = (backendUrl || "/api").replace(/\/+$/, ""); 
+      sessionStorage.setItem("mc_oauth_inflight", "1");        
       window.location.href = `${base}/auth/microsoft/start`;
     });
   }
@@ -1122,6 +1123,7 @@ function renderMinecraftRow() {
     });
   }
 }
+
 
 // simple HTML escaper used elsewhere in auth.js already
 function escapeHtml(s) {

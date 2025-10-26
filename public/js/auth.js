@@ -272,6 +272,43 @@ function isLockedOut(user) {
         }
       }
 
+    // --- Minecraft OAuth callback handling ---
+    (function handleMinecraftCallback() {
+      const params = new URLSearchParams(window.location.search);
+
+      // Prefer the new flag (?mc=linked). Fallback to old (?mc_link=success|fail)
+      const mc = params.get("mc");
+      const mcLink = params.get("mc_link");
+
+      const isSuccess = (mc === "linked") || (mcLink === "success");
+      const isFail    = (mc === "fail")   || (mcLink === "fail");
+
+      if (!isSuccess && !isFail) return;
+
+      (async () => {
+        if (isSuccess) {
+          try {
+            // /api/me will be proxied by your _redirects; backendUrl is also fine if you prefer
+            const r = await AUTH.fetchWithAuth(`${backendUrl}/me`);
+            if (r.ok) {
+              const data = await r.json();
+              localStorage.setItem("minecraft_username", data.minecraft_username || "");
+              paintAccountInfo();
+              if (typeof showToast === "function") showToast("Minecraft account linked!", "success");
+            }
+          } catch {}
+        } else {
+          if (typeof showToast === "function") showToast("Minecraft linking failed.", "error");
+        }
+
+        // Clean both possible flags from the URL
+        params.delete("mc");
+        params.delete("mc_link");
+        history.replaceState({}, "", location.pathname);
+      })();
+    })();
+
+
     // Registration page
     const registerForm = document.getElementById("registerForm");
     if (registerForm) {
@@ -427,6 +464,7 @@ function isLockedOut(user) {
                 localStorage.setItem("role", u.role || "User");
                 localStorage.setItem("verified", u.verified ? "1" : "0");
                 localStorage.setItem("created_at", u.created_at || "");
+                localStorage.setItem("minecraft_username", u.minecraft_username || "");
                 updateNavUI();
                 paintAccountInfo();
                 return true;
@@ -906,6 +944,7 @@ function isLockedOut(user) {
       localStorage.setItem("role", data.role);
       localStorage.setItem("verified", data.verified);
       localStorage.setItem("created_at", data.created_at);
+      localStorage.setItem("minecraft_username", data.minecraft_username || "");
       updateNavUI();
       paintAccountInfo();
     } catch (err) {
@@ -1007,6 +1046,73 @@ function updateNavUI() {
   }
 }
 
+function renderMinecraftRow() {
+  const list = document.querySelector(".details-list");
+  if (!list) return;
+
+  // Find the Verified Email row to insert after
+  const verifiedRow = Array.from(list.querySelectorAll(".detail-row"))
+    .find(li => li.textContent.toLowerCase().includes("verified email"));
+
+  // Build (or reuse) our row
+  let row = document.getElementById("mcLinkRow");
+  if (!row) {
+    row = document.createElement("li");
+    row.id = "mcLinkRow";
+    row.className = "detail-row";
+    if (verifiedRow && verifiedRow.nextSibling) {
+      list.insertBefore(row, verifiedRow.nextSibling);
+    } else {
+      list.appendChild(row);
+    }
+  } else {
+    if (verifiedRow && row.previousElementSibling !== verifiedRow) {
+      list.insertBefore(row, verifiedRow.nextSibling);
+    }
+  }
+
+  const mcName = (localStorage.getItem("minecraft_username") || "").trim();
+  const isLinked = !!mcName;
+
+  // Right-side button (only when not linked)
+  const rightHtml = isLinked
+    ? ""
+    : `<button id="mcLinkBtn" class="mini-btn" type="button">Link</button>`;
+
+  row.innerHTML = `
+    <div class="detail-left">
+      <span class="detail-icon"><i class="lni lni-game"></i></span>
+      <div class="detail-titles">
+        <span class="p-title">Minecraft account linked?</span>
+        <em>
+          ${isLinked ? "true" : "false"}
+          ${isLinked ? `&nbsp;(<span id="accMcName">${escapeHtml(mcName)}</span>)` : ""}
+        </em>
+      </div>
+    </div>
+    ${rightHtml}
+  `;
+
+  // Wire the Link button to start OAuth
+  const btn = document.getElementById("mcLinkBtn");
+  if (btn) {
+    btn.addEventListener("click", () => {
+      const backTo = encodeURIComponent(window.location.href);
+      window.location.href = `${backendUrl}/auth/microsoft/start?`;
+    });
+  }
+}
+
+// simple HTML escaper used elsewhere in auth.js already
+function escapeHtml(s) {
+  return String(s)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
 /* === Paint account page from localStorage (safe if page doesn't have these IDs) === */
 function paintAccountInfo() {
   // Quick exit if we're not on the account page
@@ -1048,6 +1154,7 @@ function paintAccountInfo() {
         });
     set("accCreated", formatted);
   }
+  renderMinecraftRow();
 }
 
 async function logout() {

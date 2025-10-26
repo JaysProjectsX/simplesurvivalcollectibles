@@ -272,40 +272,6 @@ function isLockedOut(user) {
         }
       }
 
-    // --- Minecraft OAuth callback handling ---
-    (function handleMinecraftCallback() {
-      const params = new URLSearchParams(window.location.search);
-      const mc  = params.get("mc") || params.get("mc_link");
-      const why = params.get("why");               // <— read reason
-
-      const inflight = sessionStorage.getItem("mc_oauth_inflight") === "1";
-      if (!mc) { sessionStorage.removeItem("mc_oauth_inflight"); return; }
-
-      // Clean URL AFTER we read it (and after we show toast below)
-      (async () => {
-        try {
-          if (mc === "linked") {
-            const r = await AUTH.fetchWithAuth(`/api/me`);
-            if (r.ok) {
-              const data = await r.json();
-              localStorage.setItem("minecraft_username", data.minecraft_username || "");
-              paintAccountInfo();
-              showToast?.("Minecraft account linked!", "success");
-            }
-          } else if (mc === "fail") {
-            const reason = why ? ` (${why})` : "";
-            showToast?.(`Minecraft linking failed: ${reason}.`, "error");  // <— include why
-          }
-        } finally {
-          // now clean the URL so toasts don't repeat on refresh
-          params.delete("mc"); params.delete("mc_link"); params.delete("why");
-          history.replaceState({}, "", location.pathname);
-          sessionStorage.removeItem("mc_oauth_inflight");
-        }
-      })();
-    })();
-
-
     // Registration page
     const registerForm = document.getElementById("registerForm");
     if (registerForm) {
@@ -1069,7 +1035,7 @@ function renderMinecraftRow() {
     }
   }
 
-  const mcName = (localStorage.getItem("minecraft_username") || "").trim();
+  const mcName  = (localStorage.getItem("minecraft_username") || "").trim();
   const isLinked = !!mcName;
 
   // Right-side control: Link when not linked; Unlink when linked
@@ -1091,13 +1057,33 @@ function renderMinecraftRow() {
     ${rightHtml}
   `;
 
-  // --- Link button: start OAuth (backendUrl already equals "/api") ---
+  // --- Link button → show “enter code” modal ---
   const linkBtn = document.getElementById("mcLinkBtn");
   if (linkBtn) {
     linkBtn.addEventListener("click", () => {
-      const base = (backendUrl || "/api").replace(/\/+$/, ""); 
-      sessionStorage.setItem("mc_oauth_inflight", "1");        
-      window.location.href = `${base}/auth/microsoft/start`;
+      // make a little modal with an input
+      showGlobalModal({
+        type: "info",
+        title: "Link your Minecraft account",
+        // keep it simple HTML so it matches your existing modals
+        message: `
+          <p>1) Join <code>auth.aristois.net</code> in Minecraft.<br>
+             2) You will be shown a <strong>6-digit code</strong>.<br>
+             3) Paste it below within 5 minutes.</p>
+          <div class="input-style-1" style="margin-top:.75rem">
+            <input id="mcTokenInput" type="text" maxlength="8" placeholder="Enter 6-digit code" />
+            <div class="input-error" style="display:none"></div>
+          </div>
+        `,
+        buttons: [
+          { label: "Copy server IP", onClick: "navigator.clipboard.writeText('auth.aristois.net')" },
+          { label: "Verify",  style: "primary", onClick: "__mc_submitToken('modal-mcLink')" },
+          { label: "Cancel",  style: "secondary", onClick: "fadeOutAndRemove('modal-mcLink')" }
+        ],
+        id: "modal-mcLink"
+      });
+      // autofocus after it renders
+      setTimeout(() => document.getElementById("mcTokenInput")?.focus(), 50);
     });
   }
 
@@ -1106,21 +1092,95 @@ function renderMinecraftRow() {
   if (unlinkBtn) {
     unlinkBtn.addEventListener("click", async () => {
       try {
-        const r = await AUTH.fetchWithAuth(`/api/account/minecraft/unlink`, { method: "POST" });
+        const r = await AUTH.fetchWithAuth(`${backendUrl}/account/minecraft/unlink`, { method: "POST" });
         if (r.ok) {
           localStorage.removeItem("minecraft_username");
           paintAccountInfo();
-          if (typeof showToast === "function") showToast("Minecraft account unlinked.", "success");
+          showGlobalModal({
+            type: "success",
+            title: "Unlinked",
+            message: "Your Minecraft account has been unlinked.",
+            buttons: [{ label: "Close", onClick: "fadeOutAndRemove('modal-mcUnlinked')" }],
+            id: "modal-mcUnlinked"
+          });
         } else {
-          if (typeof showToast === "function") showToast("Failed to unlink Minecraft account.", "error");
+          showGlobalModal({
+            type: "error",
+            title: "Unlink failed",
+            message: "We couldn’t unlink your Minecraft account. Please try again.",
+            buttons: [{ label: "Close", onClick: "fadeOutAndRemove('modal-mcUnlinkFail')" }],
+            id: "modal-mcUnlinkFail"
+          });
         }
       } catch {
-        if (typeof showToast === "function") showToast("Failed to unlink Minecraft account.", "error");
+        showGlobalModal({
+          type: "error",
+          title: "Unlink failed",
+          message: "A network error occurred. Please try again.",
+          buttons: [{ label: "Close", onClick: "fadeOutAndRemove('modal-mcUnlinkErr')" }],
+          id: "modal-mcUnlinkErr"
+        });
       }
     });
   }
 }
 
+window.__mc_submitToken = async function(modalId = 'modal-mcLink') {
+  const input = document.getElementById("mcTokenInput");
+  const token = (input?.value || "").trim();
+
+  if (!token || token.length < 4) {
+    showGlobalModal({
+      type: "info",
+      title: "Enter in your 6-digit code",
+      message: "Please paste the 6-digit code you received in Minecraft.",
+      buttons: [{ label: "Close", onClick: "fadeOutAndRemove('modal-mcMissing')" }],
+      id: "modal-mcMissing"
+    });
+    return;
+  }
+
+  try {
+    const res = await AUTH.fetchWithAuth(`${backendUrl}/account/minecraft/resolve`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ token })
+    });
+
+    const data = await res.json().catch(() => ({}));
+    if (res.ok && data && data.username) {
+      // Remember name locally, repaint, success modal
+      localStorage.setItem("minecraft_username", data.username);
+      paintAccountInfo();
+
+      fadeOutAndRemove(modalId);
+      showGlobalModal({
+        type: "success",
+        title: "Linked!",
+        message: `Your account is now linked as <strong>${escapeHtml(data.username)}</strong>.`,
+        buttons: [{ label: "Close", onClick: "fadeOutAndRemove('modal-mcLinkedOk')" }],
+        id: "modal-mcLinkedOk"
+      });
+    } else {
+      const msg = data && (data.error || data.message) ? String(data.error || data.message) : "Could not verify this code.";
+      showGlobalModal({
+        type: "error",
+        title: "Linking failed",
+        message: msg,
+        buttons: [{ label: "Close", onClick: "fadeOutAndRemove('modal-mcLinkFail')" }],
+        id: "modal-mcLinkFail"
+      });
+    }
+  } catch (e) {
+    showGlobalModal({
+      type: "error",
+      title: "Linking failed",
+      message: "A network error occurred. Please try again.",
+      buttons: [{ label: "Close", onClick: "fadeOutAndRemove('modal-mcLinkErr')" }],
+      id: "modal-mcLinkErr"
+    });
+  }
+};
 
 // simple HTML escaper used elsewhere in auth.js already
 function escapeHtml(s) {

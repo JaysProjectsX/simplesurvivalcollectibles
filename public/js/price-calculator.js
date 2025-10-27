@@ -462,6 +462,7 @@ async function loadComments(itemId) {
   comments.forEach(c => {
     const wrapper = document.createElement("div");
     wrapper.className = "comment-entry";
+    wrapper.dataset.commentId = c.id;
 
     const date = new Date(c.created_at);
     const timestamp = date.toLocaleString("en-US", {
@@ -471,11 +472,14 @@ async function loadComments(itemId) {
 
     const verified = c.minecraft_username ? SVG.verify : "";
 
+    const ignSpan = c.minecraft_username
+      ? `<span class="mc-tag">IGN: ${escapeHtml(c.minecraft_username)} ${SVG.verify}</span>`
+      : "";
+
     wrapper.innerHTML = `
       <div class="comment-line">
         <b>${escapeHtml(c.username)}</b>
-        ${verified}
-        ${c.minecraft_username ? `<span class="mc-tag">IGN: ${escapeHtml(c.minecraft_username)}</span>` : ""}
+        ${ignSpan}
         <span class="econ-tag econ-${c.economy.toLowerCase()}">${escapeHtml(c.economy)}</span>
         <span class="comment-text">: ${escapeHtml(c.comment)}</span>
       </div>
@@ -487,24 +491,21 @@ async function loadComments(itemId) {
     `;
 
     if (isAdmin) {
-      wrapper.querySelector(".comment-delete").addEventListener("click", async (e) => {
-        const id = e.currentTarget.dataset.id;
-        if (!confirm("Delete this comment?")) return;
-        const delRes = await fetch(`${backendUrl}/comments/${id}`, {
-          method: "DELETE",
-          credentials: "include"
+      const btn = wrapper.querySelector(".comment-delete");
+      btn.addEventListener("click", () => {
+        const id = btn.dataset.id;
+        const confirmId = `modal-delConfirm-${id}`;
+
+        showGlobalModal({
+          type: "warning",
+          title: "Delete this comment?",
+          message: "This action cannot be undone.",
+          id: confirmId,
+          buttons: [
+            { label: "Cancel", onClick: `fadeOutAndRemove('${confirmId}')` },
+            { label: "Delete", onClick: `deleteCommentAdmin('${id}','${confirmId}','${itemId}')` }
+          ]
         });
-        if (delRes.ok) {
-          loadComments(itemId);
-        } else {
-          showGlobalModal({
-            type: "error",
-            title: "Deletion failed",
-            message: "Could not delete comment. Try again later.",
-            buttons: [{ label: "Close", onClick: "fadeOutAndRemove('modal-delFail')" }],
-            id: "modal-delFail"
-          });
-        }
       });
     }
 
@@ -580,3 +581,53 @@ document.addEventListener("mouseout", (e) => {
     globalTooltip.style.display = "none";
   }
 });
+
+// ================== ADMIN COMMENT DELETION ==================
+
+window.deleteCommentAdmin = async function (commentId, confirmModalId, itemId) {
+  try {
+    // close confirm
+    if (typeof fadeOutAndRemove === "function") {
+      fadeOutAndRemove(confirmModalId);
+    }
+
+    const res = await fetch(`${backendUrl}/comments/${commentId}`, {
+      method: "DELETE",
+      credentials: "include",
+    });
+
+    if (!res.ok) {
+      showGlobalModal({
+        type: "error",
+        title: "Deletion failed",
+        message: "Could not delete comment. Try again later.",
+        buttons: [{ label: "Close", onClick: "fadeOutAndRemove('modal-delFail')" }],
+        id: "modal-delFail"
+      });
+      return;
+    }
+
+    // Optimistic UI: remove the node (or call loadComments(itemId) if you prefer)
+    document.querySelector(`[data-comment-id="${commentId}"]`)?.remove();
+
+    showGlobalModal({
+      type: "success",
+      title: "Deleted",
+      message: "The comment was removed.",
+      buttons: [{ label: "OK", onClick: "fadeOutAndRemove('modal-delSuccess')" }],
+      id: "modal-delSuccess"
+    });
+
+    // If you prefer a fresh fetch of the list, uncomment:
+    // loadComments(itemId);
+
+  } catch (err) {
+    showGlobalModal({
+      type: "error",
+      title: "Network error",
+      message: "Please check your connection and try again.",
+      buttons: [{ label: "Close", onClick: "fadeOutAndRemove('modal-delError')" }],
+      id: "modal-delError"
+    });
+  }
+};

@@ -343,7 +343,7 @@ body {
   background: transparent;
 }
 
-.modal-content-price button {
+.modal-content-price .btn-primary {
   width: 95%;
   padding: 12px;
   background-color: #0d0d1a;
@@ -553,7 +553,6 @@ body {
 
 /* all inline SVG icons */
 .icon { width: 14px; height: 14px; vertical-align: -2px; fill: currentColor; }
-
 /* verified shield color */
 .icon-verify { color: #52b788; margin-left: 6px; }
 
@@ -574,12 +573,19 @@ body {
   position: absolute;
   top: 8px;
   right: 10px;
-  color: #e4e6f0;
+  width: auto !important;
+  height: auto !important;
+  padding: 0 !important;
   background: transparent;
-  cursor: pointer;
+  border: 0;
+  color: #e4e6f0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   opacity: 0;
   z-index: 5;
-  transition: opacity 0.15s ease;
+  cursor: pointer;
+  transition: opacity 0.15s ease, color 0.15s ease;
 }
 .comment-entry:hover .comment-delete {
   opacity: 1;
@@ -587,6 +593,7 @@ body {
 .comment-delete .icon-trash { width: 16px; height: 16px; }
 .comment-delete:hover {
   color: #ff5a5a;
+  background: transparent !important;
 }
 
 .modal-footer {

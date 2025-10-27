@@ -363,7 +363,7 @@ body {
   transition: background 0.3s ease;
 }
 
-.modal-content-price button:hover {
+.modal-content-price .btn-primary:hover {
   background-color: #0a0a12;
 }
 
@@ -433,7 +433,7 @@ body {
   border: 1px solid #22233a;
   border-radius: 8px;
   padding: 10px 14px;
-  max-height: 250px;
+  max-height: 130px;
   overflow-y: auto;
 }
 .comment-list div {
@@ -549,6 +549,7 @@ body {
 .comment-entry b {
   color: #e8ebf9;
   font-weight: 600;
+  padding-right: 6px;
 }
 .comment-entry small {
   display: block;

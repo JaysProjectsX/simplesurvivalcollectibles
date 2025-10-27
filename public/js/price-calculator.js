@@ -491,16 +491,27 @@ async function loadComments(itemId) {
     `;
 
     if (isAdmin) {
-      showGlobalModal({
-        type: "warning",
-        title: "Delete this comment?",
-        message: "This action cannot be undone.",
-        buttons: [
-          { label: "Cancel", onClick: `fadeOutAndRemove('modal-delConfirm-${c.id}')` },
-          { label: "Delete", onClick: `confirmDeleteComment('${c.id}','modal-delConfirm-${c.id}')` }
-        ],
-        id: `modal-delConfirm-${c.id}`
-      });
+      const btn = wrapper.querySelector(".comment-delete");
+      if (btn) {
+        btn.addEventListener("click", () => {
+          const id = btn.dataset.id;
+          const confirmId = `modal-delConfirm-${id}`;
+
+          const existing = document.getElementById(confirmId);
+          if (existing) existing.remove();
+
+          showGlobalModal({
+            type: "warning",
+            title: "Delete this comment?",
+            message: "This action cannot be undone.",
+            buttons: [
+              { label: "Cancel", onClick: `fadeOutAndRemove('${confirmId}')` },
+              { label: "Delete", onClick: `confirmDeleteComment('${id}','${confirmId}')` }
+            ],
+            id: confirmId
+          });
+        });
+      }
     }
 
     list.appendChild(wrapper);

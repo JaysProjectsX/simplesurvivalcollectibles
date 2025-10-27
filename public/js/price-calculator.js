@@ -43,29 +43,27 @@ async function pcFetchMe() {
 function updateCommentGateUI() {
   const box = document.getElementById("commentBox");
   const btn = document.getElementById("submitComment");
-  if (!box || !btn) return; // modal not mounted yet
+  if (!box || !btn) return;
 
-  const needsLink = !PC_ME || !PC_ME.minecraft_username;
+  const linked = !!(PC_ME && typeof PC_ME.minecraft_username === "string" && PC_ME.minecraft_username.trim());
 
-  box.disabled = needsLink;
-  btn.disabled = needsLink;
+  box.disabled = !linked;
+  btn.disabled = !linked;
 
-  // Optional helper text; only shows if a container exists
+  // Optional helper text
   const section = document.getElementById("commentSection");
-  if (!section) return;
-
-  let gate = document.getElementById("commentGateMsg");
-  if (!gate) {
-    gate = document.createElement("div");
-    gate.id = "commentGateMsg";
-    gate.style.marginTop = "6px";
-    gate.style.color = "#a9b3d6";
-    section.appendChild(gate);
+  if (section) {
+    let gate = document.getElementById("commentGateMsg");
+    if (!gate) {
+      gate = document.createElement("div");
+      gate.id = "commentGateMsg";
+      gate.style.marginTop = "6px";
+      gate.style.color = "#a9b3d6";
+      section.appendChild(gate);
+    }
+    gate.innerHTML = linked ? "" : `You must <b>link your Minecraft account</b> to comment.`;
+    if (linked) gate.remove();
   }
-  gate.innerHTML = needsLink
-    ? `You must <b>link your Minecraft account</b> to comment.`
-    : "";
-  if (!needsLink) gate.remove();
 }
 
 // ================== AUTH & INIT ==================
@@ -346,6 +344,7 @@ async function openModal(itemId) {
 
   updateEconomyDisplay();
   await loadComments(itemId);
+
   await pcFetchMe();
   updateCommentGateUI();
 

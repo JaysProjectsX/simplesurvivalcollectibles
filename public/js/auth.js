@@ -428,6 +428,7 @@ function isLockedOut(user) {
                 localStorage.setItem("verified", u.verified ? "1" : "0");
                 localStorage.setItem("created_at", u.created_at || "");
                 localStorage.setItem("minecraft_username", u.minecraft_username || "");
+                localStorage.setItem("minecraft_uuid", data.minecraft_uuid || "");
                 updateNavUI();
                 paintAccountInfo();
                 return true;
@@ -908,6 +909,7 @@ function isLockedOut(user) {
       localStorage.setItem("verified", data.verified);
       localStorage.setItem("created_at", data.created_at);
       localStorage.setItem("minecraft_username", data.minecraft_username || "");
+      localStorage.setItem("minecraft_uuid", data.minecraft_uuid || "");
       updateNavUI();
       paintAccountInfo();
     } catch (err) {
@@ -1095,6 +1097,7 @@ function renderMinecraftRow() {
         const r = await AUTH.fetchWithAuth(`${backendUrl}/account/minecraft/unlink`, { method: "POST" });
         if (r.ok) {
           localStorage.removeItem("minecraft_username");
+          localStorage.removeItem("minecraft_uuid");
           paintAccountInfo();
           showGlobalModal({
             type: "success",

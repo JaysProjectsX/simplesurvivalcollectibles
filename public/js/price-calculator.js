@@ -431,14 +431,75 @@ function renderName(c) {
 
 // ================== COMMENTS ==================
 async function loadComments(itemId) {
-  // fetch ALL comments for the item; no economy filter in the query
-  const res = await fetch(`${backendUrl}/comments?itemId=${itemId}`);
+  const res = await fetch(`${backendUrl}/comments?itemId=${itemId}`, { credentials: "include" });
   const comments = await res.json();
-
   const list = document.getElementById("commentList");
-  list.innerHTML = comments.length
-    ? comments.map(c => `<div><b>${renderName(c)}:</b> ${c.comment}</div>`).join("")
-    : "<p>No comments yet.</p>";
+  list.innerHTML = "";
+
+  if (!comments.length) {
+    list.innerHTML = "<p>No comments yet.</p>";
+    return;
+  }
+
+  const isAdmin = PC_ME && (PC_ME.role === "Admin" || PC_ME.role === "SysAdmin");
+
+  comments.forEach(c => {
+    const wrapper = document.createElement("div");
+    wrapper.className = "comment-entry";
+
+    const date = new Date(c.created_at);
+    const timestamp = date.toLocaleString("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+      hour: "numeric",
+      minute: "2-digit"
+    });
+
+    wrapper.innerHTML = `
+      <b>${c.username}</b>
+      <i class="fa-solid fa-badge-check"></i>
+      <span class="mc-tag">${c.minecraft_username ?? "Unknown"}</span>
+      <span class="econ-tag econ-${c.economy.toLowerCase()}">${c.economy}</span>
+      : ${escapeHtml(c.comment)}
+      <small>${timestamp}</small>
+      ${isAdmin ? `<i class="fa-solid fa-trash comment-delete" title="Delete Comment" data-id="${c.id}"></i>` : ""}
+    `;
+
+    if (isAdmin) {
+      wrapper.querySelector(".comment-delete").addEventListener("click", async (e) => {
+        const id = e.target.dataset.id;
+        const confirmDelete = confirm("Are you sure you want to delete this comment?");
+        if (!confirmDelete) return;
+
+        const delRes = await fetch(`${backendUrl}/comments/${id}`, {
+          method: "DELETE",
+          credentials: "include"
+        });
+
+        if (delRes.ok) {
+          showGlobalModal({
+            type: "success",
+            title: "Comment deleted",
+            message: "The comment has been successfully deleted.",
+            buttons: [{ label: "Close", onClick: "fadeOutAndRemove('modal-delSuccess')" }],
+            id: "modal-delSuccess"
+          });
+          loadComments(itemId);
+        } else {
+          showGlobalModal({
+            type: "error",
+            title: "Deletion failed",
+            message: "Could not delete comment. Try again later.",
+            buttons: [{ label: "Close", onClick: "fadeOutAndRemove('modal-delFail')" }],
+            id: "modal-delFail"
+          });
+        }
+      });
+    }
+
+    list.appendChild(wrapper);
+  });
 }
 
 const MAX = 250;

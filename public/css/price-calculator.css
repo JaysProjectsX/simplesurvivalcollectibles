@@ -512,21 +512,79 @@ body {
   display: inline-block;
   padding: 2px 8px;
   margin-left: 6px;
-  border-radius: 9999px;
+  border-radius: 6px;
   font-size: 12px;
   line-height: 1;
   font-weight: 600;
-  background: #222a45;      /* base pill */
+  background: #0f0f12;
   color: #e5e9f7;
   border: 1px solid rgba(255,255,255,0.08);
 }
 
 /* subtle color accents per economy */
-.econ-phoenix  { background: linear-gradient(0deg, #1f2742, #2a3560); border-color: #3c4980; }
-.econ-lynx     { background: linear-gradient(0deg, #1f2d2b, #28423d); border-color: #3b6d61; }
-.econ-wyvern   { background: linear-gradient(0deg, #2b2331, #3a2c49); border-color: #65428c; }
-.econ-cerberus { background: linear-gradient(0deg, #2d1f1f, #442a2a); border-color: #7a3a3a; }
+.econ-phoenix  { background: #0f0f12; border-color: #85858517; }
+.econ-lynx     { background: #0f0f12; border-color: #85858517; }
+.econ-wyvern   { background: #0f0f12; border-color: #85858517; }
+.econ-cerberus { background: #0f0f12; border-color: #85858517; }
 
+/* --- Comment Entry Styling --- */
+.comment-entry {
+  background: #11121a;
+  border-radius: 10px;
+  padding: 10px 14px;
+  margin-bottom: 10px;
+  position: relative;
+  transition: background 0.2s ease;
+}
+.comment-entry:hover {
+  background: #181924;
+}
+.comment-entry b {
+  color: #e8ebf9;
+  font-weight: 600;
+}
+.comment-entry small {
+  display: block;
+  color: #a5a9c2;
+  font-size: 12px;
+  margin-top: 4px;
+}
+
+/* --- Verified Badge --- */
+.fa-badge-check {
+  color: #4fa3ff;
+  margin-left: 5px;
+}
+
+/* --- Minecraft Tag --- */
+.mc-tag {
+  display: inline-block;
+  padding: 2px 8px;
+  margin-left: 6px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  background: #0f0f12;
+  color: #e5e9f7;
+  border: 1px solid rgba(255,255,255,0.08);
+}
+
+/* --- Delete Icon (Admin only) --- */
+.comment-delete {
+  position: absolute;
+  top: 8px;
+  right: 10px;
+  color: #e4e6f0;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+.comment-entry:hover .comment-delete {
+  opacity: 0.8;
+}
+.comment-delete:hover {
+  color: #ff5a5a;
+}
 
 .modal-footer {
   display: flex;

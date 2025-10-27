@@ -52,6 +52,7 @@
 .global-modal .modal-header {
   display: flex;
   justify-content: flex-end;
+  align-items: flex-end;
 }
 .global-modal .modal-header .close {
   width: 1.5rem;

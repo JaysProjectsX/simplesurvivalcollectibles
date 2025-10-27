@@ -591,7 +591,7 @@ document.addEventListener("mouseout", (e) => {
 
 window.confirmDeleteComment = async (commentId, modalId) => {
   fadeOutAndRemove(modalId);
-  const res = await fetch(`/admin/comments/${commentId}`, { method: "DELETE", credentials: "include" });
+  const res = await fetch(`${backendUrl}/admin/comments/${commentId}`, { method: "DELETE", credentials: "include" });
   if (res.ok) {
     document.querySelector(`[data-comment-id="${commentId}"]`)?.remove();
     showGlobalModal({

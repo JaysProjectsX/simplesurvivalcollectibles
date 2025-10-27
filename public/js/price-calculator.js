@@ -430,6 +430,22 @@ function renderName(c) {
 }
 
 // ================== COMMENTS ==================
+
+const SVG = {
+  verify: `
+    <svg class="icon icon-verify" viewBox="0 0 24 24" aria-hidden="true">
+      <path fill="currentColor"
+        d="M12 2l6 2.7v6.1c0 4.3-3 8.2-6 9.2-3-1-6-4.9-6-9.2V4.7L12 2zm-1 13l6-6-1.4-1.4L11 12.2 8.4 9.6 7 11l4 4z" />
+    </svg>
+  `,
+  trash: `
+    <svg class="icon icon-trash" viewBox="0 0 24 24" aria-hidden="true">
+      <path fill="currentColor"
+        d="M9 3h6a1 1 0 0 1 1 1v1h4v2H4V5h4V4a1 1 0 0 1 1-1zm-3 6h12l-1 11a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2L6 9zm5 2v8h2v-8h-2z" />
+    </svg>
+  `
+};
+
 async function loadComments(itemId) {
   const res = await fetch(`${backendUrl}/comments?itemId=${itemId}`, { credentials: "include" });
   const comments = await res.json();
@@ -453,10 +469,7 @@ async function loadComments(itemId) {
       hour: "numeric", minute: "2-digit"
     });
 
-    // verified badge if linked
-    const verified = c.minecraft_username
-      ? `<i class="fa-solid fa-badge-check v-badge" title="Linked account"></i>`
-      : "";
+    const verified = c.minecraft_username ? SVG.verify : "";
 
     wrapper.innerHTML = `
       <div class="comment-line">
@@ -469,7 +482,7 @@ async function loadComments(itemId) {
       <small>${timestamp}</small>
       ${isAdmin ? `
         <button class="comment-delete" title="Delete" data-id="${c.id}">
-          <i class="fa-solid fa-trash"></i>
+          ${SVG.trash}
         </button>` : ""}
     `;
 

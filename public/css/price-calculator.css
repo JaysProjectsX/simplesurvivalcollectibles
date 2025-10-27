@@ -548,11 +548,14 @@ body {
   margin-top: 4px;
 }
 
-/* --- Verified Badge --- */
-.fa-badge-check {
-  color: #4fa3ff;
-  margin-left: 5px;
-}
+.comment-line { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; }
+.comment-text { color: #e5e9f7; }
+
+/* all inline SVG icons */
+.icon { width: 14px; height: 14px; vertical-align: -2px; fill: currentColor; }
+
+/* verified shield color */
+.icon-verify { color: #52b788; margin-left: 6px; }
 
 /* --- Minecraft Tag --- */
 .mc-tag {
@@ -579,8 +582,9 @@ body {
   transition: opacity 0.15s ease;
 }
 .comment-entry:hover .comment-delete {
-  opacity: 0.8;
+  opacity: 1;
 }
+.comment-delete .icon-trash { width: 16px; height: 16px; }
 .comment-delete:hover {
   color: #ff5a5a;
 }

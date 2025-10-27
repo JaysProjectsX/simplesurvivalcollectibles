@@ -500,6 +500,34 @@ body {
 }
 .btn-secondary:hover { background: #2e2f4a; }
 
+.verified-badge {
+  display: inline-block;
+  margin-left: 4px;
+  font-size: 12px;
+  color: #4ade80; /* soft green */
+  vertical-align: middle;
+}
+
+.econ-tag {
+  display: inline-block;
+  padding: 2px 8px;
+  margin-left: 6px;
+  border-radius: 9999px;
+  font-size: 12px;
+  line-height: 1;
+  font-weight: 600;
+  background: #222a45;      /* base pill */
+  color: #e5e9f7;
+  border: 1px solid rgba(255,255,255,0.08);
+}
+
+/* subtle color accents per economy */
+.econ-phoenix  { background: linear-gradient(0deg, #1f2742, #2a3560); border-color: #3c4980; }
+.econ-lynx     { background: linear-gradient(0deg, #1f2d2b, #28423d); border-color: #3b6d61; }
+.econ-wyvern   { background: linear-gradient(0deg, #2b2331, #3a2c49); border-color: #65428c; }
+.econ-cerberus { background: linear-gradient(0deg, #2d1f1f, #442a2a); border-color: #7a3a3a; }
+
+
 .modal-footer {
   display: flex;
   justify-content: flex-end;

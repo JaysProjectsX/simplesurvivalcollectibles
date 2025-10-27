@@ -10,6 +10,7 @@ let selectedEconomy = "Phoenix";
 let currentItem = null;
 let searchTerm = "";
 let currentSearch = "";
+let PC_ME = null;
 
 // ================== UTILITIES ==================
 function prettyCrateName(name) {
@@ -30,12 +31,50 @@ function redirectHome() {
   location.replace("/");
 }
 
+async function pcFetchMe() {
+  try {
+    const r = await fetch(`${backendUrl}/me`, { credentials: "include" });
+    PC_ME = r.ok ? await r.json() : null;
+  } catch {
+    PC_ME = null;
+  }
+}
+
+function updateCommentGateUI() {
+  const box = document.getElementById("commentBox");
+  const btn = document.getElementById("submitComment");
+  if (!box || !btn) return; // modal not mounted yet
+
+  const needsLink = !PC_ME || !PC_ME.minecraft_username;
+
+  box.disabled = needsLink;
+  btn.disabled = needsLink;
+
+  // Optional helper text; only shows if a container exists
+  const section = document.getElementById("commentSection");
+  if (!section) return;
+
+  let gate = document.getElementById("commentGateMsg");
+  if (!gate) {
+    gate = document.createElement("div");
+    gate.id = "commentGateMsg";
+    gate.style.marginTop = "6px";
+    gate.style.color = "#a9b3d6";
+    section.appendChild(gate);
+  }
+  gate.innerHTML = needsLink
+    ? `You must <b>link your Minecraft account</b> to comment.`
+    : "";
+  if (!needsLink) gate.remove();
+}
+
 // ================== AUTH & INIT ==================
 (async function init() {
   try {
     const res = await fetch(`${backendUrl}/me`, { credentials: "include" });
     if (!res.ok) return redirectHome();
     const user = await res.json();
+    PC_ME = user;
     if (user.role !== "Admin" && user.role !== "SysAdmin") return redirectHome();
 
     document.body.hidden = false;
@@ -307,6 +346,8 @@ async function openModal(itemId) {
 
   updateEconomyDisplay();
   await loadComments(itemId);
+  await pcFetchMe();
+  updateCommentGateUI();
 
   modal.classList.remove("hidden");
   requestAnimationFrame(() => modal.classList.add("show"));
@@ -367,20 +408,37 @@ document.querySelectorAll(".econ-btn").forEach((btn) =>
   })
 );
 
+function renderEconTag(e) {
+  if (!e) return "";
+  const econ = String(e).toLowerCase();
+  const cls  = {
+    phoenix: "econ-phoenix",
+    lynx: "econ-lynx",
+    wyvern: "econ-wyvern",
+    cerberus: "econ-cerberus"
+  }[econ] || "econ-phoenix";
+  const label = e.charAt(0).toUpperCase() + e.slice(1);
+  return ` <span class="econ-tag ${cls}">[${label}]</span>`;
+}
+
+function renderName(c) {
+  const hasMC = !!c.minecraft_username;
+  const name  = hasMC ? `${c.username} (${c.minecraft_username})` : c.username;
+  const badge = hasMC ? ' <span class="verified-badge" title="Verified">✔</span>' : '';
+  // Attach the economy tag from the comment record
+  const tag   = renderEconTag(c.economy);
+  return name + badge + tag;
+}
+
 // ================== COMMENTS ==================
 async function loadComments(itemId) {
-  const res = await fetch(
-    `${backendUrl}/comments?itemId=${itemId}&economy=${selectedEconomy}`
-  );
+  // fetch ALL comments for the item; no economy filter in the query
+  const res = await fetch(`${backendUrl}/comments?itemId=${itemId}`);
   const comments = await res.json();
+
   const list = document.getElementById("commentList");
   list.innerHTML = comments.length
-    ? comments
-        .map(
-          (c) =>
-            `<div><b>${c.minecraft_username ?? c.username}:</b> ${c.comment}</div>`
-        )
-        .join("")
+    ? comments.map(c => `<div><b>${renderName(c)}:</b> ${c.comment}</div>`).join("")
     : "<p>No comments yet.</p>";
 }
 

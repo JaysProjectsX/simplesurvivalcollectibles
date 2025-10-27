@@ -518,7 +518,6 @@ body {
   font-weight: 600;
   background: #0f0f12;
   color: #e5e9f7;
-  border: 1px solid rgba(255,255,255,0.08);
 }
 
 /* subtle color accents per economy */
@@ -529,7 +528,6 @@ body {
 
 /* --- Comment Entry Styling --- */
 .comment-entry {
-  background: #11121a;
   border-radius: 10px;
   padding: 10px 14px;
   margin-bottom: 10px;
@@ -537,7 +535,7 @@ body {
   transition: background 0.2s ease;
 }
 .comment-entry:hover {
-  background: #181924;
+  background: #161623;
 }
 .comment-entry b {
   color: #e8ebf9;
@@ -564,9 +562,8 @@ body {
   border-radius: 6px;
   font-size: 12px;
   font-weight: 600;
-  background: #0f0f12;
   color: #e5e9f7;
-  border: 1px solid rgba(255,255,255,0.08);
+  opacity: 0.85;
 }
 
 /* --- Delete Icon (Admin only) --- */
@@ -575,9 +572,11 @@ body {
   top: 8px;
   right: 10px;
   color: #e4e6f0;
+  background: transparent;
   cursor: pointer;
   opacity: 0;
-  transition: opacity 0.2s ease;
+  z-index: 5;
+  transition: opacity 0.15s ease;
 }
 .comment-entry:hover .comment-delete {
   opacity: 0.8;

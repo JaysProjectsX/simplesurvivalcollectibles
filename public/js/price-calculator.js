@@ -441,7 +441,7 @@ async function loadComments(itemId) {
     return;
   }
 
-  const isAdmin = PC_ME && (PC_ME.role === "Admin" || PC_ME.role === "SysAdmin");
+  const isAdmin = !!(PC_ME && (PC_ME.role === "Admin" || PC_ME.role === "SysAdmin"));
 
   comments.forEach(c => {
     const wrapper = document.createElement("div");
@@ -449,42 +449,39 @@ async function loadComments(itemId) {
 
     const date = new Date(c.created_at);
     const timestamp = date.toLocaleString("en-US", {
-      month: "short",
-      day: "numeric",
-      year: "numeric",
-      hour: "numeric",
-      minute: "2-digit"
+      month: "short", day: "numeric", year: "numeric",
+      hour: "numeric", minute: "2-digit"
     });
 
+    // verified badge if linked
+    const verified = c.minecraft_username
+      ? `<i class="fa-solid fa-badge-check v-badge" title="Linked account"></i>`
+      : "";
+
     wrapper.innerHTML = `
-      <b>${c.username}</b>
-      <i class="fa-solid fa-badge-check"></i>
-      <span class="mc-tag">${c.minecraft_username ?? "Unknown"}</span>
-      <span class="econ-tag econ-${c.economy.toLowerCase()}">${c.economy}</span>
-      : ${escapeHtml(c.comment)}
+      <div class="comment-line">
+        <b>${escapeHtml(c.username)}</b>
+        ${verified}
+        ${c.minecraft_username ? `<span class="mc-tag">IGN: ${escapeHtml(c.minecraft_username)}</span>` : ""}
+        <span class="econ-tag econ-${c.economy.toLowerCase()}">${escapeHtml(c.economy)}</span>
+        <span class="comment-text">: ${escapeHtml(c.comment)}</span>
+      </div>
       <small>${timestamp}</small>
-      ${isAdmin ? `<i class="fa-solid fa-trash comment-delete" title="Delete Comment" data-id="${c.id}"></i>` : ""}
+      ${isAdmin ? `
+        <button class="comment-delete" title="Delete" data-id="${c.id}">
+          <i class="fa-solid fa-trash"></i>
+        </button>` : ""}
     `;
 
     if (isAdmin) {
       wrapper.querySelector(".comment-delete").addEventListener("click", async (e) => {
-        const id = e.target.dataset.id;
-        const confirmDelete = confirm("Are you sure you want to delete this comment?");
-        if (!confirmDelete) return;
-
+        const id = e.currentTarget.dataset.id;
+        if (!confirm("Delete this comment?")) return;
         const delRes = await fetch(`${backendUrl}/comments/${id}`, {
           method: "DELETE",
           credentials: "include"
         });
-
         if (delRes.ok) {
-          showGlobalModal({
-            type: "success",
-            title: "Comment deleted",
-            message: "The comment has been successfully deleted.",
-            buttons: [{ label: "Close", onClick: "fadeOutAndRemove('modal-delSuccess')" }],
-            id: "modal-delSuccess"
-          });
           loadComments(itemId);
         } else {
           showGlobalModal({
@@ -501,6 +498,7 @@ async function loadComments(itemId) {
     list.appendChild(wrapper);
   });
 }
+
 
 const MAX = 250;
 

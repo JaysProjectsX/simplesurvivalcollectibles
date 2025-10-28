@@ -625,7 +625,7 @@ body {
 }
 .ins-title{
   font-weight:600;
-  margin-bottom:6px;
+  margin-bottom:8px;
   display:flex;
   align-items:center;
   gap:8px;
@@ -641,21 +641,25 @@ body {
 .badge.medium { background: rgba(241,196,15,.18); }
 .badge.low    { background: rgba(231,76,60,.18); }
 
-.ins-value{ font-size:1.4rem; margin:6px 0; }
-.ins-sub  { opacity:.85; font-size:.9rem; margin-top:4px; margin-bottom: 6px; }
+.ins-value{ font-size:0.9rem; margin:6px 0; }
+.ins-sub  { opacity:.85; font-size:.9rem; margin-top:4px; margin-bottom: 8px; }
 
 .ins-caption {
   font-size: 12px;
   color: #a9b3d6;
+  margin-bottom: 8px;
 }
 
 .ins-row {
-  margin-top: 8px;               /* stack Range, Reports, Updated on separate lines */
+  font-size: 0.9rem;
+  margin-bottom: 8px;
 }
 
 .ins-updated {
   font-size: 12px;
   color: #8e97b6;
+  font-size: 0.9rem;
+  margin-bottom: 8px;
 }
 
 .btn-ghost-sm {

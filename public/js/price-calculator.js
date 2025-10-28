@@ -669,7 +669,7 @@ function renderInsights(i){
   if (!val || !conf || !rLo || !rHi || !reps || !upd || !btn) return;
 
   if (!i){
-    val.textContent = "≈ —";
+    val.textContent = "Community Price ≈ —";
     conf.textContent = "—";
     conf.className = "badge";
     rLo.textContent = "—"; rHi.textContent = "—";

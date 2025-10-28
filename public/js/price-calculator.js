@@ -679,7 +679,7 @@ function renderInsights(i){
     return;
   }
 
-  val.textContent = `≈ ${pcFormatCoins(i.predicted)}`;
+  val.textContent = `Community Price ≈ ${pcFormatCoins(i.predicted)}`;
   conf.textContent = i.confidence || "low";
   conf.className = `badge ${i.confidence || "low"}`;
   rLo.textContent = pcFormatCoins(i.range_low);

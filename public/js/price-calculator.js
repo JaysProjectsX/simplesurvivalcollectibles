@@ -40,29 +40,35 @@ async function pcFetchMe() {
   }
 }
 
+function isLinkedAccount() {
+  return !!(PC_ME && typeof PC_ME.minecraft_username === "string" && PC_ME.minecraft_username.trim());
+}
+
 function updateCommentGateUI() {
   const box = document.getElementById("commentBox");
   const btn = document.getElementById("submitComment");
-  if (!box || !btn) return;
+  const wrap = box?.closest('.comment-input');
+  if (!box || !btn || !wrap) return;
 
-  const linked = !!(PC_ME && typeof PC_ME.minecraft_username === "string" && PC_ME.minecraft_username.trim());
+  const linked = isLinkedAccount();
 
   box.disabled = !linked;
   btn.disabled = !linked;
+  box.placeholder = linked
+    ? "Write a comment… (max 250 chars)"
+    : "Sign in + link your Minecraft IGN to comment";
 
-  // Optional helper text
-  const section = document.getElementById("commentSection");
-  if (section) {
-    let gate = document.getElementById("commentGateMsg");
-    if (!gate) {
-      gate = document.createElement("div");
-      gate.id = "commentGateMsg";
-      gate.style.marginTop = "6px";
-      gate.style.color = "#a9b3d6";
-      section.appendChild(gate);
+  // overlay banner (one-per page)
+  let ov = wrap.querySelector(".gate-overlay");
+  if (!linked) {
+    if (!ov) {
+      ov = document.createElement("div");
+      ov.className = "gate-overlay";
+      ov.innerHTML = `<span>Sign in & link your Minecraft account to comment.</span>`;
+      wrap.appendChild(ov);
     }
-    gate.innerHTML = linked ? "" : `You must <b>link your Minecraft account</b> to comment.`;
-    if (linked) gate.remove();
+  } else if (ov) {
+    ov.remove();
   }
 }
 
@@ -675,7 +681,7 @@ function renderInsights(i){
     rLo.textContent = "—"; rHi.textContent = "—";
     reps.textContent = "0";
     upd.textContent = "";
-    btn.onclick = openReportPriceModal;
+    btn.onclick = guardedOpenReportPriceModal;
     return;
   }
 
@@ -687,7 +693,29 @@ function renderInsights(i){
   reps.textContent = i.reports ?? 0;
   upd.textContent = i.last_report_at ? `Last Updated: ${new Date(i.last_report_at).toLocaleString()}` : "Last Updated: Never";
 
-  btn.onclick = openReportPriceModal;
+  btn.onclick = guardedOpenReportPriceModal;
+}
+
+async function guardedOpenReportPriceModal() {
+  if (!PC_ME) {
+    try {
+      const r = await fetch(`${backendUrl}/me`, { credentials: "include" });
+      PC_ME = r.ok ? await r.json() : null;
+    } catch {}
+  }
+
+  if (!PC_ME || !isLinkedAccount()) {
+    showGlobalModal({
+      type: "error",
+      title: "Sign in & link Minecraft",
+      message: "You must be signed into your account and have your Minecraft IGN linked to submit price reports.",
+      buttons: [{ label: "OK", onClick: "fadeOutAndRemove('modal-rp-denied')" }],
+      id: "modal-rp-denied"
+    });
+    return;
+  }
+
+  openReportPriceModal();
 }
 
 function openReportPriceModal(){
@@ -696,7 +724,7 @@ function openReportPriceModal(){
     type: 'info',
     title: `Report price update for: ${selectedEconomy}`,
     message: `<div class="report-wrap">
-       <input id="rp-price" type="number" min="1" maxlength="7" placeholder="Enter price">
+       <input id="rp-price" type="text" inputmode="numeric" pattern="\\d*" placeholder="Enter price (max 7 digits)">
      </div>`,
     id,
     buttons: [
@@ -704,21 +732,33 @@ function openReportPriceModal(){
       { label: "Submit", onClick: `submitReportPrice('${id}')` }
     ]
   });
+
+    setTimeout(() => {
+    const el = document.getElementById('rp-price');
+    if (!el) return;
+    el.addEventListener('input', () => {
+      el.value = el.value.replace(/\D/g, '').slice(0, 7);
+    });
+  }, 0);
 }
 
 window.submitReportPrice = async (modalId)=>{
   const pEl = document.getElementById('rp-price');
-  const nEl = document.getElementById('rp-note');
-  const price = Number(pEl?.value);
-  const note  = nEl?.value || '';
+  const raw = (pEl?.value || "").replace(/\D/g, "");
+  const price = Number(raw);
 
-  if (!Number.isFinite(price) || price <= 0) return;
+  if (!Number.isFinite(price) || price < 1 || price > 9_999_999) {
+    // brief inline feedback
+    pEl?.classList?.add('shake');
+    setTimeout(()=>pEl?.classList?.remove('shake'), 400);
+    return;
+  }
 
   const r = await fetch(`${backendUrl}/items/${currentItem.id}/report-price`, {
     method: 'POST',
     credentials: 'include',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ price, economy: selectedEconomy, note })
+    body: JSON.stringify({ price, economy: selectedEconomy })
   });
 
   if (typeof fadeOutAndRemove === "function") fadeOutAndRemove(modalId);

@@ -469,6 +469,32 @@ body {
   position: relative;
 }
 
+.comment-input .gate-overlay {
+  position: absolute;
+  left: 2.5%;
+  top: 26px;
+  width: 95%;
+  height: 100px;
+  border-radius: 8px;
+  display: grid;
+  place-items: center;
+  background: linear-gradient(180deg, rgba(25,25,45,.85), rgba(25,25,45,.88));
+  color: #cfd3ff;
+  font-size: 0.9rem;
+  text-align: center;
+  pointer-events: none;
+  border: 1px dashed rgba(255,255,255,0.12);
+}
+
+/* subtle shake for invalid price input */
+@keyframes pc-shake {
+  10%, 90% { transform: translateX(-1px); }
+  20%, 80% { transform: translateX(2px); }
+  30%, 50%, 70% { transform: translateX(-4px); }
+  40%, 60% { transform: translateX(4px); }
+}
+.shake { animation: pc-shake 350ms ease; }
+
 .char-counter {
   position: absolute;
   right: 12px;

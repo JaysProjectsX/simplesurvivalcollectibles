@@ -40,6 +40,13 @@ async function pcFetchMe() {
   }
 }
 
+function isActiveMute(expiresAt) {
+  if (expiresAt === null) return true;
+  if (!expiresAt) return false;
+  const t = new Date(expiresAt).getTime();
+  return Number.isFinite(t) && t > Date.now();
+}
+
 function isLinkedAccount() {
   return !!(PC_ME && typeof PC_ME.minecraft_username === "string" && PC_ME.minecraft_username.trim());
 }
@@ -455,6 +462,15 @@ const SVG = {
       <path fill="currentColor"
         d="M9 3h6a1 1 0 0 1 1 1v1h4v2H4V5h4V4a1 1 0 0 1 1-1zm-3 6h12l-1 11a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2L6 9zm5 2v8h2v-8h-2z" />
     </svg>
+  `,
+  mute: `
+    <svg class="icon icon-mute" viewBox="0 0 24 24" aria-hidden="true">
+      <!-- speaker -->
+      <path fill="currentColor" d="M11 5l-4 4H4v6h3l4 4V5z"/>
+      <!-- X over the sound -->
+      <path fill="currentColor"
+        d="M20 8l-1.4-1.4-2.6 2.6-2.6-2.6L12 8l2.6 2.6L12 13.2l1.4 1.4 2.6-2.6 2.6 2.6L20 13.2l-2.6-2.6z"/>
+    </svg>
   `
 };
 
@@ -497,6 +513,13 @@ function renderCommentsPaged() {
       ? `<span class="mc-tag">IGN: ${escapeHtml(c.minecraft_username)} ${SVG.verify}</span>`
       : "";
 
+    // NEW: compute mute state and badge (only show to admins)
+    const isAdmin = !!(PC_ME && (PC_ME.role === "Admin" || PC_ME.role === "SysAdmin"));
+    const isMutedAuthor = isActiveMute(c.mute_expires_at);
+    const mutedBadge = (isAdmin && isMutedAuthor)
+      ? `<span class="muted-badge">${SVG.mute}<span>Muted</span></span>`
+      : "";
+
     wrapper.innerHTML = `
       <div class="comment-line">
         ${mutedBadge}
@@ -508,11 +531,12 @@ function renderCommentsPaged() {
       <small>${timestamp}</small>
 
       ${isAdmin ? `
-        <!-- your existing trash (unchanged class & styling) -->
+        <!-- existing trash button (unchanged class/styles) -->
         <button class="comment-delete" title="Delete" data-id="${c.id}">
           ${SVG.trash}
         </button>
 
+        <!-- NEW: standalone mute button with its own class/styles -->
         <button class="comment-mute-btn"
                 title="${isMutedAuthor ? 'View/Update mute' : 'Mute user'}"
                 data-user-id="${c.user_id}"
@@ -523,10 +547,11 @@ function renderCommentsPaged() {
                 data-role="${escapeHtml(c.user_role || '')}">
           ${SVG.mute}
         </button>
-      ` : "" }
+      ` : ""}
     `;
 
     if (isAdmin) {
+      // DELETE: confirm flow (your existing logic)
       const delBtn = wrapper.querySelector(".comment-delete");
       if (delBtn) {
         delBtn.addEventListener("click", () => {
@@ -546,14 +571,13 @@ function renderCommentsPaged() {
         });
       }
 
-      // MUTE modal open
+      // MUTE: open modal (with Admin->SysAdmin block if you added that earlier)
       const muteBtn = wrapper.querySelector(".comment-mute-btn");
       if (muteBtn) {
         muteBtn.addEventListener("click", () => {
           const viewerRole = (PC_ME && PC_ME.role) || "User";
           const targetRole = muteBtn.dataset.role || "";
 
-          // Block Admins from muting SysAdmins
           if (viewerRole === "Admin" && targetRole === "SysAdmin") {
             const denyId = `modal-muteDenied-${c.user_id}`;
             document.getElementById(denyId)?.remove();
@@ -567,7 +591,6 @@ function renderCommentsPaged() {
             return;
           }
 
-          // Proceed as normal
           const userId   = muteBtn.dataset.userId;
           const username = muteBtn.dataset.username;
           const ign      = muteBtn.dataset.ign || "";

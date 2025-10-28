@@ -685,7 +685,7 @@ function renderInsights(i){
   rLo.textContent = pcFormatCoins(i.range_low);
   rHi.textContent = pcFormatCoins(i.range_high);
   reps.textContent = i.reports ?? 0;
-  upd.textContent = i.last_report_at ? `Updated: ${new Date(i.last_report_at).toLocaleString()}` : "";
+  upd.textContent = i.last_report_at ? `Last Updated: ${new Date(i.last_report_at).toLocaleString()}` : "Last Updated: Never";
 
   btn.onclick = openReportPriceModal;
 }
@@ -693,11 +693,10 @@ function renderInsights(i){
 function openReportPriceModal(){
   const id = `modal-report-${currentItem?.id}-${selectedEconomy}`;
   showGlobalModal({
-    type: 'progress',
-    title: `Report price (${selectedEconomy})`,
+    type: 'info',
+    title: `Report price update for: ${selectedEconomy}`,
     message: `<div class="report-wrap">
-       <input id="rp-price" type="number" min="1" placeholder="Enter price">
-       <input id="rp-note"  type="text" maxlength="200" placeholder="Optional note (200 max)">
+       <input id="rp-price" type="number" min="1" maxlength="7" placeholder="Enter price">
      </div>`,
     id,
     buttons: [

@@ -327,7 +327,7 @@ body {
   display: grid;
   grid-template-columns: minmax(320px, 1fr) minmax(420px, 1.25fr);
   gap: 24px;
-  align-items: start;
+  align-items: center;
 }
 
 .modal-header {
@@ -616,12 +616,12 @@ body {
 }
 
 /* Community Price card */
-.ins-card{
-  margin-top:14px;
-  padding:14px;
-  border-radius:12px;
-  background: rgba(255,255,255,.04);
-  border: 1px solid rgba(255,255,255,.08);
+.ins-card {
+    margin-top: 14px;
+    padding: 14px;
+    border-radius: 8px;
+    background: #0c0c1a;
+    border: 1px solid #22233a;
 }
 .ins-title{
   font-weight:600;
@@ -642,16 +642,33 @@ body {
 .badge.low    { background: rgba(231,76,60,.18); }
 
 .ins-value{ font-size:1.4rem; margin:6px 0; }
-.ins-sub  { opacity:.85; font-size:.9rem; margin-top:4px; }
+.ins-sub  { opacity:.85; font-size:.9rem; margin-top:4px; margin-bottom: 6px; }
 
-.btn-ghost-sm{
-  margin-top:10px;
-  padding:6px 10px;
-  border-radius:8px;
-  background:transparent;
-  border:1px solid rgba(255,255,255,.12);
-  color:#dfe3f0;
-  cursor:pointer;
+.ins-caption {
+  font-size: 12px;
+  color: #a9b3d6;
+}
+
+.ins-row {
+  margin-top: 8px;               /* stack Range, Reports, Updated on separate lines */
+}
+
+.ins-updated {
+  font-size: 12px;
+  color: #8e97b6;
+}
+
+.btn-ghost-sm {
+    transition: background 0.2s ease;
+    padding: 6px 10px;
+    border-radius: 4px;
+    background: transparent;
+    border: 1px solid #212121;
+    color: #dfe3f0;
+    cursor: pointer;
+}
+.btn-ghost-sm:hover {
+    background: #141425;
 }
 
 .modal-footer {

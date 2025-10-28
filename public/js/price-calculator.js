@@ -499,27 +499,40 @@ function renderCommentsPaged() {
 
     wrapper.innerHTML = `
       <div class="comment-line">
+        ${mutedBadge}
         <b>${escapeHtml(c.username)}</b>
         ${ignSpan}
         <span class="econ-tag econ-${c.economy.toLowerCase()}">${escapeHtml(c.economy)}</span>
         <span class="comment-text">– ${escapeHtml(c.comment)}</span>
       </div>
       <small>${timestamp}</small>
+
       ${isAdmin ? `
+        <!-- your existing trash (unchanged class & styling) -->
         <button class="comment-delete" title="Delete" data-id="${c.id}">
           ${SVG.trash}
-        </button>` : ""}
+        </button>
+
+        <button class="comment-mute-btn"
+                title="${isMutedAuthor ? 'View/Update mute' : 'Mute user'}"
+                data-user-id="${c.user_id}"
+                data-username="${escapeHtml(c.username)}"
+                data-ign="${escapeHtml(c.minecraft_username || '')}"
+                data-expires="${c.mute_expires_at || ''}"
+                data-reason="${escapeHtml(c.mute_reason || '')}"
+                data-role="${escapeHtml(c.user_role || '')}">
+          ${SVG.mute}
+        </button>
+      ` : "" }
     `;
 
     if (isAdmin) {
-      const btn = wrapper.querySelector(".comment-delete");
-      if (btn) {
-        btn.addEventListener("click", () => {
-          const id = btn.dataset.id;
+      const delBtn = wrapper.querySelector(".comment-delete");
+      if (delBtn) {
+        delBtn.addEventListener("click", () => {
+          const id = delBtn.dataset.id;
           const confirmId = `modal-delConfirm-${id}`;
-          const existing = document.getElementById(confirmId);
-          if (existing) existing.remove();
-
+          document.getElementById(confirmId)?.remove();
           showGlobalModal({
             type: "warning",
             title: "Delete this comment?",
@@ -530,6 +543,37 @@ function renderCommentsPaged() {
             ],
             id: confirmId
           });
+        });
+      }
+
+      // MUTE modal open
+      const muteBtn = wrapper.querySelector(".comment-mute-btn");
+      if (muteBtn) {
+        muteBtn.addEventListener("click", () => {
+          const viewerRole = (PC_ME && PC_ME.role) || "User";
+          const targetRole = muteBtn.dataset.role || "";
+
+          // Block Admins from muting SysAdmins
+          if (viewerRole === "Admin" && targetRole === "SysAdmin") {
+            const denyId = `modal-muteDenied-${c.user_id}`;
+            document.getElementById(denyId)?.remove();
+            showGlobalModal({
+              type: "error",
+              title: "Action not allowed",
+              message: "Admins cannot mute SysAdmins.",
+              buttons: [{ label: "Close", onClick: `fadeOutAndRemove('${denyId}')` }],
+              id: denyId
+            });
+            return;
+          }
+
+          // Proceed as normal
+          const userId   = muteBtn.dataset.userId;
+          const username = muteBtn.dataset.username;
+          const ign      = muteBtn.dataset.ign || "";
+          const expires  = muteBtn.dataset.expires || "";
+          const reason   = muteBtn.dataset.reason || "";
+          openMuteModal({ userId, username, ign, expires, reason });
         });
       }
     }

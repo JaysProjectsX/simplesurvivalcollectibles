@@ -640,6 +640,41 @@ body {
   background: transparent !important;
 }
 
+.comment-mute-btn {
+  position: absolute;
+  top: 6px;
+  right: 36px;
+  display: inline-flex;
+  background: transparent;
+  border: 0;
+  padding: 4px;
+  border-radius: 6px;
+  cursor: pointer;
+  opacity: 0;
+  z-index: 5;
+}
+.comment-entry:hover .comment-mute-btn {
+  opacity: 1;
+}
+.comment-mute-btn .icon-mute {
+  width: 16px;
+  height: 16px;
+}
+.comment-mute-btn:hover {
+  color: #ff5a5a;
+  background: transparent !important;
+}
+
+.muted-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-right: 6px;
+  color: #ff6b6b;
+  font-weight: 600;
+}
+.muted-badge .icon-mute { width: 16px; height: 16px; }
+
 /* Community Price card */
 .ins-card {
     margin-top: 14px;

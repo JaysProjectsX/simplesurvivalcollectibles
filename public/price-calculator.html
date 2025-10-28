@@ -70,31 +70,35 @@
         </div>
       </header>
       <hr class="pricing-divider"/>
-      <section class="modal-economy">
-        <div class="economy-buttons">
-          <button class="econ-btn" id="phoenixBtn" data-econ="Phoenix">Phoenix</button>
-          <button class="econ-btn" id="lynxBtn" data-econ="Lynx">Lynx</button>
-          <button class="econ-btn" id="wyvernBtn" data-econ="Wyvern">Wyvern</button>
-          <button class="econ-btn" id="cerberusBtn" data-econ="Cerberus">Cerberus</button>
-        </div>
-        <div class="price-values">
-          <div><label>Min (Base)</label><span id="baseValue">—</span></div>
-          <div><label>Average</label><span id="avgValue">—</span></div>
-          <div><label>Max</label><span id="maxValue">—</span></div>
-        </div>
-      </section>
-      <hr class="pricing-divider"/>
-      <section class="modal-comments">
-        <h3>Comments</h3>
-        <div id="commentList" class="comment-list"></div>
-          <div class="comment-input">
-            <textarea id="commentBox" maxlength="250" placeholder="Write a comment… (max 250 chars)"></textarea>
-            <span id="charCount" class="char-counter">0/250</span>
-            <div class="comment-actions">
-              <button id="submitComment" class="btn-primary">Post Comment</button>
-            </div>
+
+      <div class="modal-body-grid">
+        <section class="modal-economy">
+          <div class="economy-buttons">
+            <button class="econ-btn" id="phoenixBtn" data-econ="Phoenix">Phoenix</button>
+            <button class="econ-btn" id="lynxBtn" data-econ="Lynx">Lynx</button>
+            <button class="econ-btn" id="wyvernBtn" data-econ="Wyvern">Wyvern</button>
+            <button class="econ-btn" id="cerberusBtn" data-econ="Cerberus">Cerberus</button>
           </div>
-      </section>
+          <div class="price-values">
+            <div><label>Min (Base)</label><span id="baseValue">—</span></div>
+            <div><label>Average</label><span id="avgValue">—</span></div>
+            <div><label>Max</label><span id="maxValue">—</span></div>
+          </div>
+        </section>
+        
+        <section class="modal-comments">
+          <h3>Comments</h3>
+          <div id="commentList" class="comment-list"></div>
+            <div class="comment-input">
+              <textarea id="commentBox" maxlength="250" placeholder="Write a comment… (max 250 chars)"></textarea>
+              <span id="charCount" class="char-counter">0/250</span>
+              <div class="comment-actions">
+                <button id="submitComment" class="btn-primary">Post Comment</button>
+              </div>
+            </div>
+        </section>
+      </div>
+
       <hr class="pricing-divider"/>
       <footer class="modal-footer">
         <button class="btn-secondary close-btn">Close</button>

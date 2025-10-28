@@ -529,21 +529,22 @@ function renderCommentsPaged() {
 }
 
 function renderCommentPagination(page, totalPages) {
-  // host element (create once)
-  let footer = document.getElementById("commentPagination");
+  const list = document.getElementById("commentList");
+  if (!list) return;
+
+  // Create/fetch a footer INSIDE the list
+  let footer = list.querySelector(".pc-pager-wrap");
   if (!footer) {
     footer = document.createElement("div");
-    footer.id = "commentPagination";
-    const section = document.getElementById("commentSection") || document.body;
-    section.appendChild(footer);
+    footer.className = "pc-pager-wrap";
+    list.appendChild(footer);
   }
 
   const model = buildPageModel(page, totalPages);
-
   const prevDisabled = page <= 1 ? "disabled" : "";
   const nextDisabled = page >= totalPages ? "disabled" : "";
 
-  const html = `
+  footer.innerHTML = `
     <div class="pc-pager">
       <button class="pc-page-btn" data-page="${page - 1}" ${prevDisabled} aria-label="Previous">‹</button>
       ${model.map(p => {
@@ -554,17 +555,15 @@ function renderCommentPagination(page, totalPages) {
       <button class="pc-page-btn" data-page="${page + 1}" ${nextDisabled} aria-label="Next">›</button>
     </div>
   `;
-  footer.innerHTML = html;
 
-  // events
+  // Click handlers
   footer.querySelectorAll(".pc-page-btn").forEach(btn => {
     btn.addEventListener("click", () => {
       const target = Number(btn.dataset.page);
       if (!Number.isFinite(target) || target < 1 || target > totalPages) return;
       PC_COMMENTS_PAGE = target;
       renderCommentsPaged();
-      // keep the list scrolled to top of comments after page switch
-      document.getElementById("commentList")?.scrollTo({ top: 0, behavior: "smooth" });
+      list.scrollTo({ top: list.scrollHeight, behavior: "smooth" }); // keep footer visible after rebuild
     });
   });
 }

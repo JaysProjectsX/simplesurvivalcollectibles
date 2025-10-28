@@ -634,7 +634,13 @@ body {
 }
 
 /* Pagination footer inside modal comment section */
-#commentPagination { margin-top: 12px; display: flex; justify-content: center; }
+#commentList .pc-pager-wrap {
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid rgba(255,255,255,0.08);
+  display: flex;
+  justify-content: center;
+}
 .pc-pager { display: inline-flex; gap: 6px; align-items: center; background: transparent; }
 .pc-page-btn {
   min-width: 32px;

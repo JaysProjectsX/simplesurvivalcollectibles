@@ -316,7 +316,6 @@ body {
 .modal-content-price.large {
   width: 90%;
   max-width: 1100px;
-  max-height: 90vh;
   overflow-y: auto;
   background: #1b1b2d;
   color: #fff;
@@ -438,7 +437,6 @@ body {
 .comment-list {
   background: #0c0c1a;
   border: 1px solid #22233a;
-  padding: 10px 14px;
   max-height: 33vh;
   overflow-y: auto;
 }
@@ -552,6 +550,7 @@ body {
   background: #161623;
 }
 .comment-entry b {
+  font-size: 0.9rem;
   color: #e8ebf9;
   font-weight: 600;
   padding-right: 6px;
@@ -614,6 +613,45 @@ body {
 .comment-delete:hover {
   color: #ff5a5a;
   background: transparent !important;
+}
+
+/* Community Price card */
+.ins-card{
+  margin-top:14px;
+  padding:14px;
+  border-radius:12px;
+  background: rgba(255,255,255,.04);
+  border: 1px solid rgba(255,255,255,.08);
+}
+.ins-title{
+  font-weight:600;
+  margin-bottom:6px;
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+.badge{
+  font-size:.75rem;
+  padding:2px 6px;
+  border-radius:999px;
+  background:rgba(255,255,255,.08);
+  text-transform:capitalize;
+}
+.badge.high   { background: rgba(46,204,113,.18); }
+.badge.medium { background: rgba(241,196,15,.18); }
+.badge.low    { background: rgba(231,76,60,.18); }
+
+.ins-value{ font-size:1.4rem; margin:6px 0; }
+.ins-sub  { opacity:.85; font-size:.9rem; margin-top:4px; }
+
+.btn-ghost-sm{
+  margin-top:10px;
+  padding:6px 10px;
+  border-radius:8px;
+  background:transparent;
+  border:1px solid rgba(255,255,255,.12);
+  color:#dfe3f0;
+  cursor:pointer;
 }
 
 .modal-footer {

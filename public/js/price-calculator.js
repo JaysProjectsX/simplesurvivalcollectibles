@@ -66,6 +66,8 @@ function updateCommentGateUI() {
   }
 }
 
+function pcFormatCoins(n){ return (Number.isFinite(n) ? n.toLocaleString() : "—"); }
+
 // ================== AUTH & INIT ==================
 (async function init() {
   try {
@@ -343,6 +345,7 @@ async function openModal(itemId) {
   else if (selectedEconomy === "Cerberus") selectedEconomy = "Phoenix";
 
   updateEconomyDisplay();
+  await loadInsights(itemId);
   await loadComments(itemId);
 
   await pcFetchMe();
@@ -403,7 +406,10 @@ document.querySelectorAll(".econ-btn").forEach((btn) =>
     if (econ === "Cerberus" && btn.style.display === "none") return;
     selectedEconomy = econ;
     updateEconomyDisplay();
-    if (currentItem?.id) loadComments(currentItem.id);
+    if (currentItem?.id) {
+      loadComments(currentItem.id);
+      loadInsights(currentItem.id);
+    }
   })
 );
 
@@ -635,6 +641,109 @@ document.addEventListener("mouseout", (e) => {
     globalTooltip.style.display = "none";
   }
 });
+
+// ================== COMMUNITY PRICE INSIGHTS ==================
+
+async function loadInsights(itemId){
+  try {
+    const res = await fetch(`${backendUrl}/price-insights/${itemId}?economy=${encodeURIComponent(selectedEconomy)}`, {
+      credentials: 'include'
+    });
+    if (!res.ok) { renderInsights(null); return; }
+    const data = await res.json();
+    renderInsights(data);
+  } catch {
+    renderInsights(null);
+  }
+}
+
+function renderInsights(i){
+  const val   = document.getElementById('insValue');
+  const conf  = document.getElementById('insConfidence');
+  const rLo   = document.getElementById('insRangeLow');
+  const rHi   = document.getElementById('insRangeHigh');
+  const reps  = document.getElementById('insReports');
+  const upd   = document.getElementById('insUpdated');
+  const btn   = document.getElementById('btnReportPrice');
+
+  if (!val || !conf || !rLo || !rHi || !reps || !upd || !btn) return;
+
+  if (!i){
+    val.textContent = "≈ —";
+    conf.textContent = "—";
+    conf.className = "badge";
+    rLo.textContent = "—"; rHi.textContent = "—";
+    reps.textContent = "0";
+    upd.textContent = "";
+    btn.onclick = openReportPriceModal;
+    return;
+  }
+
+  val.textContent = `≈ ${pcFormatCoins(i.predicted)}`;
+  conf.textContent = i.confidence || "low";
+  conf.className = `badge ${i.confidence || "low"}`;
+  rLo.textContent = pcFormatCoins(i.range_low);
+  rHi.textContent = pcFormatCoins(i.range_high);
+  reps.textContent = i.reports ?? 0;
+  upd.textContent = i.last_report_at ? `Updated: ${new Date(i.last_report_at).toLocaleString()}` : "";
+
+  btn.onclick = openReportPriceModal;
+}
+
+function openReportPriceModal(){
+  const id = `modal-report-${currentItem?.id}-${selectedEconomy}`;
+  showGlobalModal({
+    type: 'progress',
+    title: `Report price (${selectedEconomy})`,
+    message: `<div class="report-wrap">
+       <input id="rp-price" type="number" min="1" placeholder="Enter price">
+       <input id="rp-note"  type="text" maxlength="200" placeholder="Optional note (200 max)">
+     </div>`,
+    id,
+    buttons: [
+      { label: "Cancel", onClick: `fadeOutAndRemove('${id}')` },
+      { label: "Submit", onClick: `submitReportPrice('${id}')` }
+    ]
+  });
+}
+
+window.submitReportPrice = async (modalId)=>{
+  const pEl = document.getElementById('rp-price');
+  const nEl = document.getElementById('rp-note');
+  const price = Number(pEl?.value);
+  const note  = nEl?.value || '';
+
+  if (!Number.isFinite(price) || price <= 0) return;
+
+  const r = await fetch(`${backendUrl}/items/${currentItem.id}/report-price`, {
+    method: 'POST',
+    credentials: 'include',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ price, economy: selectedEconomy, note })
+  });
+
+  if (typeof fadeOutAndRemove === "function") fadeOutAndRemove(modalId);
+
+  if (r.ok){
+    showGlobalModal({
+      type: "success",
+      title: "Thanks!",
+      message: "Your report was recorded.",
+      buttons: [{ label: "OK", onClick: "fadeOutAndRemove('modal-rp-ok')" }],
+      id: "modal-rp-ok"
+    });
+    loadInsights(currentItem.id);
+  } else {
+    const { error } = await r.json().catch(()=>({ error: 'Please try again later.' }));
+    showGlobalModal({
+      type: "error",
+      title: "Unable to submit",
+      message: error || "Please try again later.",
+      buttons: [{ label: "Close", onClick: "fadeOutAndRemove('modal-rp-err')" }],
+      id: "modal-rp-err"
+    });
+  }
+};
 
 // ===== COMMENTS PAGINATION =====
 const COMMENTS_PER_PAGE = 5;

@@ -471,8 +471,7 @@ body {
 
 .comment-input .gate-overlay {
   position: absolute;
-  left: 2.5%;
-  top: 26px;
+  top: 22px;
   width: 95%;
   height: 100px;
   border-radius: 8px;

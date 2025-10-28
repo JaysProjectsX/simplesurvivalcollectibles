@@ -56,7 +56,7 @@ function updateCommentGateUI() {
   btn.disabled = !linked;
   box.placeholder = linked
     ? "Write a comment… (max 250 chars)"
-    : "Sign in + link your Minecraft IGN to comment";
+    : "";
 
   // overlay banner (one-per page)
   let ov = wrap.querySelector(".gate-overlay");
@@ -722,9 +722,9 @@ function openReportPriceModal(){
   const id = `modal-report-${currentItem?.id}-${selectedEconomy}`;
   showGlobalModal({
     type: 'info',
-    title: `Report price update for: ${selectedEconomy}`,
+    title: `Report Price Update: ${selectedEconomy}`,
     message: `<div class="report-wrap">
-       <input id="rp-price" type="text" inputmode="numeric" pattern="\\d*" placeholder="Enter price (max 7 digits)">
+       <input id="rp-price" style="width: 140%" type="text" inputmode="numeric" pattern="\\d*" placeholder="Enter price (max 8 digits)">
      </div>`,
     id,
     buttons: [
@@ -737,7 +737,7 @@ function openReportPriceModal(){
     const el = document.getElementById('rp-price');
     if (!el) return;
     el.addEventListener('input', () => {
-      el.value = el.value.replace(/\D/g, '').slice(0, 7);
+      el.value = el.value.replace(/\D/g, '').slice(0, 8);
     });
   }, 0);
 }
@@ -747,7 +747,7 @@ window.submitReportPrice = async (modalId)=>{
   const raw = (pEl?.value || "").replace(/\D/g, "");
   const price = Number(raw);
 
-  if (!Number.isFinite(price) || price < 1 || price > 9_999_999) {
+  if (!Number.isFinite(price) || price < 1 || price > 99_999_999) {
     // brief inline feedback
     pEl?.classList?.add('shake');
     setTimeout(()=>pEl?.classList?.remove('shake'), 400);

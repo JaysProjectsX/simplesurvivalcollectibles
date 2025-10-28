@@ -448,18 +448,29 @@ const SVG = {
 
 async function loadComments(itemId) {
   const res = await fetch(`${backendUrl}/comments?itemId=${itemId}`, { credentials: "include" });
-  const comments = await res.json();
-  const list = document.getElementById("commentList");
-  list.innerHTML = "";
+  PC_COMMENTS_CACHE = await res.json();
+  PC_COMMENTS_PAGE  = 1;
+  renderCommentsPaged();
+}
 
-  if (!comments.length) {
-    list.innerHTML = "<p>No comments yet.</p>";
-    return;
-  }
+function renderCommentsPaged() {
+  const list = document.getElementById("commentList");
+  if (!list) return;
+
+  list.innerHTML = "";
 
   const isAdmin = !!(PC_ME && (PC_ME.role === "Admin" || PC_ME.role === "SysAdmin"));
 
-  comments.forEach(c => {
+  if (!PC_COMMENTS_CACHE.length) {
+    list.innerHTML = "<p>No comments yet.</p>";
+    renderCommentPagination(1, 1); // still draw a minimal footer
+    return;
+  }
+
+  const { slice, page, totalPages } = paginate(PC_COMMENTS_CACHE, PC_COMMENTS_PAGE, COMMENTS_PER_PAGE);
+  PC_COMMENTS_PAGE = page; // normalize/clamp
+
+  slice.forEach(c => {
     const wrapper = document.createElement("div");
     wrapper.className = "comment-entry";
     wrapper.dataset.commentId = c.id;
@@ -469,8 +480,6 @@ async function loadComments(itemId) {
       month: "short", day: "numeric", year: "numeric",
       hour: "numeric", minute: "2-digit"
     });
-
-    const verified = c.minecraft_username ? SVG.verify : "";
 
     const ignSpan = c.minecraft_username
       ? `<span class="mc-tag">IGN: ${escapeHtml(c.minecraft_username)} ${SVG.verify}</span>`
@@ -496,7 +505,6 @@ async function loadComments(itemId) {
         btn.addEventListener("click", () => {
           const id = btn.dataset.id;
           const confirmId = `modal-delConfirm-${id}`;
-
           const existing = document.getElementById(confirmId);
           if (existing) existing.remove();
 
@@ -516,8 +524,50 @@ async function loadComments(itemId) {
 
     list.appendChild(wrapper);
   });
+
+  renderCommentPagination(page, totalPages);
 }
 
+function renderCommentPagination(page, totalPages) {
+  // host element (create once)
+  let footer = document.getElementById("commentPagination");
+  if (!footer) {
+    footer = document.createElement("div");
+    footer.id = "commentPagination";
+    const section = document.getElementById("commentSection") || document.body;
+    section.appendChild(footer);
+  }
+
+  const model = buildPageModel(page, totalPages);
+
+  const prevDisabled = page <= 1 ? "disabled" : "";
+  const nextDisabled = page >= totalPages ? "disabled" : "";
+
+  const html = `
+    <div class="pc-pager">
+      <button class="pc-page-btn" data-page="${page - 1}" ${prevDisabled} aria-label="Previous">‹</button>
+      ${model.map(p => {
+        if (p === "…") return `<span class="pc-ellipsis">…</span>`;
+        const active = p === page ? "active" : "";
+        return `<button class="pc-page-btn ${active}" data-page="${p}">${p}</button>`;
+      }).join("")}
+      <button class="pc-page-btn" data-page="${page + 1}" ${nextDisabled} aria-label="Next">›</button>
+    </div>
+  `;
+  footer.innerHTML = html;
+
+  // events
+  footer.querySelectorAll(".pc-page-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const target = Number(btn.dataset.page);
+      if (!Number.isFinite(target) || target < 1 || target > totalPages) return;
+      PC_COMMENTS_PAGE = target;
+      renderCommentsPaged();
+      // keep the list scrolled to top of comments after page switch
+      document.getElementById("commentList")?.scrollTo({ top: 0, behavior: "smooth" });
+    });
+  });
+}
 
 const MAX = 250;
 
@@ -587,13 +637,69 @@ document.addEventListener("mouseout", (e) => {
   }
 });
 
+// ===== COMMENTS PAGINATION =====
+const COMMENTS_PER_PAGE = 5;
+let PC_COMMENTS_CACHE = [];
+let PC_COMMENTS_PAGE  = 1;
+
+function paginate(arr, page, perPage) {
+  const total = arr.length;
+  const totalPages = Math.max(1, Math.ceil(total / perPage));
+  const p = Math.min(Math.max(1, page), totalPages);
+  const start = (p - 1) * perPage;
+  return {
+    slice: arr.slice(start, start + perPage),
+    page: p,
+    total,
+    totalPages,
+  };
+}
+
+/**
+ * Build a compact list of page numbers with ellipses.
+ * Always includes 1 and totalPages; shows window around current page.
+ */
+function buildPageModel(page, totalPages) {
+  if (totalPages <= 7) {
+    return Array.from({ length: totalPages }, (_, i) => i + 1);
+  }
+  const windowPages = new Set([
+    1,
+    2,
+    page - 1, page, page + 1,
+    totalPages - 1,
+    totalPages
+  ].filter(x => x >= 1 && x <= totalPages));
+
+  const sorted = Array.from(windowPages).sort((a,b)=>a-b);
+  const out = [];
+  for (let i = 0; i < sorted.length; i++) {
+    out.push(sorted[i]);
+    if (i < sorted.length - 1 && sorted[i+1] !== sorted[i] + 1) {
+      out.push("…"); // gap marker
+    }
+  }
+  return out;
+}
+
 // ================== DELETE COMMENT (ADMIN ONLY) ==================
 
 window.confirmDeleteComment = async (commentId, modalId) => {
-  fadeOutAndRemove(modalId);
-  const res = await fetch(`${backendUrl}/admin/comments/${commentId}`, { method: "DELETE", credentials: "include" });
+  if (typeof fadeOutAndRemove === "function") fadeOutAndRemove(modalId);
+
+  const res = await fetch(`${backendUrl}/admin/comments/${commentId}`, {
+    method: "DELETE",
+    credentials: "include"
+  });
+
   if (res.ok) {
-    document.querySelector(`[data-comment-id="${commentId}"]`)?.remove();
+    PC_COMMENTS_CACHE = PC_COMMENTS_CACHE.filter(c => String(c.id) !== String(commentId));
+
+    const totalPages = Math.max(1, Math.ceil(PC_COMMENTS_CACHE.length / COMMENTS_PER_PAGE));
+    if (PC_COMMENTS_PAGE > totalPages) PC_COMMENTS_PAGE = totalPages;
+
+    renderCommentsPaged();
+
     showGlobalModal({
       type: "success",
       title: "Deleted",
@@ -601,13 +707,15 @@ window.confirmDeleteComment = async (commentId, modalId) => {
       buttons: [{ label: "OK", onClick: "fadeOutAndRemove('modal-delSuccess')" }],
       id: "modal-delSuccess"
     });
-  } else {
-    showGlobalModal({
-      type: "error",
-      title: "Deletion failed",
-      message: "Could not delete comment. Try again later.",
-      buttons: [{ label: "Close", onClick: "fadeOutAndRemove('modal-delFail')" }],
-      id: "modal-delFail"
-    });
+    return;
   }
+
+  // Error modal
+  showGlobalModal({
+    type: "error",
+    title: "Deletion failed",
+    message: "Could not delete comment. Try again later.",
+    buttons: [{ label: "Close", onClick: "fadeOutAndRemove('modal-delFail')" }],
+    id: "modal-delFail"
+  });
 };

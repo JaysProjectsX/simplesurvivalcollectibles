@@ -632,3 +632,23 @@ body {
 .modal-footer .btn-secondary:hover {
   background: #0a0a12;
 }
+
+/* Pagination footer inside modal comment section */
+#commentPagination { margin-top: 12px; display: flex; justify-content: center; }
+.pc-pager { display: inline-flex; gap: 6px; align-items: center; background: transparent; }
+.pc-page-btn {
+  min-width: 32px;
+  height: 32px;
+  padding: 0 8px;
+  border-radius: 8px;
+  border: 1px solid rgba(255,255,255,0.08);
+  background: rgba(255,255,255,0.04);
+  color: #dfe3f0;
+  cursor: pointer;
+}
+.pc-page-btn[disabled] { opacity: 0.4; cursor: default; }
+.pc-page-btn.active {
+  background: rgba(82, 130, 255, 0.18);
+  border-color: rgba(82,130,255,0.35);
+}
+.pc-ellipsis { padding: 0 4px; opacity: 0.7; }

@@ -508,12 +508,14 @@ body {
   border: 1px dashed rgba(255, 90, 90, 0.28);
   pointer-events: none;
 }
-.comment-mute-overlay-inner { padding: 0 12px; line-height: 1.35; }
+.comment-mute-overlay-inner { padding: 0 12px; line-height: 1.1; font-size: 0.8rem; }
 .comment-mute-overlay-inner b { color: #ffe2e2; }
 
 .comment-mute-overlay .eta {
   font-weight: 700; color: #ffe2e2;
 }
+
+
 
 .char-counter {
   position: absolute;
@@ -690,6 +692,9 @@ body {
   max-width: 720px;
   margin: 0 auto;
   text-align: left;
+}
+.mute-modal .mute-row {
+  font-size: 0.85rem;
 }
 .mute-modal .mute-user-line { text-align: left; }
 .mute-modal .mute-row label { display:block; margin-bottom: 4px; color:#a9b3d6; }

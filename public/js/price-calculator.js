@@ -98,7 +98,7 @@ function updateCommentGateUI() {
 }
 
 async function applyCommentMuteGate() {
-  // We only gate logged-in, MC-linked users. Unlinked users are already gated by updateCommentGateUI.
+  // Only for signed-in, MC-linked users; unlinked users get the other gate.
   if (!PC_ME || !isLinkedAccount()) return;
 
   let data = null;
@@ -112,18 +112,18 @@ async function applyCommentMuteGate() {
   const wrap = box?.closest(".comment-input");
   if (!box || !btn || !wrap) return;
 
-  // Remove any previous overlay & timer
+  // remove any old overlay/timer
   let ov = wrap.querySelector(".comment-mute-overlay");
   if (ov) ov.remove();
   if (box._muteTimer) { clearInterval(box._muteTimer); box._muteTimer = null; }
 
-  // Not muted? ensure enabled (unless unlinked gate already disabled it)
+  // not muted → enable if linked
   if (!data || !data.is_muted) {
     if (isLinkedAccount()) { box.disabled = false; btn.disabled = false; }
     return;
   }
 
-  // Build overlay
+  // build overlay
   ov = document.createElement("div");
   ov.className = "comment-mute-overlay";
   const inner = document.createElement("div");
@@ -132,7 +132,9 @@ async function applyCommentMuteGate() {
   const indefinite = data.expires_at === null;
   const reason = data.reason ? `Reason: ${escapeHtml(data.reason)}` : "";
   inner.innerHTML = `
-    <div style="font-weight:600;margin-bottom:6px">You are muted${indefinite ? " indefinitely" : ""}.</div>
+    <div style="font-weight:600;margin-bottom:6px">
+      You are muted${indefinite ? " indefinitely" : ""}.
+    </div>
     ${!indefinite ? `<div>Time left: <b id="mute-eta">—</b></div>` : ""}
     ${reason ? `<div style="margin-top:6px">${reason}</div>` : ""}
   `;
@@ -140,10 +142,10 @@ async function applyCommentMuteGate() {
   wrap.style.position = "relative";
   wrap.appendChild(ov);
 
-  // Disable input
-  box.disabled = true; btn.disabled = true;
+  box.disabled = true;
+  btn.disabled = true;
 
-  // Countdown if temporary
+  // countdown if temp
   if (!indefinite && data.expires_at) {
     const etaEl = inner.querySelector("#mute-eta");
     const target = new Date(data.expires_at).getTime();
@@ -153,7 +155,6 @@ async function applyCommentMuteGate() {
       etaEl.textContent = fmtDelta(left);
       if (left <= 0) {
         clearInterval(box._muteTimer);
-        // Clear overlay and re-enable
         ov.remove();
         if (isLinkedAccount()) { box.disabled = false; btn.disabled = false; }
       }
@@ -550,13 +551,12 @@ const SVG = {
   `,
   mute: `
     <svg class="icon icon-mute" viewBox="0 0 24 24" aria-hidden="true">
-      <!-- speaker -->
-      <path fill="currentColor" d="M11 5l-4 4H4v6h3l4 4V5z"/>
-      <!-- X over the sound -->
-      <path fill="currentColor"
-        d="M20 8l-1.4-1.4-2.6 2.6-2.6-2.6L12 8l2.6 2.6L12 13.2l1.4 1.4 2.6-2.6 2.6 2.6L20 13.2l-2.6-2.6z"/>
+      <!-- Speaker -->
+      <path d="M11 5L7 9H4v6h3l4 4V5z" fill="currentColor"/>
+      <!-- X -->
+      <path d="M18.5 9.5l-1-1-2 2-2-2-1 1 2 2-2 2 1 1 2-2 2 2 1-1-2-2 2-2z" fill="currentColor"/>
     </svg>
-  `
+  `,
 };
 
 async function loadComments(itemId) {
@@ -595,8 +595,8 @@ function renderCommentsPaged() {
     });
 
     const isAdmin = !!(PC_ME && (PC_ME.role === "Admin" || PC_ME.role === "SysAdmin"));
-    const targetRole = c.user_role || "";            // <-- from backend
-    const isMuted = !!c.is_muted;                    // <-- from backend (only true for active mute)
+    const targetRole = c.user_role || "";
+    const isMuted = !!c.is_muted;
 
     const ignSpan = c.minecraft_username
       ? `<span class="mc-tag">IGN: ${escapeHtml(c.minecraft_username)} ${SVG.verify}</span>`
@@ -628,6 +628,8 @@ function renderCommentsPaged() {
                 data-username="${escapeHtml(c.username)}"
                 data-mc="${escapeHtml(c.minecraft_username || '')}"
                 data-active="${isMuted ? '1' : '0'}"
+                data-reason="${escapeHtml(c.mute_reason || '')}"
+                data-expires="${c.mute_expires_at === null ? 'null' : (c.mute_expires_at || '')}"
                 ${PC_ME && String(PC_ME.id) === String(c.user_id) ? 'disabled' : ''}>
           ${SVG.mute}
         </button>
@@ -667,7 +669,9 @@ function renderCommentsPaged() {
             userRole: String(muteBtn.dataset.userRole || ""),
             username: muteBtn.dataset.username || "",
             mc: muteBtn.dataset.mc || "",
-            active: muteBtn.dataset.active === "1"
+            active: muteBtn.dataset.active === "1",
+            reason: muteBtn.dataset.reason || "",
+            expires: muteBtn.dataset.expires || ""
           });
         });
       }
@@ -743,7 +747,26 @@ document.getElementById("submitComment").onclick = async () => {
     document.getElementById("charCount").textContent = `0/${MAX}`;
     loadComments(currentItem.id);
   } else {
-    alert(out.error || "Failed to post comment");
+    // if backend signals muted (423 or text mentions 'muted'), show modal + enforce gate
+    const muted = (res.status === 423) || (String(out?.error || "").toLowerCase().includes("muted"));
+    if (muted) {
+      await applyCommentMuteGate();
+      showGlobalModal({
+        type: "error",
+        title: "You’re muted",
+        message: (out?.error) ? escapeHtml(out.error) : "You are temporarily muted.",
+        buttons: [{ label: "OK", onClick: "fadeOutAndRemove('modal-muteNotice')" }],
+        id: "modal-muteNotice"
+      });
+    } else {
+      showGlobalModal({
+        type: "error",
+        title: "Unable to post",
+        message: (out?.error) ? escapeHtml(out.error) : "Please try again later.",
+        buttons: [{ label: "Close", onClick: "fadeOutAndRemove('modal-commentErr')" }],
+        id: "modal-commentErr"
+      });
+    }
   }
 };
 
@@ -1007,7 +1030,7 @@ window.confirmDeleteComment = async (commentId, modalId) => {
 };
 
 // ===== MUTE MODAL HANDLERS (Admin/SysAdmin only) =====
-window.openMuteModal = function ({ userId, userRole, username, mc, active }) {
+window.openMuteModal = function ({ userId, userRole, username, mc, active, reason, expires }) {
   if (!PC_ME || !["Admin","SysAdmin"].includes(PC_ME.role)) return;
 
   if (PC_ME.role === "Admin" && userRole === "SysAdmin") {
@@ -1025,39 +1048,40 @@ window.openMuteModal = function ({ userId, userRole, username, mc, active }) {
   const existing = document.getElementById(id);
   if (existing) existing.remove();
 
-  const mcLine = mc ? `, IGN: ${escapeHtml(mc)}` : "";
-  const body = active
-    ? `
-      <div class="mute-modal">
-        <div class="mute-user-line"><b>${escapeHtml(username)}</b>${mcLine}</div>
-        <div class="mute-row"><em>This user is currently muted.</em></div>
-        <div class="mute-row"><label>New duration</label>
-          <select id="mute-duration">
-            <option value="1h">1 hour</option>
-            <option value="24h">24 hours</option>
-            <option value="indefinite">Indefinitely</option>
-          </select>
-        </div>
-        <div class="mute-row"><label>Reason</label>
-          <textarea id="mute-reason" rows="3" placeholder="Optional reason"></textarea>
-        </div>
+  const mcPretty = mc ? mc : "—";
+  const expiresAt = expires ? new Date(expires) : null;
+  const indefinite = active && expires === "null";
+
+  const infoTop = `
+    <div class="mute-row" style="margin-top:4px">
+      <div><b>Username:</b> ${escapeHtml(username)}</div>
+      <div><b>Linked Minecraft account:</b> ${escapeHtml(mcPretty)}</div>
+    </div>
+  `;
+
+  const activeBlock = !active ? "" : `
+    <div class="mute-row"><em>This user is currently muted.</em></div>
+    ${reason ? `<div class="mute-row"><b>Reason:</b> ${escapeHtml(reason)}</div>` : ""}
+    ${indefinite ? `<div class="mute-row"><b>Duration:</b> Indefinitely</div>`
+                  : `<div class="mute-row"><b>Unmutes:</b> ${expiresAt.toLocaleString()}</div>`}
+  `;
+
+  const body = `
+    <div class="mute-modal">
+      ${infoTop}
+      ${activeBlock}
+      <div class="mute-row"><label>${active ? "New duration" : "Duration"}</label>
+        <select id="mute-duration">
+          <option value="1h">1 hour</option>
+          <option value="24h">24 hours</option>
+          <option value="indefinite">Indefinitely</option>
+        </select>
       </div>
-    `
-    : `
-      <div class="mute-modal">
-        <div class="mute-user-line"><b>${escapeHtml(username)}</b>${mcLine}</div>
-        <div class="mute-row"><label>Duration</label>
-          <select id="mute-duration">
-            <option value="1h">1 hour</option>
-            <option value="24h">24 hours</option>
-            <option value="indefinite">Indefinitely</option>
-          </select>
-        </div>
-        <div class="mute-row"><label>Reason</label>
-          <textarea id="mute-reason" rows="3" placeholder="Optional reason"></textarea>
-        </div>
+      <div class="mute-row"><label>Reason</label>
+        <textarea id="mute-reason" rows="3" placeholder="Optional reason"></textarea>
       </div>
-    `;
+    </div>
+  `;
 
   const buttons = active
     ? [
@@ -1071,7 +1095,7 @@ window.openMuteModal = function ({ userId, userRole, username, mc, active }) {
 
   showGlobalModal({
     type: "info",
-    title: `Mute ${escapeHtml(username)}`,
+    title: `Mute Options for: ${escapeHtml(username)}`,
     message: body,
     buttons,
     id

@@ -75,6 +75,13 @@ function updateCommentGateUI() {
   const wrap = box?.closest('.comment-input');
   if (!box || !btn || !wrap) return;
 
+  const mutedOv = wrap.querySelector('.comment-mute-overlay');
+  if (mutedOv) {
+    box.disabled = true;
+    btn.disabled = true;
+    return;
+  }
+
   const linked = isLinkedAccount();
 
   box.disabled = !linked;
@@ -92,13 +99,14 @@ function updateCommentGateUI() {
       ov.innerHTML = `<span>Sign in & link your Minecraft account to comment.</span>`;
       wrap.appendChild(ov);
     }
-  } else if (ov) {
+  } else if (ov && !ov.classList.contains('comment-mute-overlay')) {
+    // Do not remove the mute overlay; only remove the unlinked overlay
     ov.remove();
   }
 }
 
 async function applyCommentMuteGate() {
-  // Only for signed-in, MC-linked users; unlinked users get the other gate.
+  // Only meaningful for signed-in, MC-linked users
   if (!PC_ME || !isLinkedAccount()) return;
 
   let data = null;
@@ -112,51 +120,56 @@ async function applyCommentMuteGate() {
   const wrap = box?.closest(".comment-input");
   if (!box || !btn || !wrap) return;
 
-  // remove any old overlay/timer
-  let ov = wrap.querySelector(".comment-mute-overlay");
-  if (ov) ov.remove();
+  // Clean previous artifacts
   if (box._muteTimer) { clearInterval(box._muteTimer); box._muteTimer = null; }
+  wrap.querySelectorAll(".comment-mute-overlay").forEach(n => n.remove());
 
-  // not muted → enable if linked
+  // Not muted → ensure normal linked/unlinked gate takes over
   if (!data || !data.is_muted) {
-    if (isLinkedAccount()) { box.disabled = false; btn.disabled = false; }
+    box.disabled = !isLinkedAccount();
+    btn.disabled = !isLinkedAccount();
     return;
   }
 
-  // build overlay
-  ov = document.createElement("div");
-  ov.className = "comment-mute-overlay";
-  const inner = document.createElement("div");
-  inner.className = "comment-mute-overlay-inner";
+  // Build overlay that reuses your .gate-overlay look
+  const ov = document.createElement("div");
+  ov.className = "gate-overlay comment-mute-overlay";
 
   const indefinite = data.expires_at === null;
-  const reason = data.reason ? `Reason: ${escapeHtml(data.reason)}` : "";
-  inner.innerHTML = `
-    <div style="font-weight:600;margin-bottom:6px">
-      You are muted${indefinite ? " indefinitely" : ""}.
+  const reason = data.reason ? `<div style="margin-top:6px">Reason: ${escapeHtml(data.reason)}</div>` : "";
+  const countdown = !indefinite ? `<div>Time left: <span class="eta">—</span></div>` : "";
+  const until = (!indefinite && data.expires_at)
+    ? `<div style="margin-top:4px">Unmutes: ${new Date(data.expires_at).toLocaleString()}</div>` : "";
+
+  ov.innerHTML = `
+    <div>
+      <div style="font-weight:600;margin-bottom:6px">
+        You are muted${indefinite ? " indefinitely" : ""}.
+      </div>
+      ${countdown}
+      ${until}
+      ${reason}
     </div>
-    ${!indefinite ? `<div>Time left: <b id="mute-eta">—</b></div>` : ""}
-    ${reason ? `<div style="margin-top:6px">${reason}</div>` : ""}
   `;
-  ov.appendChild(inner);
-  wrap.style.position = "relative";
   wrap.appendChild(ov);
 
+  // Lock inputs hard
   box.disabled = true;
   btn.disabled = true;
 
-  // countdown if temp
+  // Live countdown for temporary mutes
   if (!indefinite && data.expires_at) {
-    const etaEl = inner.querySelector("#mute-eta");
-    const target = new Date(data.expires_at).getTime();
+    const tgt = new Date(data.expires_at).getTime();
+    const etaEl = ov.querySelector(".eta");
 
     const tick = () => {
-      const left = target - Date.now();
+      const left = tgt - Date.now();
       etaEl.textContent = fmtDelta(left);
       if (left <= 0) {
         clearInterval(box._muteTimer);
         ov.remove();
-        if (isLinkedAccount()) { box.disabled = false; btn.disabled = false; }
+        // Re-run gate logic to restore normal state
+        updateCommentGateUI();
       }
     };
     tick();
@@ -750,11 +763,27 @@ document.getElementById("submitComment").onclick = async () => {
     // if backend signals muted (423 or text mentions 'muted'), show modal + enforce gate
     const muted = (res.status === 423) || (String(out?.error || "").toLowerCase().includes("muted"));
     if (muted) {
+      // Re-check exact status to decide wording
+      let msg = out?.error || "You are temporarily muted.";
+      try {
+        const r2 = await fetch(`${backendUrl}/comment-mute/me`, { credentials: "include" });
+        if (r2.ok) {
+          const m = await r2.json();
+          if (m?.is_muted) {
+            if (m.expires_at === null) {
+              msg = "You have been muted indefinitely by Administrators.";
+            } else {
+              msg = `You are temporarily muted. Unmutes ${new Date(m.expires_at).toLocaleString()}.`;
+            }
+          }
+        }
+      } catch {}
+
       await applyCommentMuteGate();
       showGlobalModal({
         type: "error",
         title: "You’re muted",
-        message: (out?.error) ? escapeHtml(out.error) : "You are temporarily muted.",
+        message: escapeHtml(msg),
         buttons: [{ label: "OK", onClick: "fadeOutAndRemove('modal-muteNotice')" }],
         id: "modal-muteNotice"
       });

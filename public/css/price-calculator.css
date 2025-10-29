@@ -469,7 +469,7 @@ body {
   position: relative;
 }
 
-.comment-input .gate-overlay {
+.comment-input .gate-overlay .comment-mute-overlay {
   position: absolute;
   top: 22px;
   width: 95%;
@@ -483,6 +483,10 @@ body {
   text-align: center;
   pointer-events: none;
   border: 1px dashed rgba(255,255,255,0.12);
+}
+
+.comment-mute-overlay .eta {
+  font-weight: 700; color: #ffe2e2;
 }
 
 /* subtle shake for invalid price input */
@@ -691,7 +695,7 @@ body {
 .mute-modal .mute-row label { display:block; margin-bottom: 4px; color:#a9b3d6; }
 .mute-modal select, .mute-modal textarea {
   resize: none;
-  width: 100%;
+  width: 170%;
   background: #1f2332;
   color: #e7e9f3;
   border: 1px solid #2c3146;

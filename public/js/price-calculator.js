@@ -20,6 +20,11 @@ function prettyCrateName(name) {
     .replace(/\b\w/g, (m) => m.toUpperCase());
 }
 
+function escapeHtml(s) {
+  const map = { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" };
+  return String(s ?? "").replace(/[&<>"']/g, ch => map[ch]);
+}
+
 function hidePreloader() {
   if (!preloader) return;
   preloader.style.opacity = "0";
@@ -45,6 +50,19 @@ function isActiveMute(expiresAt) {
   if (!expiresAt) return false;
   const t = new Date(expiresAt).getTime();
   return Number.isFinite(t) && t > Date.now();
+}
+
+function fmtDelta(ms) {
+  if (ms <= 0) return "0s";
+  const s = Math.floor(ms / 1000);
+  const d = Math.floor(s / 86400);
+  const h = Math.floor((s % 86400) / 3600);
+  const m = Math.floor((s % 3600) / 60);
+  const sec = s % 60;
+  if (d)  return `${d}d ${h}h`;
+  if (h)  return `${h}h ${m}m`;
+  if (m)  return `${m}m ${sec}s`;
+  return `${sec}s`;
 }
 
 function isLinkedAccount() {
@@ -76,6 +94,72 @@ function updateCommentGateUI() {
     }
   } else if (ov) {
     ov.remove();
+  }
+}
+
+async function applyCommentMuteGate() {
+  // We only gate logged-in, MC-linked users. Unlinked users are already gated by updateCommentGateUI.
+  if (!PC_ME || !isLinkedAccount()) return;
+
+  let data = null;
+  try {
+    const r = await fetch(`${backendUrl}/comment-mute/me`, { credentials: "include" });
+    data = r.ok ? await r.json() : null;
+  } catch {}
+
+  const box = document.getElementById("commentBox");
+  const btn = document.getElementById("submitComment");
+  const wrap = box?.closest(".comment-input");
+  if (!box || !btn || !wrap) return;
+
+  // Remove any previous overlay & timer
+  let ov = wrap.querySelector(".comment-mute-overlay");
+  if (ov) ov.remove();
+  if (box._muteTimer) { clearInterval(box._muteTimer); box._muteTimer = null; }
+
+  // Not muted? ensure enabled (unless unlinked gate already disabled it)
+  if (!data || !data.is_muted) {
+    if (isLinkedAccount()) { box.disabled = false; btn.disabled = false; }
+    return;
+  }
+
+  // Build overlay
+  ov = document.createElement("div");
+  ov.className = "comment-mute-overlay";
+  const inner = document.createElement("div");
+  inner.className = "comment-mute-overlay-inner";
+
+  const indefinite = data.expires_at === null;
+  const reason = data.reason ? `Reason: ${escapeHtml(data.reason)}` : "";
+  inner.innerHTML = `
+    <div style="font-weight:600;margin-bottom:6px">You are muted${indefinite ? " indefinitely" : ""}.</div>
+    ${!indefinite ? `<div>Time left: <b id="mute-eta">—</b></div>` : ""}
+    ${reason ? `<div style="margin-top:6px">${reason}</div>` : ""}
+  `;
+  ov.appendChild(inner);
+  wrap.style.position = "relative";
+  wrap.appendChild(ov);
+
+  // Disable input
+  box.disabled = true; btn.disabled = true;
+
+  // Countdown if temporary
+  if (!indefinite && data.expires_at) {
+    const etaEl = inner.querySelector("#mute-eta");
+    const target = new Date(data.expires_at).getTime();
+
+    const tick = () => {
+      const left = target - Date.now();
+      etaEl.textContent = fmtDelta(left);
+      if (left <= 0) {
+        clearInterval(box._muteTimer);
+        // Clear overlay and re-enable
+        ov.remove();
+        if (isLinkedAccount()) { box.disabled = false; btn.disabled = false; }
+      }
+    };
+    tick();
+    box._muteTimer = setInterval(tick, 1000);
   }
 }
 
@@ -362,6 +446,7 @@ async function openModal(itemId) {
   await loadComments(itemId);
 
   await pcFetchMe();
+  await applyCommentMuteGate();
   updateCommentGateUI();
 
   modal.classList.remove("hidden");
@@ -509,15 +594,22 @@ function renderCommentsPaged() {
       hour: "numeric", minute: "2-digit"
     });
 
+    const isAdmin = !!(PC_ME && (PC_ME.role === "Admin" || PC_ME.role === "SysAdmin"));
+    const targetRole = c.user_role || "";            // <-- from backend
+    const isMuted = !!c.is_muted;                    // <-- from backend (only true for active mute)
+
     const ignSpan = c.minecraft_username
       ? `<span class="mc-tag">IGN: ${escapeHtml(c.minecraft_username)} ${SVG.verify}</span>`
       : "";
 
-    // NEW: compute mute state and badge (only show to admins)
-    const isAdmin = !!(PC_ME && (PC_ME.role === "Admin" || PC_ME.role === "SysAdmin"));
-    const isMutedAuthor = isActiveMute(c.mute_expires_at);
-    const mutedBadge = (isAdmin && isMutedAuthor)
-      ? `<span class="muted-badge">${SVG.mute}<span>Muted</span></span>`
+    const mutedBadge = (isAdmin && isMuted)
+      ? `<span class="muted-badge" title="${
+           c.mute_expires_at
+             ? `Muted until ${new Date(c.mute_expires_at).toLocaleString()}`
+             : 'Muted indefinitely'
+         }">
+           ${SVG.mute}<span>Muted</span>
+         </span>`
       : "";
 
     wrapper.innerHTML = `
@@ -529,35 +621,31 @@ function renderCommentsPaged() {
         <span class="comment-text">– ${escapeHtml(c.comment)}</span>
       </div>
       <small>${timestamp}</small>
-
       ${isAdmin ? `
-        <!-- existing trash button (unchanged class/styles) -->
+        <button class="comment-mute" title="Mute options"
+                data-user-id="${c.user_id}"
+                data-user-role="${escapeHtml(targetRole)}"
+                data-username="${escapeHtml(c.username)}"
+                data-mc="${escapeHtml(c.minecraft_username || '')}"
+                data-active="${isMuted ? '1' : '0'}"
+                ${PC_ME && String(PC_ME.id) === String(c.user_id) ? 'disabled' : ''}>
+          ${SVG.mute}
+        </button>
         <button class="comment-delete" title="Delete" data-id="${c.id}">
           ${SVG.trash}
         </button>
-
-        <!-- NEW: standalone mute button with its own class/styles -->
-        <button class="comment-mute-btn"
-                title="${isMutedAuthor ? 'View/Update mute' : 'Mute user'}"
-                data-user-id="${c.user_id}"
-                data-username="${escapeHtml(c.username)}"
-                data-ign="${escapeHtml(c.minecraft_username || '')}"
-                data-expires="${c.mute_expires_at || ''}"
-                data-reason="${escapeHtml(c.mute_reason || '')}"
-                data-role="${escapeHtml(c.user_role || '')}">
-          ${SVG.mute}
-        </button>
-      ` : ""}
+      ` : "" }
     `;
 
     if (isAdmin) {
-      // DELETE: confirm flow (your existing logic)
       const delBtn = wrapper.querySelector(".comment-delete");
       if (delBtn) {
         delBtn.addEventListener("click", () => {
           const id = delBtn.dataset.id;
           const confirmId = `modal-delConfirm-${id}`;
-          document.getElementById(confirmId)?.remove();
+          const existing = document.getElementById(confirmId);
+          if (existing) existing.remove();
+
           showGlobalModal({
             type: "warning",
             title: "Delete this comment?",
@@ -571,32 +659,16 @@ function renderCommentsPaged() {
         });
       }
 
-      // MUTE: open modal (with Admin->SysAdmin block if you added that earlier)
-      const muteBtn = wrapper.querySelector(".comment-mute-btn");
+      const muteBtn = wrapper.querySelector(".comment-mute");
       if (muteBtn) {
         muteBtn.addEventListener("click", () => {
-          const viewerRole = (PC_ME && PC_ME.role) || "User";
-          const targetRole = muteBtn.dataset.role || "";
-
-          if (viewerRole === "Admin" && targetRole === "SysAdmin") {
-            const denyId = `modal-muteDenied-${c.user_id}`;
-            document.getElementById(denyId)?.remove();
-            showGlobalModal({
-              type: "error",
-              title: "Action not allowed",
-              message: "Admins cannot mute SysAdmins.",
-              buttons: [{ label: "Close", onClick: `fadeOutAndRemove('${denyId}')` }],
-              id: denyId
-            });
-            return;
-          }
-
-          const userId   = muteBtn.dataset.userId;
-          const username = muteBtn.dataset.username;
-          const ign      = muteBtn.dataset.ign || "";
-          const expires  = muteBtn.dataset.expires || "";
-          const reason   = muteBtn.dataset.reason || "";
-          openMuteModal({ userId, username, ign, expires, reason });
+          window.openMuteModal({
+            userId: Number(muteBtn.dataset.userId),
+            userRole: String(muteBtn.dataset.userRole || ""),
+            username: muteBtn.dataset.username || "",
+            mc: muteBtn.dataset.mc || "",
+            active: muteBtn.dataset.active === "1"
+          });
         });
       }
     }
@@ -932,4 +1004,139 @@ window.confirmDeleteComment = async (commentId, modalId) => {
     buttons: [{ label: "Close", onClick: "fadeOutAndRemove('modal-delFail')" }],
     id: "modal-delFail"
   });
+};
+
+// ===== MUTE MODAL HANDLERS (Admin/SysAdmin only) =====
+window.openMuteModal = function ({ userId, userRole, username, mc, active }) {
+  if (!PC_ME || !["Admin","SysAdmin"].includes(PC_ME.role)) return;
+
+  if (PC_ME.role === "Admin" && userRole === "SysAdmin") {
+    showGlobalModal({
+      type: "error",
+      title: "Insufficient permissions",
+      message: "Admins cannot mute SysAdmins.",
+      buttons: [{ label: "Close", onClick: "fadeOutAndRemove('modal-muteDenied')" }],
+      id: "modal-muteDenied"
+    });
+    return;
+  }
+
+  const id = `modal-mute-${userId}`;
+  const existing = document.getElementById(id);
+  if (existing) existing.remove();
+
+  const mcLine = mc ? `, IGN: ${escapeHtml(mc)}` : "";
+  const body = active
+    ? `
+      <div class="mute-modal">
+        <div class="mute-user-line"><b>${escapeHtml(username)}</b>${mcLine}</div>
+        <div class="mute-row"><em>This user is currently muted.</em></div>
+        <div class="mute-row"><label>New duration</label>
+          <select id="mute-duration">
+            <option value="1h">1 hour</option>
+            <option value="24h">24 hours</option>
+            <option value="indefinite">Indefinitely</option>
+          </select>
+        </div>
+        <div class="mute-row"><label>Reason</label>
+          <textarea id="mute-reason" rows="3" placeholder="Optional reason"></textarea>
+        </div>
+      </div>
+    `
+    : `
+      <div class="mute-modal">
+        <div class="mute-user-line"><b>${escapeHtml(username)}</b>${mcLine}</div>
+        <div class="mute-row"><label>Duration</label>
+          <select id="mute-duration">
+            <option value="1h">1 hour</option>
+            <option value="24h">24 hours</option>
+            <option value="indefinite">Indefinitely</option>
+          </select>
+        </div>
+        <div class="mute-row"><label>Reason</label>
+          <textarea id="mute-reason" rows="3" placeholder="Optional reason"></textarea>
+        </div>
+      </div>
+    `;
+
+  const buttons = active
+    ? [
+        { label: "Unmute", onClick: `unmuteUser(${userId}, '${id}')` },
+        { label: "Apply",  onClick: `muteUser(${userId}, '${id}')` }
+      ]
+    : [
+        { label: "Cancel", onClick: `fadeOutAndRemove('${id}')` },
+        { label: "Mute",   onClick: `muteUser(${userId}, '${id}')` }
+      ];
+
+  showGlobalModal({
+    type: "info",
+    title: `Mute ${escapeHtml(username)}`,
+    message: body,
+    buttons,
+    id
+  });
+};
+
+window.muteUser = async function (userId, modalId) {
+  const sel = document.getElementById("mute-duration");
+  const reasonEl = document.getElementById("mute-reason");
+  const duration = sel ? sel.value : "24h";
+  const reason = (reasonEl?.value || "").trim();
+
+  const res = await fetch(`${backendUrl}/admin/comment-mute`, {
+    method: "POST",
+    credentials: "include",
+    headers: { "Content-Type":"application/json" },
+    body: JSON.stringify({ userId, duration, reason })
+  });
+
+  if (res.ok) {
+    if (typeof fadeOutAndRemove === "function") fadeOutAndRemove(modalId);
+    // refresh current comments to reflect new badge
+    if (currentItem?.id) loadComments(currentItem.id);
+    showGlobalModal({
+      type: "success",
+      title: "Muted",
+      message: "User mute updated.",
+      buttons: [{ label: "OK", onClick: "fadeOutAndRemove('modal-muteSuccess')" }],
+      id: "modal-muteSuccess"
+    });
+  } else {
+    const data = await res.json().catch(()=>({}));
+    showGlobalModal({
+      type: "error",
+      title: "Failed",
+      message: data.error || "Could not mute user.",
+      buttons: [{ label: "Close", onClick: "fadeOutAndRemove('modal-muteErr')" }],
+      id: "modal-muteErr"
+    });
+  }
+};
+
+window.unmuteUser = async function (userId, modalId) {
+  const res = await fetch(`${backendUrl}/admin/comment-mute/${userId}`, {
+    method: "DELETE",
+    credentials: "include"
+  });
+  if (res.ok) {
+    if (typeof fadeOutAndRemove === "function") fadeOutAndRemove(modalId);
+    if (currentItem?.id) loadComments(currentItem.id);
+    showGlobalModal({
+      type: "success",
+      title: "Unmuted",
+      message: "User has been unmuted.",
+      buttons: [{ label: "OK", onClick: "fadeOutAndRemove('modal-unmuteSuccess')" }],
+      id: "modal-unmuteSuccess"
+    });
+  } else {
+    const data = await res.json().catch(()=>({}));
+    showGlobalModal({
+      type: "error",
+      title: "Failed",
+      message: data.error || "Could not unmute user.",
+      buttons: [{ label: "Close", onClick: "fadeOutAndRemove('modal-unmuteErr')" }],
+      id: "modal-unmuteErr"
+    });
+  }
 };

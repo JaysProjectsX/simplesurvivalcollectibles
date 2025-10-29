@@ -145,10 +145,16 @@ async function applyCommentMuteGate() {
 
   const indefinite = (expiresAt === null);
 
-  // Avoid nested template literals by composing this first
+  let displayHours = durationHours;
+  if (!indefinite && (displayHours == null)) {
+    const msLeft = new Date(expiresAt).getTime() - Date.now();
+    const approxHours = Math.round(msLeft / 3600000);
+    displayHours = approxHours >= 23 ? 24 : 1;
+  }
+
   const titleHtml = indefinite
-    ? "You've been muted by administrators. Duration: Indefinitely."
-    : `You've been muted by administrators for ${durationHours ?? 1} hour(s).`;
+    ? "You've been indefinitely muted by administrators."
+    : `You've been muted by administrators for ${displayHours === 24 ? 24 : 1} hour${displayHours === 1 ? "" : "s"}.`;
 
   const countdown  = !indefinite ? `<div>Mute will expire in: <span class="eta">—</span></div>` : "";
   const untilLine  = (!indefinite && expiresAt)

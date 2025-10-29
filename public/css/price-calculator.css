@@ -700,7 +700,7 @@ body {
 .mute-modal .mute-row label { display:block; margin-bottom: 4px; color:#a9b3d6; }
 .mute-modal select, .mute-modal textarea {
   resize: none;
-  width: 170%;
+  width: 130%;
   background: #1f2332;
   color: #e7e9f3;
   border: 1px solid #2c3146;

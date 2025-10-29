@@ -464,7 +464,10 @@ async function openModal(itemId) {
   updateCommentGateUI();
 
   modal.classList.remove("hidden");
-  requestAnimationFrame(() => modal.classList.add("show"));
+  requestAnimationFrame(() => {
+    modal.classList.add("show");
+    setTimeout(() => { applyCommentMuteGate(); }, 0);
+  });
 
   modal.querySelectorAll(".close-btn").forEach(btn =>
     btn.onclick = () => closeModal(modal)
@@ -522,6 +525,7 @@ document.querySelectorAll(".econ-btn").forEach((btn) =>
       loadComments(currentItem.id);
       loadInsights(currentItem.id);
     }
+    applyCommentMuteGate();
   })
 );
 
@@ -740,6 +744,34 @@ const MAX = 250;
 
 document.getElementById("submitComment").onclick = async () => {
   const box = document.getElementById("commentBox");
+
+  // If the mute overlay is present, block locally and show the right message.
+  const wrap = box?.closest(".comment-input");
+  const hasMuteOverlay = !!wrap?.querySelector(".comment-mute-overlay");
+  if (hasMuteOverlay) {
+    try {
+      const r = await fetch(`${backendUrl}/comment-mute/me`, { credentials: "include" });
+      const m = r.ok ? await r.json() : null;
+      let msg = "You are muted.";
+      if (m?.is_muted) {
+        if (m.expires_at === null) {
+          msg = "You have been muted indefinitely by Administrators.";
+        } else if (m.expires_at) {
+          msg = `You are temporarily muted. Unmutes ${new Date(m.expires_at).toLocaleString()}.`;
+        }
+      }
+      showGlobalModal({
+        type: "error",
+        title: "You’re muted",
+        message: escapeHtml(msg),
+        buttons: [{ label: "OK", onClick: "fadeOutAndRemove('modal-muteNotice')" }],
+        id: "modal-muteNotice"
+      });
+    } catch {}
+    return; // hard stop — do not attempt to post
+  }
+
+
   const comment = box.value.trim();
   if (!comment) return;
   if (comment.length > MAX) return alert("Comment too long");
@@ -759,6 +791,7 @@ document.getElementById("submitComment").onclick = async () => {
     box.value = "";
     document.getElementById("charCount").textContent = `0/${MAX}`;
     loadComments(currentItem.id);
+    await applyCommentMuteGate();
   } else {
     // if backend signals muted (423 or text mentions 'muted'), show modal + enforce gate
     const muted = (res.status === 423) || (String(out?.error || "").toLowerCase().includes("muted"));
@@ -773,7 +806,7 @@ document.getElementById("submitComment").onclick = async () => {
             if (m.expires_at === null) {
               msg = "You have been muted indefinitely by Administrators.";
             } else {
-              msg = `You are temporarily muted. Unmutes ${new Date(m.expires_at).toLocaleString()}.`;
+              msg = `You are temporarily muted. Mute expires: ${new Date(m.expires_at).toLocaleString()}.`;
             }
           }
         }
@@ -1092,7 +1125,7 @@ window.openMuteModal = function ({ userId, userRole, username, mc, active, reaso
     <div class="mute-row"><em>This user is currently muted.</em></div>
     ${reason ? `<div class="mute-row"><b>Reason:</b> ${escapeHtml(reason)}</div>` : ""}
     ${indefinite ? `<div class="mute-row"><b>Duration:</b> Indefinitely</div>`
-                  : `<div class="mute-row"><b>Unmutes:</b> ${expiresAt.toLocaleString()}</div>`}
+                  : `<div class="mute-row"><b>Mute expiration:</b> ${expiresAt.toLocaleString()}</div>`}
   `;
 
   const body = `

@@ -488,6 +488,8 @@ async function openModal(itemId) {
   await applyCommentMuteGate();
   updateCommentGateUI();
 
+  attachPriceEditors();
+
   modal.classList.remove("hidden");
   requestAnimationFrame(() => {
     modal.classList.add("show");
@@ -540,6 +542,60 @@ function highlightEconomy() {
   });
 }
 
+function getCurrentEconomyValues() {
+  const it = currentItem || {};
+  switch (selectedEconomy) {
+    case "Phoenix":  return { base: +it.px_base_value || 0, max: +it.px_max_value || 0 };
+    case "Lynx":     return { base: +it.lx_base_value || 0, max: +it.lx_max_value || 0 };
+    case "Wyvern":   return { base: +it.wyv_base_value || 0, max: +it.wyv_max_value || 0 };
+    case "Cerberus": return { base: +it.cb_base_value || 0, max: +it.cb_max_value || 0 };
+    default:         return { base: 0, max: 0 };
+  }
+}
+
+function attachPriceEditors() {
+  if (!PC_ME || !currentItem || !["Admin","SysAdmin"].includes(PC_ME.role)) return;
+
+  const cards = document.querySelectorAll(".price-values > div");
+  if (!cards || cards.length < 3) return;
+
+  // targets: [0] => Min(Base), [2] => Max
+  const targets = [
+    { el: cards[0], field: "base", title: "Edit Min (Base)" },
+    { el: cards[2], field: "max",  title: "Edit Max" }
+  ];
+
+  targets.forEach(({ el, field, title }) => {
+    // prevent duplicates
+    if (el.querySelector(".price-edit-btn")) return;
+
+    el.style.position = "relative";
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "price-edit-btn";
+    btn.title = title;
+    btn.setAttribute("aria-label", title);
+    btn.style.cssText = `
+      position:absolute; top:6px; right:8px; z-index:2;
+      background:transparent; border:0; padding:0; cursor:pointer;
+      opacity:0; transition:opacity .15s ease;
+      color:#a9b3d6;
+    `;
+    btn.innerHTML = `
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="display:block">
+        <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a1.003 1.003 0 0 0 0-1.42l-2.34-2.34a1.003 1.003 0 0 0-1.42 0l-1.83 1.83 3.75 3.75 1.84-1.82z"/>
+      </svg>
+    `;
+    el.appendChild(btn);
+
+    // show pencil on hover (no stylesheet changes)
+    el.addEventListener("mouseenter", () => { btn.style.opacity = "1"; });
+    el.addEventListener("mouseleave", () => { btn.style.opacity = "0"; });
+
+    btn.addEventListener("click", () => openPriceEditModal(field));
+  });
+}
+
 document.querySelectorAll(".econ-btn").forEach((btn) =>
   btn.addEventListener("click", () => {
     const econ = btn.dataset.econ;
@@ -551,6 +607,7 @@ document.querySelectorAll(".econ-btn").forEach((btn) =>
       loadInsights(currentItem.id);
     }
     applyCommentMuteGate();
+    attachPriceEditors();
   })
 );
 
@@ -1115,6 +1172,105 @@ window.confirmDeleteComment = async (commentId, modalId) => {
     id: "modal-delFail"
   });
 };
+
+// ================== PRICE EDIT MODAL (ADMIN ONLY) ==================
+function openPriceEditModal(field) {
+  const { base, max } = getCurrentEconomyValues();
+  const currentVal = field === "base" ? base : max;
+  const title = field === "base" ? "Edit Min (Base)" : "Edit Max";
+
+  const overlay = document.createElement("div");
+  overlay.style.cssText = `
+    position:fixed; inset:0; display:grid; place-items:center; z-index:9999;
+    background:rgba(0,0,0,.55);
+  `;
+  const card = document.createElement("div");
+  card.style.cssText = `
+    width:360px; max-width:calc(100vw - 32px);
+    background:#0c0c1a; color:#e7e9f3; border:1px solid #22233a;
+    border-radius:12px; padding:16px;
+  `;
+  card.innerHTML = `
+    <div style="display:flex;justify-content:space-between;align-items:center;">
+      <div style="font-weight:700;">${title} — ${selectedEconomy}</div>
+      <button type="button" aria-label="Close" style="background:transparent;border:0;color:#cfd3ff;font-size:20px;cursor:pointer">×</button>
+    </div>
+    <div style="margin-top:12px;font-size:.9rem;opacity:.85">
+      Enter a whole number (max 8 digits).
+    </div>
+    <input id="peVal" type="text" inputmode="numeric" autocomplete="off" spellcheck="false"
+           value="${Number.isFinite(currentVal) ? currentVal : ""}"
+           style="margin-top:12px;width:100%;padding:10px;border-radius:8px;border:1px solid #2c3146;background:#1f2332;color:#e7e9f3" />
+    <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:14px">
+      <button type="button" id="peCancel" style="background:#22233a;border:0;border-radius:6px;color:#fff;padding:8px 14px;cursor:pointer">Cancel</button>
+      <button type="button" id="peSave" class="btn-primary" style="padding:8px 14px">Save</button>
+    </div>
+  `;
+  overlay.appendChild(card);
+  document.body.appendChild(overlay);
+
+  const close = () => document.body.removeChild(overlay);
+  card.querySelector("[aria-label='Close']").onclick = close;
+  card.querySelector("#peCancel").onclick = close;
+
+  const input = card.querySelector("#peVal");
+  input.focus(); input.select();
+  input.addEventListener("input", () => { input.value = input.value.replace(/\D+/g, "").slice(0, 8); });
+
+  card.querySelector("#peSave").onclick = async () => {
+    const raw = (input.value || "").trim();
+    if (!raw) { showGlobalModal("error","Invalid value","Please enter a number."); return; }
+    const val = Number(raw);
+    if (!Number.isFinite(val) || val < 0 || val > 99999999) {
+      showGlobalModal("error","Out of range","Must be between 0 and 99,999,999.");
+      return;
+    }
+
+    const cur = getCurrentEconomyValues();
+    const payload = {
+      economy: selectedEconomy,
+      base: field === "base" ? val : cur.base,
+      max:  field === "max"  ? val : cur.max
+    };
+    if (payload.base > payload.max) {
+      showGlobalModal("error","Invalid range","Min (Base) cannot be greater than Max.");
+      return;
+    }
+
+    try {
+      const r = await fetch(`${backendUrl}/admin/prices/${currentItem.id}`, {
+        method: "PUT",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+      if (!r.ok) {
+        const e = await r.json().catch(()=>({error:"Failed"}));
+        showGlobalModal("error","Update failed", e.error || "Failed to update.");
+        return;
+      }
+
+      // reflect the change locally so UI updates immediately
+      if (selectedEconomy === "Phoenix") {
+        if (field === "base") currentItem.px_base_value = payload.base; else currentItem.px_max_value = payload.max;
+      } else if (selectedEconomy === "Lynx") {
+        if (field === "base") currentItem.lx_base_value = payload.base; else currentItem.lx_max_value = payload.max;
+      } else if (selectedEconomy === "Wyvern") {
+        if (field === "base") currentItem.wyv_base_value = payload.base; else currentItem.wyv_max_value = payload.max;
+      } else if (selectedEconomy === "Cerberus") {
+        if (field === "base") currentItem.cb_base_value = payload.base; else currentItem.cb_max_value = payload.max;
+      }
+
+      updateEconomyDisplay();
+      loadInsights(currentItem.id); // optional refresh of community card
+      showGlobalModal("success","Price updated", `${title} saved successfully.`);
+      close();
+    } catch (err) {
+      console.error(err);
+      showGlobalModal("error","Network error","Could not update price.");
+    }
+  };
+}
 
 // ===== MUTE MODAL HANDLERS (Admin/SysAdmin only) =====
 window.openMuteModal = function ({ userId, userRole, username, mc, active, reason, expires }) {

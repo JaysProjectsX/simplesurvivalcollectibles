@@ -469,7 +469,7 @@ body {
   position: relative;
 }
 
-.comment-input .gate-overlay .comment-mute-overlay {
+.comment-input .gate-overlay {
   position: absolute;
   top: 22px;
   width: 95%;

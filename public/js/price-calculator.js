@@ -65,6 +65,24 @@ function fmtDelta(ms) {
   return `${sec}s`;
 }
 
+function pcShort(n) {
+  const x = Number(n);
+  if (!Number.isFinite(x)) return "—";
+  const ax = Math.abs(x);
+
+  const trim = (s) => s.replace(/\.0+$|(\.\d*[1-9])0+$/, "$1");
+
+  if (ax >= 1_000_000) {
+    const s = (x / 1_000_000).toFixed(2);   // up to 2 decimals for millions
+    return trim(s) + "m";
+  }
+  if (ax >= 1_000) {
+    const s = (x / 1_000).toFixed(1);       // 1 decimal for thousands
+    return trim(s) + "k";
+  }
+  return String(Math.trunc(x));
+}
+
 function isLinkedAccount() {
   return !!(PC_ME && typeof PC_ME.minecraft_username === "string" && PC_ME.minecraft_username.trim());
 }
@@ -524,11 +542,15 @@ function updateEconomyDisplay() {
   const hasBase = baseVal !== null && baseVal !== undefined;
   const hasMax  = maxVal  !== null && maxVal  !== undefined;
 
-  baseEl.textContent = hasBase ? String(baseVal) : "—";
-  maxEl.textContent  = hasMax  ? String(maxVal)  : "—";
-  avgEl.textContent  = (hasBase && hasMax)
-    ? ((+baseVal + +maxVal) / 2).toFixed(2)
-    : "—";
+  baseEl.textContent = hasBase ? pcShort(baseVal) : "—";
+  maxEl.textContent  = hasMax  ? pcShort(maxVal)  : "—";
+
+  if (hasBase && hasMax) {
+    const avg = (+baseVal + +maxVal) / 2;
+    avgEl.textContent = pcShort(avg);
+  } else {
+    avgEl.textContent = "—";
+  }
 
   highlightEconomy();
 }

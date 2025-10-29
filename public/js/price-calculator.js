@@ -508,31 +508,28 @@ function closeModal(modal) {
 
 // ================== ECONOMY ==================
 function updateEconomyDisplay() {
-  const base = document.getElementById("baseValue");
-  const max = document.getElementById("maxValue");
-  const avg = document.getElementById("avgValue");
+  const baseEl = document.getElementById("baseValue");
+  const maxEl  = document.getElementById("maxValue");
+  const avgEl  = document.getElementById("avgValue");
   const it = currentItem || {};
   let baseVal, maxVal;
 
   switch (selectedEconomy) {
-    case "Phoenix":
-      [baseVal, maxVal] = [it.px_base_value, it.px_max_value];
-      break;
-    case "Lynx":
-      [baseVal, maxVal] = [it.lx_base_value, it.lx_max_value];
-      break;
-    case "Wyvern":
-      [baseVal, maxVal] = [it.wyv_base_value, it.wyv_max_value];
-      break;
-    case "Cerberus":
-      [baseVal, maxVal] = [it.cb_base_value, it.cb_max_value];
-      break;
+    case "Phoenix":  [baseVal, maxVal] = [it.px_base_value, it.px_max_value]; break;
+    case "Lynx":     [baseVal, maxVal] = [it.lx_base_value, it.lx_max_value]; break;
+    case "Wyvern":   [baseVal, maxVal] = [it.wyv_base_value, it.wyv_max_value]; break;
+    case "Cerberus": [baseVal, maxVal] = [it.cb_base_value, it.cb_max_value]; break;
   }
 
-  base.textContent = baseVal ?? "—";
-  max.textContent = maxVal ?? "—";
-  avg.textContent =
-    baseVal && maxVal ? ((+baseVal + +maxVal) / 2).toFixed(2) : "—";
+  const hasBase = baseVal !== null && baseVal !== undefined;
+  const hasMax  = maxVal  !== null && maxVal  !== undefined;
+
+  baseEl.textContent = hasBase ? String(baseVal) : "—";
+  maxEl.textContent  = hasMax  ? String(maxVal)  : "—";
+  avgEl.textContent  = (hasBase && hasMax)
+    ? ((+baseVal + +maxVal) / 2).toFixed(2)
+    : "—";
+
   highlightEconomy();
 }
 
@@ -554,19 +551,18 @@ function getCurrentEconomyValues() {
 }
 
 function attachPriceEditors() {
+  // Only Admin/SysAdmin and only when modal is open with currentItem
   if (!PC_ME || !currentItem || !["Admin","SysAdmin"].includes(PC_ME.role)) return;
 
   const cards = document.querySelectorAll(".price-values > div");
   if (!cards || cards.length < 3) return;
 
-  // targets: [0] => Min(Base), [2] => Max
   const targets = [
     { el: cards[0], field: "base", title: "Edit Min (Base)" },
     { el: cards[2], field: "max",  title: "Edit Max" }
   ];
 
   targets.forEach(({ el, field, title }) => {
-    // prevent duplicates
     if (el.querySelector(".price-edit-btn")) return;
 
     el.style.position = "relative";
@@ -578,8 +574,8 @@ function attachPriceEditors() {
     btn.style.cssText = `
       position:absolute; top:6px; right:8px; z-index:2;
       background:transparent; border:0; padding:0; cursor:pointer;
-      opacity:0; transition:opacity .15s ease;
-      color:#a9b3d6;
+      opacity:0; color:#a9b3d6;
+      transition: opacity .15s ease, color .15s ease;
     `;
     btn.innerHTML = `
       <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="display:block">
@@ -588,9 +584,13 @@ function attachPriceEditors() {
     `;
     el.appendChild(btn);
 
-    // show pencil on hover (no stylesheet changes)
+    // show/hide on card hover
     el.addEventListener("mouseenter", () => { btn.style.opacity = "1"; });
     el.addEventListener("mouseleave", () => { btn.style.opacity = "0"; });
+
+    // pencil color transition on icon hover
+    btn.addEventListener("mouseenter", () => { btn.style.color = "#e6edff"; });
+    btn.addEventListener("mouseleave", () => { btn.style.color = "#a9b3d6"; });
 
     btn.addEventListener("click", () => openPriceEditModal(field));
   });
@@ -1179,50 +1179,106 @@ function openPriceEditModal(field) {
   const currentVal = field === "base" ? base : max;
   const title = field === "base" ? "Edit Min (Base)" : "Edit Max";
 
+  // overlay
   const overlay = document.createElement("div");
   overlay.style.cssText = `
     position:fixed; inset:0; display:grid; place-items:center; z-index:9999;
     background:rgba(0,0,0,.55);
+    opacity:0; transition:opacity .18s ease;
   `;
+
+  // card
   const card = document.createElement("div");
   card.style.cssText = `
     width:360px; max-width:calc(100vw - 32px);
     background:#0c0c1a; color:#e7e9f3; border:1px solid #22233a;
     border-radius:12px; padding:16px;
+    opacity:0; transform:scale(.98);
+    transition: opacity .18s ease, transform .18s ease;
   `;
   card.innerHTML = `
     <div style="display:flex;justify-content:space-between;align-items:center;">
       <div style="font-weight:700;">${title} — ${selectedEconomy}</div>
-      <button type="button" aria-label="Close" style="background:transparent;border:0;color:#cfd3ff;font-size:20px;cursor:pointer">×</button>
+      <button type="button" aria-label="Close"
+              style="background:transparent;border:0;color:#cfd3ff;font-size:20px;cursor:pointer;transition:color .15s">
+        ×
+      </button>
     </div>
-    <div style="margin-top:12px;font-size:.9rem;opacity:.85">
+    <div style="margin-top:12px;font-size:.9rem;opacity:.85;text-align:center">
       Enter a whole number (max 8 digits).
     </div>
     <input id="peVal" type="text" inputmode="numeric" autocomplete="off" spellcheck="false"
            value="${Number.isFinite(currentVal) ? currentVal : ""}"
-           style="margin-top:12px;width:100%;padding:10px;border-radius:8px;border:1px solid #2c3146;background:#1f2332;color:#e7e9f3" />
+           style="margin:14px auto 0 auto; display:block; width:86%;
+                  padding:10px;border-radius:8px;border:1px solid #2c3146;
+                  background:#1f2332;color:#e7e9f3; text-align:center" />
     <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:14px">
-      <button type="button" id="peCancel" style="background:#22233a;border:0;border-radius:6px;color:#fff;padding:8px 14px;cursor:pointer">Cancel</button>
-      <button type="button" id="peSave" class="btn-primary" style="padding:8px 14px">Save</button>
+      <button type="button" id="peCancel"
+              style="background:#22233a;border:0;border-radius:6px;color:#fff;
+                     padding:8px 14px;cursor:pointer;transition:background-color .15s,color .15s">Cancel</button>
+      <button type="button" id="peSave"
+              style="background:#365cf5;border:0;border-radius:6px;color:#fff;
+                     padding:8px 14px;cursor:pointer;transition:background-color .15s,color .15s">Save</button>
     </div>
   `;
   overlay.appendChild(card);
   document.body.appendChild(overlay);
 
-  const close = () => document.body.removeChild(overlay);
-  card.querySelector("[aria-label='Close']").onclick = close;
-  card.querySelector("#peCancel").onclick = close;
+  // fade in
+  requestAnimationFrame(() => {
+    overlay.style.opacity = "1";
+    card.style.opacity = "1";
+    card.style.transform = "scale(1)";
+  });
 
-  const input = card.querySelector("#peVal");
+  const closeAnimated = () => {
+    overlay.style.opacity = "0";
+    card.style.opacity = "0";
+    card.style.transform = "scale(.98)";
+    setTimeout(() => { if (overlay.parentNode) overlay.parentNode.removeChild(overlay); }, 200);
+  };
+
+  // interactions
+  const closeBtn   = card.querySelector("[aria-label='Close']");
+  const cancelBtn  = card.querySelector("#peCancel");
+  const saveBtn    = card.querySelector("#peSave");
+  const input      = card.querySelector("#peVal");
+
+  closeBtn.onclick  = closeAnimated;
+  cancelBtn.onclick = closeAnimated;
+
+  // subtle button hover transitions
+  closeBtn.addEventListener("mouseenter", () => closeBtn.style.color = "#ffffff");
+  closeBtn.addEventListener("mouseleave", () => closeBtn.style.color = "#cfd3ff");
+  cancelBtn.addEventListener("mouseenter", () => cancelBtn.style.backgroundColor = "#2a2d46");
+  cancelBtn.addEventListener("mouseleave", () => cancelBtn.style.backgroundColor = "#22233a");
+  saveBtn.addEventListener("mouseenter", () => saveBtn.style.backgroundColor = "#2d51ed");
+  saveBtn.addEventListener("mouseleave", () => saveBtn.style.backgroundColor = "#365cf5");
+
   input.focus(); input.select();
   input.addEventListener("input", () => { input.value = input.value.replace(/\D+/g, "").slice(0, 8); });
 
-  card.querySelector("#peSave").onclick = async () => {
+  saveBtn.onclick = async () => {
     const raw = (input.value || "").trim();
-    if (!raw) { showGlobalModal("error","Invalid value","Please enter a number."); return; }
+    if (!raw) {
+      showGlobalModal({
+        type: "error",
+        title: "Invalid value",
+        message: "Please enter a number.",
+        buttons: [{ label: "OK", onClick: "fadeOutAndRemove('modal-pe-invalid')" }],
+        id: "modal-pe-invalid"
+      });
+      return;
+    }
     const val = Number(raw);
     if (!Number.isFinite(val) || val < 0 || val > 99999999) {
-      showGlobalModal("error","Out of range","Must be between 0 and 99,999,999.");
+      showGlobalModal({
+        type: "error",
+        title: "Out of range",
+        message: "Must be between 0 and 99,999,999.",
+        buttons: [{ label: "OK", onClick: "fadeOutAndRemove('modal-pe-range')" }],
+        id: "modal-pe-range"
+      });
       return;
     }
 
@@ -1233,7 +1289,13 @@ function openPriceEditModal(field) {
       max:  field === "max"  ? val : cur.max
     };
     if (payload.base > payload.max) {
-      showGlobalModal("error","Invalid range","Min (Base) cannot be greater than Max.");
+      showGlobalModal({
+        type: "error",
+        title: "Invalid range",
+        message: "Min (Base) cannot be greater than Max.",
+        buttons: [{ label: "OK", onClick: "fadeOutAndRemove('modal-pe-range2')" }],
+        id: "modal-pe-range2"
+      });
       return;
     }
 
@@ -1244,9 +1306,16 @@ function openPriceEditModal(field) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload)
       });
+
       if (!r.ok) {
-        const e = await r.json().catch(()=>({error:"Failed"}));
-        showGlobalModal("error","Update failed", e.error || "Failed to update.");
+        const e = await r.json().catch(()=>({ error:"Failed to update." }));
+        showGlobalModal({
+          type: "error",
+          title: "Update failed",
+          message: e.error || "Failed to update.",
+          buttons: [{ label: "Close", onClick: "fadeOutAndRemove('modal-pe-fail')" }],
+          id: "modal-pe-fail"
+        });
         return;
       }
 
@@ -1261,13 +1330,27 @@ function openPriceEditModal(field) {
         if (field === "base") currentItem.cb_base_value = payload.base; else currentItem.cb_max_value = payload.max;
       }
 
-      updateEconomyDisplay();
-      loadInsights(currentItem.id); // optional refresh of community card
-      showGlobalModal("success","Price updated", `${title} saved successfully.`);
-      close();
+      updateEconomyDisplay();          // updates Min/Max/Avg
+      loadInsights(currentItem.id);    // optional refresh of community card
+
+      showGlobalModal({
+        type: "success",
+        title: "Price updated",
+        message: `${title} saved successfully.`,
+        buttons: [{ label: "OK", onClick: "fadeOutAndRemove('modal-pe-ok')" }],
+        id: "modal-pe-ok"
+      });
+
+      closeAnimated();
     } catch (err) {
       console.error(err);
-      showGlobalModal("error","Network error","Could not update price.");
+      showGlobalModal({
+        type: "error",
+        title: "Network error",
+        message: "Could not update price.",
+        buttons: [{ label: "Close", onClick: "fadeOutAndRemove('modal-pe-net')" }],
+        id: "modal-pe-net"
+      });
     }
   };
 }

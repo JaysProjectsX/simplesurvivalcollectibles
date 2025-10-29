@@ -485,10 +485,6 @@ body {
   border: 1px dashed rgba(255,255,255,0.12);
 }
 
-.comment-mute-overlay .eta {
-  font-weight: 700; color: #ffe2e2;
-}
-
 /* subtle shake for invalid price input */
 @keyframes pc-shake {
   10%, 90% { transform: translateX(-1px); }
@@ -514,6 +510,10 @@ body {
 }
 .comment-mute-overlay-inner { padding: 0 12px; line-height: 1.35; }
 .comment-mute-overlay-inner b { color: #ffe2e2; }
+
+.comment-mute-overlay .eta {
+  font-weight: 700; color: #ffe2e2;
+}
 
 .char-counter {
   position: absolute;

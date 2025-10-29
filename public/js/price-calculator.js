@@ -109,12 +109,6 @@ async function applyCommentMuteGate() {
   // Only meaningful for signed-in, MC-linked users
   if (!PC_ME || !isLinkedAccount()) return;
 
-  let data = null;
-  try {
-    const r = await fetch(`${backendUrl}/comment-mute/me`, { credentials: "include" });
-    data = r.ok ? await r.json() : null;
-  } catch {}
-
   const box = document.getElementById("commentBox");
   const btn = document.getElementById("submitComment");
   const wrap = box?.closest(".comment-input");
@@ -124,36 +118,55 @@ async function applyCommentMuteGate() {
   if (box._muteTimer) { clearInterval(box._muteTimer); box._muteTimer = null; }
   wrap.querySelectorAll(".comment-mute-overlay").forEach(n => n.remove());
 
-  // Not muted → ensure normal linked/unlinked gate takes over
+  // Ask backend for current mute status
+  let data = null;
+  try {
+    const r = await fetch(`${backendUrl}/comment-mute/me`, { credentials: "include" });
+    if (r.ok) data = await r.json();
+  } catch {
+    // ignore network hiccups; we'll fall through as "not muted"
+  }
+
+  // Not muted ⇒ make sure normal linked/unlinked gate takes over
   if (!data || !data.is_muted) {
     box.disabled = !isLinkedAccount();
     btn.disabled = !isLinkedAccount();
     return;
   }
 
-  // Build overlay that reuses your .gate-overlay look
+  // Build an overlay that REUSES your base .gate-overlay box
   const ov = document.createElement("div");
   ov.className = "gate-overlay comment-mute-overlay";
 
-  const indefinite = data.expires_at === null;
-  const reason = data.reason ? `<div style="margin-top:6px">Reason: ${escapeHtml(data.reason)}</div>` : "";
-  const countdown = !indefinite ? `<div>Time left: <span class="eta">—</span></div>` : "";
+  const indefinite = (data.expires_at === null);
+  const title = indefinite
+    ? `You've been muted by administrators. Duration: Indefinitely.`
+    : `You've been muted by administrators for ${data.duration_hours === 24 ? '24' : '1'} hour(s).`;
+
   const until = (!indefinite && data.expires_at)
-    ? `<div style="margin-top:4px">Unmutes: ${new Date(data.expires_at).toLocaleString()}</div>` : "";
+    ? `<div style="margin-top:4px">Unmutes: ${new Date(data.expires_at).toLocaleString()}</div>`
+    : "";
+
+  const countdown = !indefinite
+    ? `<div>Mute will expire in: <span class="eta">—</span></div>`
+    : "";
+
+  const reason = data.reason
+    ? `<div style="margin-top:6px">Reason: ${escapeHtml(data.reason)}</div>`
+    : "";
 
   ov.innerHTML = `
-    <div>
-      <div style="font-weight:600;margin-bottom:6px">
-        You are muted${indefinite ? " indefinitely" : ""}.
-      </div>
+    <div class="comment-mute-overlay-inner">
+      <div style="font-weight:600;margin-bottom:6px">${title}</div>
       ${countdown}
       ${until}
       ${reason}
     </div>
   `;
+
   wrap.appendChild(ov);
 
-  // Lock inputs hard
+  // Hard-lock inputs
   box.disabled = true;
   btn.disabled = true;
 
@@ -164,14 +177,20 @@ async function applyCommentMuteGate() {
 
     const tick = () => {
       const left = tgt - Date.now();
-      etaEl.textContent = fmtDelta(left);
       if (left <= 0) {
+        etaEl.textContent = "now";
         clearInterval(box._muteTimer);
-        ov.remove();
-        // Re-run gate logic to restore normal state
-        updateCommentGateUI();
+        // Ask backend again to lift the gate
+        applyCommentMuteGate();
+        return;
       }
+      const s = Math.floor(left / 1000);
+      const h = Math.floor(s / 3600);
+      const m = Math.floor((s % 3600) / 60);
+      const sec = s % 60;
+      etaEl.textContent = h ? `${h}h ${m}m` : (m ? `${m}m ${sec}s` : `${sec}s`);
     };
+
     tick();
     box._muteTimer = setInterval(tick, 1000);
   }

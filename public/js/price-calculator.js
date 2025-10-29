@@ -135,9 +135,7 @@ async function applyCommentMuteGate() {
 
   // Not muted → let the normal gate handle linked/unlinked
   if (!isMuted) {
-    const linked = isLinkedAccount();
-    box.disabled = !linked;
-    btn.disabled = !linked;
+    updateCommentGateUI();
     return;
   }
 
@@ -170,6 +168,7 @@ async function applyCommentMuteGate() {
   // Hard-lock inputs
   box.disabled = true;
   btn.disabled = true;
+  box.placeholder = "";
 
   // Live countdown for temporary mutes
   if (!indefinite && expiresAt) {

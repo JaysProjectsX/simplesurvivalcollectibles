@@ -73,11 +73,11 @@ function pcShort(n) {
   const trim = (s) => s.replace(/\.0+$|(\.\d*[1-9])0+$/, "$1");
 
   if (ax >= 1_000_000) {
-    const s = (x / 1_000_000).toFixed(2);   // up to 2 decimals for millions
+    const s = (x / 1_000_000).toFixed(2);
     return trim(s) + "m";
   }
   if (ax >= 1_000) {
-    const s = (x / 1_000).toFixed(1);       // 1 decimal for thousands
+    const s = (x / 1_000).toFixed(1);
     return trim(s) + "k";
   }
   return String(Math.trunc(x));
@@ -220,6 +220,123 @@ async function applyCommentMuteGate() {
   }
 }
 
+// ===== Price Calculator Disclaimer =====
+function pcDisclaimerKey() {
+  // Scope preference per user when logged in; "guest" otherwise
+  const uid = PC_ME?.id != null ? String(PC_ME.id) : "guest";
+  return `ssc:pc-disclaimer:v1:${uid}`;
+}
+
+function maybeShowPriceDisclaimer() {
+  try {
+    if (localStorage.getItem(pcDisclaimerKey()) === "hide") return;
+  } catch {}
+  openPriceDisclaimerModal();
+}
+
+function openPriceDisclaimerModal() {
+  const id  = "modal-pc-disclaimer";
+  const key = pcDisclaimerKey();
+  const seconds = 5;
+
+  const message = `
+    <div class="pc-disclaimer" style="text-align:left;line-height:1.5">
+      <p style="margin:0 0 10px 0">
+        <b>Important:</b> This Price Calculator provides <i>rough estimates</i> of
+        typical item values by economy. It does <b>not</b> set defined prices.
+      </p>
+      <p style="margin:0 0 10px 0">
+        YooEm and FleaMeKnee are <b>not responsible</b> for the values shown or for any
+        in-game transactions that may occur based on those values. Use this tool solely
+        as a general reference.
+      </p>
+
+      <label style="display:flex;gap:10px;align-items:flex-start;margin:10px 0;">
+        <input id="pc-ack" type="checkbox" style="margin-top:3px">
+        <span>I understand that values are estimates, not official prices, and I accept the notice above.</span>
+      </label>
+
+      <label style="display:flex;gap:10px;align-items:flex-start;margin:6px 0;">
+        <input id="pc-nomore" type="checkbox" style="margin-top:3px">
+        <span>Do not show this notice again on this device${PC_ME?.id ? " for my account" : ""}.</span>
+      </label>
+
+      <div id="pc-count" style="margin-top:8px;opacity:.9">
+        You can proceed in <b id="pc-ct">${seconds}</b>s
+      </div>
+    </div>
+  `;
+
+  showGlobalModal({
+    type: "info",
+    title: "Price Calculator — Notice",
+    message,
+    buttons: [
+      { label: "Close", onClick: `pcAcceptDisclaimer('${id}','${key}')` },
+      { label: "Proceed", onClick: `pcAcceptDisclaimer('${id}','${key}')` }
+    ],
+    id
+  });
+
+  // Post-render: gate buttons until both ack + countdown complete
+  setTimeout(() => {
+    const root = document.getElementById(id);
+    if (!root) return;
+
+    // Grab the two footer buttons (Close, Proceed) in order
+    const btns = Array.from(root.querySelectorAll("button"));
+    const closeBtn   = btns[btns.length - 2];
+    const proceedBtn = btns[btns.length - 1];
+
+    const ackEl  = root.querySelector("#pc-ack");
+    const stopEl = root.querySelector("#pc-nomore");
+    const ctEl   = root.querySelector("#pc-ct");
+
+    let remain = seconds;
+    let unlocked = false;
+
+    const updateEnabled = () => {
+      const ack = !!ackEl?.checked;
+      const ready = ack && remain === 0;
+      closeBtn.disabled = !ready;
+      proceedBtn.disabled = !ready;
+      unlocked = ready;
+    };
+
+    // initial disabled state
+    updateEnabled();
+
+    // countdown
+    const tick = () => {
+      remain = Math.max(0, remain - 1);
+      if (ctEl) ctEl.textContent = String(remain);
+      updateEnabled();
+      if (remain === 0) clearInterval(tmr);
+    };
+    const tmr = setInterval(tick, 1000);
+
+    // enable when user acknowledges
+    ackEl?.addEventListener("change", updateEnabled);
+
+    // Save a small hook for the handler to read the "do not show again" checkbox
+    root._pcNoMoreChecked = () => !!stopEl?.checked;
+  }, 0);
+}
+
+// Called by both buttons after countdown + checkbox unlock
+window.pcAcceptDisclaimer = function(modalId, storeKey) {
+  const root = document.getElementById(modalId);
+  if (root?._pcNoMoreChecked && root._pcNoMoreChecked()) {
+    try { localStorage.setItem(storeKey, "hide"); } catch {}
+  }
+  if (typeof fadeOutAndRemove === "function") {
+    fadeOutAndRemove(modalId);
+  } else {
+    // fallback
+    root?.remove();
+  }
+};
+
 function pcFormatCoins(n){ return (Number.isFinite(n) ? n.toLocaleString() : "—"); }
 
 // ================== AUTH & INIT ==================
@@ -232,6 +349,7 @@ function pcFormatCoins(n){ return (Number.isFinite(n) ? n.toLocaleString() : "�
     if (user.role !== "Admin" && user.role !== "SysAdmin") return redirectHome();
 
     document.body.hidden = false;
+    maybeShowPriceDisclaimer();
     await loadCrates();
   } catch (err) {
     console.error("Initialization failed:", err);

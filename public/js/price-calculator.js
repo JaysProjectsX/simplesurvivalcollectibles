@@ -313,7 +313,7 @@ function openPriceDisclaimerModal() {
 
     const endCountdown = () => {
       lockButtons(false);
-      if (ctWrap) ctWrap.style.display = "none"; // hide the entire countdown line
+      if (ctWrap) ctWrap.style.display = "none";
     };
 
     const tick = () => {
@@ -332,17 +332,12 @@ function openPriceDisclaimerModal() {
       if (remain > 0) return;
 
       if (!ackEl?.checked) {
-        // visual feedback: red outline and a brief shake
         if (ackLabel) {
-          ackLabel.style.outline = "2px solid #ff4d4f";
-          ackLabel.style.boxShadow = "0 0 0 2px rgba(255,77,79,.25)";
-          ackLabel.style.transition = "outline-color .2s ease";
-          ackLabel.classList.add("shake-once");
-          setTimeout(() => {
-            ackLabel.style.outline = "none";
-            ackLabel.style.boxShadow = "none";
-            ackLabel.classList.remove("shake-once");
-          }, 900);
+          // restart the pulse animation each click
+          ackLabel.classList.remove("pc-attn");
+          void ackLabel.offsetWidth;        // reflow to reset animation
+          ackLabel.classList.add("pc-attn");
+          setTimeout(() => ackLabel.classList.remove("pc-attn"), 1100);
         }
         return;
       }
@@ -353,12 +348,17 @@ function openPriceDisclaimerModal() {
     // Optional: small helper class for a one-time shake
     const css = document.createElement("style");
     css.textContent = `
-      #${id} .shake-once { animation: pc-shake .28s ease; }
-      @keyframes pc-shake {
-        10%, 90% { transform: translateX(-1px); }
-        20%, 80% { transform: translateX(2px); }
-        30%, 50%, 70% { transform: translateX(-2px); }
-        40%, 60% { transform: translateX(2px); }
+      /* Gentle pulse/glow — no translation, no scrollbars */
+      #${id} #pc-ack-label.pc-attn {
+        animation: pc-pulse 1.1s ease;
+        border: 1px solid rgba(255,77,79,.55);
+        background: linear-gradient(0deg, rgba(255,77,79,.10), rgba(255,77,79,.06));
+        box-shadow: 0 0 0 0 rgba(255,77,79,.35);
+      }
+      @keyframes pc-pulse {
+        0%   { box-shadow: 0 0 0 0 rgba(255,77,79,.35); }
+        45%  { box-shadow: 0 0 0 8px rgba(255,77,79,0); }
+        100% { box-shadow: 0 0 0 0 rgba(255,77,79,0); }
       }
     `;
     document.head.appendChild(css);

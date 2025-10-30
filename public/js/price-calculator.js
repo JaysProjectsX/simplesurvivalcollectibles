@@ -246,17 +246,17 @@ function openPriceDisclaimerModal() {
         typical item values by economy. It does <b>not</b> set defined prices.
       </p>
       <p style="margin:0 0 10px 0">
-        YooEm and FleaMeKnee are <b>not responsible</b> for the values shown or for any
+        <b><i>YooEm<i><b> and <b><i>FleaMeKnee<b><i> are <b>not responsible</b> for the values shown or for any
         in-game transactions that may occur based on those values. Use this tool solely
         as a general reference.
       </p>
 
-      <label id="pc-ack-label" style="display:flex;gap:10px;align-items:flex-start;margin:10px 0;border-radius:8px;">
+      <label id="pc-ack-label" style="display:flex;gap:10px;align-items:flex-start;margin:10px 0;border-radius:8px;padding:4px;cursor:pointer;">
         <input id="pc-ack" type="checkbox" style="margin-top:3px">
         <span>I understand that values are estimates, not official prices, and I accept the notice above.</span>
       </label>
 
-      <label style="display:flex;gap:10px;align-items:flex-start;margin:6px 0;">
+      <label style="display:flex;gap:10px;align-items:flex-start;margin:6px 0;padding:4px;cursor:pointer;">
         <input id="pc-nomore" type="checkbox" style="margin-top:3px">
         <span>Do not show this notice again on this device${PC_ME?.id ? " for my account" : ""}.</span>
       </label>

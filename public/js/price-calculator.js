@@ -241,22 +241,22 @@ function openPriceDisclaimerModal() {
 
   const message = `
     <div class="pc-disclaimer" style="text-align:left;line-height:1.5">
-      <p style="margin:0 0 10px 0">
+      <p style="margin:0 0 10px 0;font-size:0.95rem;">
         <b>Important:</b> This Price Calculator provides <i>rough estimates</i> of
         typical item values by economy. It does <b>not</b> set defined prices.
       </p>
-      <p style="margin:0 0 10px 0">
-        <b><i>YooEm</i></b> and <b><i>FleaMeKnee</i></b> are <b>not responsible</b> for the values shown or for any
+      <p style="margin:0 0 10px 0;font-size:0.95rem;">
+        <b>YooEm</b> and <b>FleaMeKnee</b> are <b>not responsible</b> for the values shown or for any
         in-game transactions that may occur based on those values. Use this tool solely
         as a general reference.
       </p>
 
-      <label id="pc-ack-label" style="display:flex;gap:10px;align-items:flex-start;margin:10px 0;border-radius:8px;padding:4px;cursor:pointer;">
+      <label id="pc-ack-label" style="display:flex;gap:10px;align-items:flex-start;border-radius:8px;padding:4px;cursor:pointer;font-size:0.85rem;">
         <input id="pc-ack" type="checkbox" style="margin-top:3px">
         <span>I understand that values are estimates, not official prices, and I accept the notice above.</span>
       </label>
 
-      <label style="display:flex;gap:10px;align-items:flex-start;margin:6px 0;padding:4px;cursor:pointer;">
+      <label style="display:flex;gap:10px;align-items:flex-start;padding:4px;cursor:pointer;font-size:0.85rem;">
         <input id="pc-nomore" type="checkbox" style="margin-top:3px">
         <span>Do not show this notice again on this device${PC_ME?.id ? " for my account" : ""}.</span>
       </label>

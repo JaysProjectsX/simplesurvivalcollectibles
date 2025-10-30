@@ -11,6 +11,7 @@ let currentItem = null;
 let searchTerm = "";
 let currentSearch = "";
 let PC_ME = null;
+let PC_DISC_OK = false;
 
 // ================== UTILITIES ==================
 function prettyCrateName(name) {
@@ -43,6 +44,31 @@ async function pcFetchMe() {
   } catch {
     PC_ME = null;
   }
+}
+
+function pcInstallGuardOverlay() {
+  if (document.getElementById("pc-guard")) return;
+  const g = document.createElement("div");
+  g.id = "pc-guard";
+  g.style.cssText = `
+    position: fixed; inset: 0; z-index: 9998;
+    background: rgba(0,0,0,0);       /* invisible layer */
+    backdrop-filter: none;
+    pointer-events: auto;
+  `;
+  // Prevent scroll via touchwheel when guard is active
+  g.addEventListener("wheel", (e) => e.preventDefault(), { passive: false });
+  g.addEventListener("touchmove", (e) => e.preventDefault(), { passive: false });
+  document.body.appendChild(g);
+}
+
+function pcRemoveGuardOverlay() {
+  const g = document.getElementById("pc-guard");
+  if (g && g.parentNode) g.parentNode.removeChild(g);
+}
+
+function pcGateOpen() {
+  return !!PC_DISC_OK;
 }
 
 function isActiveMute(expiresAt) {
@@ -229,7 +255,11 @@ function pcDisclaimerKey() {
 
 function maybeShowPriceDisclaimer() {
   try {
-    if (localStorage.getItem(pcDisclaimerKey()) === "hide") return;
+    if (localStorage.getItem(pcDisclaimerKey()) === "hide") {
+      PC_DISC_OK = true;
+      pcRemoveGuardOverlay();
+      return;
+    }
   } catch {}
   openPriceDisclaimerModal();
 }
@@ -261,7 +291,7 @@ function openPriceDisclaimerModal() {
         <span>Do not show this notice again on this device${PC_ME?.id ? " for my account" : ""}.</span>
       </label>
 
-      <div id="pc-count" style="margin-top:8px;opacity:.9">
+      <div id="pc-count" style="margin-top:8px;opacity:.9;font: small-caption;">
         You can proceed in <b id="pc-ct">${seconds}</b>s
       </div>
     </div>
@@ -335,30 +365,34 @@ function openPriceDisclaimerModal() {
         if (ackLabel) {
           // restart the pulse animation each click
           ackLabel.classList.remove("pc-attn");
-          void ackLabel.offsetWidth;        // reflow to reset animation
+          void ackLabel.offsetWidth;
           ackLabel.classList.add("pc-attn");
           setTimeout(() => ackLabel.classList.remove("pc-attn"), 1100);
         }
         return;
       }
-      // Acknowledged → persist "do not show again" if chosen and close
+      // Acknowledged persist "do not show again" if chosen and close
       pcAcceptDisclaimer(modalId, storeKey);
     };
 
-    // Optional: small helper class for a one-time shake
     const css = document.createElement("style");
     css.textContent = `
       /* Gentle pulse/glow — no translation, no scrollbars */
       #${id} #pc-ack-label.pc-attn {
-        animation: pc-pulse 1.1s ease;
         border: 1px solid rgba(255,77,79,.55);
         background: linear-gradient(0deg, rgba(255,77,79,.10), rgba(255,77,79,.06));
-        box-shadow: 0 0 0 0 rgba(255,77,79,.35);
+        animation:
+          pc-pulse 900ms ease,
+          pc-attn-fade 600ms ease 900ms forwards; /* fade out after pulse finishes */
       }
       @keyframes pc-pulse {
         0%   { box-shadow: 0 0 0 0 rgba(255,77,79,.35); }
         45%  { box-shadow: 0 0 0 8px rgba(255,77,79,0); }
         100% { box-shadow: 0 0 0 0 rgba(255,77,79,0); }
+      }
+      @keyframes pc-attn-fade {
+        0%   { border-color: rgba(255,77,79,.55); background: rgba(255,77,79,.10); }
+        100% { border-color: rgba(255,77,79,0);   background: transparent; }
       }
     `;
     document.head.appendChild(css);
@@ -371,10 +405,13 @@ window.pcAcceptDisclaimer = function(modalId, storeKey) {
   if (root?._pcNoMoreChecked && root._pcNoMoreChecked()) {
     try { localStorage.setItem(storeKey, "hide"); } catch {}
   }
+  // mark gate as satisfied and remove the overlay
+  PC_DISC_OK = true;
+  pcRemoveGuardOverlay();
+
   if (typeof fadeOutAndRemove === "function") {
     fadeOutAndRemove(modalId);
   } else {
-    // fallback
     root?.remove();
   }
 };
@@ -391,6 +428,7 @@ function pcFormatCoins(n){ return (Number.isFinite(n) ? n.toLocaleString() : "�
     if (user.role !== "Admin" && user.role !== "SysAdmin") return redirectHome();
 
     document.body.hidden = false;
+    pcInstallGuardOverlay();
     maybeShowPriceDisclaimer();
     await loadCrates();
   } catch (err) {
@@ -459,6 +497,7 @@ function makeCrateGroup(list) {
     btn.textContent = prettyCrateName(crate.crate_name);
 
     btn.addEventListener("click", async () => {
+      if (!pcGateOpen()) return;
       crateSidebar.querySelectorAll(".crate-btn").forEach(b => b.classList.remove("active"));
       btn.classList.add("active");
 
@@ -489,6 +528,7 @@ async function loadItems(crateId) {
 
 // ================== SEARCH (Enhanced) ==================
 searchInput.addEventListener("input", (e) => {
+  if (!pcGateOpen()) return;
   currentSearch = e.target.value.trim().toLowerCase();
 
   if (currentCrate) {
@@ -619,7 +659,10 @@ function renderItemsAsAccordions(crate) {
   });
 
   accRoot.querySelectorAll(".money-btn").forEach((btn) =>
-    btn.addEventListener("click", () => openModal(btn.dataset.itemId))
+    btn.addEventListener("click", () => {
+      if (!pcGateOpen()) return;
+      openModal(btn.dataset.itemId);
+    })
   );
 }
 
@@ -780,6 +823,7 @@ function attachPriceEditors() {
 
 document.querySelectorAll(".econ-btn").forEach((btn) =>
   btn.addEventListener("click", () => {
+    if (!pcGateOpen()) return;
     const econ = btn.dataset.econ;
     if (econ === "Cerberus" && btn.style.display === "none") return;
     selectedEconomy = econ;

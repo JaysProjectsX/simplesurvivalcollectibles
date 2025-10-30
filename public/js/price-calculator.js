@@ -251,7 +251,7 @@ function openPriceDisclaimerModal() {
         as a general reference.
       </p>
 
-      <label style="display:flex;gap:10px;align-items:flex-start;margin:10px 0;">
+      <label id="pc-ack-label" style="display:flex;gap:10px;align-items:flex-start;margin:10px 0;border-radius:8px;">
         <input id="pc-ack" type="checkbox" style="margin-top:3px">
         <span>I understand that values are estimates, not official prices, and I accept the notice above.</span>
       </label>
@@ -272,54 +272,96 @@ function openPriceDisclaimerModal() {
     title: "Price Calculator — Notice",
     message,
     buttons: [
-      { label: "Close", onClick: `pcAcceptDisclaimer('${id}','${key}')` },
-      { label: "Proceed", onClick: `pcAcceptDisclaimer('${id}','${key}')` }
+      { label: "Close",    onClick: `pcAttemptClose('${id}','${key}')` },
+      { label: "Proceed",  onClick: `pcAttemptClose('${id}','${key}')` }
     ],
     id
   });
 
-  // Post-render: gate buttons until both ack + countdown complete
+  // Post-render setup
   setTimeout(() => {
     const root = document.getElementById(id);
     if (!root) return;
 
-    // Grab the two footer buttons (Close, Proceed) in order
+    // 1) Remove the top-right "X" just for this modal
+    const headerClose = root.querySelector(".global-modal-header .close, .modal-header .close, .close");
+    if (headerClose && headerClose.closest(`#${id}`)) {
+      headerClose.remove();
+    }
+
+    // Grab footer buttons (Close, Proceed) in order
     const btns = Array.from(root.querySelectorAll("button"));
     const closeBtn   = btns[btns.length - 2];
     const proceedBtn = btns[btns.length - 1];
 
-    const ackEl  = root.querySelector("#pc-ack");
-    const stopEl = root.querySelector("#pc-nomore");
-    const ctEl   = root.querySelector("#pc-ct");
+    const ackEl     = root.querySelector("#pc-ack");
+    const ackLabel  = root.querySelector("#pc-ack-label");
+    const stopEl    = root.querySelector("#pc-nomore");
+    const ctWrap    = root.querySelector("#pc-count");
+    const ctEl      = root.querySelector("#pc-ct");
 
+    // Store hook for “do not show again”
+    root._pcNoMoreChecked = () => !!stopEl?.checked;
+
+    // 2) Countdown logic
     let remain = seconds;
-    let unlocked = false;
+    const lockButtons = (locked) => {
+      closeBtn.disabled   = locked;
+      proceedBtn.disabled = locked;
+    };
+    lockButtons(true);
 
-    const updateEnabled = () => {
-      const ack = !!ackEl?.checked;
-      const ready = ack && remain === 0;
-      closeBtn.disabled = !ready;
-      proceedBtn.disabled = !ready;
-      unlocked = ready;
+    const endCountdown = () => {
+      lockButtons(false);
+      if (ctWrap) ctWrap.style.display = "none"; // hide the entire countdown line
     };
 
-    // initial disabled state
-    updateEnabled();
-
-    // countdown
     const tick = () => {
       remain = Math.max(0, remain - 1);
       if (ctEl) ctEl.textContent = String(remain);
-      updateEnabled();
-      if (remain === 0) clearInterval(tmr);
+      if (remain === 0) {
+        clearInterval(tmr);
+        endCountdown();
+      }
     };
     const tmr = setInterval(tick, 1000);
 
-    // enable when user acknowledges
-    ackEl?.addEventListener("change", updateEnabled);
+    // 3) Attempt-close handler installed on both footer buttons
+    window.pcAttemptClose = function(modalId, storeKey) {
+      // If still counting down, ignore clicks silently
+      if (remain > 0) return;
 
-    // Save a small hook for the handler to read the "do not show again" checkbox
-    root._pcNoMoreChecked = () => !!stopEl?.checked;
+      if (!ackEl?.checked) {
+        // visual feedback: red outline and a brief shake
+        if (ackLabel) {
+          ackLabel.style.outline = "2px solid #ff4d4f";
+          ackLabel.style.boxShadow = "0 0 0 2px rgba(255,77,79,.25)";
+          ackLabel.style.transition = "outline-color .2s ease";
+          ackLabel.classList.add("shake-once");
+          setTimeout(() => {
+            ackLabel.style.outline = "none";
+            ackLabel.style.boxShadow = "none";
+            ackLabel.classList.remove("shake-once");
+          }, 900);
+        }
+        return;
+      }
+      // Acknowledged → persist "do not show again" if chosen and close
+      pcAcceptDisclaimer(modalId, storeKey);
+    };
+
+    // Optional: small helper class for a one-time shake
+    const css = document.createElement("style");
+    css.textContent = `
+      #${id} .shake-once { animation: pc-shake .28s ease; }
+      @keyframes pc-shake {
+        10%, 90% { transform: translateX(-1px); }
+        20%, 80% { transform: translateX(2px); }
+        30%, 50%, 70% { transform: translateX(-2px); }
+        40%, 60% { transform: translateX(2px); }
+      }
+    `;
+    document.head.appendChild(css);
   }, 0);
 }
 

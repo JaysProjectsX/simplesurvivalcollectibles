@@ -841,3 +841,94 @@ body {
     max-height: 46vh;
   }
 }
+
+/* --- Settings row under CRATES --- */
+.pc-settings-row {
+  display:flex; justify-content:flex-end; margin:10px 0 6px;
+}
+.pc-settings-btn {
+  background:#1c1e2b; color:#d6dbff; border:1px solid #252846;
+  border-radius:10px; padding:8px 10px; cursor:pointer;
+  display:inline-flex; align-items:center; gap:8px;
+  transition:background .2s ease, border-color .2s ease, color .2s ease;
+}
+.pc-settings-btn:hover { background:#232642; border-color:#2d3158; color:#fff; }
+.pc-gear { display:block; }
+.pc-gear .spin { transform-origin: 12px 12px; transition: transform .5s cubic-bezier(.2,.8,.2,1); }
+.pc-settings-btn:hover .spin { transform: rotate(180deg); }
+
+/* --- Settings modal --- */
+.pc-settings-overlay {
+  position:fixed; inset:0; display:grid; place-items:center; z-index:9998;
+  background:rgba(0,0,0,.55); opacity:0; pointer-events:none;
+  transition:opacity .2s ease;
+}
+.pc-settings-overlay.show { opacity:1; pointer-events:auto; }
+.pc-settings-card {
+  width:520px; max-width:calc(100vw - 32px);
+  background:#0c0c1a; color:#e7e9f3; border:1px solid #22233a;
+  border-radius:14px; overflow:hidden; transform: translateY(10px); opacity:0;
+  box-shadow:0 10px 30px rgba(0,0,0,.35);
+  transition: transform .22s ease, opacity .22s ease;
+}
+.pc-settings-overlay.show .pc-settings-card { transform: translateY(0); opacity:1; }
+
+.pc-settings-header {
+  display:flex; justify-content:space-between; align-items:center;
+  padding:14px 16px; background:linear-gradient(90deg,#1a1e34,#0f1222);
+  border-bottom:1px solid #22233a;
+}
+.pc-settings-header h3 { margin:0; font-size:1.05rem; }
+.pc-settings-close {
+  background:transparent; border:0; color:#cfd3ff; font-size:22px; cursor:pointer;
+  transition:color .15s ease;
+}
+.pc-settings-close:hover { color:#ffffff; }
+
+.pc-settings-body { padding:14px 16px; }
+.pc-settings-section { padding:12px 0; border-bottom:1px dashed #242742; }
+.pc-settings-section:last-child { border-bottom:0; }
+.pc-setting-line { display:flex; align-items:center; justify-content:space-between; gap:12px; }
+.pc-setting-title { font-weight:600; }
+
+.pc-settings-footer {
+  display:flex; justify-content:flex-end; gap:8px; padding:12px 16px;
+  border-top:1px solid #22233a;
+}
+.btn-ghost { background:#22233a; color:#fff; border:0; border-radius:8px; padding:8px 14px; }
+.btn-primary { background:#365cf5; color:#fff; border:0; border-radius:8px; padding:8px 14px; }
+.btn-ghost:hover { background:#2a2d46; } .btn-primary:hover { background:#2d51ed; }
+
+.pc-note { opacity:.7; }
+
+/* radio row only visible when switch is on */
+.pc-radio-row {
+  display:none; gap:14px; margin-top:10px; font-size:.95rem;
+}
+.pc-radio-row.show { display:flex; }
+
+/* --- Animated toggle (CSS SVG) like the leftmost one in the example) --- */
+.pc-toggle { display:inline-block; cursor:pointer; }
+.pc-toggle input { display:none; }
+.pc-toggle .toggle-svg { width:56px; height:28px; }
+.pc-toggle .trk { fill:#2a2d46; transition:fill .25s; }
+.pc-toggle .knob { fill:#cfd3ff; transition: transform .25s ease, fill .25s ease; }
+.pc-toggle input:checked + .toggle-svg .trk { fill:#2b6cf7; }
+.pc-toggle input:checked + .toggle-svg .knob { transform: translateX(36px); fill:#fff; }
+
+/* --- Toasts (dark) --- */
+.pc-toast-root {
+  position:fixed; right:16px; bottom:16px; z-index:9999;
+  display:flex; flex-direction:column; gap:10px; pointer-events:none;
+}
+.pc-toast {
+  width: 320px; background:#101322; color:#e9ecff; border:1px solid #23274a;
+  border-left:6px solid #2b6cf7; border-radius:12px; padding:12px 12px 12px 14px;
+  display:flex; gap:10px; align-items:flex-start; pointer-events:auto;
+  box-shadow:0 10px 30px rgba(0,0,0,.35);
+  transform: translateX(20px); opacity:0; transition: transform .22s ease, opacity .22s ease;
+}
+.pc-toast.show { transform: translateX(0); opacity:1; }
+.pc-toast .x { margin-left:auto; background:transparent; border:0; color:#bfc6ff; cursor:pointer; }
+.pc-toast .x:hover { color:#fff; }
+.pc-toast .title { font-weight:700; margin-bottom:2px; }

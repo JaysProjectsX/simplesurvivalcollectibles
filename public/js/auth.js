@@ -141,6 +141,8 @@ function hasCookie(name) {
       localStorage.clear();
       try { updateNavUI(); } catch {}
     }
+
+    try { if (window.AdminNotify) AdminNotify.init(); } catch {}
   });
 
   setTimeout(hidePreloader, SAFETY_TIMEOUT_MS);
@@ -431,6 +433,7 @@ function isLockedOut(user) {
                 localStorage.setItem("minecraft_uuid", data.minecraft_uuid || "");
                 updateNavUI();
                 paintAccountInfo();
+                try { if (window.AdminNotify) AdminNotify.init(); } catch {}
                 return true;
               } catch { return false; }
             }
@@ -893,6 +896,78 @@ function isLockedOut(user) {
     window.location.replace(`/logout${qs}`);
   }
 
+  // ============ Admin/SysAdmin Comment Notifications (SSE) ============
+  const AdminNotify = (() => {
+    let es = null;            // EventSource instance
+    let enabled = false;      // toggle preference
+    const TOGGLE_KEY = 'admin_notify_comments';
+
+    function loadPref() {
+      try { enabled = localStorage.getItem(TOGGLE_KEY) === '1'; } catch {}
+    }
+    function savePref(v) {
+      enabled = !!v;
+      try { localStorage.setItem(TOGGLE_KEY, v ? '1' : '0'); } catch {}
+    }
+
+    function isPrivileged() {
+      const r = localStorage.getItem('role');
+      return r === 'Admin' || r === 'SysAdmin';
+    }
+
+    function start() {
+      if (!enabled || es || !isPrivileged()) return;
+      // EventSource will send cookies automatically if same-origin + CORS allows credentials
+      es = new EventSource(`${backendUrl}/admin/comments/stream`, { withCredentials: true });
+
+      es.addEventListener('hello', () => {
+        // optional: console.log('SSE connected');
+      });
+
+      es.addEventListener('comment', (e) => {
+        try {
+          const p = JSON.parse(e.data);
+          // Use your existing toast/toast-like UI in dark style
+          const title = `New comment by ${p.offender_username}`;
+          const lines = [
+            `${p.crate_name} › ${p.item_name}`,
+            `${p.economy} • ${new Date(p.at).toLocaleString()}`,
+            p.excerpt
+          ];
+          // You already use showToast elsewhere; reuse it if available
+          if (typeof showToast === 'function') {
+            showToast(`${title}\n${lines.join('\n')}`, 'info'); // dark theme in your site
+          } else if (typeof showGlobalModal === 'function') {
+            showGlobalModal({
+              type: 'info',
+              title,
+              message: lines.map(escapeHtml).join('<br>')
+            });
+          }
+        } catch {}
+      });
+
+      es.onerror = () => { stop(); /* auto-stop; will reattempt on next tick if still enabled */ };
+    }
+
+    function stop() {
+      try { es?.close(); } catch {}
+      es = null;
+    }
+
+    // Public API
+    return {
+      init() { loadPref(); maybeStartStop(); },
+      setEnabled(v) { savePref(!!v); maybeStartStop(); },
+      isEnabled() { return enabled; }
+    };
+
+    function maybeStartStop() {
+      if (enabled && isPrivileged()) start();
+      else stop();
+    }
+  })();
+  window.AdminNotify = AdminNotify;
 
   async function fetchAccountInfo() {
     try {
@@ -1250,7 +1325,7 @@ async function logout() {
   }
 
   sessionStorage.setItem("justLoggedOut", "1");
-
+  try { if (window.AdminNotify) AdminNotify.setEnabled(false); } catch {}
   localStorage.clear();
   updateNavUI();
   window.location.href = "/logout";

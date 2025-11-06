@@ -38,6 +38,16 @@
       </div>
 
       <div class="pc-section-title">Crates</div>
+      <div class="pc-settings-row">
+        <button id="pc-settings-btn" class="pc-settings-btn" aria-label="Settings" title="Settings">
+          <!-- Animated SVG gear -->
+          <svg class="pc-gear" viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">
+            <g class="spin">
+              <path fill="currentColor" d="M12 8a4 4 0 110 8 4 4 0 010-8zm9 4c0-.64-.07-1.26-.21-1.86l2.02-1.57-1.9-3.29-2.44.85a8.97 8.97 0 00-1.61-.94L16.5 2h-3L12.7 4.2c-.56.07-1.11.2-1.64.39l-2.44-.85-1.9 3.29 2.02 1.57c-.14.6-.21 1.22-.21 1.86s.07 1.26.21 1.86L6.72 15l1.9 3.29 2.44-.85c.53.19 1.08.32 1.64.39L13.5 22h3l.85-2.2c.56-.07 1.11-.2 1.64-.39l2.44.85 1.9-3.29-2.02-1.57c.14-.6.21-1.22.21-1.86zM12 9.8a2.2 2.2 0 100 4.4 2.2 2.2 0 000-4.4z"/>
+            </g>
+          </svg>
+        </button>
+      </div>
       <hr class="collections-divider" />
       <div id="crateSidebar"></div>
     </aside>
@@ -126,6 +136,59 @@
     </div>
   </div>
 
+  <!-- Settings Modal (custom, animated) -->
+  <div id="pc-settings-overlay" class="pc-settings-overlay hidden" aria-hidden="true">
+    <div class="pc-settings-card">
+      <div class="pc-settings-header">
+        <h3>Price Calculator Settings</h3>
+        <button type="button" class="pc-settings-close" aria-label="Close">×</button>
+      </div>
+
+      <div class="pc-settings-body">
+        <!-- General: Preferred economy -->
+        <section class="pc-settings-section">
+          <div class="pc-setting-line">
+            <div class="pc-setting-title">Auto-select preferred economy</div>
+            <label class="pc-toggle">
+              <input type="checkbox" id="pc-opt-autoecon">
+              <svg viewBox="0 0 80 40" class="toggle-svg" aria-hidden="true">
+                <rect x="2" y="2" rx="20" ry="20" width="76" height="36" class="trk"/>
+                <circle cx="20" cy="20" r="14" class="knob"/>
+              </svg>
+            </label>
+          </div>
+
+          <div id="pc-econ-choices" class="pc-radio-row">
+            <label><input type="radio" name="pc-pref-econ" value="Phoenix"> Phoenix</label>
+            <label><input type="radio" name="pc-pref-econ" value="Lynx"> Lynx</label>
+            <label><input type="radio" name="pc-pref-econ" value="Wyvern"> Wyvern</label>
+          </div>
+        </section>
+
+        <!-- Admin/SysAdmin: Comment notifications -->
+        <section id="pc-admin-section" class="pc-settings-section" hidden>
+          <div class="pc-setting-line">
+            <div class="pc-setting-title">Show comment notifications</div>
+            <label class="pc-toggle">
+              <input type="checkbox" id="pc-opt-comment-notifs">
+              <svg viewBox="0 0 80 40" class="toggle-svg" aria-hidden="true">
+                <rect x="2" y="2" rx="20" ry="20" width="76" height="36" class="trk"/>
+                <circle cx="20" cy="20" r="14" class="knob"/>
+              </svg>
+            </label>
+          </div>
+          <small class="pc-note">Receive live toasts when new comments are posted anywhere on the site.</small>
+        </section>
+      </div>
+
+      <div class="pc-settings-footer">
+        <button type="button" id="pc-settings-cancel" class="btn-ghost">Close</button>
+        <button type="button" id="pc-settings-save" class="btn-primary">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="pc-toast-root" class="pc-toast-root"></div>
   <div id="global-tooltip" class="global-tooltip"></div>
 
   <script src="/js/auth.js"></script>

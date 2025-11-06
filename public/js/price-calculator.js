@@ -37,6 +37,20 @@ function redirectHome() {
   location.replace("/");
 }
 
+function pcSettingsKey() {
+  const uid = PC_ME?.id != null ? String(PC_ME.id) : "guest";
+  return `ssc:pc-settings:v1:${uid}`;
+}
+function loadPcSettings() {
+  try {
+    const raw = localStorage.getItem(pcSettingsKey());
+    return raw ? JSON.parse(raw) : {};
+  } catch { return {}; }
+}
+function savePcSettings(s) {
+  try { localStorage.setItem(pcSettingsKey(), JSON.stringify(s || {})); } catch {}
+}
+
 async function pcFetchMe() {
   try {
     const r = await fetch(`${backendUrl}/me`, { credentials: "include" });
@@ -144,7 +158,6 @@ function updateCommentGateUI() {
       wrap.appendChild(ov);
     }
   } else if (ov && !ov.classList.contains('comment-mute-overlay')) {
-    // Do not remove the mute overlay; only remove the unlinked overlay
     ov.remove();
   }
 }
@@ -418,6 +431,90 @@ window.pcAcceptDisclaimer = function(modalId, storeKey) {
 
 function pcFormatCoins(n){ return (Number.isFinite(n) ? n.toLocaleString() : "—"); }
 
+function openSettingsModal() {
+  if (!pcGateOpen()) return;
+  const ov = document.getElementById("pc-settings-overlay");
+  if (!ov) return;
+  // show/hide admin section
+  const adminSec = document.getElementById("pc-admin-section");
+  adminSec.hidden = !(PC_ME && (PC_ME.role === "Admin" || PC_ME.role === "SysAdmin"));
+
+  // load saved
+  const s = loadPcSettings();
+  const auto = !!s.autoEconomy;
+  const pref = s.preferredEconomy || "Phoenix";
+  const notifs = !!s.adminCommentNotifs;
+
+  // reflect UI
+  const autoEl = document.getElementById("pc-opt-autoecon");
+  const radiosWrap = document.getElementById("pc-econ-choices");
+  const notifEl = document.getElementById("pc-opt-comment-notifs");
+
+  autoEl.checked = auto;
+  radiosWrap.classList.toggle("show", auto);
+  Array.from(document.querySelectorAll(`input[name="pc-pref-econ"]`)).forEach(r => {
+    r.checked = (r.value === pref);
+  });
+  if (notifEl) notifEl.checked = notifs;
+
+  ov.classList.add("show");
+  ov.classList.remove("hidden");
+  document.body.style.overflow = "hidden";
+}
+function closeSettingsModal() {
+  const ov = document.getElementById("pc-settings-overlay");
+  if (!ov) return;
+  ov.classList.remove("show");
+  setTimeout(() => {
+    ov.classList.add("hidden");
+    document.body.style.overflow = "";
+  }, 180);
+}
+
+function initSettingsUI() {
+  // open button
+  const btn = document.getElementById("pc-settings-btn");
+  if (btn) btn.addEventListener("click", openSettingsModal);
+
+  // overlay close
+  const ov = document.getElementById("pc-settings-overlay");
+  ov?.addEventListener("click", (e) => {
+    if (e.target === ov) closeSettingsModal();
+  });
+  document.querySelector(".pc-settings-close")?.addEventListener("click", closeSettingsModal);
+  document.getElementById("pc-settings-cancel")?.addEventListener("click", closeSettingsModal);
+
+  // auto econ toggle -> show/hide radios
+  const autoEl = document.getElementById("pc-opt-autoecon");
+  const radiosWrap = document.getElementById("pc-econ-choices");
+  autoEl?.addEventListener("change", () => {
+    radiosWrap.classList.toggle("show", !!autoEl.checked);
+  });
+
+  // save
+  document.getElementById("pc-settings-save")?.addEventListener("click", () => {
+    const s = loadPcSettings();
+    const auto = !!document.getElementById("pc-opt-autoecon").checked;
+    const prefEl = document.querySelector('input[name="pc-pref-econ"]:checked');
+    const pref = prefEl ? prefEl.value : (s.preferredEconomy || "Phoenix");
+    const adminOn = !!document.getElementById("pc-opt-comment-notifs")?.checked;
+
+    const next = {
+      ...s,
+      autoEconomy: auto,
+      preferredEconomy: pref,
+      adminCommentNotifs: adminOn
+    };
+    savePcSettings(next);
+
+    if (window.AdminNotify) {
+      AdminNotify.setEnabled(adminOn);
+    }
+
+    closeSettingsModal();
+  });
+}
+
 // ================== AUTH & INIT ==================
 (async function init() {
   try {
@@ -429,6 +526,7 @@ function pcFormatCoins(n){ return (Number.isFinite(n) ? n.toLocaleString() : "�
 
     document.body.hidden = false;
     pcInstallGuardOverlay();
+    initSettingsUI();
     maybeShowPriceDisclaimer();
     await loadCrates();
   } catch (err) {
@@ -693,13 +791,20 @@ async function openModal(itemId) {
   document.getElementById("itemIcon").src = item.icon_url || "/assets/default_icon.png";
 
   // === Economy visibility ===
+  const set = loadPcSettings();
+  if (set.autoEconomy && !isCerb) {
+    const p = set.preferredEconomy || "Phoenix";
+    if (p === "Phoenix" || p === "Lynx" || p === "Wyvern") {
+      selectedEconomy = p;
+    }
+  }
   const isCerb = (item.crate_name || "").toLowerCase().includes("cerberus");
   document.getElementById("cerberusBtn").style.display = isCerb ? "inline-block" : "none";
   ["phoenixBtn","lynxBtn","wyvernBtn"].forEach(id =>
     document.getElementById(id).style.display = isCerb ? "none" : "inline-block"
   );
   if (isCerb) selectedEconomy = "Cerberus";
-  else if (selectedEconomy === "Cerberus") selectedEconomy = "Phoenix";
+  else if (selectedEconomy === "Cerberus") selectedEconomy = p;
 
   updateEconomyDisplay();
   await loadInsights(itemId);
@@ -901,12 +1006,12 @@ function renderCommentsPaged() {
 
   if (!PC_COMMENTS_CACHE.length) {
     list.innerHTML = "<p>No comments yet.</p>";
-    renderCommentPagination(1, 1); // still draw a minimal footer
+    renderCommentPagination(1, 1);
     return;
   }
 
   const { slice, page, totalPages } = paginate(PC_COMMENTS_CACHE, PC_COMMENTS_PAGE, COMMENTS_PER_PAGE);
-  PC_COMMENTS_PAGE = page; // normalize/clamp
+  PC_COMMENTS_PAGE = page;
 
   slice.forEach(c => {
     const wrapper = document.createElement("div");
@@ -942,8 +1047,8 @@ function renderCommentsPaged() {
         ${mutedBadge}
         <b>${escapeHtml(c.username)}</b>
         ${ignSpan}
-        <span class="econ-tag econ-${c.economy.toLowerCase()}">${escapeHtml(c.economy)}</span>
-        <span class="comment-text">– ${escapeHtml(c.comment)}</span>
+        <span class="econ-tag econ-${c.economy.toLowerCase()}">${escapeHtml(c.economy)} - </span>
+        <span class="comment-text">${escapeHtml(c.comment)}</span>
       </div>
       <small>${timestamp}</small>
       ${isAdmin ? `

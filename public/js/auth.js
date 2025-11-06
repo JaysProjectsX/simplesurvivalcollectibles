@@ -115,6 +115,18 @@ function hasCookie(name) {
 
     try { updateNavUI(); } catch {}
     try { paintAccountInfo(); } catch {}
+  
+    try {
+      const role = localStorage.getItem('role');
+      const isPriv = role === 'Admin' || role === 'SysAdmin';
+      if (isPriv) {
+        // If user never chose, default ON for privileged roles
+        if (!localStorage.getItem('admin_notify_comments')) {
+          AdminNotify.setEnabled(true);
+        }
+        AdminNotify.init();
+      }
+    } catch {}
 
     // Redirect rules
     if (IS_LOGIN_PAGE && isProbablyLoggedIn()) {

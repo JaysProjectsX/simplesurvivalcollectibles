@@ -875,7 +875,7 @@ body {
 
 .pc-settings-header {
   display:flex; justify-content:space-between; align-items:center;
-  padding:14px 16px; background:linear-gradient(90deg,#1a1e34,#0f1222);
+  padding:14px 16px;
   border-bottom:1px solid #22233a;
 }
 .pc-settings-header h3 { margin:0; font-size:1.05rem; }

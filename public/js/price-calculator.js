@@ -450,6 +450,18 @@ function openSettingsModal() {
   const radiosWrap = document.getElementById("pc-econ-choices");
   const notifEl = document.getElementById("pc-opt-comment-notifs");
 
+  notifEl?.addEventListener("change", () => {
+    const on = !!notifEl.checked;
+    // persist right away so it sticks even if they close without Save
+    const s = loadPcSettings();
+    savePcSettings({ ...s, adminCommentNotifs: on });
+
+    if (window.AdminNotify) {
+      AdminNotify.setEnabled(on);
+      AdminNotify.init();
+    }
+  });
+
   autoEl.checked = auto;
   radiosWrap.classList.toggle("show", auto);
   Array.from(document.querySelectorAll(`input[name="pc-pref-econ"]`)).forEach(r => {
@@ -525,6 +537,16 @@ function initSettingsUI() {
     if (user.role !== "Admin" && user.role !== "SysAdmin") return redirectHome();
 
     document.body.hidden = false;
+
+    try {
+      const s = loadPcSettings();
+      const on = !!s.adminCommentNotifs;
+      if (window.AdminNotify) {
+        AdminNotify.setEnabled(on);
+        AdminNotify.init();
+      }
+    } catch {}
+
     pcInstallGuardOverlay();
     initSettingsUI();
     maybeShowPriceDisclaimer();
@@ -790,21 +812,28 @@ async function openModal(itemId) {
   document.getElementById("itemSet").textContent = item.set_name || "";
   document.getElementById("itemIcon").src = item.icon_url || "/assets/default_icon.png";
 
-  // === Economy visibility ===
-  const set = loadPcSettings();
-  if (set.autoEconomy && !isCerb) {
-    const p = set.preferredEconomy || "Phoenix";
+  // === Economy visibility & auto-pref ===
+  const settings = loadPcSettings();
+  const isCerb   = (item.crate_name || "").toLowerCase().includes("cerberus");
+
+  // default / previously selected economy hygiene
+  if (settings.autoEconomy && !isCerb) {
+    const p = settings.preferredEconomy || "Phoenix";
     if (p === "Phoenix" || p === "Lynx" || p === "Wyvern") {
       selectedEconomy = p;
     }
   }
-  const isCerb = (item.crate_name || "").toLowerCase().includes("cerberus");
+
   document.getElementById("cerberusBtn").style.display = isCerb ? "inline-block" : "none";
   ["phoenixBtn","lynxBtn","wyvernBtn"].forEach(id =>
     document.getElementById(id).style.display = isCerb ? "none" : "inline-block"
   );
-  if (isCerb) selectedEconomy = "Cerberus";
-  else if (selectedEconomy === "Cerberus") selectedEconomy = p;
+
+  if (isCerb) {
+    selectedEconomy = "Cerberus";
+  } else if (selectedEconomy === "Cerberus") {
+    selectedEconomy = settings.preferredEconomy || "Phoenix";
+  }
 
   updateEconomyDisplay();
   await loadInsights(itemId);
@@ -1047,7 +1076,7 @@ function renderCommentsPaged() {
         ${mutedBadge}
         <b>${escapeHtml(c.username)}</b>
         ${ignSpan}
-        <span class="econ-tag econ-${c.economy.toLowerCase()}">${escapeHtml(c.economy)} - </span>
+        <span class="econ-tag econ-${c.economy.toLowerCase()}">${escapeHtml(c.economy)}</span>
         <span class="comment-text">${escapeHtml(c.comment)}</span>
       </div>
       <small>${timestamp}</small>

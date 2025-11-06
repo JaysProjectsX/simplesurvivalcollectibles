@@ -439,6 +439,7 @@ body {
   border: 1px solid #22233a;
   max-height: 33vh;
   overflow-y: auto;
+  overflow-x: hidden;
 }
 .comment-list div {
   padding: 6px 0;
@@ -615,7 +616,7 @@ body {
 }
 
 .comment-line { display: flex; align-items: center; flex-wrap: wrap; justify-content: center;}
-.comment-text { color: #e5e9f7; font-size: 0.85rem; }
+.comment-text { color: #e5e9f7; font-size: 0.85rem; overflow-wrap: anywhere; word-break: break-word; white-space: pre-wrap; margin-left: 1rem; margin-right: 1rem;}
 
 /* all inline SVG icons */
 .icon { width: 16px; height: 16px; vertical-align: -4px; fill: currentColor; }

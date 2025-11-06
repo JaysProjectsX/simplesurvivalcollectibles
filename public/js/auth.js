@@ -222,6 +222,55 @@ setInterval(async () => {
 }, 5 * 60 * 1000);
 /* === END SESSION AUTH === */
 
+// Dedicated toast for Admin/SysAdmin comment notifications
+// Usage: pcAdminNotifyToast({ title:"New comment", message:"...", type:"info", duration:3800 })
+function pcAdminNotifyToast({ title = "Info", message = "", type = "info", duration = 3800 } = {}) {
+  const root = document.getElementById("pc-toast-root");
+  if (!root) return;
+
+  // icon + border color by type (keeps your dark theme)
+  const colors = {
+    success: "#47D764",
+    error:   "#ff355b",
+    info:    "#2F86EB",
+    warning: "#FFC021",
+  };
+  const border = colors[type] || colors.info;
+
+  const icons = {
+    success: `<svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm-1 14l-4-4 1.4-1.4L11 12.2l5.6-5.6L18 8l-7 8z"/></svg>`,
+    error:   `<svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm3.5 13.5L13 13l-2.5 2.5-1.5-1.5L11.5 11 9 8.5 10.5 7 13 9.5 15.5 7 17 8.5 14.5 11 17 13.5 15.5 15z"/></svg>`,
+    info:    `<svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M11 17h2v-6h-2v6zm0-8h2V7h-2v2zm1-7a10 10 0 1 0 .001 20.001A10 10 0 0 0 12 2z"/></svg>`,
+    warning: `<svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/></svg>`,
+  };
+
+  const toast = document.createElement("div");
+  toast.className = `pc-toast ${type}`;
+  toast.style.borderLeftColor = border;
+  toast.innerHTML = `
+    <div class="outer-container" style="margin-top:2px">${icons[type] || icons.info}</div>
+    <div class="inner-container">
+      <p class="title">${title}</p>
+      <p>${message}</p>
+    </div>
+    <button class="x" aria-label="Close">&times;</button>
+  `;
+
+  const close = () => {
+    toast.classList.remove("show");
+    setTimeout(() => toast.remove(), 240);
+  };
+  toast.querySelector(".x")?.addEventListener("click", close);
+
+  root.appendChild(toast);
+  // slide-in (uses your .pc-toast.show rule)
+  requestAnimationFrame(() => toast.classList.add("show"));
+
+  if (duration > 0) setTimeout(close, duration);
+}
+
+// Optional: expose as a global the SSE module can call
+window.AdminCommentToast = pcAdminNotifyToast;
 
 // Toast Notification Function
 const showToast = (msg, type = "success", duration = 3000) => {
@@ -908,58 +957,87 @@ function isLockedOut(user) {
     window.location.replace(`/logout${qs}`);
   }
 
-  // ============ Admin/SysAdmin Comment Notifications (SSE) ============
+  // --- Admin live comment notifier (SSE) ---
   const AdminNotify = (() => {
-    let es = null;            // EventSource instance
-    let enabled = false;      // toggle preference
-    const TOGGLE_KEY = 'admin_notify_comments';
+    let es = null;                  // EventSource instance
+    let enabled = false;            // toggle set by caller (price-calculator settings)
+    const TOGGLE_KEY = 'admin_notify_comments'; // fallback persistence if used outside PC page
 
-    function loadPref() {
-      try { enabled = localStorage.getItem(TOGGLE_KEY) === '1'; } catch {}
-    }
-    function savePref(v) {
-      enabled = !!v;
-      try { localStorage.setItem(TOGGLE_KEY, v ? '1' : '0'); } catch {}
+    // Optional persistence (kept for global pages; price-calculator calls setEnabled explicitly)
+    function loadPref() { try { enabled = localStorage.getItem(TOGGLE_KEY) === '1'; } catch {} }
+    function savePref(v) { enabled = !!v; try { localStorage.setItem(TOGGLE_KEY, v ? '1' : '0'); } catch {} }
+
+    // Lightweight /me cache
+    let ME = null;
+    async function fetchMeOnce() {
+      if (window.PC_ME) { ME = window.PC_ME; return ME; }
+      if (ME) return ME;
+      try {
+        const r = await fetch(`${backendUrl}/me`, { credentials: 'include' });
+        ME = r.ok ? await r.json() : null;
+      } catch { ME = null; }
+      return ME;
     }
 
-    function isPrivileged() {
-      const r = localStorage.getItem('role');
-      return r === 'Admin' || r === 'SysAdmin';
+    async function isPrivileged() {
+      const me = await fetchMeOnce();
+      const role = me?.role || '';
+      return role === 'Admin' || role === 'SysAdmin';
+    }
+
+    function haveToastRoot() {
+      return !!document.getElementById('pc-toast-root');
+    }
+
+    function showAdminToast(payload) {
+      // prefer the dedicated toast injected on price-calculator page
+      const fn = (window.AdminCommentToast || window.pcAdminNotifyToast);
+      if (typeof fn === 'function' && haveToastRoot()) {
+        const msg = `${payload.crate_name} › ${payload.item_name}
+  ${payload.economy} • ${new Date(payload.at).toLocaleString()}
+  ${payload.excerpt || ''}`.trim();
+
+        fn({
+          title: `New comment by ${payload.offender_username}`,
+          message: msg,
+          type: 'info',
+          duration: 4500
+        });
+      } else {
+        // No toast root on this page → quietly ignore (no modals)
+        // console.debug('AdminNotify: toast root not present; skipping toast');
+      }
     }
 
     function start() {
-      if (!enabled || es || !isPrivileged()) return;
-      // EventSource will send cookies automatically if same-origin + CORS allows credentials
-      es = new EventSource(`${backendUrl}/admin/comments/stream`, { withCredentials: true });
+      if (!enabled || es) return;
+
+      // Same-origin cookies are sent automatically; withCredentials helps when supported.
+      try {
+        es = new EventSource(`${backendUrl}/admin/comments/stream`, { withCredentials: true });
+      } catch {
+        es = new EventSource(`${backendUrl}/admin/comments/stream`);
+      }
 
       es.addEventListener('hello', () => {
-        // optional: console.log('SSE connected');
+        // connection established
       });
 
       es.addEventListener('comment', (e) => {
         try {
           const p = JSON.parse(e.data);
-          // Use your existing toast/toast-like UI in dark style
-          const title = `New comment by ${p.offender_username}`;
-          const lines = [
-            `${p.crate_name} › ${p.item_name}`,
-            `${p.economy} • ${new Date(p.at).toLocaleString()}`,
-            p.excerpt
-          ];
-          // You already use showToast elsewhere; reuse it if available
-          if (typeof showToast === 'function') {
-            showToast(`${title}\n${lines.join('\n')}`, 'info'); // dark theme in your site
-          } else if (typeof showGlobalModal === 'function') {
-            showGlobalModal({
-              type: 'info',
-              title,
-              message: lines.map(escapeHtml).join('<br>')
-            });
-          }
-        } catch {}
+          // guard against self-notify if backend doesn’t already filter it
+          if (ME && String(ME.id) === String(p.offender_user_id)) return;
+          showAdminToast(p);
+        } catch { /* ignore malformed payloads */ }
       });
 
-      es.onerror = () => { stop(); /* auto-stop; will reattempt on next tick if still enabled */ };
+      es.onerror = () => {
+        // drop and let maybeStartStop() recreate on next init/toggle
+        stop();
+        // basic backoff retry if still enabled
+        if (enabled) setTimeout(maybeStartStop, 1500);
+      };
     }
 
     function stop() {
@@ -967,17 +1045,19 @@ function isLockedOut(user) {
       es = null;
     }
 
+    async function maybeStartStop() {
+      if (!enabled) { stop(); return; }
+      if (!(await isPrivileged())) { stop(); return; }
+      start();
+    }
+
     // Public API
     return {
-      init() { loadPref(); maybeStartStop(); },
-      setEnabled(v) { savePref(!!v); maybeStartStop(); },
-      isEnabled() { return enabled; }
+      async init() { loadPref(); await fetchMeOnce(); maybeStartStop(); },
+      async setEnabled(v) { savePref(!!v); await fetchMeOnce(); maybeStartStop(); },
+      isEnabled() { return enabled; },
+      shutdown() { stop(); }
     };
-
-    function maybeStartStop() {
-      if (enabled && isPrivileged()) start();
-      else stop();
-    }
   })();
   window.AdminNotify = AdminNotify;
 

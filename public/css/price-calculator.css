@@ -907,15 +907,16 @@ body {
 }
 .pc-radio-row.show { display:flex; }
 
-/* --- Animated toggle (CSS SVG) like the leftmost one in the example) --- */
 /* === Admin comment toasts (site-wide) === */
-.pc-toast-root{
+.pc-toast-root {
   position: fixed;
-  right: 24px;
-  bottom: 24px;
-  width: 380px;
-  z-index: 5000;
-  pointer-events: none; /* clicks only on the toast itself */
+  right: 20px;
+  bottom: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  z-index: 9999;
+  pointer-events: none;         /* lane ignores clicks */
 }
 
 .pc-toast{
@@ -928,11 +929,23 @@ body {
   display: grid;
   grid-template-columns: 1.3fr 6fr 0.5fr;
   box-shadow: 0 15px 30px rgba(0,0,0,0.08);
-  border-left: 3px solid #2F86EB; /* default info accent */
+  border-left: 3px solid #2F86EB;
   opacity: 0;
   transform: translate(16px, 16px);
   transition: transform 300ms ease, opacity 300ms ease;
   will-change: transform, opacity;
+}
+
+/* Each toast remains clickable */
+.pc-toast-root .pc-toast {
+  pointer-events: auto;
+  width: 380px;
+  max-width: min(92vw, 380px);  /* protect on small screens */
+  background-color: #ffffff;
+  border-radius: 7px;
+  box-shadow: 0 15px 30px rgba(0,0,0,0.08);
+  border-left: 3px solid;       /* colored by .info/.success/etc you already have */
+  overflow: hidden;
 }
 
 /* spacing between stacked toasts */
@@ -975,29 +988,47 @@ body {
   font-size: 12px;
   font-weight: 400;
   color: #656565;
+  word-break: break-word;
   white-space: pre-line;
 }
 
+/* Subtle meta line at the bottom ("Crate: … • timestamp") */
+.pc-toast .meta {
+  display: block;
+  margin-top: 6px;
+  font-size: 11px;
+  color: #8a8a8a;
+}
+
 /* close button (right column) */
-.pc-toast .x{
-  align-self: start;
-  justify-self: end;
+.pc-toast .x {
+  appearance: none;
+  border: 0;
+  outline: 0;
   background: transparent;
   font-size: 20px;
   color: #656565;
   line-height: 0;
   cursor: pointer;
-  margin-right: -6px; /* matches the reference look */
+  justify-self: end;
+  margin: 0;
 }
 
-/* enter/exit */
-.pc-toast.toast-enter{
-  opacity: 1;
-  transform: translate(0,0);
+.pc-toast .x:focus { outline: none; box-shadow: none; }
+
+/* Smooth enter/exit (class names used by the JS) */
+.pc-toast.toast-enter { transform: translateY(8px); opacity: 0; }
+.pc-toast.toast-enter.toast-enter { /* kick in next frame */ }
+.pc-toast.toast-enter { animation: pcToastIn 180ms ease-out forwards; }
+.pc-toast.toast-exit { animation: pcToastOut 200ms ease-in forwards; }
+
+@keyframes pcToastIn {
+  from { transform: translateY(8px); opacity: 0; }
+  to   { transform: translateY(0);   opacity: 1; }
 }
-.pc-toast.toast-exit{
-  opacity: 0;
-  transform: translate(16px, 16px);
+@keyframes pcToastOut {
+  from { transform: translateY(0);   opacity: 1; }
+  to   { transform: translateY(6px); opacity: 0; }
 }
 
 /* ----- Toggle Switch (animated) ----- */

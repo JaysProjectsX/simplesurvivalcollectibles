@@ -251,6 +251,7 @@ window.fetchWithAuth = AUTH.fetchWithAuth;
     if (typeof window.pcAdminNotifyToast === 'function') {
       window.pcAdminNotifyToast({
         itemName:   c.itemName,
+        crateName:  c.crateName || c.crate_name,
         username:   c.byUsername,
         message:    c.message,
         createdAt:  c.createdAt
@@ -429,7 +430,14 @@ const showToast = (msg, type = "success", duration = 3000) => {
   }
 
   // Called by AdminNotify
-  window.pcAdminNotifyToast = function ({ itemName, username, message, createdAt, type = "info" }) {
+  window.pcAdminNotifyToast = function ({
+    itemName,
+    crateName,      // NEW (will be undefined if server doesn't send it)
+    username,
+    message,
+    createdAt,
+    type = "info"
+  }) {
     const root = ensurePcToastRoot();
 
     const toast = document.createElement("div");
@@ -439,9 +447,18 @@ const showToast = (msg, type = "success", duration = 3000) => {
       <div class="inner-container">
         <p class="title">[${esc(itemName)}] New comment by ${esc(username)}</p>
         <p class="message">${esc(message)}</p>
+        <small class="meta"></small>
       </div>
-      <button class="x" aria-label="Close">&times;</button>
+      <button class="x" aria-label="Close" type="button">&times;</button>
     `;
+
+    // meta: "Crate: <name> • <timestamp>"
+    const meta = toast.querySelector(".meta");
+    const ts = (createdAt && !isNaN(new Date(Number(createdAt)))) 
+      ? new Date(Number(createdAt)).toLocaleString()
+      : "";
+    const cratePart = crateName ? `Crate: ${esc(crateName)}` : "";
+    meta.textContent = cratePart && ts ? `${cratePart} • ${ts}` : (cratePart || ts);
 
     const close = () => {
       toast.classList.add("toast-exit");
@@ -450,10 +467,8 @@ const showToast = (msg, type = "success", duration = 3000) => {
     toast.querySelector(".x")?.addEventListener("click", close);
 
     root.prepend(toast);
-    requestAnimationFrame(() => {
-      toast.classList.add("toast-enter");
-    });
-    setTimeout(close, LIFE_MS);
+    requestAnimationFrame(() => toast.classList.add("toast-enter"));
+    setTimeout(close, 5000);
   };
 
   // Keep this for AdminNotify.showCommentToast() which calls ensureToastRoot()

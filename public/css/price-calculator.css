@@ -908,27 +908,56 @@ body {
 .pc-radio-row.show { display:flex; }
 
 /* --- Animated toggle (CSS SVG) like the leftmost one in the example) --- */
-.pc-toggle { display:inline-block; cursor:pointer; }
-.pc-toggle input { display:none; }
-.pc-toggle .toggle-svg { width:56px; height:28px; }
-.pc-toggle .trk { fill:#2a2d46; transition:fill .25s; }
-.pc-toggle .knob { fill:#cfd3ff; transition: transform .25s ease, fill .25s ease; }
-.pc-toggle input:checked + .toggle-svg .trk { fill:#2b6cf7; }
-.pc-toggle input:checked + .toggle-svg .knob { transform: translateX(36px); fill:#fff; }
-
-/* --- Toasts (dark) --- */
-.pc-toast-root {
-  position:fixed; right:16px; bottom:16px; z-index:9999;
-  display:flex; flex-direction:column; gap:10px; pointer-events:none;
-}
 .pc-toast {
-  width: 320px; background:#101322; color:#e9ecff; border:1px solid #23274a;
-  border-left:6px solid #2b6cf7; border-radius:12px; padding:12px 12px 12px 14px;
-  display:flex; gap:10px; align-items:flex-start; pointer-events:auto;
-  box-shadow:0 10px 30px rgba(0,0,0,.35);
-  transform: translateX(20px); opacity:0; transition: transform .22s ease, opacity .22s ease;
+  display: grid;
+  grid-template-columns: 1.3fr 6fr 0.5fr;
+  align-items: center;
+  min-height: 80px;
+  padding: 16px 18px;
 }
-.pc-toast.show { transform: translateX(0); opacity:1; }
-.pc-toast .x { margin-left:auto; background:transparent; border:0; color:#bfc6ff; cursor:pointer; }
-.pc-toast .x:hover { color:#fff; }
-.pc-toast .title { font-weight:700; margin-bottom:2px; }
+
+.pc-toast .outer-container,
+.pc-toast .inner-container {
+  align-self: center;
+}
+
+.pc-toast .outer-container i,
+.pc-toast .outer-container svg {
+  font-size: 28px; /* leave icons scalable */
+  width: 28px;
+  height: 28px;
+  display: inline-block;
+}
+
+.pc-toast .inner-container p:first-child,
+.pc-toast .title {
+  font-weight: 700;
+  font-size: 15px;
+  margin: 0 0 2px 0;
+  color: #e9ecff;
+}
+
+.pc-toast .inner-container p:last-child,
+.pc-toast .message {
+  font-size: 12px;
+  font-weight: 400;
+  color: #b9c0ff;
+  white-space: pre-line; /* preserve newlines from message */
+}
+
+/* type accents (dark theme) */
+.pc-toast.info     { border-left-color: #2F86EB; }
+.pc-toast.success  { border-left-color: #47D764; }
+.pc-toast.warning  { border-left-color: #FFC021; }
+.pc-toast.error    { border-left-color: #ff355b; }
+
+/* close button in grid column 3 */
+.pc-toast .x {
+  justify-self: end;
+  background: transparent;
+  font-size: 20px;
+  line-height: 0;
+  color: #bfc6ff;
+  cursor: pointer;
+}
+.pc-toast .x:hover { color: #fff; }

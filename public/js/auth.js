@@ -957,109 +957,136 @@ function isLockedOut(user) {
     window.location.replace(`/logout${qs}`);
   }
 
-  // --- Admin live comment notifier (SSE) ---
-  const AdminNotify = (() => {
-    let es = null;                  // EventSource instance
-    let enabled = false;            // toggle set by caller (price-calculator settings)
-    const TOGGLE_KEY = 'admin_notify_comments'; // fallback persistence if used outside PC page
+    // --- Admin live comment notifier (SSE) ---
+    const AdminNotify = (() => {
+      let es = null;                  // EventSource instance
+      let enabled = false;            // toggle set by caller (price-calculator settings)
+      const TOGGLE_KEY = 'admin_notify_comments'; // fallback persistence outside PC page
+      let ME = null;                  // cached /me result for self-filter
 
-    // Optional persistence (kept for global pages; price-calculator calls setEnabled explicitly)
-    function loadPref() { try { enabled = localStorage.getItem(TOGGLE_KEY) === '1'; } catch {} }
-    function savePref(v) { enabled = !!v; try { localStorage.setItem(TOGGLE_KEY, v ? '1' : '0'); } catch {} }
+      // ---- prefs (keep your behavior) ----
+      function loadPref() { try { enabled = localStorage.getItem(TOGGLE_KEY) === '1'; } catch {} }
+      function savePref(v) { enabled = !!v; try { localStorage.setItem(TOGGLE_KEY, v ? '1' : '0'); } catch {} }
 
-    // Lightweight /me cache
-    let ME = null;
-    async function fetchMeOnce() {
-      if (window.PC_ME) { ME = window.PC_ME; return ME; }
-      if (ME) return ME;
-      try {
-        const r = await fetch(`${backendUrl}/me`, { credentials: 'include' });
-        ME = r.ok ? await r.json() : null;
-      } catch { ME = null; }
-      return ME;
-    }
-
-    async function isPrivileged() {
-      const me = await fetchMeOnce();
-      const role = me?.role || '';
-      return role === 'Admin' || role === 'SysAdmin';
-    }
-
-    function haveToastRoot() {
-      return !!document.getElementById('pc-toast-root');
-    }
-
-    function showAdminToast(payload) {
-      // prefer the dedicated toast injected on price-calculator page
-      const fn = (window.AdminCommentToast || window.pcAdminNotifyToast);
-      if (typeof fn === 'function' && haveToastRoot()) {
-        const msg = `${payload.crate_name} › ${payload.item_name}
-  ${payload.economy} • ${new Date(payload.at).toLocaleString()}
-  ${payload.excerpt || ''}`.trim();
-
-        fn({
-          title: `New comment by ${payload.offender_username}`,
-          message: msg,
-          type: 'info',
-          duration: 4500
-        });
-      } else {
-        // No toast root on this page → quietly ignore (no modals)
-        // console.debug('AdminNotify: toast root not present; skipping toast');
-      }
-    }
-
-    function start() {
-      if (!enabled || es) return;
-
-      // Same-origin cookies are sent automatically; withCredentials helps when supported.
-      try {
-        es = new EventSource(`${backendUrl}/admin/comments/stream`, { withCredentials: true });
-      } catch {
-        es = new EventSource(`${backendUrl}/admin/comments/stream`);
+      // ---- ensure we respect your existing session bootstrap ----
+      async function waitAuthReady() {
+        try { await (window.__auth_ready || Promise.resolve()); } catch {}
       }
 
-      es.addEventListener('hello', () => {
-        // connection established
-      });
-
-      es.addEventListener('comment', (e) => {
+      // ---- fetch /me using YOUR existing approach ----
+      async function fetchMeOnce() {
+        if (window.PC_ME) { ME = window.PC_ME; return ME; }
+        if (ME) return ME;
         try {
-          const p = JSON.parse(e.data);
-          // guard against self-notify if backend doesn’t already filter it
-          if (ME && String(ME.id) === String(p.offender_user_id)) return;
-          showAdminToast(p);
-        } catch { /* ignore malformed payloads */ }
-      });
+          const r = await AUTH.fetchWithAuth(`${backendUrl}/me`);
+          if (r.ok) {
+            ME = await r.json();
+          } else {
+            ME = null;
+          }
+        } catch { ME = null; }
+        return ME;
+      }
 
-      es.onerror = () => {
-        // drop and let maybeStartStop() recreate on next init/toggle
-        stop();
-        // basic backoff retry if still enabled
-        if (enabled) setTimeout(maybeStartStop, 1500);
+      async function isPrivileged() {
+        const me = await fetchMeOnce();
+        const role = me?.role || '';
+        return role === 'Admin' || role === 'SysAdmin';
+      }
+
+      function ensureToastRoot() {
+        let root = document.getElementById('pc-toast-root');
+        if (!root) {
+          // create it so we never drop an event just because HTML wasn't present yet
+          root = document.createElement('div');
+          root.id = 'pc-toast-root';
+          root.className = 'pc-toast-root';
+          document.body.appendChild(root);
+        }
+        return root;
+      }
+
+      function showAdminToast(payload) {
+        // Always ensure a root exists (prevents early-drop when init races DOM)
+        ensureToastRoot();
+
+        const fn = (window.AdminCommentToast || window.pcAdminNotifyToast);
+        if (typeof fn === 'function') {
+          const msg = `${payload.crate_name} › ${payload.item_name}
+    ${payload.economy} • ${new Date(payload.at).toLocaleString()}
+    ${payload.excerpt || ''}`.trim();
+
+          fn({
+            title: `New comment by ${payload.offender_username}`,
+            message: msg,
+            type: 'info',
+            duration: 4500
+          });
+        }
+      }
+
+      function attachHandlers(stream) {
+        // Named event from server
+        stream.addEventListener('comment', onEvent);
+        // Fallback if server uses default "message"
+        stream.onmessage = onEvent;
+
+        function onEvent(e) {
+          try {
+            const p = JSON.parse(e.data);
+
+            // Self-filter (if backend doesn't do it)
+            if (ME && String(ME.id) === String(p.offender_user_id)) return;
+
+            // Only notify Admin/SysAdmin (if role changed mid-session, we’ll re-check on restart)
+            if (!enabled) return;
+
+            showAdminToast(p);
+          } catch {
+            // ignore malformed payloads
+          }
+        }
+
+        stream.onerror = () => {
+          console.warn("AdminNotify SSE disconnected; will retry if enabled.");
+          stop();
+          if (enabled) setTimeout(maybeStartStop, 1500); // gentle retry
+        };
+      }
+
+      function start() {
+        if (!enabled || es) return;
+        try {
+          // Same-origin; cookies included. (The init withCredentials flag is supported in modern browsers.)
+          es = new EventSource(`/admin/comments/stream`, { withCredentials: true });
+        } catch {
+          es = new EventSource(`/admin/comments/stream`);
+        }
+        attachHandlers(es);
+      }
+
+      function stop() {
+        try { es?.close(); } catch {}
+        es = null;
+      }
+
+      async function maybeStartStop() {
+        if (!enabled) { stop(); return; }
+        await waitAuthReady();
+        if (!(await isPrivileged())) { stop(); return; }
+        start();
+      }
+
+      // Public API (matches how you're already calling it)
+      return {
+        async init() { loadPref(); await maybeStartStop(); },
+        async setEnabled(v) { savePref(!!v); await maybeStartStop(); },
+        isEnabled() { return enabled; },
+        shutdown() { stop(); }
       };
-    }
-
-    function stop() {
-      try { es?.close(); } catch {}
-      es = null;
-    }
-
-    async function maybeStartStop() {
-      if (!enabled) { stop(); return; }
-      if (!(await isPrivileged())) { stop(); return; }
-      start();
-    }
-
-    // Public API
-    return {
-      async init() { loadPref(); await fetchMeOnce(); maybeStartStop(); },
-      async setEnabled(v) { savePref(!!v); await fetchMeOnce(); maybeStartStop(); },
-      isEnabled() { return enabled; },
-      shutdown() { stop(); }
-    };
-  })();
-  window.AdminNotify = AdminNotify;
+    })();
+    window.AdminNotify = AdminNotify;
+    
 
   async function fetchAccountInfo() {
     try {

@@ -454,7 +454,8 @@ function openSettingsModal() {
     const on = !!notifEl.checked;
     // persist right away so it sticks even if they close without Save
     const s = loadPcSettings();
-    savePcSettings({ ...s, adminCommentNotifs: on });
+    const base = s || {};
+    savePcSettings({ ...base, adminCommentNotifs: on });
 
     if (window.AdminNotify) {
       AdminNotify.setEnabled(on);

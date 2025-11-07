@@ -457,10 +457,6 @@ function openSettingsModal() {
     const base = s || {};
     savePcSettings({ ...base, adminCommentNotifs: on });
 
-    if (window.AdminNotify) {
-      AdminNotify.setEnabled(on);
-      AdminNotify.init();
-    }
   });
 
   autoEl.checked = auto;
@@ -520,9 +516,7 @@ function initSettingsUI() {
     };
     savePcSettings(next);
 
-    if (window.AdminNotify) {
-      AdminNotify.setEnabled(adminOn);
-    }
+
 
     closeSettingsModal();
   });
@@ -539,14 +533,7 @@ function initSettingsUI() {
 
     document.body.hidden = false;
 
-    try {
-      const s = loadPcSettings();
-      const on = !!s.adminCommentNotifs;
-      if (window.AdminNotify) {
-        AdminNotify.setEnabled(on);
-        AdminNotify.init();
-      }
-    } catch {}
+
 
     pcInstallGuardOverlay();
     initSettingsUI();
@@ -558,6 +545,70 @@ function initSettingsUI() {
   } finally {
     hidePreloader();
   }
+})();
+
+// === Price Calculator: Admin Notify toggle wiring ===========================
+// Requirements: window.AdminNotify.setEnabled(on) exists (from auth.js above)
+
+(function wirePcAdminNotifyToggle() {
+  // Update these selectors/IDs to match your settings panel DOM:
+  const toggleEl = document.querySelector('#pc-opt-comment-notifs');
+  const saveBtn  = document.querySelector('#pc-settings-save'); // if you have a save button (optional)
+
+  const TOGGLE_KEY_BASE = 'admin_notify_comments';
+
+  function getUserId() {
+    return (localStorage.getItem('user_id') || '').trim();
+  }
+  function toggleKey() {
+    const uid = getUserId();
+    return uid ? `${TOGGLE_KEY_BASE}:${uid}` : TOGGLE_KEY_BASE;
+  }
+
+  function loadPref() {
+    try { return localStorage.getItem(toggleKey()) === '1'; } catch { return false; }
+  }
+
+  function savePref(on) {
+    try { localStorage.setItem(toggleKey(), on ? '1' : '0'); } catch {}
+  }
+
+  function applyToModule(on) {
+    if (window.AdminNotify && typeof window.AdminNotify.setEnabled === 'function') {
+      window.AdminNotify.setEnabled(on);
+    }
+  }
+
+  // Initialize UI state
+  if (toggleEl) {
+    toggleEl.checked = loadPref();
+  }
+
+  // If you want live apply on toggle (no save button)
+  if (toggleEl && !saveBtn) {
+    toggleEl.addEventListener('change', (e) => {
+      const on = !!e.currentTarget.checked;
+      savePref(on);
+      applyToModule(on);
+    });
+  }
+
+  // If you prefer an explicit Save button (optional):
+  if (toggleEl && saveBtn) {
+    saveBtn.addEventListener('click', (e) => {
+      e.preventDefault?.();
+      const on = !!toggleEl.checked;
+      savePref(on);
+      applyToModule(on);
+      // Optionally show a small “Saved” toast
+      if (window.showGlobalModal) {
+        window.showGlobalModal({ type: 'success', title: 'Settings saved', message: 'Admin notifications updated.' });
+      }
+    });
+  }
+
+  // Ensure the module reflects current state at load:
+  applyToModule(loadPref());
 })();
 
 // ================== LOAD CRATES ==================

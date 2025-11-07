@@ -115,18 +115,6 @@ function hasCookie(name) {
 
     try { updateNavUI(); } catch {}
     try { paintAccountInfo(); } catch {}
-  
-    try {
-      const role = localStorage.getItem('role');
-      const isPriv = role === 'Admin' || role === 'SysAdmin';
-      if (isPriv) {
-        // If user never chose, default ON for privileged roles
-        if (!localStorage.getItem('admin_notify_comments')) {
-          AdminNotify.setEnabled(true);
-        }
-        AdminNotify.init();
-      }
-    } catch {}
 
     // Redirect rules
     if (IS_LOGIN_PAGE && isProbablyLoggedIn()) {
@@ -154,7 +142,6 @@ function hasCookie(name) {
       try { updateNavUI(); } catch {}
     }
 
-    try { if (window.AdminNotify) AdminNotify.init(); } catch {}
   });
 
   setTimeout(hidePreloader, SAFETY_TIMEOUT_MS);
@@ -208,6 +195,156 @@ const AUTH = (() => {
   return { fetchWithAuth, refreshOnce };
 })();
 
+// === AdminNotify (Polling-Only) =============================================
+// Polls /api/admin/comments/updates every N seconds and shows toasts for new comments.
+// Assumes: fetchWithAuth(input, init) exists, cookie-based auth,
+//          window.pcAdminNotifyToast({ itemName, username, message, createdAt }) exists.
+
+(() => {
+  const TOGGLE_KEY_BASE = 'admin_notify_comments';       // on/off toggle
+  const LAST_TS_BASE    = 'admin_notify_last_ts';        // last-seen ms
+  const POLL_MS         = 10_000;                        // 10s
+
+  // Scoped state
+  let pollTimer = null;
+  let enabled   = false;
+
+  // --- Helpers --------------------------------------------------------------
+  function getUserId() {
+    // Keep in sync with how you store user id locally
+    return (localStorage.getItem('user_id') || '').trim();
+  }
+  function isPrivileged() {
+    const r = localStorage.getItem('role');
+    return r === 'Admin' || r === 'SysAdmin';
+  }
+  function toggleKey() {
+    const uid = getUserId();
+    return uid ? `${TOGGLE_KEY_BASE}:${uid}` : TOGGLE_KEY_BASE;
+  }
+  function lastTsKey() {
+    const uid = getUserId();
+    return uid ? `${LAST_TS_BASE}:${uid}` : LAST_TS_BASE;
+  }
+
+  function loadPref() {
+    try { enabled = localStorage.getItem(toggleKey()) === '1'; } catch { enabled = false; }
+  }
+  function savePref(v) {
+    enabled = !!v;
+    try { localStorage.setItem(toggleKey(), v ? '1' : '0'); } catch {}
+  }
+
+  function getLastTs() {
+    const n = Number(localStorage.getItem(lastTsKey()));
+    return Number.isFinite(n) ? n : 0;
+  }
+  function setLastTs(ms) {
+    try { localStorage.setItem(lastTsKey(), String(ms)); } catch {}
+  }
+
+  // Toast renderer (expects your existing toast utility)
+  function showCommentToast(c) {
+    // Ensure a root exists if your toast util needs it; otherwise remove.
+    if (typeof window.ensureToastRoot === 'function') {
+      try { window.ensureToastRoot(); } catch {}
+    }
+    if (typeof window.pcAdminNotifyToast === 'function') {
+      window.pcAdminNotifyToast({
+        itemName:   c.itemName,
+        username:   c.byUsername,
+        message:    c.message,
+        createdAt:  c.createdAt
+      });
+    } else {
+      // Fallback: console log so you still see activity during dev
+      console.debug('[AdminNotify]', c);
+    }
+  }
+
+  // --- Polling logic --------------------------------------------------------
+  async function pollOnce() {
+    const since = getLastTs() || (Date.now() - 60_000); // seed: last 60s
+    let r;
+    try {
+      r = await fetchWithAuth(`/api/admin/comments/updates?since=${since}`, { credentials: 'include' });
+    } catch {
+      return; // network hiccup
+    }
+    if (!r || !r.ok) return;
+
+    let json;
+    try { json = await r.json(); } catch { return; }
+    const arr = Array.isArray(json?.comments) ? json.comments : [];
+
+    if (!arr.length) return;
+
+    // Deliver in order; skip your own comments if desired
+    const me = getUserId();
+    for (const c of arr) {
+      if (me && String(c.byUserId) === String(me)) {
+        // still advance the clock to avoid reprocessing
+        if (c.createdAt) setLastTs(Math.max(getLastTs(), c.createdAt));
+        continue;
+      }
+      showCommentToast(c);
+      if (c.createdAt) setLastTs(Math.max(getLastTs(), c.createdAt));
+    }
+  }
+
+  function startPolling() {
+    if (pollTimer) return;
+    // On enable, start from "now" so we don't replay the entire backlog
+    if (!getLastTs()) setLastTs(Date.now());
+    pollTimer = setInterval(pollOnce, POLL_MS);
+    // Kick immediately
+    pollOnce();
+  }
+
+  function stopPolling() {
+    if (pollTimer) {
+      clearInterval(pollTimer);
+      pollTimer = null;
+    }
+  }
+
+  function maybeStartStop() {
+    if (!enabled || !isPrivileged()) {
+      stopPolling();
+      return;
+    }
+    if (!pollTimer) startPolling();
+  }
+
+  // --- Public API -----------------------------------------------------------
+  function setEnabled(v) {
+    savePref(!!v);
+    // reset lastTs when enabling so we don't toast old items
+    if (v) setLastTs(Date.now());
+    maybeStartStop();
+  }
+
+  function init() {
+    loadPref();
+    maybeStartStop();
+  }
+
+  function stop() {
+    stopPolling();
+  }
+
+  // Expose to window for other files (e.g., price-calculator.js)
+  window.AdminNotify = { init, stop, setEnabled };
+})();
+
+// Initialize once DOM is ready (if you don't already elsewhere)
+document.addEventListener('DOMContentLoaded', () => {
+  if (window.AdminNotify && typeof window.AdminNotify.init === 'function') {
+    window.AdminNotify.init();
+  }
+});
+/* === END AdminNotify === */
+
 // Light idle refresh (sliding session) without spam
 let __auth_last_activity = Date.now();
 ["click","keydown","pointerdown"].forEach(ev => 
@@ -221,56 +358,6 @@ setInterval(async () => {
   }
 }, 5 * 60 * 1000);
 /* === END SESSION AUTH === */
-
-// Dedicated toast for Admin/SysAdmin comment notifications
-// Usage: pcAdminNotifyToast({ title:"New comment", message:"...", type:"info", duration:3800 })
-function pcAdminNotifyToast({ title = "Info", message = "", type = "info", duration = 3800 } = {}) {
-  const root = document.getElementById("pc-toast-root");
-  if (!root) return;
-
-  // icon + border color by type (keeps your dark theme)
-  const colors = {
-    success: "#47D764",
-    error:   "#ff355b",
-    info:    "#2F86EB",
-    warning: "#FFC021",
-  };
-  const border = colors[type] || colors.info;
-
-  const icons = {
-    success: `<svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm-1 14l-4-4 1.4-1.4L11 12.2l5.6-5.6L18 8l-7 8z"/></svg>`,
-    error:   `<svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm3.5 13.5L13 13l-2.5 2.5-1.5-1.5L11.5 11 9 8.5 10.5 7 13 9.5 15.5 7 17 8.5 14.5 11 17 13.5 15.5 15z"/></svg>`,
-    info:    `<svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M11 17h2v-6h-2v6zm0-8h2V7h-2v2zm1-7a10 10 0 1 0 .001 20.001A10 10 0 0 0 12 2z"/></svg>`,
-    warning: `<svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/></svg>`,
-  };
-
-  const toast = document.createElement("div");
-  toast.className = `pc-toast ${type}`;
-  toast.style.borderLeftColor = border;
-  toast.innerHTML = `
-    <div class="outer-container" style="margin-top:2px">${icons[type] || icons.info}</div>
-    <div class="inner-container">
-      <p class="title">${title}</p>
-      <p>${message}</p>
-    </div>
-    <button class="x" aria-label="Close">&times;</button>
-  `;
-
-  const close = () => {
-    toast.classList.remove("show");
-    setTimeout(() => toast.remove(), 240);
-  };
-  toast.querySelector(".x")?.addEventListener("click", close);
-
-  root.appendChild(toast);
-  // slide-in (uses your .pc-toast.show rule)
-  requestAnimationFrame(() => toast.classList.add("show"));
-
-  if (duration > 0) setTimeout(close, duration);
-}
-
-// Optional: expose as a global the SSE module can call
-window.AdminCommentToast = pcAdminNotifyToast;
 
 // Toast Notification Function
 const showToast = (msg, type = "success", duration = 3000) => {
@@ -494,7 +581,7 @@ function isLockedOut(user) {
                 localStorage.setItem("minecraft_uuid", data.minecraft_uuid || "");
                 updateNavUI();
                 paintAccountInfo();
-                try { if (window.AdminNotify) AdminNotify.init(); } catch {}
+
                 return true;
               } catch { return false; }
             }
@@ -956,136 +1043,6 @@ function isLockedOut(user) {
     const qs = cause ? `?reason=${encodeURIComponent(cause)}` : '';
     window.location.replace(`/logout${qs}`);
   }
-
-    // --- Admin live comment notifier (SSE) ---
-    const AdminNotify = (() => {
-      let es = null;                  // EventSource instance
-      let enabled = false;            // toggle set by caller (price-calculator settings)
-      const TOGGLE_KEY = 'admin_notify_comments'; // fallback persistence outside PC page
-      let ME = null;                  // cached /me result for self-filter
-
-      // ---- prefs (keep your behavior) ----
-      function loadPref() { try { enabled = localStorage.getItem(TOGGLE_KEY) === '1'; } catch {} }
-      function savePref(v) { enabled = !!v; try { localStorage.setItem(TOGGLE_KEY, v ? '1' : '0'); } catch {} }
-
-      // ---- ensure we respect your existing session bootstrap ----
-      async function waitAuthReady() {
-        try { await (window.__auth_ready || Promise.resolve()); } catch {}
-      }
-
-      // ---- fetch /me using YOUR existing approach ----
-      async function fetchMeOnce() {
-        if (window.PC_ME) { ME = window.PC_ME; return ME; }
-        if (ME) return ME;
-        try {
-          const r = await AUTH.fetchWithAuth(`${backendUrl}/me`);
-          if (r.ok) {
-            ME = await r.json();
-          } else {
-            ME = null;
-          }
-        } catch { ME = null; }
-        return ME;
-      }
-
-      async function isPrivileged() {
-        const me = await fetchMeOnce();
-        const role = me?.role || '';
-        return role === 'Admin' || role === 'SysAdmin';
-      }
-
-      function ensureToastRoot() {
-        let root = document.getElementById('pc-toast-root');
-        if (!root) {
-          // create it so we never drop an event just because HTML wasn't present yet
-          root = document.createElement('div');
-          root.id = 'pc-toast-root';
-          root.className = 'pc-toast-root';
-          document.body.appendChild(root);
-        }
-        return root;
-      }
-
-      function showAdminToast(payload) {
-        // Always ensure a root exists (prevents early-drop when init races DOM)
-        ensureToastRoot();
-
-        const fn = (window.AdminCommentToast || window.pcAdminNotifyToast);
-        if (typeof fn === 'function') {
-          const msg = `${payload.crate_name} › ${payload.item_name}
-    ${payload.economy} • ${new Date(payload.at).toLocaleString()}
-    ${payload.excerpt || ''}`.trim();
-
-          fn({
-            title: `New comment by ${payload.offender_username}`,
-            message: msg,
-            type: 'info',
-            duration: 4500
-          });
-        }
-      }
-
-      function attachHandlers(stream) {
-        // Named event from server
-        stream.addEventListener('comment', onEvent);
-        // Fallback if server uses default "message"
-        stream.onmessage = onEvent;
-
-        function onEvent(e) {
-          try {
-            const p = JSON.parse(e.data);
-
-            // Self-filter (if backend doesn't do it)
-            if (ME && String(ME.id) === String(p.offender_user_id)) return;
-
-            // Only notify Admin/SysAdmin (if role changed mid-session, we’ll re-check on restart)
-            if (!enabled) return;
-
-            showAdminToast(p);
-          } catch {
-            // ignore malformed payloads
-          }
-        }
-
-        stream.onerror = () => {
-          console.warn("AdminNotify SSE disconnected; will retry if enabled.");
-          stop();
-          if (enabled) setTimeout(maybeStartStop, 1500); // gentle retry
-        };
-      }
-
-      function start() {
-        if (!enabled || es) return;
-        try {
-          // Same-origin; cookies included. (The init withCredentials flag is supported in modern browsers.)
-          es = new EventSource(`/admin/comments/stream`, { withCredentials: true });
-        } catch {
-          es = new EventSource(`/admin/comments/stream`);
-        }
-        attachHandlers(es);
-      }
-
-      function stop() {
-        try { es?.close(); } catch {}
-        es = null;
-      }
-
-      async function maybeStartStop() {
-        if (!enabled) { stop(); return; }
-        await waitAuthReady();
-        if (!(await isPrivileged())) { stop(); return; }
-        start();
-      }
-
-      // Public API (matches how you're already calling it)
-      return {
-        async init() { loadPref(); await maybeStartStop(); },
-        async setEnabled(v) { savePref(!!v); await maybeStartStop(); },
-        isEnabled() { return enabled; },
-        shutdown() { stop(); }
-      };
-    })();
-    window.AdminNotify = AdminNotify;
     
 
   async function fetchAccountInfo() {
@@ -1444,7 +1401,7 @@ async function logout() {
   }
 
   sessionStorage.setItem("justLoggedOut", "1");
-  try { if (window.AdminNotify) AdminNotify.setEnabled(false); } catch {}
+
   localStorage.clear();
   updateNavUI();
   window.location.href = "/logout";

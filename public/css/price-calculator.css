@@ -908,93 +908,96 @@ body {
 .pc-radio-row.show { display:flex; }
 
 /* --- Animated toggle (CSS SVG) like the leftmost one in the example) --- */
-.pc-toast {
+/* === Admin comment toasts (site-wide) === */
+.pc-toast-root{
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+  width: 380px;
+  z-index: 5000;
+  pointer-events: none; /* clicks only on the toast itself */
+}
+
+.pc-toast{
+  pointer-events: auto;
+  width: 100%;
+  min-height: 80px;
+  padding: 20px;
+  background-color: #ffffff;
+  border-radius: 7px;
   display: grid;
   grid-template-columns: 1.3fr 6fr 0.5fr;
-  align-items: center;
-  min-height: 80px;
-  padding: 16px 18px;
+  box-shadow: 0 15px 30px rgba(0,0,0,0.08);
+  border-left: 3px solid #2F86EB; /* default info accent */
+  opacity: 0;
+  transform: translate(16px, 16px);
+  transition: transform 300ms ease, opacity 300ms ease;
+  will-change: transform, opacity;
 }
+
+/* spacing between stacked toasts */
+.pc-toast:not(:last-child){ margin-bottom: 14px; }
+
+.pc-toast.info    { border-left-color: #2F86EB; }
+.pc-toast.success { border-left-color: #47D764; }
+.pc-toast.warning { border-left-color: #FFC021; }
+.pc-toast.error   { border-left-color: #ff355b; }
 
 .pc-toast .outer-container,
-.pc-toast .inner-container {
-  align-self: center;
-}
+.pc-toast .inner-container { align-self: center; }
 
 .pc-toast .outer-container i,
-.pc-toast .outer-container svg {
-  font-size: 28px; /* leave icons scalable */
-  width: 28px;
-  height: 28px;
+.pc-toast .outer-container svg{
+  font-size: 35px;
+  width: 35px; height: 35px;
   display: inline-block;
 }
 
-.pc-toast .inner-container p:first-child,
-.pc-toast .title {
-  font-weight: 700;
-  font-size: 15px;
+.pc-toast.success i,
+.pc-toast.success svg { color: #47D764; fill: #47D764; }
+.pc-toast.error   i,
+.pc-toast.error   svg { color: #ff355b; fill: #ff355b; }
+.pc-toast.info    i,
+.pc-toast.info    svg { color: #2F86EB; fill: #2F86EB; }
+.pc-toast.warning i,
+.pc-toast.warning svg { color: #FFC021; fill: #FFC021; }
+
+.pc-toast .title,
+.pc-toast .inner-container p:first-child{
+  color: #101020;
+  font-weight: 600;
+  font-size: 16px;
   margin: 0 0 2px 0;
-  color: #e9ecff;
 }
 
-.pc-toast .inner-container p:last-child,
-.pc-toast .message {
+.pc-toast .message,
+.pc-toast .inner-container p:last-child{
   font-size: 12px;
   font-weight: 400;
-  color: #b9c0ff;
-  white-space: pre-line; /* preserve newlines from message */
+  color: #656565;
+  white-space: pre-line;
 }
 
-/* type accents (dark theme) */
-.pc-toast.info     { border-left-color: #2F86EB; }
-.pc-toast.success  { border-left-color: #47D764; }
-.pc-toast.warning  { border-left-color: #FFC021; }
-.pc-toast.error    { border-left-color: #ff355b; }
-
-/* close button in grid column 3 */
-.pc-toast .x {
+/* close button (right column) */
+.pc-toast .x{
+  align-self: start;
   justify-self: end;
   background: transparent;
   font-size: 20px;
+  color: #656565;
   line-height: 0;
-  color: #bfc6ff;
   cursor: pointer;
-}
-.pc-toast .x:hover { color: #fff; }
-
-/* bottom-right lane specifically for admin toasts on price calculator */
-.pc-toast-root {
-  position: fixed;
-  right: 18px;
-  bottom: 18px;
-  z-index: 9999;
-  display: grid;
-  gap: 10px;
-  width: min(92vw, 360px);
-  pointer-events: none; /* clicks go to the close button only */
-}
-.pc-toast-root .pc-toast { 
-  background: #181b2e;        /* keep in line with your dark panel theme */
-  border: 1px solid #2a2f4a;
-  border-left: 6px solid #2F86EB; /* overridden by .info/.success/etc. */
-  border-radius: 14px;
-  box-shadow: 0 10px 26px rgba(0,0,0,0.35);
-  pointer-events: auto;        /* restore clickability for the toast itself */
-  transform: translate3d(12px, 12px, 0);
-  opacity: 0;
+  margin-right: -6px; /* matches the reference look */
 }
 
-/* enter / leave transitions */
-.pc-toast.pc-enter { opacity: 0; transform: translate3d(16px, 24px, 0); }
-.pc-toast.pc-enter.pc-enter-active {
+/* enter/exit */
+.pc-toast.toast-enter{
   opacity: 1;
-  transform: translate3d(0, 0, 0);
-  transition: transform 240ms ease, opacity 240ms ease;
+  transform: translate(0,0);
 }
-.pc-toast.pc-leave {
+.pc-toast.toast-exit{
   opacity: 0;
-  transform: translate3d(16px, 24px, 0);
-  transition: transform 240ms ease, opacity 240ms ease;
+  transform: translate(16px, 16px);
 }
 
 /* ----- Toggle Switch (animated) ----- */

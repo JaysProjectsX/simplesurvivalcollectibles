@@ -198,9 +198,6 @@ const AUTH = (() => {
 window.fetchWithAuth = AUTH.fetchWithAuth;
 
 // === AdminNotify (Polling-Only) =============================================
-// Polls /api/admin/comments/updates every N seconds and shows toasts for new comments.
-// Assumes: fetchWithAuth(input, init) exists, cookie-based auth,
-//          window.pcAdminNotifyToast({ itemName, username, message, createdAt }) exists.
 
 (() => {
   const TOGGLE_KEY_BASE = 'admin_notify_comments';       // on/off toggle
@@ -339,6 +336,8 @@ window.fetchWithAuth = AUTH.fetchWithAuth;
   window.AdminNotify = { init, stop, setEnabled };
 })();
 
+
+
 // Initialize once DOM is ready (if you don't already elsewhere)
 document.addEventListener('DOMContentLoaded', () => {
   if (window.AdminNotify && typeof window.AdminNotify.init === 'function') {
@@ -394,123 +393,72 @@ const showToast = (msg, type = "success", duration = 3000) => {
   }, duration);
 };
 
-/* ===== Admin Toasts (Price Calculator only) ===== */
+// === Admin toast renderer (site-wide, used by AdminNotify) ===
+(function () {
+  const LIFE_MS = 5000;
 
-/** Ensure the special admin toast root exists (bottom-right). */
-function ensurePcToastRoot() {
-  let root = document.getElementById("pc-toast-root");
-  if (!root) {
-    // If you truly always hardcode this in the HTML, this block won't run.
-    root = document.createElement("div");
-    root.id = "pc-toast-root";
-    document.body.appendChild(root);
-  }
-  // make sure it has the positioning class for animation lane
-  if (!root.classList.contains("pc-toast-root")) {
-    root.classList.add("pc-toast-root");
-  }
-  return root;
-}
-
-/**
- * Render a single admin toast into #pc-toast-root.
- * params: { itemName, username, message, createdAt?, type? }
- * type: 'info' | 'success' | 'warning' | 'error' (default: 'info')
- */
-window.pcAdminNotifyToast = function ({
-  itemName,
-  username,
-  message,
-  createdAt,
-  type = "info",
-  duration = 5000
-} = {}) {
-  const root = ensurePcToastRoot();
-
-  // --- toast shell (uses your .pc-toast styles) ---
-  const toast = document.createElement("div");
-  toast.className = `pc-toast ${type}`;
-  toast.setAttribute("role", "status");
-  toast.setAttribute("aria-live", "polite");
-
-  // (grid col 1) icon
-  const left = document.createElement("div");
-  left.className = "outer-container";
-  // simple comment-bubble SVG (scales to your 28px rules)
-  left.innerHTML = `
-    <svg viewBox="0 0 24 24" aria-hidden="true">
-      <path fill="currentColor" d="M20 2H4a2 2 0 0 0-2 2v14l4-4h14a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2z"/>
-    </svg>
-  `;
-
-  // (grid col 2) title/message
-  const mid = document.createElement("div");
-  mid.className = "inner-container";
-
-  const title = document.createElement("p");
-  title.className = "title";
-  // Example title: “[Item Name] New comment by Username”
-  const safeItem = String(itemName || "Unknown item");
-  const safeUser = String(username || "someone");
-  title.textContent = `[${safeItem}] New comment by ${safeUser}`;
-
-  const body = document.createElement("p");
-  body.className = "message";
-  body.textContent = String(message || "");
-
-  if (createdAt) {
-    const ts = new Date(Number(createdAt));
-    if (!isNaN(ts)) {
-      const small = document.createElement("small");
-      small.style.opacity = "0.8";
-      small.style.display = "block";
-      small.style.marginTop = "4px";
-      small.textContent = ts.toLocaleString();
-      body.appendChild(document.createTextNode("\n"));
-      body.appendChild(small);
+  function ensurePcToastRoot() {
+    let root = document.getElementById("pc-toast-root");
+    if (!root) {
+      root = document.createElement("div");
+      root.id = "pc-toast-root";
+      root.className = "pc-toast-root";
+      document.body.appendChild(root);
     }
+    return root;
   }
 
-  mid.appendChild(title);
-  mid.appendChild(body);
+  // Minimal safe escaper
+  function esc(s) {
+    return String(s ?? "")
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#039;");
+  }
 
-  // (grid col 3) close button
-  const x = document.createElement("button");
-  x.className = "x";
-  x.type = "button";
-  x.setAttribute("aria-label", "Close notification");
-  x.textContent = "×";
-  x.onclick = () => {
-    toast.classList.add("pc-leave");
-    setTimeout(() => toast.remove(), 260);
+  // Inline info-circle SVG (color via CSS)
+  const INFO_SVG = `
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm0 4a1.25 1.25 0 1 1 0 2.5A1.25 1.25 0 0 1 12 6zm2 11.5h-4v-1.5h1.25V11H10V9.5h3v6H14z"/>
+    </svg>`;
+
+  function iconFor(type) {
+    return INFO_SVG; // using "info" look for now
+  }
+
+  // Called by AdminNotify
+  window.pcAdminNotifyToast = function ({ itemName, username, message, createdAt, type = "info" }) {
+    const root = ensurePcToastRoot();
+
+    const toast = document.createElement("div");
+    toast.className = `pc-toast ${type}`;
+    toast.innerHTML = `
+      <div class="outer-container">${iconFor(type)}</div>
+      <div class="inner-container">
+        <p class="title">[${esc(itemName)}] New comment by ${esc(username)}</p>
+        <p class="message">${esc(message)}</p>
+      </div>
+      <button class="x" aria-label="Close">&times;</button>
+    `;
+
+    const close = () => {
+      toast.classList.add("toast-exit");
+      setTimeout(() => toast.remove(), 300);
+    };
+    toast.querySelector(".x")?.addEventListener("click", close);
+
+    root.prepend(toast);
+    requestAnimationFrame(() => {
+      toast.classList.add("toast-enter");
+    });
+    setTimeout(close, LIFE_MS);
   };
 
-  toast.appendChild(left);
-  toast.appendChild(mid);
-  toast.appendChild(x);
-
-  // Insert at top of stack (newest first)
-  root.prepend(toast);
-
-  // animate in
-  // rely on CSS class below – add, then next frame add 'pc-enter-active'
-  toast.classList.add("pc-enter");
-  requestAnimationFrame(() => {
-    toast.classList.add("pc-enter-active");
-  });
-
-  // auto-dismiss
-  setTimeout(() => {
-    toast.classList.remove("pc-enter-active");
-    toast.classList.add("pc-leave");
-    setTimeout(() => toast.remove(), 260);
-  }, duration);
-};
-
-// expose to AdminNotify so it can ensure the lane exists
-window.ensureToastRoot = ensurePcToastRoot;
-
-// === END Admin Toasts ===
+  // Keep this for AdminNotify.showCommentToast() which calls ensureToastRoot()
+  window.ensureToastRoot = ensurePcToastRoot;
+})();
 
 function isLockedOut(user) {
   if (!user || user.failed_attempts === undefined || !user.last_failed_login) return false;

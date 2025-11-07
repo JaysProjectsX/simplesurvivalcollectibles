@@ -53,6 +53,7 @@ function hasCookie(name) {
           localStorage.setItem("role", u.role || "User");
           localStorage.setItem("verified", u.verified ? "1" : "0");
           localStorage.setItem("created_at", u.created_at || "");
+          localStorage.setItem("user_id", String(u.id || ""));
         }
       } else if (r.status === 401 || r.status === 403) {
         if (r.status === 403) {
@@ -194,6 +195,7 @@ const AUTH = (() => {
   // expose minimal API
   return { fetchWithAuth, refreshOnce };
 })();
+window.fetchWithAuth = AUTH.fetchWithAuth;
 
 // === AdminNotify (Polling-Only) =============================================
 // Polls /api/admin/comments/updates every N seconds and shows toasts for new comments.
@@ -267,7 +269,7 @@ const AUTH = (() => {
     const since = getLastTs() || (Date.now() - 60_000); // seed: last 60s
     let r;
     try {
-      r = await fetchWithAuth(`/api/admin/comments/updates?since=${since}`, { credentials: 'include' });
+      r = await AUTH.fetchWithAuth(`${backendUrl}/admin/comments/updates?since=${since}`, { credentials: 'include' });
     } catch {
       return; // network hiccup
     }
@@ -391,6 +393,124 @@ const showToast = (msg, type = "success", duration = 3000) => {
     }, 300);
   }, duration);
 };
+
+/* ===== Admin Toasts (Price Calculator only) ===== */
+
+/** Ensure the special admin toast root exists (bottom-right). */
+function ensurePcToastRoot() {
+  let root = document.getElementById("pc-toast-root");
+  if (!root) {
+    // If you truly always hardcode this in the HTML, this block won't run.
+    root = document.createElement("div");
+    root.id = "pc-toast-root";
+    document.body.appendChild(root);
+  }
+  // make sure it has the positioning class for animation lane
+  if (!root.classList.contains("pc-toast-root")) {
+    root.classList.add("pc-toast-root");
+  }
+  return root;
+}
+
+/**
+ * Render a single admin toast into #pc-toast-root.
+ * params: { itemName, username, message, createdAt?, type? }
+ * type: 'info' | 'success' | 'warning' | 'error' (default: 'info')
+ */
+window.pcAdminNotifyToast = function ({
+  itemName,
+  username,
+  message,
+  createdAt,
+  type = "info",
+  duration = 5000
+} = {}) {
+  const root = ensurePcToastRoot();
+
+  // --- toast shell (uses your .pc-toast styles) ---
+  const toast = document.createElement("div");
+  toast.className = `pc-toast ${type}`;
+  toast.setAttribute("role", "status");
+  toast.setAttribute("aria-live", "polite");
+
+  // (grid col 1) icon
+  const left = document.createElement("div");
+  left.className = "outer-container";
+  // simple comment-bubble SVG (scales to your 28px rules)
+  left.innerHTML = `
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path fill="currentColor" d="M20 2H4a2 2 0 0 0-2 2v14l4-4h14a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2z"/>
+    </svg>
+  `;
+
+  // (grid col 2) title/message
+  const mid = document.createElement("div");
+  mid.className = "inner-container";
+
+  const title = document.createElement("p");
+  title.className = "title";
+  // Example title: “[Item Name] New comment by Username”
+  const safeItem = String(itemName || "Unknown item");
+  const safeUser = String(username || "someone");
+  title.textContent = `[${safeItem}] New comment by ${safeUser}`;
+
+  const body = document.createElement("p");
+  body.className = "message";
+  body.textContent = String(message || "");
+
+  if (createdAt) {
+    const ts = new Date(Number(createdAt));
+    if (!isNaN(ts)) {
+      const small = document.createElement("small");
+      small.style.opacity = "0.8";
+      small.style.display = "block";
+      small.style.marginTop = "4px";
+      small.textContent = ts.toLocaleString();
+      body.appendChild(document.createTextNode("\n"));
+      body.appendChild(small);
+    }
+  }
+
+  mid.appendChild(title);
+  mid.appendChild(body);
+
+  // (grid col 3) close button
+  const x = document.createElement("button");
+  x.className = "x";
+  x.type = "button";
+  x.setAttribute("aria-label", "Close notification");
+  x.textContent = "×";
+  x.onclick = () => {
+    toast.classList.add("pc-leave");
+    setTimeout(() => toast.remove(), 260);
+  };
+
+  toast.appendChild(left);
+  toast.appendChild(mid);
+  toast.appendChild(x);
+
+  // Insert at top of stack (newest first)
+  root.prepend(toast);
+
+  // animate in
+  // rely on CSS class below – add, then next frame add 'pc-enter-active'
+  toast.classList.add("pc-enter");
+  requestAnimationFrame(() => {
+    toast.classList.add("pc-enter-active");
+  });
+
+  // auto-dismiss
+  setTimeout(() => {
+    toast.classList.remove("pc-enter-active");
+    toast.classList.add("pc-leave");
+    setTimeout(() => toast.remove(), 260);
+  }, duration);
+};
+
+// expose to AdminNotify so it can ensure the lane exists
+window.ensureToastRoot = ensurePcToastRoot;
+
+// === END Admin Toasts ===
 
 function isLockedOut(user) {
   if (!user || user.failed_attempts === undefined || !user.last_failed_login) return false;
@@ -579,6 +699,7 @@ function isLockedOut(user) {
                 localStorage.setItem("created_at", u.created_at || "");
                 localStorage.setItem("minecraft_username", u.minecraft_username || "");
                 localStorage.setItem("minecraft_uuid", data.minecraft_uuid || "");
+                localStorage.setItem("user_id", String(u.id || ""));
                 updateNavUI();
                 paintAccountInfo();
 

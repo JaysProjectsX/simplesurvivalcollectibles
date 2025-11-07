@@ -962,6 +962,41 @@ body {
 }
 .pc-toast .x:hover { color: #fff; }
 
+/* bottom-right lane specifically for admin toasts on price calculator */
+.pc-toast-root {
+  position: fixed;
+  right: 18px;
+  bottom: 18px;
+  z-index: 9999;
+  display: grid;
+  gap: 10px;
+  width: min(92vw, 360px);
+  pointer-events: none; /* clicks go to the close button only */
+}
+.pc-toast-root .pc-toast { 
+  background: #181b2e;        /* keep in line with your dark panel theme */
+  border: 1px solid #2a2f4a;
+  border-left: 6px solid #2F86EB; /* overridden by .info/.success/etc. */
+  border-radius: 14px;
+  box-shadow: 0 10px 26px rgba(0,0,0,0.35);
+  pointer-events: auto;        /* restore clickability for the toast itself */
+  transform: translate3d(12px, 12px, 0);
+  opacity: 0;
+}
+
+/* enter / leave transitions */
+.pc-toast.pc-enter { opacity: 0; transform: translate3d(16px, 24px, 0); }
+.pc-toast.pc-enter.pc-enter-active {
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+  transition: transform 240ms ease, opacity 240ms ease;
+}
+.pc-toast.pc-leave {
+  opacity: 0;
+  transform: translate3d(16px, 24px, 0);
+  transition: transform 240ms ease, opacity 240ms ease;
+}
+
 /* ----- Toggle Switch (animated) ----- */
 .pc-toggle {
   --off-bg: #ff7a7a;          /* disabled track color (soft red) */

@@ -876,7 +876,6 @@ body {
 .pc-settings-header {
   display:flex; justify-content:space-between; align-items:center;
   padding:14px 16px;
-  border-bottom:1px solid #22233a;
 }
 .pc-settings-header h3 { margin:0; font-size:1.05rem; }
 .pc-settings-close {
@@ -885,8 +884,8 @@ body {
 }
 .pc-settings-close:hover { color:#ffffff; }
 
-.pc-settings-body { padding:14px 16px; }
-.pc-settings-section { padding:12px 0; border-bottom:1px dashed #242742; }
+.pc-settings-body { padding:8px 16px; }
+.pc-settings-section { padding:12px 0; }
 .pc-settings-section:last-child { border-bottom:0; }
 .pc-setting-line { display:flex; align-items:center; justify-content:space-between; gap:12px; }
 .pc-setting-title { font-weight:600; }
@@ -903,20 +902,18 @@ body {
 
 /* radio row only visible when switch is on */
 .pc-radio-row {
-  display:none; gap:14px; margin-top:10px; font-size:.95rem;
+  display:none; gap:14px; margin-top:10px; font-size:.95rem; justify-content: center;
 }
 .pc-radio-row.show { display:flex; }
 
 /* ===== Settings panel - "toggle-categories" inspired skin ===== */
 .pc-settings-modern {
   border-radius: 10px;
-  background: #0f1122;
 }
 
 .pc-settings-modern .pc-settings-section {
   margin: 0 0 10px 0;
   background: #14162a;
-  border: 1px solid #22233a;
   border-radius: 10px;
   overflow: hidden;
 }
@@ -928,7 +925,6 @@ body {
   justify-content: space-between;
   gap: 16px;
   padding: 12px 14px;
-  background: #1a1d33;
   font-weight: 600;
 }
 
@@ -1005,10 +1001,9 @@ body {
 
 /* Radio labels inside #pc-econ-choices */
 .pc-settings-modern #pc-econ-choices label {
-  background: #0f1223;
-  border: 1px solid #2a2f4a;
   padding: 6px 10px;
   border-radius: 8px;
+  cursor: pointer;
 }
 
 /* === Admin comment toasts (site-wide) === */

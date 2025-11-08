@@ -435,6 +435,7 @@ function openSettingsModal() {
   if (!pcGateOpen()) return;
   const ov = document.getElementById("pc-settings-overlay");
   if (!ov) return;
+
   // show/hide admin section
   const adminSec = document.getElementById("pc-admin-section");
   adminSec.hidden = !(PC_ME && (PC_ME.role === "Admin" || PC_ME.role === "SysAdmin"));
@@ -445,18 +446,14 @@ function openSettingsModal() {
   const pref = s.preferredEconomy || "Phoenix";
   const notifs = !!s.adminCommentNotifs;
 
-  // reflect UI
   const autoEl = document.getElementById("pc-opt-autoecon");
   const radiosWrap = document.getElementById("pc-econ-choices");
   const notifEl = document.getElementById("pc-opt-comment-notifs");
 
   notifEl?.addEventListener("change", () => {
     const on = !!notifEl.checked;
-    // persist right away so it sticks even if they close without Save
-    const s = loadPcSettings();
-    const base = s || {};
+    const base = loadPcSettings() || {};
     savePcSettings({ ...base, adminCommentNotifs: on });
-
   });
 
   autoEl.checked = auto;
@@ -468,17 +465,33 @@ function openSettingsModal() {
 
   ov.classList.add("show");
   ov.classList.remove("hidden");
+  ov.removeAttribute("aria-hidden");
+  ov.removeAttribute("inert");
   document.body.style.overflow = "hidden";
+
+  // If you programmatically focus controls inside, it's now safe to do so:
+  // autoEl?.focus();
 }
+
 function closeSettingsModal() {
   const ov = document.getElementById("pc-settings-overlay");
   if (!ov) return;
+
+  // If something inside is focused, blur it first
+  if (ov.contains(document.activeElement)) {
+    document.activeElement.blur();
+  }
+
   ov.classList.remove("show");
   setTimeout(() => {
     ov.classList.add("hidden");
+    // --- Accessibility fix: only hide from AT AFTER focus is out ---
+    ov.setAttribute("aria-hidden", "true");  // <-- important
+    ov.setAttribute("inert", "");            // optional but pairs well
     document.body.style.overflow = "";
   }, 180);
 }
+
 
 function initSettingsUI() {
   // open button

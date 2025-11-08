@@ -284,16 +284,20 @@ window.fetchWithAuth = AUTH.fetchWithAuth;
   }
 
   function setEnabled(v) {
-    savePref(!!v);
-    if (v) {
-      setLastTs(Date.now());
-      maybeStartStop();
-    } else {
-      stopPolling();
+    enabled = !!v;                     // <-- no savePref here
+    if (enabled && !getLastTs()) {
+      setLastTs(Date.now());           // seed to avoid replay
     }
+    maybeStartStop();                  // start/stop polling as needed
   }
 
-  function init() { loadPref(); maybeStartStop(); }
+  function init() {
+    // Safe default: read once from localStorage using our key if present.
+    // (Or leave enabled=false and rely solely on setEnabled from the page.)
+    try { enabled = localStorage.getItem(toggleKey()) === '1'; } catch {}
+    maybeStartStop();                  // <-- no loadPref call
+  }
+
   function stop() { stopPolling(); }
 
   window.AdminNotify = { init, stop, setEnabled };

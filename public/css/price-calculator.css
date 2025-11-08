@@ -1069,8 +1069,8 @@ body {
 }
 
 .pc-toast .t-line1 { font-weight: 700; }
-.pc-toast .t-line2 { opacity: .9; }
-.pc-toast .t-line3 { margin-top: 6px; }
+.pc-toast .t-line2 { opacity: .9; color: #1b1b1b; }
+.pc-toast .t-line3 { margin-top: 6px; color: #1b1b1b; }
 .pc-toast .t-line4 { margin-top: 6px; font-size: .8rem; opacity: .75; }
 
 .pc-toast .outer-container i,
@@ -1091,7 +1091,7 @@ body {
 
 .pc-toast .title,
 .pc-toast .inner-container p:first-child{
-  color: #101020;
+  color: #1b1b1b;
   font-weight: 600;
   font-size: 16px;
   margin: 0 0 2px 0;
@@ -1101,7 +1101,7 @@ body {
 .pc-toast .inner-container p:last-child{
   font-size: 12px;
   font-weight: 400;
-  color: #656565;
+  color: #1b1b1b;
   word-break: break-word;
   white-space: pre-line;
 }

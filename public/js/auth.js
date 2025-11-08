@@ -230,6 +230,26 @@ window.fetchWithAuth = AUTH.fetchWithAuth;
     try { enabled = localStorage.getItem(toggleKey()) === '1'; } catch { enabled = false; }
   }
 
+  // Per-user toast duration (defaults to 5000ms)
+  const TOAST_MS_BASE = 'admin_notify_toast_ms';
+  function toastMsKey() {
+    const uid = (localStorage.getItem('user_id') || '').trim();
+    return uid ? `${TOAST_MS_BASE}:${uid}` : TOAST_MS_BASE;
+  }
+  function getToastMs() {
+    try {
+      const v = Number(localStorage.getItem(toastMsKey()));
+      if (v === 3000 || v === 5000 || v === 7000) return v;
+    } catch {}
+    return 5000; // default (middle)
+  }
+  function setToastMs(ms) {
+    try { localStorage.setItem(toastMsKey(), String(ms)); } catch {}
+  }
+  // expose so the settings panel can read/write it
+  window.getPcToastMs = getToastMs;
+  window.setPcToastMs = setToastMs;
+
   let pollTimer = null;
   let enabled   = false;
   let inflightCtrl = null; // NEW: abortable fetch controller
@@ -431,7 +451,6 @@ const showToast = (msg, type = "success", duration = 3000) => {
   }) {
     const root = ensurePcToastRoot();
 
-    // compute ts FIRST so the template can use it
     const ts = (createdAt && !isNaN(new Date(Number(createdAt))))
       ? new Date(Number(createdAt)).toLocaleString()
       : (createdAt && !isNaN(new Date(createdAt)))
@@ -459,7 +478,10 @@ const showToast = (msg, type = "success", duration = 3000) => {
 
     root.prepend(toast);
     requestAnimationFrame(() => toast.classList.add("toast-enter"));
-    setTimeout(close, 5000);
+
+    // <-- USE PER-USER DURATION HERE
+    const DURATION = (typeof window.getPcToastMs === "function") ? window.getPcToastMs() : 5000;
+    setTimeout(close, DURATION);
   };
 
   // Keep this for AdminNotify.showCommentToast() which calls ensureToastRoot()

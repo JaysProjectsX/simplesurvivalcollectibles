@@ -51,6 +51,25 @@ function savePcSettings(s) {
   try { localStorage.setItem(pcSettingsKey(), JSON.stringify(s || {})); } catch {}
 }
 
+const PC_TOAST_IDX_TO_MS = [3000, 5000, 7000];
+function pcToastMsToIdx(ms) {
+  if (ms <= 3000) return 0;
+  if (ms >= 7000) return 2;
+  return 1;
+}
+function pcGetToastMs() {
+  const s = loadPcSettings() || {};
+  const ms = Number(s.pcToastMs || 0);
+  return Number.isFinite(ms) && ms > 0 ? ms : 5000;
+}
+function pcSetToastMs(ms) {
+  const s = loadPcSettings() || {};
+  savePcSettings({ ...s, pcToastMs: ms });
+}
+window.getPcToastMs = pcGetToastMs;
+window.setPcToastMs = pcSetToastMs;
+
+
 async function pcFetchMe() {
   try {
     const r = await fetch(`${backendUrl}/me`, { credentials: "include" });
@@ -446,6 +465,11 @@ function openSettingsModal() {
   const pref = s.preferredEconomy || "Phoenix";
   const notifs = !!s.adminCommentNotifs;
 
+  const durSlider = document.getElementById("pcToastDuration");
+  if (durSlider) {
+    durSlider.value = String(pcToastMsToIdx(pcGetToastMs()));
+  }
+
   const autoEl = document.getElementById("pc-opt-autoecon");
   const radiosWrap = document.getElementById("pc-econ-choices");
   const notifEl = document.getElementById("pc-opt-comment-notifs");
@@ -521,15 +545,18 @@ function initSettingsUI() {
     const pref = prefEl ? prefEl.value : (s.preferredEconomy || "Phoenix");
     const adminOn = !!document.getElementById("pc-opt-comment-notifs")?.checked;
 
+    const durSlider = document.getElementById("pcToastDuration");
+    const durIdx = durSlider ? Number(durSlider.value || 1) : 1;
+    const toastMs = PC_TOAST_IDX_TO_MS[durIdx] ?? 5000;
+
     const next = {
       ...s,
       autoEconomy: auto,
       preferredEconomy: pref,
-      adminCommentNotifs: adminOn
+      adminCommentNotifs: adminOn,
+      pcToastMs: toastMs,
     };
     savePcSettings(next);
-
-
 
     closeSettingsModal();
   });

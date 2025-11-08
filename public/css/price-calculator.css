@@ -1248,3 +1248,98 @@ body {
 .pc-toggle:active .toggle-svg .knob {
   filter: drop-shadow(0 1px 2px rgba(0,0,0,.25));
 }
+
+/* Toast Duration block layout */
+.pc-toast-duration {
+  margin-top: 12px;
+}
+.pc-toast-duration .pc-row-head {
+  font-weight: 600;
+  margin-bottom: 8px;
+  opacity: .95;
+}
+
+/* Slider wrapper */
+.pc-duration-slider {
+  display: grid;
+  gap: 8px;
+}
+
+/* Discrete labels under the slider */
+.pc-duration-labels {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  font-size: 12px;
+  opacity: .8;
+}
+.pc-duration-labels span {
+  text-align: center;
+}
+
+/* Range slider — styled to match your modern controls */
+.pc-duration-slider input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 34px;                 /* enough height for a large thumb */
+  background: transparent;
+  cursor: pointer;
+  outline: none;
+}
+
+/* Track */
+.pc-duration-slider input[type="range"]::-webkit-slider-runnable-track {
+  height: 8px;
+  background: #17192b;          /* dark rail */
+  border: 1px solid #22233a;
+  border-radius: 999px;
+}
+.pc-duration-slider input[type="range"]::-moz-range-track {
+  height: 8px;
+  background: #17192b;
+  border: 1px solid #22233a;
+  border-radius: 999px;
+}
+
+/* Thumb */
+.pc-duration-slider input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  margin-top: -10px;            /* centers thumb on 8px track */
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: #365cf5;          /* primary accent (matches your buttons) */
+  border: 2px solid #2a3fc7;
+  box-shadow: 0 0 0 4px rgba(54,92,245,.15);
+  transition: transform .12s ease, box-shadow .12s ease;
+}
+.pc-duration-slider input[type="range"]::-moz-range-thumb {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: #365cf5;
+  border: 2px solid #2a3fc7;
+  box-shadow: 0 0 0 4px rgba(54,92,245,.15);
+  transition: transform .12s ease, box-shadow .12s ease;
+}
+
+/* Hover/active feedback */
+.pc-duration-slider input[type="range"]:hover::-webkit-slider-thumb,
+.pc-duration-slider input[type="range"]:hover::-moz-range-thumb {
+  transform: scale(1.03);
+  box-shadow: 0 0 0 6px rgba(54,92,245,.20);
+}
+
+/* Optional: tick marks (purely decorative) */
+.pc-duration-slider input[type="range"] {
+  background-image:
+    radial-gradient(currentColor 2px, transparent 3px),
+    radial-gradient(currentColor 2px, transparent 3px),
+    radial-gradient(currentColor 2px, transparent 3px);
+  background-size: 1px 1px, 1px 1px, 1px 1px;
+  background-repeat: no-repeat;
+  background-position:
+    0% 50%, 50% 50%, 100% 50%;  /* three stops */
+  color: #2c3146;               /* tick color */
+}

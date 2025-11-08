@@ -434,13 +434,14 @@ const showToast = (msg, type = "success", duration = 3000) => {
     const toast = document.createElement("div");
     toast.className = `pc-toast ${type}`;
     toast.innerHTML = `
+      <button class="x" aria-label="Close" type="button">&times;</button>
       <div class="outer-container">${iconFor(type)}</div>
       <div class="inner-container">
-        <p class="title">[${esc(itemName)}] New comment by ${esc(username)}</p>
-        <p class="message">${esc(message)}</p>
-        <small class="meta"></small>
+        <p class="t-line1">New comment from: <b>${esc(username)}</b></p>
+        <p class="t-line2">${esc(crateName || "Unknown crate")} — ${esc(itemName)}</p>
+        <p class="t-line3">${esc(message)}</p>
+        <p class="t-line4">${esc(ts)}</p>
       </div>
-      <button class="x" aria-label="Close" type="button">&times;</button>
     `;
 
     // meta: "Crate: <name> • <timestamp>"

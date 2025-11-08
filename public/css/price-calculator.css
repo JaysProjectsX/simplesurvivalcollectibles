@@ -1055,8 +1055,23 @@ body {
 .pc-toast.warning { border-left-color: #FFC021; }
 .pc-toast.error   { border-left-color: #ff355b; }
 
+.pc-toast .outer-container {
+  display: flex;
+  align-items: flex-start;
+  margin-right: 10px;
+}
+
 .pc-toast .outer-container,
 .pc-toast .inner-container { align-self: center; }
+
+.pc-toast .inner-container p {
+  margin: 2px 0;
+}
+
+.pc-toast .t-line1 { font-weight: 700; }
+.pc-toast .t-line2 { opacity: .9; }
+.pc-toast .t-line3 { margin-top: 6px; }
+.pc-toast .t-line4 { margin-top: 6px; font-size: .8rem; opacity: .75; }
 
 .pc-toast .outer-container i,
 .pc-toast .outer-container svg{
@@ -1101,18 +1116,18 @@ body {
 
 /* close button (right column) */
 .pc-toast .x {
-  appearance: none;
-  border: 0;
-  outline: 0;
+  position: absolute;
+  top: 8px;
+  right: 8px;
   background: transparent;
-  font-size: 20px;
-  color: #656565;
-  line-height: 0;
+  border: 0;
+  font-size: 18px;
+  line-height: 1;
   cursor: pointer;
-  justify-self: end;
-  margin: 0;
+  opacity: .7;
+  transition: opacity .15s ease, transform .15s ease;
 }
-
+.pc-toast .x:hover { opacity: 1; transform: scale(1.05); }
 .pc-toast .x:focus { outline: none; box-shadow: none; }
 
 /* Smooth enter/exit (class names used by the JS) */

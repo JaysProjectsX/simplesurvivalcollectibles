@@ -907,6 +907,110 @@ body {
 }
 .pc-radio-row.show { display:flex; }
 
+/* ===== Settings panel - "toggle-categories" inspired skin ===== */
+.pc-settings-modern {
+  border-radius: 10px;
+  background: #0f1122;
+}
+
+.pc-settings-modern .pc-settings-section {
+  margin: 0 0 10px 0;
+  background: #14162a;
+  border: 1px solid #22233a;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+/* Section header row */
+.pc-settings-modern .pc-setting-line {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 12px 14px;
+  background: #1a1d33;
+  font-weight: 600;
+}
+
+/* Subtext */
+.pc-settings-modern .pc-note {
+  display: block;
+  opacity: .75;
+  padding: 10px 14px 12px 14px;
+  border-top: 1px solid #22233a;
+}
+
+/* Economy radio row (shown when auto-select is ON) */
+.pc-settings-modern #pc-econ-choices {
+  padding: 12px 14px 16px 14px;
+  border-top: 1px solid #22233a;
+}
+
+/* === Toggle re-skin (works with your existing <label class="pc-toggle"><input>... ) === */
+.pc-settings-modern .pc-toggle {
+  --h: 18px;
+  --pad: 2px;
+  --w: calc(1.8 * var(--h));
+  --r: calc(var(--h) / 2 + var(--pad));
+  position: relative;
+  width: var(--w);
+  height: var(--h);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.pc-settings-modern .pc-toggle input {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+}
+
+.pc-settings-modern .pc-toggle .toggle-svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.pc-settings-modern .pc-toggle .toggle-svg .trk {
+  fill: #2a2f4a;
+  transition: fill .18s ease;
+}
+
+.pc-settings-modern .pc-toggle .toggle-svg .knob {
+  fill: #dadff9;
+  transition: transform .18s ease, fill .18s ease;
+}
+
+.pc-settings-modern .pc-toggle input:checked ~ .toggle-svg .trk {
+  fill: #2e6ddd;
+}
+
+.pc-settings-modern .pc-toggle input:checked ~ .toggle-svg .knob {
+  transform: translateX(40px);
+  fill: #fff;
+}
+
+/* Optional glyph (you already have <span class="toggle-glyph">) */
+.pc-settings-modern .pc-toggle .toggle-glyph { display:none; }
+
+/* Make the modal header/foot match the style */
+.pc-settings .pc-settings-footer {
+  border-top: 1px solid #22233a;
+}
+
+/* Radio labels inside #pc-econ-choices */
+.pc-settings-modern #pc-econ-choices label {
+  background: #0f1223;
+  border: 1px solid #2a2f4a;
+  padding: 6px 10px;
+  border-radius: 8px;
+}
+
 /* === Admin comment toasts (site-wide) === */
 .pc-toast-root {
   position: fixed;

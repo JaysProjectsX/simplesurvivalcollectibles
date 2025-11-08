@@ -200,90 +200,58 @@ window.fetchWithAuth = AUTH.fetchWithAuth;
 // === AdminNotify (Polling-Only) =============================================
 
 (() => {
-  const TOGGLE_KEY_BASE = 'admin_notify_comments';       // on/off toggle
-  const LAST_TS_BASE    = 'admin_notify_last_ts';        // last-seen ms
-  const POLL_MS         = 10_000;                        // 10s
+  const TOGGLE_KEY_BASE = 'admin_notify_comments';
+  const LAST_TS_BASE    = 'admin_notify_last_ts';
+  const POLL_MS         = 10_000;
 
-  // Scoped state
   let pollTimer = null;
   let enabled   = false;
+  let inflightCtrl = null; // NEW: abortable fetch controller
 
-  // --- Helpers --------------------------------------------------------------
-  function getUserId() {
-    // Keep in sync with how you store user id locally
-    return (localStorage.getItem('user_id') || '').trim();
-  }
-  function isPrivileged() {
-    const r = localStorage.getItem('role');
-    return r === 'Admin' || r === 'SysAdmin';
-  }
-  function toggleKey() {
-    const uid = getUserId();
-    return uid ? `${TOGGLE_KEY_BASE}:${uid}` : TOGGLE_KEY_BASE;
-  }
-  function lastTsKey() {
-    const uid = getUserId();
-    return uid ? `${LAST_TS_BASE}:${uid}` : LAST_TS_BASE;
-  }
+  // --- helpers unchanged (getUserId, isPrivileged, keys, load/save, get/setLastTs) ---
 
-  function loadPref() {
-    try { enabled = localStorage.getItem(toggleKey()) === '1'; } catch { enabled = false; }
-  }
-  function savePref(v) {
-    enabled = !!v;
-    try { localStorage.setItem(toggleKey(), v ? '1' : '0'); } catch {}
-  }
-
-  function getLastTs() {
-    const n = Number(localStorage.getItem(lastTsKey()));
-    return Number.isFinite(n) ? n : 0;
-  }
-  function setLastTs(ms) {
-    try { localStorage.setItem(lastTsKey(), String(ms)); } catch {}
-  }
-
-  // Toast renderer (expects your existing toast utility)
   function showCommentToast(c) {
-    // Ensure a root exists if your toast util needs it; otherwise remove.
-    if (typeof window.ensureToastRoot === 'function') {
-      try { window.ensureToastRoot(); } catch {}
-    }
+    if (typeof window.ensureToastRoot === 'function') { try { window.ensureToastRoot(); } catch {} }
     if (typeof window.pcAdminNotifyToast === 'function') {
       window.pcAdminNotifyToast({
         itemName:   c.itemName,
-        crateName:  c.crateName || c.crate_name,
+        crateName:  c.crateName || c.crate_name, // pass through if present
         username:   c.byUsername,
         message:    c.message,
         createdAt:  c.createdAt
       });
     } else {
-      // Fallback: console log so you still see activity during dev
       console.debug('[AdminNotify]', c);
     }
   }
 
-  // --- Polling logic --------------------------------------------------------
   async function pollOnce() {
-    const since = getLastTs() || (Date.now() - 60_000); // seed: last 60s
+    if (!enabled) return; // bail if turned off between intervals
+
+    // Abort any previous request and create a fresh controller
+    if (inflightCtrl) inflightCtrl.abort();
+    inflightCtrl = new AbortController();
+
+    const since = getLastTs() || (Date.now() - 60_000);
     let r;
     try {
-      r = await AUTH.fetchWithAuth(`${backendUrl}/admin/comments/updates?since=${since}`, { credentials: 'include' });
+      r = await AUTH.fetchWithAuth(
+        `${backendUrl}/admin/comments/updates?since=${since}`,
+        { credentials: 'include', signal: inflightCtrl.signal } // <-- abortable
+      );
     } catch {
-      return; // network hiccup
+      return; // network/aborted
     }
     if (!r || !r.ok) return;
 
     let json;
     try { json = await r.json(); } catch { return; }
     const arr = Array.isArray(json?.comments) ? json.comments : [];
-
     if (!arr.length) return;
 
-    // Deliver in order; skip your own comments if desired
-    const me = getUserId();
+    const me = (localStorage.getItem('user_id') || '').trim();
     for (const c of arr) {
       if (me && String(c.byUserId) === String(me)) {
-        // still advance the clock to avoid reprocessing
         if (c.createdAt) setLastTs(Math.max(getLastTs(), c.createdAt));
         continue;
       }
@@ -294,49 +262,42 @@ window.fetchWithAuth = AUTH.fetchWithAuth;
 
   function startPolling() {
     if (pollTimer) return;
-    // On enable, start from "now" so we don't replay the entire backlog
     if (!getLastTs()) setLastTs(Date.now());
     pollTimer = setInterval(pollOnce, POLL_MS);
-    // Kick immediately
     pollOnce();
   }
 
   function stopPolling() {
-    if (pollTimer) {
-      clearInterval(pollTimer);
-      pollTimer = null;
+    if (pollTimer) { clearInterval(pollTimer); pollTimer = null; }
+    if (inflightCtrl) { inflightCtrl.abort(); inflightCtrl = null; } // <-- stop the current fetch immediately
+
+    // Defensive: if any legacy SSE is around, close it so it stops retrying
+    if (window.__AdminNotifySSE && typeof window.__AdminNotifySSE.close === 'function') {
+      try { window.__AdminNotifySSE.close(); } catch {}
+      window.__AdminNotifySSE = null;
     }
   }
 
   function maybeStartStop() {
-    if (!enabled || !isPrivileged()) {
-      stopPolling();
-      return;
-    }
+    if (!enabled || !isPrivileged()) { stopPolling(); return; }
     if (!pollTimer) startPolling();
   }
 
-  // --- Public API -----------------------------------------------------------
   function setEnabled(v) {
     savePref(!!v);
-    // reset lastTs when enabling so we don't toast old items
-    if (v) setLastTs(Date.now());
-    maybeStartStop();
+    if (v) {
+      setLastTs(Date.now());
+      maybeStartStop();
+    } else {
+      stopPolling();
+    }
   }
 
-  function init() {
-    loadPref();
-    maybeStartStop();
-  }
+  function init() { loadPref(); maybeStartStop(); }
+  function stop() { stopPolling(); }
 
-  function stop() {
-    stopPolling();
-  }
-
-  // Expose to window for other files (e.g., price-calculator.js)
   window.AdminNotify = { init, stop, setEnabled };
 })();
-
 
 
 // Initialize once DOM is ready (if you don't already elsewhere)

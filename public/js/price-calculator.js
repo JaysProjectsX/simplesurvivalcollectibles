@@ -551,9 +551,9 @@ function initSettingsUI() {
 // Requirements: window.AdminNotify.setEnabled(on) exists (from auth.js above)
 
 (function wirePcAdminNotifyToggle() {
-  // Update these selectors/IDs to match your settings panel DOM:
+
   const toggleEl = document.querySelector('#pc-opt-comment-notifs');
-  const saveBtn  = document.querySelector('#pc-settings-save'); // if you have a save button (optional)
+  const saveBtn  = document.querySelector('#pc-settings-save'); // keep if you use one
 
   const TOGGLE_KEY_BASE = 'admin_notify_comments';
 
@@ -568,7 +568,6 @@ function initSettingsUI() {
   function loadPref() {
     try { return localStorage.getItem(toggleKey()) === '1'; } catch { return false; }
   }
-
   function savePref(on) {
     try { localStorage.setItem(toggleKey(), on ? '1' : '0'); } catch {}
   }
@@ -579,35 +578,21 @@ function initSettingsUI() {
     }
   }
 
-  // Initialize UI state
-  if (toggleEl) {
-    toggleEl.checked = loadPref();
-  }
+  // Init UI
+  if (toggleEl) toggleEl.checked = loadPref();
 
-  // If you want live apply on toggle (no save button)
-  if (toggleEl && !saveBtn) {
-    toggleEl.addEventListener('change', (e) => {
-      const on = !!e.currentTarget.checked;
-      savePref(on);
-      applyToModule(on);
-    });
-  }
-
-  // If you prefer an explicit Save button (optional):
   if (toggleEl && saveBtn) {
     saveBtn.addEventListener('click', (e) => {
       e.preventDefault?.();
       const on = !!toggleEl.checked;
       savePref(on);
       applyToModule(on);
-      // Optionally show a small “Saved” toast
-      if (window.showGlobalModal) {
-        window.showGlobalModal({ type: 'success', title: 'Settings saved', message: 'Admin notifications updated.' });
+      if (!on && window.AdminNotify && typeof window.AdminNotify.stop === 'function') {
+        window.AdminNotify.stop();
       }
     });
   }
 
-  // Ensure the module reflects current state at load:
   applyToModule(loadPref());
 })();
 

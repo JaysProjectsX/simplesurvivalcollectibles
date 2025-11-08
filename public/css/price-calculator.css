@@ -894,7 +894,7 @@ body {
   display:flex; justify-content:flex-end; gap:8px; padding:12px 16px;
   border-top:1px solid #22233a;
 }
-.btn-ghost { background:#22233a; color:#fff; border:0; border-radius:8px; padding:8px 14px; }
+.btn-ghost { background:#22233a; color:#fff; border:0; border-radius:8px; padding:8px 14px; cursor: pointer; }
 .btn-primary { background:#365cf5; color:#fff; border:0; border-radius:8px; padding:8px 14px; }
 .btn-ghost:hover { background:#2a2d46; } .btn-primary:hover { background:#2d51ed; }
 

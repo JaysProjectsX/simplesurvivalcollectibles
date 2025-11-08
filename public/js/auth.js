@@ -423,13 +423,20 @@ const showToast = (msg, type = "success", duration = 3000) => {
   // Called by AdminNotify
   window.pcAdminNotifyToast = function ({
     itemName,
-    crateName,      // NEW (will be undefined if server doesn't send it)
+    crateName,
     username,
     message,
     createdAt,
     type = "info"
   }) {
     const root = ensurePcToastRoot();
+
+    // compute ts FIRST so the template can use it
+    const ts = (createdAt && !isNaN(new Date(Number(createdAt))))
+      ? new Date(Number(createdAt)).toLocaleString()
+      : (createdAt && !isNaN(new Date(createdAt)))
+        ? new Date(createdAt).toLocaleString()
+        : "";
 
     const toast = document.createElement("div");
     toast.className = `pc-toast ${type}`;
@@ -438,19 +445,11 @@ const showToast = (msg, type = "success", duration = 3000) => {
       <div class="outer-container">${iconFor(type)}</div>
       <div class="inner-container">
         <p class="t-line1">New comment from: <b>${esc(username)}</b></p>
-        <p class="t-line2">${esc(crateName || "Unknown crate")} — ${esc(itemName)}</p>
-        <p class="t-line3">${esc(message)}</p>
+        <p class="t-line2">${esc(crateName || "Unknown crate")} — ${esc(itemName || "")}</p>
+        <p class="t-line3">${esc(message || "")}</p>
         <p class="t-line4">${esc(ts)}</p>
       </div>
     `;
-
-    // meta: "Crate: <name> • <timestamp>"
-    const meta = toast.querySelector(".meta");
-    const ts = (createdAt && !isNaN(new Date(Number(createdAt)))) 
-      ? new Date(Number(createdAt)).toLocaleString()
-      : "";
-    const cratePart = crateName ? `Crate: ${esc(crateName)}` : "";
-    meta.textContent = cratePart && ts ? `${cratePart} • ${ts}` : (cratePart || ts);
 
     const close = () => {
       toast.classList.add("toast-exit");

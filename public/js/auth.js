@@ -204,6 +204,32 @@ window.fetchWithAuth = AUTH.fetchWithAuth;
   const LAST_TS_BASE    = 'admin_notify_last_ts';
   const POLL_MS         = 10_000;
 
+  function getUserId() {
+    return (localStorage.getItem('user_id') || '').trim();
+  }
+  function toggleKey() {
+    const uid = getUserId();
+    return uid ? `${TOGGLE_KEY_BASE}:${uid}` : TOGGLE_KEY_BASE;
+  }
+  function lastTsKey() {
+    const uid = getUserId();
+    return uid ? `${LAST_TS_BASE}:${uid}` : LAST_TS_BASE;
+  }
+  function getLastTs() {
+    try { return Number(localStorage.getItem(lastTsKey())) || 0; } catch { return 0; }
+  }
+  function setLastTs(ts) {
+    try { localStorage.setItem(lastTsKey(), String(ts || 0)); } catch {}
+  }
+  function isPrivileged() {
+    const r = localStorage.getItem('role');
+    return r === 'Admin' || r === 'SysAdmin';
+  }
+  // Optional: only for init() to read existing pref (we don't save here)
+  function loadPref() {
+    try { enabled = localStorage.getItem(toggleKey()) === '1'; } catch { enabled = false; }
+  }
+
   let pollTimer = null;
   let enabled   = false;
   let inflightCtrl = null; // NEW: abortable fetch controller
@@ -215,7 +241,7 @@ window.fetchWithAuth = AUTH.fetchWithAuth;
     if (typeof window.pcAdminNotifyToast === 'function') {
       window.pcAdminNotifyToast({
         itemName:   c.itemName,
-        crateName:  c.crateName || c.crate_name, // pass through if present
+        crateName:  c.crateName || c.crate_name,
         username:   c.byUsername,
         message:    c.message,
         createdAt:  c.createdAt

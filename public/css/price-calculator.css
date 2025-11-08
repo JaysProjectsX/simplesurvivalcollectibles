@@ -844,15 +844,15 @@ body {
 
 /* --- Settings row under CRATES --- */
 .pc-settings-row {
-  display:flex; justify-content:flex-end; margin:10px 0 6px;
+  display:flex; justify-content:center; margin:10px 0 6px;
 }
 .pc-settings-btn {
-  background:#1c1e2b; color:#d6dbff; border:1px solid #252846;
+  background:transparent; color:#d6dbff; border:1px solid transparent;
   border-radius:10px; padding:8px 10px; cursor:pointer;
   display:inline-flex; align-items:center; gap:8px;
   transition:background .2s ease, border-color .2s ease, color .2s ease;
 }
-.pc-settings-btn:hover { background:#232642; border-color:#2d3158; color:#fff; }
+.pc-settings-btn:hover { color:#9f9f9f; }
 .pc-gear { display:block; }
 .pc-gear .spin { transform-origin: 12px 12px; transition: transform .5s cubic-bezier(.2,.8,.2,1); }
 .pc-settings-btn:hover .spin { transform: rotate(180deg); }

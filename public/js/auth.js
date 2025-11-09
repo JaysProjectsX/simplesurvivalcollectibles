@@ -474,6 +474,16 @@ const showToast = (msg, type = "success", duration = 3000) => {
   }, duration);
 };
 
+window.prettyCrateName = function prettyCrateName(name) {
+  return String(name || "")
+    .replace(/[-]+/g, " ")                // dashes -> spaces
+    .replace(/_/g, " ")                   // underscores -> spaces
+    .replace(/([a-z])([A-Z])/g, "$1 $2")  // camelCase -> spaced
+    .replace(/\s+/g, " ")                 // collapse multiple spaces
+    .trim()
+    .replace(/\b\w/g, (m) => m.toUpperCase()); // Title Case
+};
+
 // === Admin toast renderer (site-wide, used by AdminNotify) ===
 (function () {
   const LIFE_MS = 5000;
@@ -526,6 +536,10 @@ const showToast = (msg, type = "success", duration = 3000) => {
         ? new Date(createdAt).toLocaleString()
         : "";
 
+    const niceCrate = (typeof window.prettyCrateName === "function")
+      ? window.prettyCrateName(crateName || "")
+      : (crateName || "");
+
     const toast = document.createElement("div");
     toast.className = `pc-toast ${type}`;
     toast.innerHTML = `
@@ -533,7 +547,7 @@ const showToast = (msg, type = "success", duration = 3000) => {
       <div class="outer-container">${iconFor(type)}</div>
       <div class="inner-container">
         <p class="t-line1">New comment from: <b>${esc(username)}</b></p>
-        <p class="t-line2">${esc(crateName || "Unknown crate")} — ${esc(itemName || "")}</p>
+        <p class="t-line2">${esc(niceCrate || "Unknown crate")} — ${esc(itemName || "")}</p>
         <p class="t-line3">${esc(message || "")}</p>
         <p class="t-line4">${esc(ts)}</p>
       </div>

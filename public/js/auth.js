@@ -221,6 +221,11 @@ window.fetchWithAuth = AUTH.fetchWithAuth;
 
     return customOn && valid ? sec * 1000 : 5000;
   };
+
+  window.__pcNotifEnabled = function () {
+    const s = readPcSettingsForUser();
+    return !!s.adminCommentNotifs;
+  };
 })();
 
 
@@ -365,10 +370,8 @@ window.fetchWithAuth = AUTH.fetchWithAuth;
   }
 
   function init() {
-    // Safe default: read once from localStorage using our key if present.
-    // (Or leave enabled=false and rely solely on setEnabled from the page.)
     try { enabled = localStorage.getItem(toggleKey()) === '1'; } catch {}
-    maybeStartStop();                  // <-- no loadPref call
+    maybeStartStop();
   }
 
   function stop() { stopPolling(); }
@@ -377,12 +380,51 @@ window.fetchWithAuth = AUTH.fetchWithAuth;
 })();
 
 
-// Initialize once DOM is ready (if you don't already elsewhere)
+// Initialize once DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
   if (window.AdminNotify && typeof window.AdminNotify.init === 'function') {
     window.AdminNotify.init();
   }
 });
+
+// Keep AdminNotify in sync with saved settings across all pages
+(function () {
+  if (!window.AdminNotify) return;
+
+  function syncFromSettings() {
+    try {
+      const want = (typeof window.__pcNotifEnabled === 'function') ? window.__pcNotifEnabled() : false;
+
+      // Legacy fallback
+      const legacyKey = (() => {
+        const uid = (localStorage.getItem('user_id') || '').trim();
+        const base = 'admin_notify_comments';
+        const key  = uid ? `${base}:${uid}` : base;
+        try { return localStorage.getItem(key) === '1'; } catch { return false; }
+      })();
+
+      window.AdminNotify.setEnabled(!!(want || legacyKey));
+    } catch {}
+  }
+
+  // 1) Run once after AdminNotify.init
+  document.addEventListener('DOMContentLoaded', syncFromSettings);
+
+  // 2) React if settings change in another tab or page
+  window.addEventListener('storage', (e) => {
+    if (!e) return;
+    // watch both the new per-user PC settings key and the legacy per-user toggle key
+    const uid = (localStorage.getItem('user_id') || 'guest').trim() || 'guest';
+    const pcKey = `ssc:pc-settings:v1:${uid}`;
+    const base  = 'admin_notify_comments';
+    const legacyKey = uid ? `${base}:${uid}` : base;
+
+    if (e.key === pcKey || e.key === legacyKey) {
+      syncFromSettings();
+    }
+  });
+})();
+
 /* === END AdminNotify === */
 
 // Light idle refresh (sliding session) without spam

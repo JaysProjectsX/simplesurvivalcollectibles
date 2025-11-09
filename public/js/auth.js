@@ -197,6 +197,33 @@ const AUTH = (() => {
 })();
 window.fetchWithAuth = AUTH.fetchWithAuth;
 
+
+// === Global admin toast duration helper (reads PC settings) ==================
+(function () {
+  function readPcSettingsForUser() {
+    try {
+      const uid = (localStorage.getItem('user_id') || 'guest').trim() || 'guest';
+      const raw = localStorage.getItem(`ssc:pc-settings:v1:${uid}`);
+      return raw ? JSON.parse(raw) : {};
+    } catch { return {}; }
+  }
+
+  // Returns 0 (suppress), 3000, 5000, or 7000 (ms). Defaults to 5000 when custom off/invalid.
+  window.getAdminToastMs = function () {
+    const s = readPcSettingsForUser();
+
+    // notifications off → suppress toast entirely
+    if (!s.adminCommentNotifs) return 0;
+
+    const customOn = !!s.adminToastCustomEnabled;
+    const sec = Number(s.adminToastDurationSec);
+    const valid = sec === 3 || sec === 5 || sec === 7;
+
+    return customOn && valid ? sec * 1000 : 5000;
+  };
+})();
+
+
 // === AdminNotify (Polling-Only) =============================================
 
 (() => {
@@ -480,8 +507,12 @@ const showToast = (msg, type = "success", duration = 3000) => {
     requestAnimationFrame(() => toast.classList.add("toast-enter"));
 
     // <-- USE PER-USER DURATION HERE
-    const DURATION = (typeof window.getPcToastMs === "function") ? window.getPcToastMs() : 5000;
-    setTimeout(close, DURATION);
+    const DURATION =
+      (typeof window.getAdminToastMs === "function" && window.getAdminToastMs()) ||
+      (typeof window.getPcToastMs === "function" && window.getPcToastMs()) ||
+      5000;
+
+    if (DURATION > 0) setTimeout(close, DURATION);
   };
 
   // Keep this for AdminNotify.showCommentToast() which calls ensureToastRoot()

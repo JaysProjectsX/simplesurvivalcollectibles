@@ -1015,7 +1015,7 @@ body {
   flex-direction: column;
   gap: 12px;
   z-index: 9999;
-  pointer-events: none;         /* lane ignores clicks */
+  pointer-events: none;
 }
 
 .pc-toast{
@@ -1039,11 +1039,11 @@ body {
 .pc-toast-root .pc-toast {
   pointer-events: auto;
   width: 380px;
-  max-width: min(92vw, 380px);  /* protect on small screens */
+  max-width: min(92vw, 380px);
   background-color: #ffffff;
   border-radius: 7px;
   box-shadow: 0 15px 30px rgba(0,0,0,0.08);
-  border-left: 3px solid;       /* colored by .info/.success/etc you already have */
+  border-left: 3px solid;
   overflow: hidden;
 }
 
@@ -1249,97 +1249,134 @@ body {
   filter: drop-shadow(0 1px 2px rgba(0,0,0,.25));
 }
 
-/* Toast Duration block layout */
-.pc-toast-duration {
-  margin-top: 12px;
+/* ===== Settings panel subrow spacing (nested controls) */
+.pc-setting-subrow { 
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px dashed rgba(255,255,255,0.06);
 }
-.pc-toast-duration .pc-row-head {
-  font-weight: 600;
-  margin-bottom: 8px;
-  opacity: .95;
-}
-
-/* Slider wrapper */
-.pc-duration-slider {
-  display: grid;
-  gap: 8px;
+.pc-setting-line.sub {
+  margin-top: 0;
 }
 
-/* Discrete labels under the slider */
-.pc-duration-labels {
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  font-size: 12px;
-  opacity: .8;
-}
-.pc-duration-labels span {
+/* Title above the slider */
+.pc-duration-title {
   text-align: center;
+  font-weight: 700;
+  margin: 14px 0 10px;
 }
 
-/* Range slider — styled to match your modern controls */
-.pc-duration-slider input[type="range"] {
-  -webkit-appearance: none;
-  appearance: none;
+/* Ticks under the slider */
+.pc-ticks {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 8px;
+  font-size: 0.9rem;
+  opacity: 0.85;
+  padding: 0 4px;
+}
+
+/* Make slider full width within the card */
+.pc-duration-wrap {
+  padding: 8px 6px 4px;
+}
+.pc-duration-slider {
   width: 100%;
-  height: 34px;                 /* enough height for a large thumb */
+  display: block;
+}
+
+/* ===================== Windows-10 style slider ===================== */
+/* Scoped so it only affects this panel */
+.pc-settings-modern input[type="range"] {
+  font-size: 1rem;
+  width: 100%;
+  color: #3a86ff;                /* knob & progress color (dark theme) */
+  --thumb-height: 1.375em;
+  --thumb-width: 0.5em;
+  --track-height: 0.125em;
+  --track-color: rgba(255,255,255,0.12);
+  --brightness-hover: 180%;
+  --brightness-down: 80%;
+  --clip-edges: 0.0125em;
   background: transparent;
-  cursor: pointer;
-  outline: none;
+  position: relative;
+  overflow: hidden;
+}
+.pc-settings-modern input[type="range"]:disabled {
+  filter: grayscale(1);
+  opacity: .35;
+  cursor: not-allowed;
 }
 
-/* Track */
-.pc-duration-slider input[type="range"]::-webkit-slider-runnable-track {
-  height: 8px;
-  background: #17192b;          /* dark rail */
-  border: 1px solid #22233a;
-  border-radius: 999px;
-}
-.pc-duration-slider input[type="range"]::-moz-range-track {
-  height: 8px;
-  background: #17192b;
-  border: 1px solid #22233a;
-  border-radius: 999px;
-}
-
-/* Thumb */
-.pc-duration-slider input[type="range"]::-webkit-slider-thumb {
+/* WebKit */
+.pc-settings-modern input[type="range"],
+.pc-settings-modern input[type="range"]::-webkit-slider-runnable-track,
+.pc-settings-modern input[type="range"]::-webkit-slider-thumb {
   -webkit-appearance: none;
+  transition: all ease 100ms;
+  height: var(--thumb-height);
+}
+.pc-settings-modern input[type="range"]::-webkit-slider-thumb {
+  --thumb-radius: calc((var(--thumb-height) * 0.5) - 1px);
+  --clip-top: calc((var(--thumb-height) - var(--track-height)) * 0.5 - 0.5px);
+  --clip-bottom: calc(var(--thumb-height) - var(--clip-top));
+  --clip-further: calc(100% + 1px);
+  --box-fill: calc(-100vmax - var(--thumb-width, var(--thumb-height))) 0 0 100vmax currentColor;
+  width: var(--thumb-width, var(--thumb-height));
+  background: linear-gradient(currentColor 0 0) scroll no-repeat left center /
+              50% calc(var(--track-height) + 1px);
+  background-color: currentColor;
+  box-shadow: var(--box-fill);
+  border-radius: var(--thumb-width, var(--thumb-height));
+  filter: brightness(100%);
+  clip-path: polygon(
+    100% -1px,
+    var(--clip-edges) -1px,
+    0 var(--clip-top),
+    -100vmax var(--clip-top),
+    -100vmax var(--clip-bottom),
+    0 var(--clip-bottom),
+    var(--clip-edges) 100%,
+    var(--clip-further) var(--clip-further)
+  );
+  cursor: grab;
+}
+.pc-settings-modern input[type="range"]:active::-webkit-slider-thumb { cursor: grabbing; filter: brightness(var(--brightness-down)); }
+.pc-settings-modern input[type="range"]:hover::-webkit-slider-thumb { filter: brightness(var(--brightness-hover)); }
+.pc-settings-modern input[type="range"]::-webkit-slider-runnable-track {
+  background: linear-gradient(var(--track-color) 0 0) scroll no-repeat center /
+              100% calc(var(--track-height) + 1px);
+  border-radius: var(--track-height);
+}
+
+/* Firefox */
+.pc-settings-modern input[type="range"],
+.pc-settings-modern input[type="range"]::-moz-range-track,
+.pc-settings-modern input[type="range"]::-moz-range-thumb {
   appearance: none;
-  margin-top: -10px;            /* centers thumb on 8px track */
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  background: #365cf5;          /* primary accent (matches your buttons) */
-  border: 2px solid #2a3fc7;
-  box-shadow: 0 0 0 4px rgba(54,92,245,.15);
-  transition: transform .12s ease, box-shadow .12s ease;
+  transition: all ease 100ms;
+  height: var(--thumb-height);
 }
-.pc-duration-slider input[type="range"]::-moz-range-thumb {
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  background: #365cf5;
-  border: 2px solid #2a3fc7;
-  box-shadow: 0 0 0 4px rgba(54,92,245,.15);
-  transition: transform .12s ease, box-shadow .12s ease;
+.pc-settings-modern input[type="range"]::-moz-range-thumb {
+  background: currentColor;
+  border: 0;
+  width: var(--thumb-width, var(--thumb-height));
+  border-radius: var(--thumb-width, var(--thumb-height));
+  cursor: grab;
 }
-
-/* Hover/active feedback */
-.pc-duration-slider input[type="range"]:hover::-webkit-slider-thumb,
-.pc-duration-slider input[type="range"]:hover::-moz-range-thumb {
-  transform: scale(1.03);
-  box-shadow: 0 0 0 6px rgba(54,92,245,.20);
+.pc-settings-modern input[type="range"]:active::-moz-range-thumb { cursor: grabbing; }
+.pc-settings-modern input[type="range"]::-moz-range-track {
+  width: 100%;
+  background: var(--track-color);
 }
-
-/* Optional: tick marks (purely decorative) */
-.pc-duration-slider input[type="range"] {
-  background-image:
-    radial-gradient(currentColor 2px, transparent 3px),
-    radial-gradient(currentColor 2px, transparent 3px),
-    radial-gradient(currentColor 2px, transparent 3px);
-  background-size: 1px 1px, 1px 1px, 1px 1px;
-  background-repeat: no-repeat;
-  background-position:
-    0% 50%, 50% 50%, 100% 50%;  /* three stops */
-  color: #2c3146;               /* tick color */
+.pc-settings-modern input[type="range"]::-moz-range-progress {
+  appearance: none;
+  background: currentColor;
+  transition-delay: 30ms;
+}
+.pc-settings-modern input[type="range"]::-moz-range-track,
+.pc-settings-modern input[type="range"]::-moz-range-progress {
+  height: calc(var(--track-height) + 1px);
+  border-radius: var(--track-height);
 }

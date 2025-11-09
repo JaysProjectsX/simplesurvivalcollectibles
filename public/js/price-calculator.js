@@ -142,6 +142,10 @@ function pcShort(n) {
   return String(Math.trunc(x));
 }
 
+// Map slider index <-> seconds
+function pcIdxToSec(i){ return i === 0 ? 3 : (i === 2 ? 7 : 5); }
+function pcSecToIdx(s){ return s <= 3 ? 0 : (s >= 7 ? 2 : 1); }
+
 function isLinkedAccount() {
   return !!(PC_ME && typeof PC_ME.minecraft_username === "string" && PC_ME.minecraft_username.trim());
 }
@@ -455,46 +459,63 @@ function openSettingsModal() {
   const ov = document.getElementById("pc-settings-overlay");
   if (!ov) return;
 
-  // show/hide admin section
+  // show/hide admin section by role
   const adminSec = document.getElementById("pc-admin-section");
-  adminSec.hidden = !(PC_ME && (PC_ME.role === "Admin" || PC_ME.role === "SysAdmin"));
+  const isPriv = !!(PC_ME && (PC_ME.role === "Admin" || PC_ME.role === "SysAdmin"));
+  adminSec.hidden = !isPriv;
 
-  // load saved
+  // load saved settings
   const s = loadPcSettings();
-  const auto = !!s.autoEconomy;
-  const pref = s.preferredEconomy || "Phoenix";
+  const auto   = !!s.autoEconomy;
+  const pref   = s.preferredEconomy || "Phoenix";
   const notifs = !!s.adminCommentNotifs;
 
-  const durSlider = document.getElementById("pcToastDuration");
-  if (durSlider) {
-    durSlider.value = String(pcToastMsToIdx(pcGetToastMs()));
-  }
+  // NEW: custom duration + value (defaults: off, 5s)
+  const customOn = !!s.adminToastCustomEnabled;
+  const durSec   = Number.isFinite(s.adminToastDurationSec) ? s.adminToastDurationSec : 5;
+  const durIdx   = pcSecToIdx(durSec);
 
-  const autoEl = document.getElementById("pc-opt-autoecon");
+  // Wire DOM
+  const autoEl   = document.getElementById("pc-opt-autoecon");
   const radiosWrap = document.getElementById("pc-econ-choices");
-  const notifEl = document.getElementById("pc-opt-comment-notifs");
+  const notifEl  = document.getElementById("pc-opt-comment-notifs");
 
-  notifEl?.addEventListener("change", () => {
-    const on = !!notifEl.checked;
-    const base = loadPcSettings() || {};
-    savePcSettings({ ...base, adminCommentNotifs: on });
-  });
+  const customRow   = document.getElementById("pc-toast-custom-row");
+  const customEl    = document.getElementById("pc-opt-toast-custom");
+  const durWrap     = document.getElementById("pc-toast-duration-wrap");
+  const durInput    = document.getElementById("pc-toast-duration");
 
+  // Set initial values (no saving here)
   autoEl.checked = auto;
   radiosWrap.classList.toggle("show", auto);
   Array.from(document.querySelectorAll(`input[name="pc-pref-econ"]`)).forEach(r => {
     r.checked = (r.value === pref);
   });
-  if (notifEl) notifEl.checked = notifs;
 
+  if (notifEl) notifEl.checked = notifs;
+  if (customEl) customEl.checked = customOn;
+  if (durInput) durInput.value = String(durIdx);
+
+  // Visibility rules
+  const reflectAdminVisibility = () => {
+    const showCustomBlock = !!notifEl?.checked;
+    customRow.hidden = !showCustomBlock;
+
+    const showSlider = showCustomBlock && !!customEl?.checked;
+    durWrap.hidden = !showSlider;
+  };
+  reflectAdminVisibility();
+
+  // Only affect visibility while modal is open (no persistence)
+  notifEl?.addEventListener("change", reflectAdminVisibility, { once:false });
+  customEl?.addEventListener("change", reflectAdminVisibility, { once:false });
+
+  // Open modal
   ov.classList.add("show");
   ov.classList.remove("hidden");
   ov.removeAttribute("aria-hidden");
   ov.removeAttribute("inert");
   document.body.style.overflow = "hidden";
-
-  // If you programmatically focus controls inside, it's now safe to do so:
-  // autoEl?.focus();
 }
 
 function closeSettingsModal() {
@@ -540,24 +561,27 @@ function initSettingsUI() {
   // save
   document.getElementById("pc-settings-save")?.addEventListener("click", () => {
     const s = loadPcSettings();
-    const auto = !!document.getElementById("pc-opt-autoecon").checked;
-    const prefEl = document.querySelector('input[name="pc-pref-econ"]:checked');
-    const pref = prefEl ? prefEl.value : (s.preferredEconomy || "Phoenix");
-    const adminOn = !!document.getElementById("pc-opt-comment-notifs")?.checked;
 
-    const durSlider = document.getElementById("pcToastDuration");
-    const durIdx = durSlider ? Number(durSlider.value || 1) : 1;
-    const toastMs = PC_TOAST_IDX_TO_MS[durIdx] ?? 5000;
+    const auto   = !!document.getElementById("pc-opt-autoecon").checked;
+    const prefEl = document.querySelector('input[name="pc-pref-econ"]:checked');
+    const pref   = prefEl ? prefEl.value : (s.preferredEconomy || "Phoenix");
+
+    const adminOn   = !!document.getElementById("pc-opt-comment-notifs")?.checked;
+    const customOn  = !!document.getElementById("pc-opt-toast-custom")?.checked;
+    const durIdxEl  = document.getElementById("pc-toast-duration");
+    const durIdx    = durIdxEl ? Number(durIdxEl.value) : 1;
+    const durSec    = pcIdxToSec(durIdx); // 0→3, 1→5, 2→7
 
     const next = {
       ...s,
       autoEconomy: auto,
       preferredEconomy: pref,
       adminCommentNotifs: adminOn,
-      pcToastMs: toastMs,
+      adminToastCustomEnabled: customOn,
+      adminToastDurationSec: durSec
     };
-    savePcSettings(next);
 
+    savePcSettings(next);
     closeSettingsModal();
   });
 }

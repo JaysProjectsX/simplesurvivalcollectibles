@@ -459,6 +459,8 @@ function openSettingsModal() {
   const ov = document.getElementById("pc-settings-overlay");
   if (!ov) return;
 
+  document.getElementById("pc-settings-btn")?.classList.add("active");
+
   // show/hide admin section by role
   const adminSec = document.getElementById("pc-admin-section");
   const isPriv = !!(PC_ME && (PC_ME.role === "Admin" || PC_ME.role === "SysAdmin"));
@@ -521,6 +523,8 @@ function openSettingsModal() {
 function closeSettingsModal() {
   const ov = document.getElementById("pc-settings-overlay");
   if (!ov) return;
+
+  document.getElementById("pc-settings-btn")?.classList.remove("active");
 
   // If something inside is focused, blur it first
   if (ov.contains(document.activeElement)) {

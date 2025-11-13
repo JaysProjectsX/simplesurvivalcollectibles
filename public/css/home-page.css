@@ -2608,15 +2608,18 @@ nav {
 }
 
 .pc-toast .outer-container,
-.pc-toast .inner-container { align-self: center; }
+.pc-toast .inner-container { align-self: center; min-width: 0; }
 
 .pc-toast .inner-container p {
   margin: 2px 0;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 .pc-toast .t-line1 { font-weight: 700; }
 .pc-toast .t-line2 { opacity: .9; color: #1b1b1b; font-size: 0.9rem; }
-.pc-toast .t-line3 { margin-top: 6px; margin-bottom: 6px; font-size: 0.8rem; color: #1b1b1b; }
+.pc-toast .t-line3 { margin-top: 6px; margin-bottom: 6px; font-size: 0.8rem; color: #1b1b1b; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
 .pc-toast .t-line4 { margin-top: 6px; font-size: .8rem; opacity: .75; }
 
 .pc-toast .outer-container i,

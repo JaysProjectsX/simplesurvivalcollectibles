@@ -442,7 +442,7 @@ body {
   overflow-x: hidden;
 }
 .comment-list div {
-  padding: 6px 0;
+  padding: 6px;
 }
 .comment-list div:last-child { border-bottom: none; }
 
@@ -616,7 +616,7 @@ body {
 }
 
 .comment-line { display: flex; align-items: center; flex-wrap: wrap; justify-content: center;}
-.comment-text { color: #e5e9f7; font-size: 0.85rem; overflow-wrap: anywhere; word-break: break-word; white-space: pre-wrap; margin-left: 1rem; margin-right: 1rem;}
+.comment-text { color: #e5e9f7; font-size: 0.85rem; overflow-wrap: anywhere; word-break: break-word; white-space: pre-wrap;}
 
 /* all inline SVG icons */
 .icon { width: 16px; height: 16px; vertical-align: -4px; fill: currentColor; }
@@ -925,7 +925,12 @@ body {
 .pc-settings-section { padding:12px 0; }
 .pc-settings-section:last-child { border-bottom:0; }
 .pc-setting-line { display:flex; align-items:center; justify-content:space-between; gap:12px; }
-.pc-setting-title { font-weight:600; }
+.pc-setting-title {
+    font-weight: 700;
+    color: #a9b3d6;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+}
 
 .pc-settings-footer {
   display:flex; justify-content:flex-end; gap:8px; padding:12px 16px;

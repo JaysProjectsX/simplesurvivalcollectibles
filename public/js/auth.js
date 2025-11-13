@@ -654,6 +654,27 @@ function isLockedOut(user) {
           });
           return;
         }
+        if (username.length > 30) {
+          showGlobalModal({
+            type: "error",
+            title: "Username Too Long",
+            message: "Usernames must be 30 characters or fewer.",
+            buttons: [{ label: "Close", onClick: `fadeOutAndRemove('modal-usernameTooLong')` }],
+            id: "modal-usernameTooLong"
+          });
+          return;
+        }
+
+        if (!/^[A-Za-z0-9]+$/.test(username)) {
+          showGlobalModal({
+            type: "error",
+            title: "Invalid Username",
+            message: "Usernames can only contain letters and numbers (no special characters or spaces).",
+            buttons: [{ label: "Close", onClick: `fadeOutAndRemove('modal-usernameInvalidChars')` }],
+            id: "modal-usernameInvalidChars"
+          });
+          return;
+        }
 
         try {
           if (loader) loader.style.display = "block";

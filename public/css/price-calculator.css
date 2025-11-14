@@ -124,7 +124,7 @@ body {
 .economy-buttons { display: flex; gap: 10px; margin-bottom: 12px; justfiy-content: center;}
 .econ-btn {
     transition: background 0.3s ease;
-    width: 95%;
+    width: 100%;
     background: #0d0d1a;
     color: #fff;
     border: none;

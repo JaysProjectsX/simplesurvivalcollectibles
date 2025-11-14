@@ -37,6 +37,16 @@ function redirectHome() {
   location.replace("/");
 }
 
+function isCerberusItem(item) {
+  const byCrate =
+    /cerberus/i.test(currentCrate?.crate_name || "") ||
+    /cerberus/i.test(item?.crate_name || "");
+
+  const byFields = ("cb_base_value" in (item || {})) || ("cb_max_value" in (item || {}));
+  return byCrate || byFields;
+}
+
+
 function pcSettingsKey() {
   const uid = PC_ME?.id != null ? String(PC_ME.id) : "guest";
   return `ssc:pc-settings:v1:${uid}`;
@@ -919,7 +929,7 @@ async function openModal(itemId) {
 
   // === Economy visibility & auto-pref ===
   const settings = loadPcSettings();
-  const isCerb   = (item.crate_name || "").toLowerCase().includes("cerberus");
+  const isCerb   = isCerberusItem(item);
 
   // default / previously selected economy hygiene
   if (settings.autoEconomy && !isCerb) {
@@ -929,10 +939,15 @@ async function openModal(itemId) {
     }
   }
 
-  document.getElementById("cerberusBtn").style.display = isCerb ? "inline-block" : "none";
-  ["phoenixBtn","lynxBtn","wyvernBtn"].forEach(id =>
-    document.getElementById(id).style.display = isCerb ? "none" : "inline-block"
-  );
+  const show = (id, on) => {
+    const el = document.getElementById(id);
+    if (el) el.style.display = on ? "inline-block" : "none";
+  };
+
+  show("cerberusBtn", isCerb);
+  show("phoenixBtn", !isCerb);
+  show("lynxBtn",    !isCerb);
+  show("wyvernBtn",  !isCerb);
 
   if (isCerb) {
     selectedEconomy = "Cerberus";

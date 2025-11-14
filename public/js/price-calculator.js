@@ -7,6 +7,7 @@ const searchInput = document.getElementById("searchInput");
 let allCrates = [];
 let currentCrate = null;
 let selectedEconomy = "Phoenix";
+let CERBERUS_CRATE_ID = null;
 let currentItem = null;
 let searchTerm = "";
 let currentSearch = "";
@@ -38,12 +39,18 @@ function redirectHome() {
 }
 
 function isCerberusItem(item) {
-  const byCrate =
-    /cerberus/i.test(currentCrate?.crate_name || "") ||
-    /cerberus/i.test(item?.crate_name || "");
+  const byId =
+    CERBERUS_CRATE_ID != null &&
+    Number(item?.crate_id) === Number(CERBERUS_CRATE_ID);
 
-  const byFields = ("cb_base_value" in (item || {})) || ("cb_max_value" in (item || {}));
-  return byCrate || byFields;
+  const byName =
+    /\bcerberus\b/i.test(currentCrate?.crate_name || "") ||
+    /\bcerberus\b/i.test(item?.crate_name || "");
+
+  const byFields =
+    ("cb_base_value" in (item || {})) || ("cb_max_value" in (item || {}));
+
+  return byId || byName || byFields;
 }
 
 
@@ -694,6 +701,9 @@ async function loadCrates() {
     // Combine for shared reference but still categorize in renderSidebar
     allCrates = [...cosmeticCrates, ...nonCosmeticCrates];
 
+    const cerb = allCrates.find(c => /\bcerberus\b/i.test(c.crate_name || ""));
+    CERBERUS_CRATE_ID = cerb ? cerb.id : null;
+
     renderSidebar({
       cosmetic: cosmeticCrates,
       noncosmetic: nonCosmeticCrates
@@ -954,6 +964,13 @@ async function openModal(itemId) {
   } else if (selectedEconomy === "Cerberus") {
     selectedEconomy = settings.preferredEconomy || "Phoenix";
   }
+
+  console.debug("PC modal:", {
+    item: item.item_name,
+    crate_id: item.crate_id,
+    CERBERUS_CRATE_ID,
+    isCerb: isCerberusItem(item)
+  });
 
   updateEconomyDisplay();
   await loadInsights(itemId);

@@ -39,18 +39,22 @@ function redirectHome() {
 }
 
 function isCerberusItem(item) {
-  const byId =
+  if (!item) return false;
+
+  // Most reliable: crate ID
+  if (
     CERBERUS_CRATE_ID != null &&
-    Number(item?.crate_id) === Number(CERBERUS_CRATE_ID);
+    Number(item.crate_id) === Number(CERBERUS_CRATE_ID)
+  ) return true;
 
-  const byName =
-    /\bcerberus\b/i.test(currentCrate?.crate_name || "") ||
-    /\bcerberus\b/i.test(item?.crate_name || "");
+  // Fallback: the item's own crate_name (NOT currentCrate)
+  const nm = String(item.crate_name || "").toLowerCase();
+  if (nm.includes("cerberus")) return true;
 
-  const byFields =
-    ("cb_base_value" in (item || {})) || ("cb_max_value" in (item || {}));
-
-  return byId || byName || byFields;
+  // Optional extra: only if actual numbers exist (not just keys)
+  const hasCerbNumbers =
+    Number.isFinite(+item.cb_base_value) || Number.isFinite(+item.cb_max_value);
+  return !!hasCerbNumbers;
 }
 
 
@@ -701,7 +705,10 @@ async function loadCrates() {
     // Combine for shared reference but still categorize in renderSidebar
     allCrates = [...cosmeticCrates, ...nonCosmeticCrates];
 
-    const cerb = allCrates.find(c => /\bcerberus\b/i.test(c.crate_name || ""));
+    const cerb = allCrates.find(c =>
+      String(c.crate_name || "").toLowerCase() === "cerberuslegendarycrate"
+    ) || allCrates.find(c => /\bcerberus\b/i.test(c.crate_name || ""));
+
     CERBERUS_CRATE_ID = cerb ? cerb.id : null;
 
     renderSidebar({

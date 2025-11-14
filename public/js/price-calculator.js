@@ -38,23 +38,19 @@ function redirectHome() {
   location.replace("/");
 }
 
-function isCerberusItem(item) {
-  if (!item) return false;
+function isCerberusItem(item, ctxCrate) {
+  const cerbId = CERBERUS_CRATE_ID != null ? Number(CERBERUS_CRATE_ID) : NaN;
 
-  // Most reliable: crate ID
-  if (
-    CERBERUS_CRATE_ID != null &&
-    Number(item.crate_id) === Number(CERBERUS_CRATE_ID)
-  ) return true;
+  // Prefer explicit crate_id on the item
+  const itemCrateId = item?.crate_id != null ? Number(item.crate_id) : NaN;
 
-  // Fallback: the item's own crate_name (NOT currentCrate)
-  const nm = String(item.crate_name || "").toLowerCase();
-  if (nm.includes("cerberus")) return true;
+  if (Number.isFinite(cerbId) && Number.isFinite(itemCrateId)) {
+    return itemCrateId === cerbId;
+  }
 
-  // Optional extra: only if actual numbers exist (not just keys)
-  const hasCerbNumbers =
-    Number.isFinite(+item.cb_base_value) || Number.isFinite(+item.cb_max_value);
-  return !!hasCerbNumbers;
+  // Fallback: use crate names only if ids aren't available
+  const itemCrateName = String(item?.crate_name || ctxCrate?.crate_name || "").toLowerCase();
+  return itemCrateName === "cerberuslegendarycrate";
 }
 
 
@@ -946,7 +942,7 @@ async function openModal(itemId) {
 
   // === Economy visibility & auto-pref ===
   const settings = loadPcSettings();
-  const isCerb   = isCerberusItem(item);
+  const isCerb = isCerberusItem(item, currentCrate);
 
   // default / previously selected economy hygiene
   if (settings.autoEconomy && !isCerb) {

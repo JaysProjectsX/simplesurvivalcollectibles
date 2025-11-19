@@ -497,7 +497,7 @@ body {
 
 .comment-input .comment-mute-overlay {
   position: absolute;
-  top: 22px;
+  top: 20px;
   width: 95%;
   height: 100px;
   border-radius: 8px;
@@ -724,7 +724,6 @@ body {
 .muted-badge {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
   margin-right: 6px;
   color: #ff6b6b;
   font-weight: 600;

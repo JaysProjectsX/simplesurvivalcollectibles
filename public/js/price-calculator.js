@@ -906,7 +906,17 @@ function renderItemsAsAccordions(crate) {
             ? `<img src="${it.icon_url}" alt="${it.item_name}" />`
             : ""
         }</td>
-        <td><button class="btn-primary btn-view-price" data-item-id="${it.id}" data-crate-name="${grp?.crate_name || ''}">View price</button></td>
+          <td>
+            <button
+              type="button"
+              class="btn-primary btn-view-price"
+              data-item-id="${it.id}"
+              title="View price"
+              aria-label="View price"
+            >
+              View price
+            </button>
+          </td>
       `;
       tbody.appendChild(tr);
     });
@@ -914,7 +924,7 @@ function renderItemsAsAccordions(crate) {
     accRoot.appendChild(wrap);
   });
 
-  accRoot.querySelectorAll(".money-btn").forEach((btn) =>
+  accRoot.querySelectorAll(".btn-view-price").forEach((btn) =>
     btn.addEventListener("click", () => {
       if (!pcGateOpen()) return;
       openModal(btn.dataset.itemId);

@@ -692,22 +692,17 @@ function initSettingsUI() {
 // ================== LOAD CRATES ==================
 async function loadCrates() {
   try {
-    // Fetch both crate categories in parallel
-    const [cosmeticRes, nonCosmeticRes] = await Promise.all([
-      fetch(`${backendUrl}/crates/cosmetic`, { credentials: "include" }),
-      fetch(`${backendUrl}/crates/noncosmetic`, { credentials: "include" })
-    ]);
+    // Pull all crates
+    const res = await fetch(`${backendUrl}/crates`, { credentials: "include" });
+    if (!res.ok) throw new Error("Failed to load crates");
+    const crates = await res.json();
 
-    if (!cosmeticRes.ok || !nonCosmeticRes.ok)
-      throw new Error("Failed to load crates");
+    // Split into sections exactly like before
+    const cosmeticCrates    = crates.filter(c => !!c.is_cosmetic);
+    const nonCosmeticCrates = crates.filter(c => !c.is_cosmetic);
 
-    const [cosmeticCrates, nonCosmeticCrates] = await Promise.all([
-      cosmeticRes.json(),
-      nonCosmeticRes.json()
-    ]);
-
-    // Combine for shared reference but still categorize in renderSidebar
-    allCrates = [...cosmeticCrates, ...nonCosmeticCrates];
+    // Keep a merged list for lookups
+    allCrates = crates.slice();
 
     const cerb = allCrates.find(c =>
       String(c.crate_name || "").toLowerCase() === "cerberuslegendarycrate"

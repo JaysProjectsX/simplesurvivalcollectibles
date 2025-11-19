@@ -1211,7 +1211,17 @@ function renderCommentsPaged() {
     const isMuted = !!c.is_muted;
 
     const ignSpan = c.minecraft_username
-      ? `<span class="mc-tag">IGN: ${escapeHtml(c.minecraft_username)} ${SVG.verify}</span>`
+      ? `<span class="mc-tag">
+          <img
+            class="mc-head"
+            src="https://minotar.net/avatar/${encodeURIComponent(c.minecraft_username)}/20"
+            alt="${escapeHtml(c.minecraft_username)}"
+            loading="lazy"
+            onerror="this.style.display='none'"
+          />
+          <span class="mc-name">${escapeHtml(c.minecraft_username)}</span>
+          ${SVG.verify}
+        </span>`
       : "";
 
     const mutedBadge = (isAdmin && isMuted)

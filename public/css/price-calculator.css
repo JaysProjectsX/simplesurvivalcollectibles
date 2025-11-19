@@ -626,6 +626,7 @@ body {
 /* --- Minecraft Tag --- */
 .mc-tag {
     border-radius: 4px;
+    gap: 4px;
     border: 1px solid #ffffff0f;
     padding-right: 4px;
     display: inline-block;
@@ -634,6 +635,25 @@ body {
     font-weight: 600;
     color: #e5e9f7;
     opacity: 0.85;
+}
+
+.mc-head{
+  width:20px;
+  height:20px;
+  image-rendering: pixelated;
+  border-radius:3px;
+  flex:0 0 auto;
+}
+
+.mc-name{
+  display:inline-block;
+}
+
+.mc-tag .icon-verify{
+  width:16px;
+  height:16px;
+  margin-left:2px;
+  opacity:.95;
 }
 
 /* --- Delete Icon (Admin only) --- */

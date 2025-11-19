@@ -366,7 +366,7 @@ function openPriceDisclaimerModal() {
     const root = document.getElementById(id);
     if (!root) return;
 
-    // 1) Remove the top-right "X" just for this modal
+    // 1) Remove the top-right close button "X" just for this modal
     const headerClose = root.querySelector(".global-modal-header .close, .modal-header .close, .close");
     if (headerClose && headerClose.closest(`#${id}`)) {
       headerClose.remove();
@@ -614,7 +614,15 @@ function initSettingsUI() {
     if (!res.ok) return redirectHome();
     const user = await res.json();
     PC_ME = user;
-    if (user.role !== "Admin" && user.role !== "SysAdmin") return redirectHome();
+    const WHITELIST = [
+     "KingenWalle",
+     "bluestcheez",
+     "YooEm2"
+    ].map(s => s.toLowerCase());
+    const uName = (user.username || "").toLowerCase();
+    const isAdmin = (user.role === "Admin" || user.role === "SysAdmin");
+    const isWhitelisted = WHITELIST.includes(uName);
+    if (!isAdmin && !isWhitelisted) return redirectHome();
 
     document.body.hidden = false;
 
@@ -867,7 +875,7 @@ function renderItemsAsAccordions(crate) {
                 <th>Item Name</th>
                 <th>Item Set</th>
                 <th>Icon</th>
-                <th>Value</th> <!-- added header for 💰 column -->
+                <th>Value</th>
               </tr>
             </thead>
             <tbody></tbody>
@@ -898,7 +906,7 @@ function renderItemsAsAccordions(crate) {
             ? `<img src="${it.icon_url}" alt="${it.item_name}" />`
             : ""
         }</td>
-        <td><button class="money-btn" data-item-id="${it.id}" title="View Price">💰</button></td>
+        <td><button class="btn-primary btn-view-price" data-item-id="${it.id}" data-crate-name="${grp?.crate_name || ''}">View price</button></td>
       `;
       tbody.appendChild(tr);
     });

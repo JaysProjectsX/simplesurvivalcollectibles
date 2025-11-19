@@ -903,7 +903,7 @@ body {
 .pc-settings-overlay.show { opacity:1; pointer-events:auto; }
 .pc-settings-card {
   width:520px; max-width:calc(100vw - 32px);
-  background:#0c0c1a; color:#e7e9f3; border:1px solid #22233a;
+  background:#0c0c1a; color:#e7e9f3;
   border-radius:14px; overflow:hidden; transform: translateY(10px); opacity:0;
   box-shadow:0 10px 30px rgba(0,0,0,.35);
   transition: transform .22s ease, opacity .22s ease;

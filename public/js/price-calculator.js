@@ -909,7 +909,7 @@ function renderItemsAsAccordions(crate) {
           <td>
             <button
               type="button"
-              class="btn-primary btn-view-price"
+              class="btn-secondary btn-view-price"
               data-item-id="${it.id}"
               title="View price"
               aria-label="View price"

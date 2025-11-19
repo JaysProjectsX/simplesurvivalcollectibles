@@ -619,18 +619,16 @@ body {
 .comment-text { color: #e5e9f7; font-size: 0.85rem; overflow-wrap: anywhere; word-break: break-word; white-space: pre-wrap;}
 
 /* all inline SVG icons */
-.icon { width: 16px; height: 16px; vertical-align: -4px; fill: currentColor; }
-/* verified shield color */
+.icon { width: 16px; height: 16px; fill: currentColor; }
 .icon-verify { color: #52b788; }
 
 /* --- Minecraft Tag --- */
 .mc-tag {
+    padding: 2px 4px 2px 4px;
     border-radius: 4px;
     gap: 4px;
-    border: 1px solid #ffffff0f;
-    padding-right: 4px;
-    display: inline-block;
-    padding-left: 4px;
+    border: 1px solid #494949b5;
+    display: flex;
     font-size: 12px;
     font-weight: 600;
     color: #e5e9f7;
@@ -638,8 +636,9 @@ body {
 }
 
 .mc-head{
-  width:20px;
-  height:20px;
+  margin-top: 1px;
+  width:16px;
+  height:16px;
   image-rendering: pixelated;
   border-radius:3px;
   flex:0 0 auto;
@@ -647,13 +646,6 @@ body {
 
 .mc-name{
   display:inline-block;
-}
-
-.mc-tag .icon-verify{
-  width:16px;
-  height:16px;
-  margin-left:2px;
-  opacity:.95;
 }
 
 /* --- Delete Icon (Admin only) --- */

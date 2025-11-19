@@ -1150,7 +1150,7 @@ function renderName(c) {
 
 const SVG = {
   verify: `
-    <svg class="icon icon-verify" viewBox="0 0 24 24" aria-hidden="true">
+    <svg class="icon icon-verify" viewBox="0 0 24 21" aria-hidden="true">
       <path fill="currentColor"
         d="M12 2l6 2.7v6.1c0 4.3-3 8.2-6 9.2-3-1-6-4.9-6-9.2V4.7L12 2zm-1 13l6-6-1.4-1.4L11 12.2 8.4 9.6 7 11l4 4z" />
     </svg>

@@ -617,7 +617,8 @@ function initSettingsUI() {
     const WHITELIST = [
      "KingenWalle",
      "bluestcheez",
-     "YooEm2"
+     "YooEm2",
+     "WakingGibbon516"
     ].map(s => s.toLowerCase());
     const uName = (user.username || "").toLowerCase();
     const isAdmin = (user.role === "Admin" || user.role === "SysAdmin");

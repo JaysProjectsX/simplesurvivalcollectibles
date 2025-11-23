@@ -134,7 +134,6 @@
     </div>
   </div>
 
-  <!-- Settings Modal (custom, animated) -->
   <div id="pc-settings-overlay" class="pc-settings-overlay hidden" aria-hidden="true">
     <div class="pc-settings-card">
       <div class="pc-settings-header">
@@ -143,7 +142,6 @@
       </div>
 
       <div class="pc-settings-body pc-settings-modern">
-        <!-- General: Preferred economy -->
         <section class="pc-settings-section">
           <div class="pc-setting-line">
             <div class="pc-setting-title">Auto-select preferred economy</div>
@@ -164,7 +162,6 @@
           </div>
         </section>
 
-        <!-- Admin/SysAdmin: Comment notifications -->
         <section id="pc-admin-section" class="pc-settings-section" hidden>
           <div class="pc-setting-line">
             <div class="pc-setting-title">Show comment notifications</div>
@@ -191,11 +188,8 @@
               </label>
             </div>
 
-            <!-- Slider wrapper (hidden unless custom toggle is ON) -->
             <div id="pc-toast-duration-wrap" class="pc-duration-wrap" hidden>
               <div class="pc-duration-title">Toast duration</div>
-
-              <!-- Windows-10 style slider; three stops: 0=3s, 1=5s, 2=7s -->
               <input
                 id="pc-toast-duration"
                 type="range"
@@ -203,8 +197,6 @@
                 min="0" max="2" step="1" value="1"
                 aria-label="Toast duration (3, 5, or 7 seconds)"
               />
-
-              <!-- Ticks -->
               <div class="pc-ticks" aria-hidden="true">
                 <span>3s</span>
                 <span>5s</span>

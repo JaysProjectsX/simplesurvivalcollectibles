@@ -27,7 +27,6 @@
 /* Use the existing site look for the main links */
 #adminContent nav .nav-links {
   display: flex;
-  gap: 40px;
   margin: 0;
   list-style-type: none;
 }
@@ -41,6 +40,7 @@
   display: flex;
   align-items: center;
   gap: 0.75rem;
+  font-size: large;
 }
 
 #adminContent nav .nav-links li,
@@ -51,6 +51,7 @@
 /* Make sure the collapse wrapper still plays nicely with Bootstrap */
 #adminContent #mainNavbar {
   flex-basis: auto;
+  flex-grow: 0;
 }
 
 /* ----- Mobile / tablet: stack everything nicely ----- */
@@ -78,6 +79,8 @@
     gap: 0.75rem;
     margin: 0;
     padding: 0;
+    margin-top: 0.75rem;
+    font-size: large;
   }
 
   #userDropdown {
@@ -86,7 +89,6 @@
     width: min(280px, 90vw);
     margin: 0 0.75rem 0 0;
   }
-
 }
 
 /* Dashboard wrapper */

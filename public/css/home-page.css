@@ -47,7 +47,7 @@ main {
     z-index: 0;
 }
 
-nav {
+  nav {
     position: fixed;
     top: 0;
     width: 100%;
@@ -57,13 +57,89 @@ nav {
     z-index: 99;
   }
 
-  .nav-content {
+  /* Bootstrapped nav container: center logo + links */
+  nav .nav-content {
+    max-width: 1100px;
+    margin: 0 auto;
     display: flex;
-    justify-content: center;
+    align-items: center;
+    justify-content: center; /* logo + nav-links stay centered */
+    padding: 12px 20px;
   }
 
+  /* Logo spacing stays the same as before */
   .nav-logo {
     margin-right: 30px;
+  }
+
+  /* Main nav links row */
+  nav .nav-links {
+    display: flex;
+    align-items: center;
+    gap: 30px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  /* Login / username area: pinned far right on desktop */
+  nav .nav-login {
+    position: absolute;
+    right: 30px;
+    list-style: none;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: large;
+  }
+
+  nav .nav-links li,
+  nav .nav-login li {
+    list-style: none;
+  }
+
+  /* Collapse wrapper: don’t let it stretch everything */
+  #mainNavbar {
+    flex-basis: auto;
+    flex-grow: 0;
+  }
+
+  /* Mobile / tablet layout for navbar */
+  @media (max-width: 991.98px) {
+    /* Let nav stretch full width */
+    nav .nav-content {
+      max-width: 100%;
+      padding-inline: 1rem;
+      justify-content: flex-start;
+    }
+
+    #mainNavbar {
+      width: 100%;
+      margin-top: 0.5rem;
+    }
+
+    /* Stack links + login vertically */
+    nav .nav-links,
+    nav .nav-login {
+      position: static;
+      right: auto;
+      transform: none;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0.75rem;
+      margin: 0;
+      padding: 0;
+      margin-top: 0.75rem;
+      font-size: large;
+    }
+
+    /* Keep the account dropdown nicely sized on small screens */
+    #userDropdown {
+      right: 0;
+      left: 0;
+      width: min(280px, 90vw);
+      margin: 0 0.75rem 0 0;
+    }
   }
 
   /* Logo Styling */
@@ -80,16 +156,6 @@ nav {
     50% {
       transform: scale(1.2);
     }
-  }
-  
-/* Navigation Links */
-  .nav-links {
-    display: flex;
-    align-items: center;
-    list-style: none;
-    gap: 30px;
-    margin: 0;
-    padding: 0;
   }
   
   .nav-links li a {
@@ -118,22 +184,6 @@ nav {
     background-color: #6ea8ff;
     transition: width 0.3s ease;
   }
-
-/* Push login to far right absolutely */
-.nav-login {
-  position: absolute;
-  right: 30px;
-  list-style: none;
-}
-
-.nav-login a {
-  color: #fff;
-  text-decoration: none;
-  font-size: large;
-  font-weight: 600;
-  transition: color 0.3s;
-  position: relative;
-}
 
 .nav-login li a {
   position: relative;

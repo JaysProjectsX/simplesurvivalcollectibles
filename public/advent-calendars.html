@@ -4,6 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Advent Calendars - SimpleSurvival Collectibles</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="/css/home-page.css" />
     <link rel="stylesheet" href="/css/globalModal.css" />
     <link
@@ -87,163 +88,165 @@
         <p><a href="/privacy">Privacy Policy</a> | <a href="/terms">Terms of Use</a> | <a href="/info#faq">FAQ</a></p>
       </div>
     </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script defer src="/js/globalModal.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
     <script src="/js/auth.js"></script>
-<script>
-const ADVENT_DATA = {
-  2024: {
-    monthName: "December",
-    startWeekday: new Date(2024, 11, 1).getDay(), // 0=Sun..6=Sat
-    days: [
-      { label: "Christmas Coal 2024", icon: "https://mc.nerothe.com/img/1.21.5/minecraft_coal.png"  },
-      { label: "Advent Hoe",          icon: "https://mc.nerothe.com/img/1.21.5/minecraft_netherite_hoe.png"  },
-      { label: "Frosted Treats x16",  icon: "https://mc.nerothe.com/img/1.21.5/minecraft_cookie.png"  },
-      { label: "Icicle Wand",         icon: "https://mc.nerothe.com/img/1.21.5/minecraft_breeze_rod.png"  },
-      { label: "Winter Essence x16",  icon: "https://mc.nerothe.com/img/1.21.5/minecraft_snowball.png"  },
-      { label: "Golden Noel Nibble",  icon: "https://mc.nerothe.com/img/1.21.5/minecraft_golden_carrot.png"  },
-      { label: "Gingerbread Delight", icon: "https://mc.nerothe.com/img/1.21.5/minecraft_pumpkin_pie.png"  },
-      { label: "Advent Boots",        icon: "https://mc.nerothe.com/img/1.21.5/minecraft_netherite_boots.png"  },
-      { label: "Holiday Sparkler",    icon: "https://mc.nerothe.com/img/1.21.5/minecraft_firework_rocket.png"  },
-      { label: "Plant Bundle",        icon: "https://mc.nerothe.com/img/1.21.5/minecraft_green_shulker_box.png" },
-      { label: "Advent Chestplate",   icon: "https://mc.nerothe.com/img/1.21.5/minecraft_netherite_chestplate.png" },
-      { label: "Advent Helmet",       icon: "https://mc.nerothe.com/img/1.21.5/minecraft_netherite_helmet.png" },
-      { label: "Festive Bauble",      icon: "https://mc.nerothe.com/img/1.21.5/minecraft_enchanted_golden_apple.png" },
-      { label: "Hanukkah Trident",    icon: "https://mc.nerothe.com/img/1.21.5/minecraft_trident.png" },
-      { label: "Advent Leggings",     icon: "https://mc.nerothe.com/img/1.21.5/minecraft_netherite_leggings.png" },
-      { label: "Advent Elytra",       icon: "https://mc.nerothe.com/img/1.21.5/minecraft_elytra.png" },
-      { label: "Advent Sword",        icon: "https://mc.nerothe.com/img/1.21.5/minecraft_netherite_sword.png" },
-      { label: "Advent Boots",        icon: "https://mc.nerothe.com/img/1.21.5/minecraft_netherite_boots.png" },
-      { label: "Advent Pickaxe",      icon: "https://mc.nerothe.com/img/1.21.5/minecraft_netherite_pickaxe.png" },
-      { label: "Advent Axe",          icon: "https://mc.nerothe.com/img/1.21.5/minecraft_netherite_axe.png" },
-      { label: "Advent Shovel",       icon: "https://mc.nerothe.com/img/1.21.5/minecraft_netherite_shovel.png" },
-      { label: "Advent Mace",         icon: "https://mc.nerothe.com/img/1.21.5/minecraft_mace.png" },
-      { label: "Advent Bow",          icon: "https://mc.nerothe.com/img/1.21.5/minecraft_bow.png" },
-      { label: "Christmas Card",      icon: "https://mc.nerothe.com/img/1.21.5/minecraft_paper.png" },
-      { label: "Evo's Christmas Gift 2024", icon: "https://mc.nerothe.com/img/1.21.5/minecraft_enchanted_golden_apple.png" }
-    ]
-  },
-  2023: {
-    monthName: "December",
-    startWeekday: new Date(2023, 11, 1).getDay(),
-    days: [
-      { label: "Christmas Coal 2023", icon: "https://mc.nerothe.com/img/1.21.5/minecraft_coal.png"  },
-      { label: "Dasher",              icon: "https://mc.nerothe.com/img/1.21.5/minecraft_name_tag.png"  },
-      { label: "Reward Key",          icon: "https://mc.nerothe.com/img/1.21.5/minecraft_tripwire_hook.png"  },
-      { label: "Mistletoe",           icon: "https://mc.nerothe.com/img/1.21.5/minecraft_sweet_berries.png"  },
-      { label: "Dancer",              icon: "https://mc.nerothe.com/img/1.21.5/minecraft_name_tag.png"  },
-      { label: "Snowball x16",        icon: "https://mc.nerothe.com/img/1.21.5/minecraft_snowball.png"  },
-      { label: "Reward Key",          icon: "https://mc.nerothe.com/img/1.21.5/minecraft_tripwire_hook.png"  },
-      { label: "Prancer",             icon: "https://mc.nerothe.com/img/1.21.5/minecraft_name_tag.png"  },
-      { label: "Candy Cane Cuisse",   icon: "https://mc.nerothe.com/img/1.21.5/minecraft_netherite_leggings.png"  },
-      { label: "Blitzen",             icon: "https://mc.nerothe.com/img/1.21.5/minecraft_name_tag.png" },
-      { label: "Jingle Mail",         icon: "https://mc.nerothe.com/img/1.21.5/minecraft_netherite_chestplate.png" },
-      { label: "Vixen",               icon: "https://mc.nerothe.com/img/1.21.5/minecraft_name_tag.png" },
-      { label: "Reward Key",          icon: "https://mc.nerothe.com/img/1.21.5/minecraft_tripwire_hook.png" },
-      { label: "Tinsel Takedown",     icon: "https://mc.nerothe.com/img/1.21.5/minecraft_crossbow.png" },
-      { label: "Elf Enforcer",        icon: "https://mc.nerothe.com/img/1.21.5/minecraft_netherite_axe.png" },
-      { label: "Donner",              icon: "https://mc.nerothe.com/img/1.21.5/minecraft_name_tag.png" },
-      { label: "Snowflake Saber",     icon: "https://mc.nerothe.com/img/1.21.5/minecraft_netherite_sword.png" },
-      { label: "Impaling Icicle",     icon: "https://mc.nerothe.com/img/1.21.5/minecraft_trident.png" },
-      { label: "Comet",               icon: "https://mc.nerothe.com/img/1.21.5/minecraft_name_tag.png" },
-      { label: "Reward Key",          icon: "https://mc.nerothe.com/img/1.21.5/minecraft_tripwire_hook.png" },
-      { label: "Reindeer Runners",    icon: "https://mc.nerothe.com/img/1.21.5/minecraft_netherite_boots.png" },
-      { label: "Cupid",               icon: "https://mc.nerothe.com/img/1.21.5/minecraft_name_tag.png" },
-      { label: "Rudolph",             icon: "https://mc.nerothe.com/img/1.21.5/minecraft_name_tag.png" },
-      { label: "Snowflake Snood",     icon: "https://mc.nerothe.com/img/1.21.5/minecraft_netherite_helmet.png" },
-      { label: "Evo's Christmas Gift 2023", icon: "https://mc.nerothe.com/img/1.21.5/minecraft_small_amethyst_bud.png" } // ignored (26th)
-    ]
-  },
-  2022: {
-    monthName: "December",
-    startWeekday: new Date(2022, 11, 1).getDay(),
-    days: [
-      { label: "Naughty or Nice",  icon: "https://mc.nerothe.com/img/1.21.5/minecraft_coal.png"  },
-      { label: "Christmas Cracker", icon: "https://mc.nerothe.com/img/1.21.5/minecraft_blaze_rod.png"  },
-      { label: "Mythic Key",        icon: "https://mc.nerothe.com/img/1.21.5/minecraft_tripwire_hook.png"  },
-      { label: "Mistletoe",         icon: "https://mc.nerothe.com/img/1.21.5/minecraft_sweet_berries.png"  },
-      { label: "Christmas Cracker", icon: "https://mc.nerothe.com/img/1.21.5/minecraft_blaze_rod.png"  },
-      { label: "Snowball x16",      icon: "https://mc.nerothe.com/img/1.21.5/minecraft_snowball.png"  },
-      { label: "Mythic Key",        icon: "https://mc.nerothe.com/img/1.21.5/minecraft_tripwire_hook.png"  },
-      { label: "Christmas Cracker", icon: "https://mc.nerothe.com/img/1.21.5/minecraft_blaze_rod.png"  },
-      { label: "Advent Leggings",   icon: "https://mc.nerothe.com/img/1.21.5/minecraft_netherite_leggings.png"  },
-      { label: "Christmas Cracker", icon: "https://mc.nerothe.com/img/1.21.5/minecraft_blaze_rod.png" },
-      { label: "Advent Chestplate", icon: "https://mc.nerothe.com/img/1.21.5/minecraft_netherite_chestplate.png" },
-      { label: "Christmas Cracker", icon: "https://mc.nerothe.com/img/1.21.5/minecraft_blaze_rod.png" },
-      { label: "Mythic Key",        icon: "https://mc.nerothe.com/img/1.21.5/minecraft_tripwire_hook.png" },
-      { label: "Advent Crossbow",   icon: "https://mc.nerothe.com/img/1.21.5/minecraft_crossbow.png" },
-      { label: "Advent Axe",        icon: "https://mc.nerothe.com/img/1.21.5/minecraft_netherite_axe.png" },
-      { label: "Christmas Cracker", icon: "https://mc.nerothe.com/img/1.21.5/minecraft_blaze_rod.png" },
-      { label: "Advent Sword",      icon: "https://mc.nerothe.com/img/1.21.5/minecraft_netherite_sword.png" },
-      { label: "Happy Hanukkah",    icon: "https://mc.nerothe.com/img/1.21.5/minecraft_trident.png" },
-      { label: "Christmas Cracker", icon: "https://mc.nerothe.com/img/1.21.5/minecraft_blaze_rod.png" },
-      { label: "Mythic Key",        icon: "https://mc.nerothe.com/img/1.21.5/minecraft_tripwire_hook.png" },
-      { label: "Advent Boots",      icon: "https://mc.nerothe.com/img/1.21.5/minecraft_netherite_boots.png" },
-      { label: "Christmas Cracker", icon: "https://mc.nerothe.com/img/1.21.5/minecraft_blaze_rod.png" },
-      { label: "Christmas Cracker", icon: "https://mc.nerothe.com/img/1.21.5/minecraft_blaze_rod.png" },
-      { label: "Advent Helmet",     icon: "https://mc.nerothe.com/img/1.21.5/minecraft_netherite_helmet.png" },
-      { label: "Evo's Christmas Gift 2022", icon: "https://mc.nerothe.com/img/1.21.5/minecraft_flowering_azalea.png" }
-    ]
-  }
-};
+    <script>
+    const ADVENT_DATA = {
+      2024: {
+        monthName: "December",
+        startWeekday: new Date(2024, 11, 1).getDay(), // 0=Sun..6=Sat
+        days: [
+          { label: "Christmas Coal 2024", icon: "https://mc.nerothe.com/img/1.21.5/minecraft_coal.png"  },
+          { label: "Advent Hoe",          icon: "https://mc.nerothe.com/img/1.21.5/minecraft_netherite_hoe.png"  },
+          { label: "Frosted Treats x16",  icon: "https://mc.nerothe.com/img/1.21.5/minecraft_cookie.png"  },
+          { label: "Icicle Wand",         icon: "https://mc.nerothe.com/img/1.21.5/minecraft_breeze_rod.png"  },
+          { label: "Winter Essence x16",  icon: "https://mc.nerothe.com/img/1.21.5/minecraft_snowball.png"  },
+          { label: "Golden Noel Nibble",  icon: "https://mc.nerothe.com/img/1.21.5/minecraft_golden_carrot.png"  },
+          { label: "Gingerbread Delight", icon: "https://mc.nerothe.com/img/1.21.5/minecraft_pumpkin_pie.png"  },
+          { label: "Advent Boots",        icon: "https://mc.nerothe.com/img/1.21.5/minecraft_netherite_boots.png"  },
+          { label: "Holiday Sparkler",    icon: "https://mc.nerothe.com/img/1.21.5/minecraft_firework_rocket.png"  },
+          { label: "Plant Bundle",        icon: "https://mc.nerothe.com/img/1.21.5/minecraft_green_shulker_box.png" },
+          { label: "Advent Chestplate",   icon: "https://mc.nerothe.com/img/1.21.5/minecraft_netherite_chestplate.png" },
+          { label: "Advent Helmet",       icon: "https://mc.nerothe.com/img/1.21.5/minecraft_netherite_helmet.png" },
+          { label: "Festive Bauble",      icon: "https://mc.nerothe.com/img/1.21.5/minecraft_enchanted_golden_apple.png" },
+          { label: "Hanukkah Trident",    icon: "https://mc.nerothe.com/img/1.21.5/minecraft_trident.png" },
+          { label: "Advent Leggings",     icon: "https://mc.nerothe.com/img/1.21.5/minecraft_netherite_leggings.png" },
+          { label: "Advent Elytra",       icon: "https://mc.nerothe.com/img/1.21.5/minecraft_elytra.png" },
+          { label: "Advent Sword",        icon: "https://mc.nerothe.com/img/1.21.5/minecraft_netherite_sword.png" },
+          { label: "Advent Boots",        icon: "https://mc.nerothe.com/img/1.21.5/minecraft_netherite_boots.png" },
+          { label: "Advent Pickaxe",      icon: "https://mc.nerothe.com/img/1.21.5/minecraft_netherite_pickaxe.png" },
+          { label: "Advent Axe",          icon: "https://mc.nerothe.com/img/1.21.5/minecraft_netherite_axe.png" },
+          { label: "Advent Shovel",       icon: "https://mc.nerothe.com/img/1.21.5/minecraft_netherite_shovel.png" },
+          { label: "Advent Mace",         icon: "https://mc.nerothe.com/img/1.21.5/minecraft_mace.png" },
+          { label: "Advent Bow",          icon: "https://mc.nerothe.com/img/1.21.5/minecraft_bow.png" },
+          { label: "Christmas Card",      icon: "https://mc.nerothe.com/img/1.21.5/minecraft_paper.png" },
+          { label: "Evo's Christmas Gift 2024", icon: "https://mc.nerothe.com/img/1.21.5/minecraft_enchanted_golden_apple.png" }
+        ]
+      },
+      2023: {
+        monthName: "December",
+        startWeekday: new Date(2023, 11, 1).getDay(),
+        days: [
+          { label: "Christmas Coal 2023", icon: "https://mc.nerothe.com/img/1.21.5/minecraft_coal.png"  },
+          { label: "Dasher",              icon: "https://mc.nerothe.com/img/1.21.5/minecraft_name_tag.png"  },
+          { label: "Reward Key",          icon: "https://mc.nerothe.com/img/1.21.5/minecraft_tripwire_hook.png"  },
+          { label: "Mistletoe",           icon: "https://mc.nerothe.com/img/1.21.5/minecraft_sweet_berries.png"  },
+          { label: "Dancer",              icon: "https://mc.nerothe.com/img/1.21.5/minecraft_name_tag.png"  },
+          { label: "Snowball x16",        icon: "https://mc.nerothe.com/img/1.21.5/minecraft_snowball.png"  },
+          { label: "Reward Key",          icon: "https://mc.nerothe.com/img/1.21.5/minecraft_tripwire_hook.png"  },
+          { label: "Prancer",             icon: "https://mc.nerothe.com/img/1.21.5/minecraft_name_tag.png"  },
+          { label: "Candy Cane Cuisse",   icon: "https://mc.nerothe.com/img/1.21.5/minecraft_netherite_leggings.png"  },
+          { label: "Blitzen",             icon: "https://mc.nerothe.com/img/1.21.5/minecraft_name_tag.png" },
+          { label: "Jingle Mail",         icon: "https://mc.nerothe.com/img/1.21.5/minecraft_netherite_chestplate.png" },
+          { label: "Vixen",               icon: "https://mc.nerothe.com/img/1.21.5/minecraft_name_tag.png" },
+          { label: "Reward Key",          icon: "https://mc.nerothe.com/img/1.21.5/minecraft_tripwire_hook.png" },
+          { label: "Tinsel Takedown",     icon: "https://mc.nerothe.com/img/1.21.5/minecraft_crossbow.png" },
+          { label: "Elf Enforcer",        icon: "https://mc.nerothe.com/img/1.21.5/minecraft_netherite_axe.png" },
+          { label: "Donner",              icon: "https://mc.nerothe.com/img/1.21.5/minecraft_name_tag.png" },
+          { label: "Snowflake Saber",     icon: "https://mc.nerothe.com/img/1.21.5/minecraft_netherite_sword.png" },
+          { label: "Impaling Icicle",     icon: "https://mc.nerothe.com/img/1.21.5/minecraft_trident.png" },
+          { label: "Comet",               icon: "https://mc.nerothe.com/img/1.21.5/minecraft_name_tag.png" },
+          { label: "Reward Key",          icon: "https://mc.nerothe.com/img/1.21.5/minecraft_tripwire_hook.png" },
+          { label: "Reindeer Runners",    icon: "https://mc.nerothe.com/img/1.21.5/minecraft_netherite_boots.png" },
+          { label: "Cupid",               icon: "https://mc.nerothe.com/img/1.21.5/minecraft_name_tag.png" },
+          { label: "Rudolph",             icon: "https://mc.nerothe.com/img/1.21.5/minecraft_name_tag.png" },
+          { label: "Snowflake Snood",     icon: "https://mc.nerothe.com/img/1.21.5/minecraft_netherite_helmet.png" },
+          { label: "Evo's Christmas Gift 2023", icon: "https://mc.nerothe.com/img/1.21.5/minecraft_small_amethyst_bud.png" } // ignored (26th)
+        ]
+      },
+      2022: {
+        monthName: "December",
+        startWeekday: new Date(2022, 11, 1).getDay(),
+        days: [
+          { label: "Naughty or Nice",  icon: "https://mc.nerothe.com/img/1.21.5/minecraft_coal.png"  },
+          { label: "Christmas Cracker", icon: "https://mc.nerothe.com/img/1.21.5/minecraft_blaze_rod.png"  },
+          { label: "Mythic Key",        icon: "https://mc.nerothe.com/img/1.21.5/minecraft_tripwire_hook.png"  },
+          { label: "Mistletoe",         icon: "https://mc.nerothe.com/img/1.21.5/minecraft_sweet_berries.png"  },
+          { label: "Christmas Cracker", icon: "https://mc.nerothe.com/img/1.21.5/minecraft_blaze_rod.png"  },
+          { label: "Snowball x16",      icon: "https://mc.nerothe.com/img/1.21.5/minecraft_snowball.png"  },
+          { label: "Mythic Key",        icon: "https://mc.nerothe.com/img/1.21.5/minecraft_tripwire_hook.png"  },
+          { label: "Christmas Cracker", icon: "https://mc.nerothe.com/img/1.21.5/minecraft_blaze_rod.png"  },
+          { label: "Advent Leggings",   icon: "https://mc.nerothe.com/img/1.21.5/minecraft_netherite_leggings.png"  },
+          { label: "Christmas Cracker", icon: "https://mc.nerothe.com/img/1.21.5/minecraft_blaze_rod.png" },
+          { label: "Advent Chestplate", icon: "https://mc.nerothe.com/img/1.21.5/minecraft_netherite_chestplate.png" },
+          { label: "Christmas Cracker", icon: "https://mc.nerothe.com/img/1.21.5/minecraft_blaze_rod.png" },
+          { label: "Mythic Key",        icon: "https://mc.nerothe.com/img/1.21.5/minecraft_tripwire_hook.png" },
+          { label: "Advent Crossbow",   icon: "https://mc.nerothe.com/img/1.21.5/minecraft_crossbow.png" },
+          { label: "Advent Axe",        icon: "https://mc.nerothe.com/img/1.21.5/minecraft_netherite_axe.png" },
+          { label: "Christmas Cracker", icon: "https://mc.nerothe.com/img/1.21.5/minecraft_blaze_rod.png" },
+          { label: "Advent Sword",      icon: "https://mc.nerothe.com/img/1.21.5/minecraft_netherite_sword.png" },
+          { label: "Happy Hanukkah",    icon: "https://mc.nerothe.com/img/1.21.5/minecraft_trident.png" },
+          { label: "Christmas Cracker", icon: "https://mc.nerothe.com/img/1.21.5/minecraft_blaze_rod.png" },
+          { label: "Mythic Key",        icon: "https://mc.nerothe.com/img/1.21.5/minecraft_tripwire_hook.png" },
+          { label: "Advent Boots",      icon: "https://mc.nerothe.com/img/1.21.5/minecraft_netherite_boots.png" },
+          { label: "Christmas Cracker", icon: "https://mc.nerothe.com/img/1.21.5/minecraft_blaze_rod.png" },
+          { label: "Christmas Cracker", icon: "https://mc.nerothe.com/img/1.21.5/minecraft_blaze_rod.png" },
+          { label: "Advent Helmet",     icon: "https://mc.nerothe.com/img/1.21.5/minecraft_netherite_helmet.png" },
+          { label: "Evo's Christmas Gift 2022", icon: "https://mc.nerothe.com/img/1.21.5/minecraft_flowering_azalea.png" }
+        ]
+      }
+    };
 
-const grid = document.getElementById("adventGrid");
-const titleEl = document.getElementById("adventTitle");
+    const grid = document.getElementById("adventGrid");
+    const titleEl = document.getElementById("adventTitle");
 
-function renderYear(year) {
-  const data = ADVENT_DATA[year];
-  if (!data) return;
+    function renderYear(year) {
+      const data = ADVENT_DATA[year];
+      if (!data) return;
 
-  titleEl.textContent = `${data.monthName} ${year}`;
+      titleEl.textContent = `${data.monthName} ${year}`;
 
-  const today = new Date();
-  const isCurrentDec = (today.getFullYear() === year && today.getMonth() === 11);
-  const todayDate = isCurrentDec ? today.getDate() : -1;
+      const today = new Date();
+      const isCurrentDec = (today.getFullYear() === year && today.getMonth() === 11);
+      const todayDate = isCurrentDec ? today.getDate() : -1;
 
-  const prefix = data.startWeekday; // 0=Sun..6=Sat
-  const items = [];
+      const prefix = data.startWeekday; // 0=Sun..6=Sat
+      const items = [];
 
-  // pad with hidden slots so the 1st lands on the correct weekday column
-  for (let i = 0; i < prefix; i++) {
-    items.push(`<li aria-hidden="true" style="visibility:hidden;"></li>`);
-  }
+      // pad with hidden slots so the 1st lands on the correct weekday column
+      for (let i = 0; i < prefix; i++) {
+        items.push(`<li aria-hidden="true" style="visibility:hidden;"></li>`);
+      }
 
-  // Hard-limit to Dec 1..25
-  const days = (Array.isArray(data.days) ? data.days : []).slice(0, 25);
+      // Hard-limit to Dec 1..25
+      const days = (Array.isArray(data.days) ? data.days : []).slice(0, 25);
 
-  days.forEach((entry, idx) => {
-    const day = idx + 1; // 1..25
-    const isToday = (day === todayDate);
-    const dateObj = new Date(year, 11, day); // month 11 = December
-    const weekday = dateObj.toLocaleDateString(undefined, { weekday: "short" });
+      days.forEach((entry, idx) => {
+        const day = idx + 1; // 1..25
+        const isToday = (day === todayDate);
+        const dateObj = new Date(year, 11, day); // month 11 = December
+        const weekday = dateObj.toLocaleDateString(undefined, { weekday: "short" });
 
-    const label = typeof entry === "string" ? entry : (entry.label || "");
-    const icon  = typeof entry === "string" ? ""    : (entry.icon  || "");
+        const label = typeof entry === "string" ? entry : (entry.label || "");
+        const icon  = typeof entry === "string" ? ""    : (entry.icon  || "");
 
-    items.push(`
-      <li class="${isToday ? "today" : ""}">
-        <div class="weekday">${weekday}</div>
-        <time datetime="${year}-12-${String(day).padStart(2,"0")}">${day}</time>
-        <div class="advent-item">${label}</div>
-        ${icon ? `<img class="advent-img" src="${icon}" alt="${label}">` : ""}
-      </li>
-    `);
-  });
+        items.push(`
+          <li class="${isToday ? "today" : ""}">
+            <div class="weekday">${weekday}</div>
+            <time datetime="${year}-12-${String(day).padStart(2,"0")}">${day}</time>
+            <div class="advent-item">${label}</div>
+            ${icon ? `<img class="advent-img" src="${icon}" alt="${label}">` : ""}
+          </li>
+        `);
+      });
 
-  grid.innerHTML = items.join("");
-}
+      grid.innerHTML = items.join("");
+    }
 
-document.querySelectorAll(".year-btn").forEach(btn => {
-  btn.addEventListener("click", () => {
-    document.querySelectorAll(".year-btn").forEach(b => b.classList.remove("active"));
-    btn.classList.add("active");
-    const year = parseInt(btn.dataset.year, 10);
-    renderYear(year);
-  });
-});
+    document.querySelectorAll(".year-btn").forEach(btn => {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll(".year-btn").forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        const year = parseInt(btn.dataset.year, 10);
+        renderYear(year);
+      });
+    });
 
-// default: 2024
-renderYear(2024);
-</script>
+    // default: 2024
+    renderYear(2024);
+    </script>
   </body>
 </html>

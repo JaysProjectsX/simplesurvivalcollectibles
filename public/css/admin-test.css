@@ -40,28 +40,23 @@
 
 /* ================= DESKTOP (≥ 992px) ================= */
 @media (min-width: 992px) {
-  /* Bootstrap collapse becomes a flex row: [links][login] */
   #adminContent .navbar-collapse {
     display: flex !important;
     align-items: center;
   }
 
-  /* Logo sits just to the left of the first nav item,
-     like on your non-BS pages */
   #adminContent .nav-logo {
     margin-right: 40px;
   }
 
-  /* Main page links */
   #adminContent .nav-links {
     display: flex;
     gap: 40px;
-    margin: 0;              /* no auto-margins here */
+    margin: 0;
   }
 
-  /* Push login all the way to the far right of the bar */
   #adminContent .nav-login {
-    margin-left: auto;      /* eats remaining horizontal space */
+    margin-left: auto;
     justify-content: flex-end;
     gap: 0.75rem;
   }
@@ -90,9 +85,18 @@
 
   /* Tiny gap between page links and the username in the stacked menu */
   #adminContent .nav-login {
+    padding: 0;
     margin-top: 0.75rem;
     justify-content: flex-start;
   }
+
+  #userDropdown {
+    right: 0;
+    left: 0;
+    width: min(280px, 90vw);
+    margin: 0 0.75rem 0 0;
+  }
+
 }
 
 

@@ -51,6 +51,34 @@
   padding: 0;
 }
 
+#adminContent nav .nav-content {
+  max-width: 1100px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 20px;
+}
+
+#adminContent nav .nav-links {
+  display: flex;
+  flex: 1;
+  justify-content: center;
+  gap: 40px;
+  margin: 0 30px;
+  list-style-type: none;
+}
+
+#adminContent nav .nav-login {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  list-style-type: none;
+  gap: 0.75rem;
+  position: relative;
+}
+
 /* Mobile / tablet: stack links vertically when the navbar is collapsed */
 @media (max-width: 991.98px) {
   #adminContent .navbar {

@@ -1424,10 +1424,15 @@ nav {
 /* RESPONSIVE */
 @media (max-width: 600px) {
   #userDropdown {
-    left: 0;
-    right: auto;
-    width: 100%;
-    margin: 0 0.75rem;
+    /* Anchor to the right edge under the username */
+    right: 0;
+    left: auto;
+
+    /* Keep it on-screen but not gigantic */
+    width: min(280px, 90vw);
+
+    /* Pull it away from the edge a little on the right only */
+    margin: 0 0.75rem 0 0;
   }
 }
 

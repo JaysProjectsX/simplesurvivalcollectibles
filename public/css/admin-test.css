@@ -12,6 +12,67 @@
   --border: 1px solid #2a2a3d;
 }
 
+/* === NAVBAR + BOOTSTRAP INTEGRATION (admin-dashboard-test only) === */
+
+/* Make nav-content behave like a standard responsive navbar container */
+#adminContent .nav-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between; /* logo left, menus right */
+}
+
+/* Override the absolute positioning from home-page.css on this page ONLY */
+#adminContent .nav-login {
+  position: static;
+  right: auto;
+  list-style: none;
+  display: flex;
+  align-items: center;
+  margin-left: auto;        /* push login to far right on large screens */
+}
+
+/* Remove any stray spacing inside the ULs; keep your existing gap */
+#adminContent .nav-links,
+#adminContent .nav-login {
+  margin: 0;
+  padding: 0;
+  gap: 30px;                /* same gap you already use on desktop */
+}
+
+/* Ensure list items behave nicely when Bootstrap toggles the collapse */
+#adminContent .nav-links li,
+#adminContent .nav-login li {
+  list-style: none;
+}
+
+/* Avoid extra Bootstrap padding on nav links – keep your own styles */
+#adminContent .nav-links li a,
+#adminContent .nav-login li a {
+  padding: 0;
+}
+
+/* Mobile / tablet: stack links vertically when the navbar is collapsed */
+@media (max-width: 991.98px) {
+  #adminContent .navbar {
+    padding-inline: 1rem;
+  }
+
+  #adminContent .collapse.navbar-collapse {
+    padding-top: 0.75rem;
+  }
+
+  #adminContent .nav-links,
+  #adminContent .nav-login {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+
+  #adminContent .nav-login {
+    margin-left: 0;          /* no “far right” in stacked mobile layout */
+  }
+}
+
 /* Dashboard wrapper */
 .admin-dashboard-wrapper {
   display: flex;

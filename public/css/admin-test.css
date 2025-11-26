@@ -28,27 +28,13 @@
   list-style: none;
   display: flex;
   align-items: center;
-  margin-left: auto;        /* push login to far right on large screens */
-}
-
-/* Remove any stray spacing inside the ULs; keep your existing gap */
-#adminContent .nav-links,
-#adminContent .nav-login {
-  margin: 0;
-  padding: 0;
-  gap: 30px;                /* same gap you already use on desktop */
+  margin-left: auto;
 }
 
 /* Ensure list items behave nicely when Bootstrap toggles the collapse */
 #adminContent .nav-links li,
 #adminContent .nav-login li {
   list-style: none;
-}
-
-/* Avoid extra Bootstrap padding on nav links – keep your own styles */
-#adminContent .nav-links li a,
-#adminContent .nav-login li a {
-  padding: 0;
 }
 
 #adminContent nav .nav-content {
@@ -62,15 +48,14 @@
 
 #adminContent nav .nav-links {
   display: flex;
-  flex: 1;
-  justify-content: center;
   gap: 40px;
-  margin: 0 30px;
+  margin-left: 40px;
+  margin-right: auto;
   list-style-type: none;
 }
 
 #adminContent nav .nav-login {
-  margin-left: auto;
+  margin-left: 0;
   display: flex;
   align-items: center;
   justify-content: flex-end;
@@ -79,7 +64,6 @@
   position: relative;
 }
 
-/* Mobile / tablet: stack links vertically when the navbar is collapsed */
 @media (max-width: 991.98px) {
   #adminContent .navbar {
     padding-inline: 1rem;
@@ -94,10 +78,12 @@
     flex-direction: column;
     align-items: flex-start;
     gap: 0.75rem;
+    margin-left: 0;
+    margin-right: 0;
   }
 
   #adminContent .nav-login {
-    margin-left: 0;          /* no “far right” in stacked mobile layout */
+    margin-left: 0;
   }
 }
 

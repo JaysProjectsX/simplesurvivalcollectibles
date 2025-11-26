@@ -104,15 +104,13 @@
         </button>
 
         <div class="collapse sidebar-collapse" id="dbOptionsCollapse">
-          <!-- These keep the same .db-subtab-btn + data-tab
-              so admin.js continues to drive the 3 DB panels -->
-          <button class="sidebar-sublink db-subtab-btn active" data-tab="db-tab-view-edit" type="button">
+          <button class="sidebar-sublink db-subtab-btn active" data-tab="view-edit" type="button">
             View / Edit Crates
           </button>
-          <button class="sidebar-sublink db-subtab-btn" data-tab="db-tab-create" type="button">
+          <button class="sidebar-sublink db-subtab-btn" data-tab="create" type="button">
             Create New Crate
           </button>
-          <button class="sidebar-sublink db-subtab-btn" data-tab="db-tab-changelog" type="button">
+          <button class="sidebar-sublink db-subtab-btn" data-tab="changelog" type="button">
             Changelog Options
           </button>
         </div>
@@ -157,7 +155,7 @@
 
         <!-- User Comments accordion (UI only for now) -->
         <button
-          class="sidebar-link sidebar-toggle collapsed"
+          class="tab-btn sidebar-link sidebar-toggle collapsed"
           type="button"
           data-bs-toggle="collapse"
           data-bs-target="#commentsCollapse"
@@ -679,7 +677,7 @@
     <script src="https://cdn.datatables.net/2.3.5/js/dataTables.min.js"></script>
     <script defer src="/js/globalModal.js"></script>
     <script defer src="/js/auth.js"></script>
-    <script defer src="/js/admin.js"></script>
+    <script defer src="/js/admin-test.js"></script>
     <script src="/js/scripts.js"></script>
   </div>
 </body>

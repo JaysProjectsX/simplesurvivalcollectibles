@@ -93,25 +93,28 @@
 
 /* Dashboard wrapper */
 .admin-dashboard-wrapper {
+  flex: 1 1 auto;
   display: flex;
   gap: 1.5rem;
   padding: 2rem;
-  margin-top: 120px;
   color: var(--text-primary);
   font-family: 'Poppins', sans-serif;
+  box-sizing: border-box;
+  min-height: 0;
 }
 
-/* Sidebar Styling – PlainAdmin-style */
+/* Sidebar: full column height with its own scroll if needed */
 .admin-sidebar {
-  background: radial-gradient(circle at top left, #2b2b4a 0, #151521 45%, #101018 100%);
+  background: #101018;
   border-radius: 16px;
   padding: 1.1rem 0.9rem;
   width: 260px;
-  flex-shrink: 0;
+  flex: 0 0 260px;
   display: flex;
   flex-direction: column;
   gap: 0.35rem;
-  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.55);
+  max-height: calc(100vh - 140px);
+  overflow-y: auto;
 }
 
 .sidebar-header {
@@ -161,7 +164,6 @@
   width: 28px;
   height: 28px;
   border-radius: 999px;
-  background: rgba(15, 23, 42, 0.9);
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -229,10 +231,30 @@
 
 /* Main content styling */
 .admin-main {
-  flex-grow: 1;
+  flex: 1 1 auto;
   background-color: #1a1a1a;
   border-radius: 12px;
   padding: 2rem;
+  max-height: calc(100vh - 140px);
+  overflow-y: auto;
+  min-height: 0;
+}
+
+@media (max-width: 991.98px) {
+  #adminContent {
+    height: auto;
+  }
+
+  .admin-dashboard-wrapper {
+    flex-direction: column;
+    padding: 100px 1rem 1.5rem;
+  }
+
+  .admin-sidebar,
+  .admin-main {
+    max-height: none;
+    overflow: visible;
+  }
 }
 
 .admin-main h1 {
@@ -603,9 +625,8 @@
   background-color: #c0392b;
 }
 
-/* Old horizontal DB subtabs (hidden in UI but kept for compatibility) */
 .db-subtabs {
-  display: none; /* hide the old row entirely */
+  display: none; 
   justify-content: center;
   margin-bottom: 1rem;
   border-bottom: 1px solid #333;

@@ -6,10 +6,6 @@ body {
   min-height: 100vh;
 }
 
-button {
-  font-size: small !important;
-}
-
 .pc-layout {
   display: flex;
   min-height: calc(100vh - var(--nav-height));
@@ -340,6 +336,8 @@ button {
   justify-content: center;
   position: relative;
   text-align: center;
+  padding: 0 !important;
+  border-bottom: none !important;
 }
 
 .modal-header .close-btn {
@@ -349,7 +347,7 @@ button {
   background: none;
   border: 0;
   color: #ccc;
-  font-size: 20px;
+  font-size: 20px !important;
   line-height: 1;
   width: auto;
   padding: 0;
@@ -802,6 +800,7 @@ button {
   padding-top: 10px;
   padding-bottom: 0 !important;
   margin-top: 16px;
+  border-top: none !important;
 }
 
 .modal-footer .btn-secondary {

@@ -101,55 +101,131 @@
   font-family: 'Poppins', sans-serif;
 }
 
-/* Sidebar Styling */
+/* Sidebar Styling – PlainAdmin-style */
 .admin-sidebar {
-  height: 380px;
-  background-color: #1a1a1a;
-  border-radius: 12px;
-  padding: 1rem;
-  width: 250px;
+  background: radial-gradient(circle at top left, #2b2b4a 0, #151521 45%, #101018 100%);
+  border-radius: 16px;
+  padding: 1.1rem 0.9rem;
+  width: 260px;
   flex-shrink: 0;
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
-  box-shadow: 0 0 15px rgba(0, 0, 0, 0.4);
+  gap: 0.35rem;
+  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.55);
 }
 
-.admin-sidebar h2 {
-  font-size: 1.25rem;
-  font-weight: var(--font-weight-heavy);
-  text-align: center;
-  margin-bottom: 1rem;
+.sidebar-header {
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: #a7b1d9;
+  padding: 0 0.4rem 0.35rem;
 }
 
-/* Nav Button Styling - mimic vertical nav */
+/* Main sidebar buttons (tabs) */
 .tab-btn {
-  background: none;
+  background: transparent;
   border: none;
+  width: 100%;
   text-align: left;
-  padding: 0.6rem 0.75rem;
-  font-size: 0.95rem;
-  font-weight: var(--font-weight-medium);
-  color: var(--text-secondary);
+  padding: 0.55rem 0.7rem;
+  font-size: 0.92rem;
+  font-weight: 500;
+  color: #b5bee6;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
   border-left: 3px solid transparent;
-  border-radius: 8px;
-  transition: background 0.25s ease, padding 0.25s ease;
   cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease, transform 0.12s ease,
+              border-color 0.2s ease;
 }
 
 .tab-btn:hover {
-  background-color: #212121;
-  padding-left: 1rem;
-  color: var(--text-primary);
+  background-color: rgba(255, 255, 255, 0.03);
+  color: #ffffff;
+  transform: translateX(2px);
 }
 
 .tab-btn.active,
 .tab-btn:focus {
-  background-color: #212121;
-  border-left: 3px solid var(--primary-text);
-  color: var(--text-primary);
-  font-weight: var(--font-weight-bold);
+  background: radial-gradient(circle at left, rgba(110, 168, 255, 0.35), transparent 60%);
+  border-left-color: var(--primary-text);
+  color: #ffffff;
 }
+
+/* Icon + label inside sidebar buttons */
+.sidebar-icon {
+  width: 28px;
+  height: 28px;
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.9);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.sidebar-icon svg {
+  display: block;
+}
+
+.sidebar-label {
+  flex: 1;
+}
+
+/* Accordion toggles (Database Options / User Comments) */
+.sidebar-toggle {
+  justify-content: space-between;
+}
+
+.sidebar-arrow {
+  font-size: 0.9rem;
+  opacity: 0.7;
+  transition: transform 0.2s ease;
+}
+
+.sidebar-toggle[aria-expanded="true"] .sidebar-arrow {
+  transform: rotate(90deg);
+}
+
+.sidebar-collapse {
+  padding-left: 0.8rem;
+  padding-top: 0.25rem;
+  padding-bottom: 0.25rem;
+}
+
+/* Buttons inside sidebar accordions */
+.sidebar-sublink {
+  width: 100%;
+  border: none;
+  background: transparent;
+  color: #aeb7de;
+  font-size: 0.86rem;
+  text-align: left;
+  padding: 0.4rem 0.9rem 0.4rem 2.25rem;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  cursor: pointer;
+  opacity: 0.9;
+  transition: background 0.18s ease, color 0.18s ease, transform 0.12s ease;
+}
+
+.sidebar-sublink:hover {
+  background: rgba(255, 255, 255, 0.04);
+  color: #ffffff;
+  transform: translateX(2px);
+}
+
+.sidebar-sublink.active {
+  background: rgba(77, 166, 255, 0.1);
+  color: #dbe8ff;
+}
+
 
 /* Main content styling */
 .admin-main {
@@ -527,34 +603,35 @@
   background-color: #c0392b;
 }
 
+/* Old horizontal DB subtabs (hidden in UI but kept for compatibility) */
 .db-subtabs {
-  display: flex;
-  gap: 1rem;
+  display: none; /* hide the old row entirely */
   justify-content: center;
+  margin-bottom: 1rem;
+  border-bottom: 1px solid #333;
 }
 
-.db-subtab-btn {
-  padding: 8px 16px;
-  background-color: #222;
-  color: #ccc;
+.db-subtabs .db-subtab-btn {
+  background: none;
   border: none;
-  border-radius: 6px 6px 0 0;
+  padding: 0.5rem 1rem;
+  color: #bbb;
   cursor: pointer;
-  font-weight: 500;
+  border-bottom: 3px solid transparent;
+  margin: 0 0.5rem;
 }
 
-.db-subtab-btn.active {
-  background-color: #333;
+.db-subtabs .db-subtab-btn.active {
   color: #4da6ff;
-  border-bottom: 2px solid #4da6ff;
+  border-bottom-color: #4da6ff;
 }
 
 .db-subtab-content {
-  background-color: #1a1a1a;
-  border-radius: 0 6px 6px 6px;
-  border-top: none;
-  padding-right: 16px;
-  padding-left: 16px;
+  display: none;
+}
+
+.db-subtab-content.active {
+  display: block;
 }
 
 #crate-selector {

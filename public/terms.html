@@ -20,24 +20,42 @@
     </div>
 
     <div id="particles-js" style="position: fixed; width: 100%; height: 100%; z-index: 0; top: 0; left: 0; pointer-events: none;"></div>
-    <nav>
-      <div class="nav-content">
+    <nav class="navbar navbar-expand-lg navbar-dark">
+      <div class="container-fluid nav-content">
         <div class="nav-logo">
           <a href="/">
             <img src="/assets/Logo.png" alt="SimpleSurvival Collectibles Logo" />
           </a>
         </div>
-        <ul class="nav-links">
-          <li><a href="/">Home</a></li>
-          <li><a href="/info">About</a></li>
-          <li><a href="/crates">Cosmetic Crates</a></li>
-          <li><a href="/othercrates">Other Crates</a></li>
-          <li><a href="/advent-calendars">Advent Calendars</a></li>
-        </ul>
-        <ul class="nav-login" id="navLogin">
-          <!-- This will be dynamically updated -->
-          <li id="loginItem"><a href="#" onclick="toggleModal()">Login</a></li>
-        </ul>
+
+        <!-- Mobile toggle button -->
+        <button
+          class="navbar-toggler ms-auto"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#mainNavbar"
+          aria-controls="mainNavbar"
+          aria-expanded="false"
+          aria-label="Toggle navigation"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <!-- Collapsible area -->
+        <div class="collapse navbar-collapse" id="mainNavbar">
+          <ul class="nav-links mb-2 mb-lg-0">
+            <li><a href="/" class="active">Home</a></li>
+            <li><a href="/info">About</a></li>
+            <li><a href="/crates">Cosmetic Crates</a></li>
+            <li><a href="/othercrates">Other Crates</a></li>
+            <li><a href="/advent-calendars">Advent Calendars</a></li>
+          </ul>
+
+          <ul class="nav-login ms-lg-auto mb-2 mb-lg-0" id="navLogin">
+            <!-- Will be updated by auth.js -->
+            <li id="loginItem"><a href="/login">Login</a></li>
+          </ul>
+        </div>
       </div>
     </nav>
 

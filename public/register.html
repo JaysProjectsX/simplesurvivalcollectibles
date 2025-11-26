@@ -16,23 +16,44 @@
 <body class="auth-page darkTheme">
   <div id="preloader"><div class="loader"></div></div>
 
-  <nav>
-    <div class="nav-content">
-      <div class="nav-logo">
-        <a href="/"><img src="/assets/Logo.png" alt="SimpleSurvival Collectibles"/></a>
+    <nav class="navbar navbar-expand-lg navbar-dark">
+      <div class="container-fluid nav-content">
+        <div class="nav-logo">
+          <a href="/">
+            <img src="/assets/Logo.png" alt="SimpleSurvival Collectibles Logo" />
+          </a>
+        </div>
+
+        <!-- Mobile toggle button -->
+        <button
+          class="navbar-toggler ms-auto"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#mainNavbar"
+          aria-controls="mainNavbar"
+          aria-expanded="false"
+          aria-label="Toggle navigation"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <!-- Collapsible area -->
+        <div class="collapse navbar-collapse" id="mainNavbar">
+          <ul class="nav-links mb-2 mb-lg-0">
+            <li><a href="/" class="active">Home</a></li>
+            <li><a href="/info">About</a></li>
+            <li><a href="/crates">Cosmetic Crates</a></li>
+            <li><a href="/othercrates">Other Crates</a></li>
+            <li><a href="/advent-calendars">Advent Calendars</a></li>
+          </ul>
+
+          <ul class="nav-login ms-lg-auto mb-2 mb-lg-0" id="navLogin">
+            <!-- Will be updated by auth.js -->
+            <li id="loginItem"><a href="/login">Login</a></li>
+          </ul>
+        </div>
       </div>
-      <ul class="nav-links">
-        <li><a href="/">Home</a></li>
-        <li><a href="/info">About</a></li>
-        <li><a href="/crates">Cosmetic Crates</a></li>
-        <li><a href="/othercrates">Other Crates</a></li>
-        <li><a href="/advent-calendars">Advent Calendars</a></li>
-      </ul>
-      <ul class="nav-login" id="navLogin">
-        <li id="loginItem"><a href="/login">Login</a></li>
-      </ul>
-    </div>
-  </nav>
+    </nav>
 
   <main class="main-wrapper">
     <!-- Page title -->

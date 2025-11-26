@@ -10,6 +10,17 @@ html {
     background-size: cover;
 }
 
+button,
+input,
+select,
+textarea,
+optgroup {
+  margin: revert;
+  font-family: revert;
+  font-size: revert;
+  line-height: revert;
+}
+
 body {
     margin: 0;
     padding: 0;

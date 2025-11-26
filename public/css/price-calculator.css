@@ -6,9 +6,12 @@ body {
   min-height: 100vh;
 }
 
+button {
+  font-size: small !important;
+}
+
 .pc-layout {
   display: flex;
-  margin-top: var(--nav-height);
   min-height: calc(100vh - var(--nav-height));
 }
 

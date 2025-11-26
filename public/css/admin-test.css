@@ -14,78 +14,87 @@
 
 /* === NAVBAR + BOOTSTRAP INTEGRATION (admin-dashboard-test only) === */
 
-/* Make nav-content behave like a standard responsive navbar container */
+/* Base container for the navbar row */
 #adminContent .nav-content {
   display: flex;
   align-items: center;
-  justify-content: space-between; /* logo left, menus right */
+  justify-content: space-between;
+  width: 100%;              /* let it span the bar */
+  padding: 12px 40px;       /* same feel as the rest of the site */
 }
 
-/* Override the absolute positioning from home-page.css on this page ONLY */
+/* Undo the absolute positioning from home-page.css on this page ONLY */
 #adminContent .nav-login {
   position: static;
   right: auto;
   list-style: none;
   display: flex;
   align-items: center;
-  margin-left: auto;
 }
 
-/* Ensure list items behave nicely when Bootstrap toggles the collapse */
+/* Reset list-style inside nav on this page */
 #adminContent .nav-links li,
 #adminContent .nav-login li {
   list-style: none;
 }
 
-#adminContent nav .nav-content {
-  max-width: 1100px;
-  margin: 0 auto;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 12px 20px;
+/* ================= DESKTOP (≥ 992px) ================= */
+@media (min-width: 992px) {
+  /* Bootstrap collapse becomes a flex row: [links][login] */
+  #adminContent .navbar-collapse {
+    display: flex !important;
+    align-items: center;
+  }
+
+  /* Logo sits just to the left of the first nav item,
+     like on your non-BS pages */
+  #adminContent .nav-logo {
+    margin-right: 40px;
+  }
+
+  /* Main page links */
+  #adminContent .nav-links {
+    display: flex;
+    gap: 40px;
+    margin: 0;              /* no auto-margins here */
+  }
+
+  /* Push login all the way to the far right of the bar */
+  #adminContent .nav-login {
+    margin-left: auto;      /* eats remaining horizontal space */
+    justify-content: flex-end;
+    gap: 0.75rem;
+  }
 }
 
-#adminContent nav .nav-links {
-  display: flex;
-  gap: 40px;
-  margin-left: 40px;
-  margin-right: auto;
-  list-style-type: none;
-}
-
-#adminContent nav .nav-login {
-  margin-left: 0;
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  list-style-type: none;
-  gap: 0.75rem;
-  position: relative;
-}
-
+/* ================= MOBILE (< 992px) ================= */
 @media (max-width: 991.98px) {
   #adminContent .navbar {
     padding-inline: 1rem;
   }
 
-  #adminContent .collapse.navbar-collapse {
+  #adminContent .navbar-collapse {
     padding-top: 0.75rem;
   }
 
+  /* Stack both the page links and the login/username block
+     so everything lines up on the left */
   #adminContent .nav-links,
   #adminContent .nav-login {
+    display: flex;
     flex-direction: column;
     align-items: flex-start;
     gap: 0.75rem;
-    margin-left: 0;
-    margin-right: 0;
+    margin: 0;
   }
 
+  /* Tiny gap between page links and the username in the stacked menu */
   #adminContent .nav-login {
-    margin-left: 0;
+    margin-top: 0.75rem;
+    justify-content: flex-start;
   }
 }
+
 
 /* Dashboard wrapper */
 .admin-dashboard-wrapper {

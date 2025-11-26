@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin Dashboard Test</title>
+
+  <!-- Bootstrap 5 CSS (jsDelivr) -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- DataTables core CSS -->
+  <link rel="stylesheet" href="https://cdn.datatables.net/2.3.5/css/dataTables.dataTables.min.css">
+
+  <!-- Existing site styles -->
+  <link rel="stylesheet" href="css/home-page.css" />
+  <link rel="stylesheet" href="css/admin.css" />
+  <link rel="stylesheet" href="css/globalModal.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nice-forms.css/dist/nice-forms.min.css">
+  <link rel="icon" href="/favicon.png" type="image/png" />
+</head>
+<body>
+
+  <!-- Preloader overlay -->
+  <div id="preloader">
+    <div class="loader"></div>
+  </div>
+
+  <div id="adminContent" style="display:none;"></div>
+
+  <!-- Navbar -->
+  <nav class="navbar">
+    <div class="navbar-logo">
+      <a href="/">
+        <img src="/images/logo.png" alt="Logo" />
+      </a>
+    </div>
+    <ul class="navbar-links">
+      <li><a href="/">Home</a></li>
+      <li><a href="/about.html">About</a></li>
+      <li><a href="/crates.html">Cosmetic Crates</a></li>
+      <li><a href="/othercrates.html">Other Crates</a></li>
+      <li><a href="/advent.html">Advent Calendars</a></li>
+    </ul>
+    <div class="navbar-user">
+      <span id="navbarUsername"></span>
+      <div class="navbar-user-menu">
+        <button id="accountOptionsBtn">Account</button>
+        <button id="logoutBtn">Logout</button>
+      </div>
+      <ul class="navbar-auth-links">
+        <li><a href="/login">Login</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <div class="admin-dashboard-wrapper">
+    <div class="admin-sidebar">
+      <h2>Admin Menu</h2>
+      <button class="tab-btn active" data-tab="usersTab" style="display: block;">Active Users</button>
+      <button class="tab-btn" data-tab="dbTab">Database Config</button>
+      <button class="tab-btn" data-tab="tasksTab">Tasks</button>
+      <button class="tab-btn" data-tab="accountsTab" id="sysadminTab" style="display: none;">Account Management</button>
+      <button class="tab-btn" data-tab="rolesTab" id="rolesTabBtn" style="display: none;">Role Management</button>
+      <button class="tab-btn" data-tab="auditTab" id="auditTabBtn" style="display: none;">Audit Logs</button>
+    </div>
+
+    <div class="admin-main">
+      <h1>Admin Dashboard</h1>
+      <p>View and manage system users and configuration</p>
+
+      <!-- Active Users Tab -->
+      <div class="tab-content active" id="usersTab">
+        <div class="admin-section">
+          <h2>Active Users</h2>
+          <p>View online and recently active users</p>
+          <table class="admin-table" id="usersTable">
+            <thead>
+              <tr>
+                <th>Username</th>
+                <th>Email</th>
+                <th>Role</th>
+                <th>Last Seen</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="userTableBody">
+              <!-- JS populates active users -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Database Config Tab -->
+      <div class="tab-content" id="dbTab">
+        <div class="admin-section">
+          <h2>Database Config</h2>
+          <p>Manage crate and item data</p>
+
+          <!-- Horizontal tab buttons -->
+          <div class="db-subtabs">
+            <button class="db-subtab-btn active" data-tab="view-edit">View &amp; Edit Crates</button>
+            <button class="db-subtab-btn" data-tab="create">Create New Crate</button>
+            <button class="db-subtab-btn" data-tab="changelog">Changelog</button>
+          </div>
+
+          <!-- View/Edit Crates -->
+          <div class="db-subtab-content" id="db-tab-view-edit">
+            <div class="admin-section" id="crate-editor-panel">
+              <h3>View &amp; Edit Crates</h3>
+              <select id="crate-selector" class="admin-select">
+                <option disabled selected>Select a crate to edit</option>
+              </select>
+              <div id="crate-edit-form" class="admin-form">
+                <!-- JS will dynamically render editable crate and item data here -->
+              </div>
+            </div>
+          </div>
+
+          <!-- Create New Crate -->
+          <div class="db-subtab-content" id="db-tab-create" style="display: none;">
+            <div class="admin-section" id="crate-creation-panel">
+              <h3>Create New Crate</h3>
+              <div id="newCrateWizard" class="wizard-container">
+                <!-- Step 1: Crate Name -->
+                <div class="wizard-step" id="step-1">
+                  <h4>Step 1: Crate Information</h4>
+                  <form id="crate-info-form" class="nice-form-group">
+                    <label for="crate-name">Crate Name:</label>
+                    <input type="text" id="crate-name" name="crate-name" class="admin-input" placeholder="Enter crate name" required />
+                    <p class="input-hint">This will be the display name for the crate.</p>
+                  </form>
+                </div>
+
+                <!-- Step 2: Add Items -->
+                <div class="wizard-step" id="step-2" style="display:none;">
+                  <h4>Step 2: Add Items</h4>
+                  <div id="items-container">
+                    <!-- JS will inject item groups here -->
+                  </div>
+                  <button type="button" id="add-item-btn" class="admin-button">Add Item</button>
+                </div>
+
+                <!-- Step 3: Confirm -->
+                <div class="wizard-step" id="step-3" style="display:none;">
+                  <h4>Step 3: Confirm Crate</h4>
+                  <div id="crate-summary">
+                    <!-- JS will populate crate summary here -->
+                  </div>
+                  <button type="button" id="submit-crate-btn" class="admin-button save-btn">Create Crate</button>
+                </div>
+
+                <!-- Wizard Controls -->
+                <div class="wizard-controls">
+                  <button type="button" id="prev-step-btn" class="admin-button" disabled>Previous</button>
+                  <button type="button" id="next-step-btn" class="admin-button">Next</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Changelog subtab -->
+          <div class="db-subtab-content" id="db-tab-changelog" style="display:none;">
+            <div class="admin-section">
+              <h3>Crate Changelog</h3>
+              <form id="changelogForm" class="admin-form">
+                <div class="nice-form-group">
+                  <label for="changelogMessage">Changelog Entry</label>
+                  <textarea id="changelogMessage" class="admin-textarea" placeholder="Describe the changes made..." required></textarea>
+                </div>
+
+                <div class="nice-form-group">
+                  <span>Changelog Page</span>
+                  <label>
+                    <input type="radio" name="changelogPage" value="cosmetic" checked />
+                    Cosmetic Crates
+                  </label>
+                  <label>
+                    <input type="radio" name="changelogPage" value="noncosmetic" />
+                    Other Crates
+                  </label>
+                </div>
+
+                <button type="submit" class="admin-button save-btn">Submit Entry</button>
+              </form>
+
+              <div class="changelog-table-wrapper">
+                <table class="admin-table" id="changelogTable">
+                  <thead>
+                    <tr>
+                      <th>ID</th>
+                      <th>User</th>
+                      <th>Role</th>
+                      <th>Message</th>
+                      <th>Page</th>
+                      <th>Timestamp</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody id="changelogTableBody">
+                    <!-- JS loads changelog entries -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Tasks Tab -->
+      <div class="tab-content" id="tasksTab">
+        <div class="admin-section">
+          <h2>Deletion Requests</h2>
+          <p>View and process user deletion requests</p>
+          <table class="admin-table" id="tasksTable">
+            <thead>
+              <tr>
+                <th>User</th>
+                <th>Email</th>
+                <th>Requested At</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="tasksTableBody">
+              <!-- JS populates deletion requests -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Accounts Tab (SysAdmin only) -->
+      <div class="tab-content" id="accountsTab">
+        <div class="admin-section">
+          <h2>Account Management</h2>
+          <p>Manage user accounts and lockouts</p>
+          <table class="admin-table" id="accountsTable">
+            <thead>
+              <tr>
+                <th>Username</th>
+                <th>Email</th>
+                <th>Role</th>
+                <th>Lockout</th>
+                <th>Locked Until</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="accountList">
+              <!-- JS populates account management rows -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Role Management Tab -->
+      <div class="tab-content" id="rolesTab">
+        <div class="admin-section">
+          <h2>Role Management</h2>
+          <p>Promote or demote users</p>
+          <table class="admin-table" id="rolesTable">
+            <thead>
+              <tr>
+                <th>Username</th>
+                <th>Email</th>
+                <th>Current Role</th>
+                <th>Change Role</th>
+              </tr>
+            </thead>
+            <tbody id="roleManagementList">
+              <!-- JS populates roles -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Audit Logs Tab -->
+      <div class="tab-content" id="auditTab">
+        <div class="admin-section">
+          <h2>Audit Logs</h2>
+          <p>Review all admin actions performed on the system</p>
+          <table class="admin-table" id="auditTableMain">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>User</th>
+                <th>Action</th>
+                <th>Timestamp</th>
+              </tr>
+            </thead>
+            <tbody id="auditLogTable">
+              <!-- JS populates audit logs -->
+            </tbody>
+          </table>
+          <div id="auditPagination" class="pagination"></div>
+        </div>
+      </div>
+
+    </div> <!-- /.admin-main -->
+  </div> <!-- /.admin-dashboard-wrapper -->
+
+  <!-- Modals (unchanged, all your existing HTML here) -->
+  <!-- Account Options Modal -->
+  <div id="accountOptionsModal" class="modal">
+    <div class="modal-content">
+      <span class="close-btn" id="closeAccountOptions">&times;</span>
+      <h2>Account Options</h2>
+      <div class="modal-section">
+        <p><strong>Username:</strong> <span id="accountUsername"></span></p>
+        <p><strong>Email:</strong> <span id="accountEmail"></span></p>
+        <p><strong>Account Created:</strong> <span id="accountCreated"></span></p>
+      </div>
+
+      <div class="modal-section">
+        <h3>Change Password</h3>
+        <form id="changePasswordForm">
+          <label for="currentPassword">Current Password</label>
+          <input type="password" id="currentPassword" required />
+
+          <label for="newPassword">New Password</label>
+          <input type="password" id="newPassword" required />
+
+          <label for="confirmNewPassword">Confirm New Password</label>
+          <input type="password" id="confirmNewPassword" required />
+
+          <button type="submit" class="admin-button save-btn">Update Password</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Edit Crate Modal -->
+  <div id="editCrateModal" class="modal-admin hidden">
+    <div class="modal-content-admin fadeIn">
+      <span class="close-btn" onclick="closeEditCrateModal()">×</span>
+      <h3>Edit Crate</h3>
+      <form id="edit-crate-form" class="admin-form">
+        <label for="edit-crate-name">Crate Name:</label>
+        <input type="text" id="edit-crate-name" class="admin-input" />
+
+        <label>
+          <input type="checkbox" id="edit-crate-hidden" />
+          Hidden
+        </label>
+        <div class="form-actions">
+          <button type="submit" class="admin-button save-btn">Save Changes</button>
+          <button type="button" class="admin-button cancel-btn" onclick="closeEditCrateModal()">Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Add Item Modal -->
+  <div id="addItemModalAdmin" class="modal-admin hidden">
+    <div class="modal-content-admin fadeIn">
+      <span class="close-btn" onclick="closeAddItemModal()">×</span>
+      <h3>Add New Item to Crate</h3>
+      <form id="add-item-form" class="admin-form">
+        <label for="add-item-name">Item Name:</label>
+        <input type="text" id="add-item-name" class="admin-input" required />
+
+        <label for="add-item-set">Set Name:</label>
+        <input type="text" id="add-item-set" class="admin-input" />
+
+        <label for="add-item-type">Item Type:</label>
+        <input type="text" id="add-item-type" class="admin-input" />
+
+        <label for="add-item-tags">Tags (comma separated):</label>
+        <input type="text" id="add-item-tags" class="admin-input" />
+
+        <label for="add-tooltip">Tooltip:</label>
+        <textarea id="add-tooltip" class="admin-textarea"></textarea>
+
+        <div class="form-actions">
+          <button type="submit" class="admin-button save-btn">Add Item</button>
+          <button type="button" class="admin-button cancel-btn" onclick="closeAddItemModal()">Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div id="toastContainer"></div>
+
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.datatables.net/2.3.5/js/dataTables.min.js"></script>
+
+  <script defer src="/js/globalModal.js"></script>
+  <script defer src="/js/auth.js"></script>
+  <script defer src="/js/admin.js"></script>
+  <script defer src="/js/scripts.js"></script>
+</body>
+</html>

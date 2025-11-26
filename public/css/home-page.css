@@ -63,7 +63,7 @@ main {
     margin: 0 auto;
     display: flex;
     align-items: center;
-    justify-content: center; /* logo + nav-links stay centered */
+    justify-content: center !important;
     padding: 12px 20px;
   }
 

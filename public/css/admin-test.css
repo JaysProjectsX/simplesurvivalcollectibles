@@ -12,250 +12,197 @@
   --border: 1px solid #2a2a3d;
 }
 
-/* === NAVBAR + BOOTSTRAP INTEGRATION (admin-dashboard-test only) === */
+/* === CORE LAYOUT: NAV + SIDEBAR + MAIN ===================== */
 
-/* Center logo + links like the rest of the site */
-#adminContent nav .nav-content {
-  max-width: 1100px;
-  margin: 0 auto;
+/* Let the page use viewport height as a baseline */
+html,
+body {
+  height: 100%;
+}
+
+/* Wrapper that auth.js reveals.
+   JS should set adminContent.style.display = "flex" (not "block"). */
+#adminContent {
+  min-height: 100vh;
   display: flex;
-  align-items: center;
-  justify-content: center;   /* logo + nav-links group stay centered */
-  padding: 12px 20px;
+  flex-direction: column;
 }
 
-/* Use the existing site look for the main links */
-#adminContent nav .nav-links {
-  display: flex;
-  margin: 0;
-  list-style-type: none;
-}
-
-/* Username / Login area pinned to far right (desktop),
-   same behaviour as global home-page.css */
-#adminContent nav .nav-login {
-  position: absolute;
-  right: 30px;
-  list-style: none;
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  font-size: large;
-}
-
-#adminContent nav .nav-links li,
-#adminContent nav .nav-login li {
-  list-style: none;
-}
-
-/* Make sure the collapse wrapper still plays nicely with Bootstrap */
-#adminContent #mainNavbar {
-  flex-basis: auto;
-  flex-grow: 0;
-}
-
-/* ----- Mobile / tablet: stack everything nicely ----- */
-@media (max-width: 991.98px) {
-  /* Let the nav stretch full width on small screens */
-  #adminContent nav .nav-content {
-    max-width: 100%;
-    padding-inline: 1rem;
-    justify-content: flex-start;
-  }
-
-  #adminContent #mainNavbar {
-    width: 100%;
-    margin-top: 0.5rem;
-  }
-
-  /* On small viewports, nav-links + nav-login become one vertical list */
-  #adminContent nav .nav-links,
-  #adminContent nav .nav-login {
-    position: static;
-    right: auto;
-    transform: none;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0.75rem;
-    margin: 0;
-    padding: 0;
-    margin-top: 0.75rem;
-    font-size: large;
-  }
-
-  #userDropdown {
-    right: 0;
-    left: 0;
-    width: min(280px, 90vw);
-    margin: 0 0.75rem 0 0;
-  }
-}
-
-/* Dashboard wrapper */
+/* This holds the sidebar + main panel under the fixed nav */
 .admin-dashboard-wrapper {
   flex: 1 1 auto;
   display: flex;
+  /* keep everything below the fixed navbar */
+  padding-top: 90px; /* tweak if your nav is taller/shorter */
+  padding-inline: 1.5rem;
+  padding-bottom: 1.5rem;
   gap: 1.5rem;
-  padding: 2rem;
-  color: var(--text-primary);
-  font-family: 'Poppins', sans-serif;
-  box-sizing: border-box;
-  min-height: 0;
+  overflow: hidden; /* children scroll internally */
 }
 
-/* Sidebar: full column height with its own scroll if needed */
+/* Sidebar column – fixed width, scrolls independently */
 .admin-sidebar {
-  background: #101018;
-  border-radius: 16px;
-  padding: 1.1rem 0.9rem;
-  width: 260px;
   flex: 0 0 260px;
+  max-width: 260px;
+  height: 100%;
+  overflow-y: auto;
+
+  background: radial-gradient(circle at top left, #111827 0%, #020617 60%, #020617 100%);
+  border-radius: 18px;
+  padding: 1.25rem 1rem;
   display: flex;
   flex-direction: column;
   gap: 0.35rem;
-  max-height: calc(100vh - 140px);
+  color: #e5e7eb;
+  box-shadow: 0 18px 45px rgba(0, 0, 0, 0.65);
+}
+
+/* Main content column – fills remaining space, own scrollbar */
+.admin-main {
+  flex: 1 1 auto;
+  height: 100%;
   overflow-y: auto;
+
+  background: #05060b;
+  border-radius: 18px;
+  padding: 1.75rem 2rem 2rem;
+  box-shadow: 0 18px 45px rgba(0, 0, 0, 0.65);
 }
 
+/* Sidebar header text */
 .sidebar-header {
-  font-size: 0.85rem;
-  font-weight: 600;
+  font-size: 0.9rem;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
-  letter-spacing: 0.12em;
-  color: #a7b1d9;
-  padding: 0 0.4rem 0.35rem;
+  color: #9ca3af;
+  margin-bottom: 0.5rem;
 }
 
-/* Main sidebar buttons (tabs) */
-.tab-btn {
+/* Main sidebar buttons (your HTML uses class="tab-btn sidebar-link") */
+.sidebar-link {
+  border: 0;
   background: transparent;
-  border: none;
-  width: 100%;
-  text-align: left;
-  padding: 0.55rem 0.7rem;
-  font-size: 0.92rem;
-  font-weight: 500;
-  color: #b5bee6;
-  border-radius: 12px;
+  color: #e5e7eb;
+  font-size: 0.95rem;
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  border-left: 3px solid transparent;
-  cursor: pointer;
-  transition: background 0.2s ease, color 0.2s ease, transform 0.12s ease,
-              border-color 0.2s ease;
-}
-
-.tab-btn:hover {
-  background-color: rgba(255, 255, 255, 0.03);
-  color: #ffffff;
-  transform: translateX(2px);
-}
-
-.tab-btn.active,
-.tab-btn:focus {
-  background: radial-gradient(circle at left, rgba(110, 168, 255, 0.35), transparent 60%);
-  border-left-color: var(--primary-text);
-  color: #ffffff;
-}
-
-/* Icon + label inside sidebar buttons */
-.sidebar-icon {
-  width: 28px;
-  height: 28px;
+  gap: 0.65rem;
+  width: 100%;
+  padding: 0.55rem 0.75rem;
   border-radius: 999px;
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease, transform 0.1s ease;
+}
+
+.sidebar-link .sidebar-icon {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  flex-shrink: 0;
+  width: 26px;
+  height: 26px;
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.9);
 }
 
-.sidebar-icon svg {
+.sidebar-link .sidebar-icon svg {
   display: block;
 }
 
-.sidebar-label {
-  flex: 1;
+.sidebar-link .sidebar-label {
+  flex: 1 1 auto;
 }
 
-/* Accordion toggles (Database Options / User Comments) */
-.sidebar-toggle {
-  justify-content: space-between;
-}
-
+/* arrow on accordion rows */
 .sidebar-arrow {
-  font-size: 0.9rem;
-  opacity: 0.7;
-  transition: transform 0.2s ease;
+  font-size: 0.85rem;
+  opacity: 0.6;
+  transition: transform 0.2s ease, opacity 0.2s ease;
 }
 
-.sidebar-toggle[aria-expanded="true"] .sidebar-arrow {
-  transform: rotate(90deg);
-}
-
-.sidebar-collapse {
-  padding-left: 0.8rem;
-  padding-top: 0.25rem;
-  padding-bottom: 0.25rem;
-}
-
-/* Buttons inside sidebar accordions */
-.sidebar-sublink {
-  width: 100%;
-  border: none;
-  background: transparent;
-  color: #aeb7de;
-  font-size: 0.86rem;
-  text-align: left;
-  padding: 0.4rem 0.9rem 0.4rem 2.25rem;
-  border-radius: 10px;
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-  cursor: pointer;
-  opacity: 0.9;
-  transition: background 0.18s ease, color 0.18s ease, transform 0.12s ease;
-}
-
-.sidebar-sublink:hover {
-  background: rgba(255, 255, 255, 0.04);
+/* hover + active states */
+.sidebar-link:hover {
+  background: rgba(37, 99, 235, 0.14);
   color: #ffffff;
   transform: translateX(2px);
 }
 
+.sidebar-link.active {
+  background: linear-gradient(90deg, #1d4ed8, #3b82f6);
+  color: #ffffff;
+}
+
+.sidebar-link.active .sidebar-icon {
+  background: rgba(15, 23, 42, 0.85);
+}
+
+/* rotate arrow when accordion open */
+.sidebar-toggle[aria-expanded="true"] .sidebar-arrow {
+  transform: rotate(90deg);
+  opacity: 1;
+}
+
+/* inner buttons under Database Options / User Comments */
+.sidebar-collapse {
+  padding-left: 2.4rem;
+  margin-top: 0.25rem;
+}
+
+.sidebar-sublink {
+  border: 0;
+  background: transparent;
+  color: #9ca3af;
+  font-size: 0.9rem;
+  width: 100%;
+  text-align: left;
+  padding: 0.45rem 0.4rem;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.sidebar-sublink:hover {
+  background: rgba(31, 41, 55, 0.9);
+  color: #e5e7eb;
+}
+
 .sidebar-sublink.active {
-  background: rgba(77, 166, 255, 0.1);
-  color: #dbe8ff;
+  background: rgba(37, 99, 235, 0.2);
+  color: #bfdbfe;
 }
 
-
-/* Main content styling */
-.admin-main {
-  flex: 1 1 auto;
-  background-color: #1a1a1a;
-  border-radius: 12px;
-  padding: 2rem;
-  max-height: calc(100vh - 140px);
-  overflow-y: auto;
-  min-height: 0;
+/* Hide the old horizontal DB subtabs row (we now use sidebar buttons) */
+.db-subtabs {
+  display: none !important;
 }
 
+/* Main headings in the content card */
+.admin-main h1 {
+  font-size: 1.75rem;
+  margin-bottom: 0.25rem;
+}
+
+/* Responsive: stack sidebar above main on small screens */
 @media (max-width: 991.98px) {
-  #adminContent {
-    height: auto;
-  }
-
   .admin-dashboard-wrapper {
     flex-direction: column;
-    padding: 100px 1rem 1.5rem;
+    padding-top: 80px;
   }
 
-  .admin-sidebar,
-  .admin-main {
-    max-height: none;
+  .admin-sidebar {
+    flex: 0 0 auto;
+    max-width: 100%;
+    height: auto;
     overflow: visible;
   }
+
+  .admin-main {
+    height: auto;
+    overflow: visible;
+    margin-top: 0.5rem;
+  }
 }
+
 
 .admin-main h1 {
   font-size: 1.75rem;

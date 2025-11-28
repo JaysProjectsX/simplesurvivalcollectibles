@@ -96,9 +96,9 @@ function initializeAdminPanel(role) {
     const rolesTabBtn = document.getElementById("rolesTabBtn");
     const auditTabBtn = document.getElementById("auditTabBtn");
 
-    if (sysadminTab) sysadminTab.style.display = "inline-block";
-    if (rolesTabBtn) rolesTabBtn.style.display = "inline-block";
-    if (auditTabBtn) auditTabBtn.style.display = "inline-block";
+    if (sysadminTab) sysadminTab.style.display = "flex";
+    if (rolesTabBtn) rolesTabBtn.style.display = "flex";
+    if (auditTabBtn) auditTabBtn.style.display = "flex";
 
     loadAuditLogs(currentPage);
 

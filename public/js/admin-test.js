@@ -71,6 +71,29 @@ function initializeAdminPanel(role) {
   const tabButtons = document.querySelectorAll(".tab-btn");
   const tabContents = document.querySelectorAll(".tab-content");
 
+  // === Sidebar drawer (mobile / tablet) ===
+  const sidebar = document.querySelector(".admin-sidebar");
+  const drawerToggle = document.getElementById("sidebarDrawerToggle");
+  const drawerBackdrop = document.getElementById("sidebarDrawerBackdrop");
+
+  function closeSidebarDrawer() {
+    document.body.classList.remove("sidebar-drawer-open");
+  }
+
+  if (sidebar && drawerToggle && drawerBackdrop) {
+    drawerToggle.addEventListener("click", () => {
+      document.body.classList.toggle("sidebar-drawer-open");
+    });
+
+    drawerBackdrop.addEventListener("click", closeSidebarDrawer);
+
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") {
+        closeSidebarDrawer();
+      }
+    });
+  }
+
   // === Active Users DataTable ===
   async function loadActiveUsersTable() {
     const isSysAdmin = role === "SysAdmin";

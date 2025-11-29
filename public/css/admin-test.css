@@ -224,9 +224,17 @@ body {
   cursor: pointer;
 }
 
-.sidebar-drawer-toggle .navbar-toggler-icon {
-  width: 1.3rem;
-  height: 1.3rem;
+.sidebar-drawer-toggle span {
+  display: block;
+  width: 12px;
+  height: 2px;
+  border-radius: 999px;
+  background: #f3f4ff;
+  transition: transform 0.18s ease, opacity 0.18s ease;
+}
+
+.sidebar-drawer-toggle span + span {
+  margin-top: 4px;
 }
 
 /* Little animation when drawer open */
@@ -299,6 +307,7 @@ body.sidebar-drawer-open .sidebar-drawer-toggle span:nth-child(3) {
   }
 }
 
+/* Hide the old horizontal DB subtabs row (we now use sidebar buttons) */
 .db-subtabs {
   display: none !important;
 }

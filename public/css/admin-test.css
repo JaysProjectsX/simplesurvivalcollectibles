@@ -501,7 +501,12 @@ body.sidebar-drawer-open .sidebar-drawer-toggle span:nth-child(3) {
 }
 
 #adminContent div.dt-container select.dt-input {
-  margin: 6px;
+  margin: 0 6px;
+}
+
+#adminContent div.dt-container select.dt-input option {
+  background-color: #0c0d12 !important;
+  color: #f9fafb !important;
 }
 
 /* Action buttons */

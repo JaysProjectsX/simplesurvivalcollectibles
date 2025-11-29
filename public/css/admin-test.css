@@ -28,6 +28,42 @@ body {
   flex-direction: column;
 }
 
+@media (max-width: 1199.98px) {
+  /* Let the nav stretch full width on small screens */
+  #adminContent nav .nav-content {
+    max-width: 100%;
+    padding-inline: 1rem;
+    justify-content: flex-start;
+  }
+
+  #adminContent #mainNavbar {
+    width: 100%;
+    margin-top: 0.5rem;
+  }
+
+  /* On smaller viewports, nav-links + nav-login become one vertical list */
+  #adminContent nav .nav-links,
+  #adminContent nav .nav-login {
+    position: static;
+    right: auto;
+    transform: none;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+    margin: 0;
+    padding: 0;
+    margin-top: 0.75rem;
+    font-size: large;
+  }
+
+  #userDropdown {
+    right: 0;
+    left: 0;
+    width: min(280px, 90vw);
+    margin: 0 0.75rem 0 0;
+  }
+}
+
 .main-wrapper {
   margin-top: 0 !important;
 }

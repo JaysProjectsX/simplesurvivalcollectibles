@@ -31,7 +31,6 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     const adminContent = document.getElementById("adminContent");
     adminContent.style.display = "flex";
-    adminContent.style.flexDirection = "column";
     initializeAdminPanel(user.role);
   } catch (err) {
     console.error("Auth check failed:", err);

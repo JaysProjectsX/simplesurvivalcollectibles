@@ -39,7 +39,7 @@
                   stroke-linecap="round" stroke-linejoin="round" />
           </svg>
         </span>
-        <span class="sidebar-label">Activity</span>
+        <span class="sidebar-label">User Activity</span>
       </button>
 
       <!-- Database Options (accordion + main DB tab) -->
@@ -272,12 +272,77 @@
             <!-- View/Edit Crates -->
             <div class="db-subtab-content" id="db-tab-view-edit">
               <div class="admin-section" id="crate-editor-panel">
-                <h3>View & Edit Crates</h3>
-                <select id="crate-selector" class="admin-select">
-                  <option disabled selected>Select a crate to edit</option>
-                </select>
-                <div id="crate-edit-form" class="admin-form">
-                  <!-- JS will dynamically render editable crate and item data here -->
+                <h3 class="mb-3">View &amp; Edit Crates</h3>
+
+                <!-- Crate selector row -->
+                <div class="row g-3 align-items-center mb-4">
+                  <div class="col-auto">
+                    <label for="crate-selector" class="col-form-label text-light">
+                      Select crate:
+                    </label>
+                  </div>
+                  <div class="col-md-4">
+                    <select id="crate-selector" class="form-select form-select-sm bg-dark text-light">
+                      <option disabled selected>Select a crate to edit</option>
+                    </select>
+                  </div>
+                </div>
+
+                <!-- Crate info (single row) -->
+                <div id="crate-info-wrapper" class="dt-section mb-4">
+                  <h5 class="text-light mb-2">Crate Details</h5>
+                  <table id="crateInfoTable"
+                        class="admin-table display nowrap"
+                        style="width:100%">
+                    <thead>
+                      <tr>
+                        <th>ID</th>
+                        <th>Crate Name</th>
+                        <th>Crate Type</th>
+                        <th>Hidden</th>
+                        <th>Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <!-- filled from JS -->
+                    </tbody>
+                  </table>
+                </div>
+
+                <!-- Items in crate -->
+                <div id="crate-items-wrapper" class="dt-section">
+                  <h5 class="text-light mb-2">Items in Crate</h5>
+
+                  <!-- Editor-style toolbar -->
+                  <div id="crate-items-toolbar" class="text-center mb-3">
+                    <button id="btnItemNew" class="btn btn-sm btn-primary me-2">
+                      New
+                    </button>
+                    <button id="btnItemEdit" class="btn btn-sm btn-outline-light me-2" disabled>
+                      Edit
+                    </button>
+                    <button id="btnItemDelete" class="btn btn-sm btn-outline-danger" disabled>
+                      Delete
+                    </button>
+                  </div>
+
+                  <table id="crateItemsTable"
+                        class="admin-table display nowrap"
+                        style="width:100%">
+                    <thead>
+                      <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Set</th>
+                        <th>Icon</th>
+                        <th>Tags</th>
+                        <th>Tooltip</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <!-- filled from JS -->
+                    </tbody>
+                  </table>
                 </div>
               </div>
             </div>
@@ -628,29 +693,87 @@
     <!-- Edit Item Modal -->
     <div id="editItemModalAdmin" class="modal-admin hidden">
       <div class="modal-content-admin fadeIn">
-        <span class="close-btn" onclick="closeEditModal()">×</span>
-        <h3>Edit Item</h3>
+        <!-- Header -->
+        <div class="modal-header-admin">
+          <h3>Edit item</h3>
+          <button
+            type="button"
+            class="modal-close-admin"
+            aria-label="Close"
+            onclick="closeEditModal()"
+          >
+            ×
+          </button>
+        </div>
+
+        <!-- Form -->
         <form id="editItemForm">
-          <input type="hidden" id="edit-item-id" />
+          <div class="modal-body-admin">
+            <input type="hidden" id="edit-item-id" />
 
-          <label for="edit-item-name">Name:</label>
-          <input type="text" id="edit-item-name" class="admin-input" required />
+            <div class="form-row-admin">
+              <label for="edit-item-name">Item name:</label>
+              <input
+                type="text"
+                id="edit-item-name"
+                class="admin-input"
+                required
+              />
+            </div>
 
-          <label for="edit-set-name">Set:</label>
-          <input type="text" id="edit-set-name" class="admin-input" required />
+            <div class="form-row-admin">
+              <label for="edit-set-name">Set name:</label>
+              <input
+                type="text"
+                id="edit-set-name"
+                class="admin-input"
+                required
+              />
+            </div>
 
-          <label for="edit-icon-url">Icon:</label>
-          <input type="text" id="edit-icon-url" class="admin-input" />
+            <div class="form-row-admin">
+              <label for="edit-icon-url">Icon URL:</label>
+              <input
+                type="text"
+                id="edit-icon-url"
+                class="admin-input"
+              />
+            </div>
 
-          <label for="edit-tags">Tags (comma-separated):</label>
-          <input type="text" id="edit-tags" class="admin-input" />
+            <div class="form-row-admin">
+              <label for="edit-tags">Tags:</label>
+              <input
+                type="text"
+                id="edit-tags"
+                class="admin-input"
+                placeholder="Comma-separated"
+              />
+            </div>
 
-          <label for="edit-tooltip">Tooltip:</label>
-          <textarea id="edit-tooltip" class="admin-textarea"></textarea>
+            <div class="form-row-admin">
+              <label for="edit-tooltip">Tooltip:</label>
+              <textarea
+                id="edit-tooltip"
+                class="admin-textarea"
+              ></textarea>
+            </div>
+          </div>
 
-          <div class="form-actions">
-            <button type="submit" class="admin-button save-btn">Save Changes</button>
-            <button type="button" class="admin-button cancel-btn" onclick="closeEditModal()">Cancel</button>
+          <!-- Footer -->
+          <div class="modal-footer-admin">
+            <button
+              type="button"
+              class="admin-button cancel-btn"
+              onclick="closeEditModal()"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              class="admin-button save-btn"
+            >
+              Update
+            </button>
           </div>
         </form>
       </div>
@@ -659,27 +782,70 @@
     <!-- Edit Crate Modal -->
     <div id="editCrateModalAdmin" class="modal-admin hidden">
       <div class="modal-content-admin fadeIn">
-        <span class="close-btn" onclick="closeEditCrateModal()">×</span>
-        <h3>Edit Crate</h3>
+        <!-- Header -->
+        <div class="modal-header-admin">
+          <h3>Edit crate</h3>
+          <button
+            type="button"
+            class="modal-close-admin"
+            aria-label="Close"
+            onclick="closeEditCrateModal()"
+          >
+            ×
+          </button>
+        </div>
+
+        <!-- Form -->
         <form id="editCrateForm">
-          <input type="hidden" id="edit-crate-id" />
+          <div class="modal-body-admin">
+            <input type="hidden" id="edit-crate-id" />
 
-          <label for="edit-crate-name">Crate Name</label>
-          <input type="text" id="edit-crate-name" class="admin-input" required />
+            <div class="form-row-admin">
+              <label for="edit-crate-name">Crate name:</label>
+              <input
+                type="text"
+                id="edit-crate-name"
+                class="admin-input"
+                required
+              />
+            </div>
 
-          <label for="edit-crate-type-label">Crate Type</label>
-          <select id="edit-crate-type" class="admin-select" required>
-            <option value="1">Cosmetic</option>
-            <option value="0">Non-Cosmetic</option>
-          </select>
+            <div class="form-row-admin">
+              <label for="edit-crate-type">Crate type:</label>
+              <select
+                id="edit-crate-type"
+                class="admin-select"
+                required
+              >
+                <option value="1">Cosmetic</option>
+                <option value="0">Non-cosmetic</option>
+              </select>
+            </div>
 
-          <label class="inline-checkbox" style="margin-top:10px;">
-            <input type="checkbox" id="edit-crate-hidden" />
-            Hidden
-          </label>
-          <div class="form-actions">
-            <button type="submit" class="admin-button save-btn">Save Changes</button>
-            <button type="button" class="admin-button cancel-btn" onclick="closeEditCrateModal()">Cancel</button>
+            <div class="form-row-admin">
+              <label for="edit-crate-hidden">Visibility:</label>
+              <label class="inline-checkbox">
+                <input type="checkbox" id="edit-crate-hidden" />
+                Hidden from public crate lists
+              </label>
+            </div>
+          </div>
+
+          <!-- Footer -->
+          <div class="modal-footer-admin">
+            <button
+              type="button"
+              class="admin-button cancel-btn"
+              onclick="closeEditCrateModal()"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              class="admin-button save-btn"
+            >
+              Save changes
+            </button>
           </div>
         </form>
       </div>
@@ -688,31 +854,100 @@
     <!-- Add Item Modal -->
     <div id="addItemModalAdmin" class="modal-admin hidden">
       <div class="modal-content-admin fadeIn">
-        <span class="close-btn" onclick="closeAddItemModal()">×</span>
-        <h3>Add New Item to Crate</h3>
+        <!-- Header -->
+        <div class="modal-header-admin">
+          <h3>Add new item</h3>
+          <button
+            type="button"
+            class="modal-close-admin"
+            aria-label="Close"
+            onclick="closeAddItemModal()"
+          >
+            ×
+          </button>
+        </div>
+
+        <!-- Form -->
         <form id="addItemForm">
-          <input type="hidden" id="add-crate-id" name="crate_id" />
+          <div class="modal-body-admin">
+            <input type="hidden" id="add-crate-id" name="crate_id" />
 
-          <p id="add-item-crate-label" style="margin-bottom: 10px; font-weight: bold; color: #ccc;"></p>
+            <!-- Selected crate row -->
+            <div class="form-row-admin">
+              <label>Crate:</label>
+              <div
+                id="add-item-crate-label"
+                class="modal-readonly-value"
+              >
+                <!-- filled by JS -->
+              </div>
+            </div>
 
-          <label for="add-item-name">Item Name:</label>
-          <input type="text" id="add-item-name" class="admin-input" required />
+            <div class="form-row-admin">
+              <label for="add-item-name">Item name:</label>
+              <input
+                type="text"
+                id="add-item-name"
+                class="admin-input"
+                required
+              />
+            </div>
 
-          <label for="add-set-name">Set Name:</label>
-          <input type="text" id="add-set-name" class="admin-input" required />
+            <div class="form-row-admin">
+              <label for="add-set-name">Set name:</label>
+              <input
+                type="text"
+                id="add-set-name"
+                class="admin-input"
+                required
+              />
+            </div>
 
-          <label for="add-icon-url">Icon:</label>
-          <input type="text" id="add-icon-url" class="admin-input" required />
+            <div class="form-row-admin">
+              <label for="add-icon-url">Icon URL:</label>
+              <input
+                type="text"
+                id="add-icon-url"
+                class="admin-input"
+                required
+              />
+            </div>
 
-          <label for="add-tags">Tags (comma-separated):</label>
-          <input type="text" id="add-tags" class="admin-input" required />
+            <div class="form-row-admin">
+              <label for="add-tags">Tags:</label>
+              <input
+                type="text"
+                id="add-tags"
+                class="admin-input"
+                placeholder="Comma-separated"
+                required
+              />
+            </div>
 
-          <label for="add-tooltip">Tooltip:</label>
-          <textarea id="add-tooltip" class="admin-textarea"></textarea>
+            <div class="form-row-admin">
+              <label for="add-tooltip">Tooltip:</label>
+              <textarea
+                id="add-tooltip"
+                class="admin-textarea"
+              ></textarea>
+            </div>
+          </div>
 
-          <div class="form-actions">
-            <button type="submit" class="admin-button save-btn">Add Item</button>
-            <button type="button" class="admin-button cancel-btn" onclick="closeAddItemModal()">Cancel</button>
+          <!-- Footer -->
+          <div class="modal-footer-admin">
+            <button
+              type="button"
+              class="admin-button cancel-btn"
+              onclick="closeAddItemModal()"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              class="admin-button save-btn"
+            >
+              Add item
+            </button>
           </div>
         </form>
       </div>

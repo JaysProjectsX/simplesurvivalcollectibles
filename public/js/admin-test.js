@@ -1,8 +1,15 @@
 let currentPage = 1;
+let _crateUiInitialised = false;
 const logsPerPage = 10;
 
 const api = (path, init) =>
 AUTH.fetchWithAuth(`${(window.backendUrl || "/api")}${path}`, init);
+
+// === View / Edit crates DataTables + editor-style toolbar ===
+let crateItemsDt = null;
+let crateSummaryDt = null;
+let currentCrateId = null;
+let selectedItemId = null;
 
 async function softMe() {
   return fetch(`${backendUrl}/me`, { credentials: 'include' });
@@ -70,6 +77,30 @@ function lockoutRemaining(user) {
 function initializeAdminPanel(role) {
   const tabButtons = document.querySelectorAll(".tab-btn");
   const tabContents = document.querySelectorAll(".tab-content");
+
+  function showDbDefaultSubtab() {
+    // show the dbTab content
+    const dbTabContent = document.getElementById("dbTab");
+    if (!dbTabContent) return;
+
+    // hide all .db-subtab-content first
+    document.querySelectorAll(".db-subtab-content").forEach(el => {
+      el.style.display = "none";
+    });
+
+    // mark "View / Edit Crates" as active subtab
+    const defaultBtn = document.querySelector('.db-subtab-btn[data-tab="view-edit"]');
+    if (defaultBtn) {
+      document.querySelectorAll(".db-subtab-btn").forEach(b => b.classList.remove("active"));
+      defaultBtn.classList.add("active");
+    }
+
+    // show the view / edit panel
+    const defaultPanel = document.getElementById("db-tab-view-edit");
+    if (defaultPanel) {
+      defaultPanel.style.display = "block";
+    }
+  }
 
   // === Sidebar drawer (mobile / tablet) ===
   const sidebar = document.querySelector(".admin-sidebar");
@@ -183,20 +214,37 @@ function initializeAdminPanel(role) {
     }
   }
 
+  // Handle switching between top-level tabs
   tabButtons.forEach(btn => {
     btn.addEventListener("click", () => {
-      tabContents.forEach(tab => (tab.style.display = "none"));
+      const tabId = btn.dataset.tab;
+
+      tabContents.forEach(t => { t.style.display = "none"; });
       tabButtons.forEach(b => b.classList.remove("active"));
 
-      const targetId = btn.dataset.tab;
-      const target = document.getElementById(targetId);
-      if (target) {
-        target.style.display = "block";
+      if (tabId === "usersTab") {
+        const panel = document.getElementById("usersTab");
+        if (panel) panel.style.display = "block";
+        loadActiveUsersTable();
 
-        // When Activity tab is shown, (re)load the DataTable
-        if (targetId === "usersTab") {
-          loadActiveUsersTable();
+      } else if (tabId === "dbTab") {
+        const panel = document.getElementById("dbTab");
+        if (panel) panel.style.display = "block";
+
+        showDbDefaultSubtab();
+
+        // Initialise the crate UI once
+        if (!_crateUiInitialised) {
+          _crateUiInitialised = true;
+          initCrateSummaryDataTable();
+          initCrateItemsDataTable();
+          loadCratesAndItems();
         }
+
+      } else if (tabId) {
+        // Any other top-level tab
+        const panel = document.getElementById(tabId);
+        if (panel) panel.style.display = "block";
       }
 
       btn.classList.add("active");
@@ -250,16 +298,6 @@ function initializeAdminPanel(role) {
           </tr>
         `).join("");
       });
-  }
-
-  const dbTabBtn = document.querySelector('[data-tab="dbTab"]');
-  if (dbTabBtn) {
-    dbTabBtn.addEventListener('click', () => loadCratesAndItems());
-
-    // If DB tab happens to be active on initial load, populate immediately
-    if (dbTabBtn.classList.contains('active')) {
-      loadCratesAndItems();
-    }
   }
 
   // ===== Tasks (Deletion Requests) =====
@@ -706,6 +744,189 @@ function initializeAdminPanel(role) {
   loadChangelogEntries();
 }
 
+// ===== Crate / Items DataTable wrappers =====
+
+// Small helper to enable/disable the Edit/Delete buttons for items
+function updateItemsEditorButtons() {
+  const hasSelection = !!selectedItemId;
+  const editBtn = document.getElementById("itemsEditorEdit");
+  const delBtn  = document.getElementById("itemsEditorDelete");
+
+  if (editBtn) editBtn.disabled = !hasSelection;
+  if (delBtn)  delBtn.disabled  = !hasSelection;
+}
+
+// DataTable for the ONE-row crate summary table (no paging/search)
+function initCrateSummaryDataTable() {
+  const $ = window.jQuery;
+  const selector = "#crate-summary-table";
+
+  if (!$ || !$(selector).length) return;
+
+  if ($.fn.dataTable.isDataTable(selector)) {
+    $(selector).DataTable().destroy();
+  }
+
+  crateSummaryDt = $(selector).DataTable({
+    paging: false,
+    searching: false,
+    info: false,
+    lengthChange: false,
+    ordering: false,
+    autoWidth: false
+  });
+}
+
+// DataTable for the items table, with row-selection logic
+function initCrateItemsDataTable() {
+  const $ = window.jQuery;
+  const selector = "#crate-items-table";
+
+  if (!$ || !$(selector).length) return;
+
+  // Destroy previous instance (if any) + remove old handlers
+  if ($.fn.dataTable.isDataTable(selector)) {
+    $(selector).DataTable().destroy();
+    $(selector).off("click", "tbody tr");
+  }
+
+  crateItemsDt = $(selector).DataTable({
+    pageLength: 10,
+    lengthMenu: [10, 25, 50, 100],
+    autoWidth: false,
+    order: [[1, "asc"]], // sort by Name
+    columnDefs: [
+      { targets: 0, width: "60px" },   // ID
+      { targets: 3, width: "80px" }    // Icon
+    ]
+  });
+
+  // Row selection & button enabling
+  $(selector).on("click", "tbody tr", function () {
+    const $row = $(this);
+
+    if ($row.hasClass("selected")) {
+      $row.removeClass("selected");
+      selectedItemId = null;
+    } else {
+      crateItemsDt.$("tr.selected").removeClass("selected");
+      $row.addClass("selected");
+      selectedItemId = parseInt($row.attr("data-item-id"), 10) || null;
+    }
+
+    updateItemsEditorButtons();
+  });
+
+  updateItemsEditorButtons();
+}
+
+// Hook up the "New / Edit / Delete" buttons under the items table header
+function initItemsEditorToolbar(selectedCrateId) {
+  const newBtn  = document.getElementById("itemsEditorNew");
+  const editBtn = document.getElementById("itemsEditorEdit");
+  const delBtn  = document.getElementById("itemsEditorDelete");
+
+  if (!newBtn || !editBtn || !delBtn) return;
+
+  // New item → open existing Add Item modal
+  newBtn.onclick = () => {
+    if (!selectedCrateId) return;
+    openAddItemModal(selectedCrateId);
+  };
+
+  // Edit item → use currently selected row
+  editBtn.onclick = () => {
+    if (!selectedItemId) return;
+    editItem(selectedItemId);
+  };
+
+  // Delete item → use currently selected row
+  delBtn.onclick = () => {
+    if (!selectedItemId) return;
+    deleteItem(selectedItemId);
+  };
+
+  updateItemsEditorButtons();
+}
+
+// Render the selected crate into the summary + items DataTables
+function renderCrateUi(crate, items) {
+  if (!crateSummaryDt || !crateItemsDt || !crate) return;
+
+  currentCrateId = crate.id;
+  selectedItemId = null;
+  updateItemsEditorButtons();
+
+  // ---- Crate summary (single row) ----
+  crateSummaryDt.clear();
+
+  const editSvg = `
+    <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M4 20h4l10-10-4-4L4 16v4z"
+            fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linejoin="round"/>
+      <path d="M14 6l4 4"
+            fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round"/>
+    </svg>`;
+
+  const trashSvg = `
+    <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M5 7h14"
+            fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round"/>
+      <path d="M10 11v6M14 11v6"
+            fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round"/>
+      <path d="M9 7V5h6v2"
+            fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round"/>
+      <path d="M6 7l1 12h10l1-12"
+            fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linejoin="round"/>
+    </svg>`;
+
+  const actionsHtml = `
+    <button type="button" class="btn btn-sm btn-outline-light me-1"
+            onclick="editCrate(${crate.id})">
+      ${editSvg}
+    </button>
+    ${userRole === "SysAdmin" ? `
+      <button type="button" class="btn btn-sm btn-outline-danger"
+              onclick="deleteCrate(${crate.id})">
+        ${trashSvg}
+      </button>` : ""}
+  `;
+
+  crateSummaryDt.row.add([
+    crate.id,
+    crate.crate_name,
+    crate.is_cosmetic ? "Cosmetic" : "Non-Cosmetic",
+    crate.is_hidden ? "Hidden" : "Visible",
+    actionsHtml
+  ]).draw(false);
+
+  // ---- Items table ----
+  crateItemsDt.clear();
+  (items || []).forEach((item) => {
+    const rowNode = crateItemsDt.row.add([
+      item.id,
+      item.item_name,
+      item.set_name || "",
+      item.icon_url
+        ? `<img src="${item.icon_url}" alt="" class="item-icon" />`
+        : "",
+      (item.tags || []).join(", "),
+      item.tooltip || ""
+    ]).draw(false).node();
+
+    // store item id on row for selection logic
+    window.jQuery(rowNode).attr("data-item-id", item.id);
+  });
+
+  crateItemsDt.columns.adjust().draw(false);
+}
+
 function loadCratesAndItems() {
   Promise.all([
     api('/admin/crates').then(res => res.json()),
@@ -730,97 +951,13 @@ function loadCratesAndItems() {
 
       // Attach event to update view based on selected crate
       selector.addEventListener("change", () => {
-        const selectedCrateId = parseInt(selector.value);
+        const selectedCrateId = parseInt(selector.value, 10);
         const selectedCrate = crates.find((c) => c.id === selectedCrateId);
-        const relatedItems = items.filter(
-          (i) => i.crate_id === selectedCrateId
-        );
+        const relatedItems = items.filter((i) => i.crate_id === selectedCrateId);
 
-        const form = document.getElementById("crate-edit-form");
-        form.innerHTML = `
-          <button class="admin-action-btn add-item-btn" onclick="openAddItemModal(${
-            selectedCrate.id
-          })">Add New Item to Crate</button>
-
-          <div class="admin-table-container">
-            <table class="admin-table">
-              <thead>
-                <tr>
-                  <th>ID</th>
-                  <th>Crate Name</th>
-                  <th>Crate Type</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>${selectedCrate.id}</td>
-                  <td>${selectedCrate.crate_name}</td>
-                  <td>${
-                    selectedCrate.is_cosmetic ? "Cosmetic" : "Non-Cosmetic"
-                  }</td>
-                  <td>
-                    <button class="admin-action-btn" onclick="editCrate(${
-                      selectedCrate.id
-                    })">✏️</button>
-                    ${
-                      localStorage.getItem("role") === "SysAdmin"
-                        ? `<button class="admin-action-btn delete" onclick="deleteCrate(${selectedCrate.id})">🗑️</button>`
-                        : ""
-                    }
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-
-          <h4>Items in Crate</h4>
-          <div class="admin-table-container">
-            <table class="admin-table">
-              <thead>
-                <tr>
-                  <th>ID</th>
-                  <th>Name</th>
-                  <th>Set</th>
-                  <th>Icon</th>
-                  <th>Tags</th>
-                  <th>Tooltip</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                ${relatedItems
-                  .map(
-                    (item) => `
-                  <tr>
-                    <td>${item.id}</td>
-                    <td>${item.item_name}</td>
-                    <td>${item.set_name}</td>
-                    <td><img src="${
-                      item.icon_url
-                    }" alt="icon" class="item-icon" /></td>
-                    <td>${(item.tags || [])
-                      .map((t) => `<span class='tag'>${t}</span>`)
-                      .join(" ")}</td>
-                    <td>${item.tooltip || ""}</td>
-                    <td>
-                      <button class="admin-action-btn" onclick="editItem(${
-                        item.id
-                      })">✏️</button>
-                      ${
-                        localStorage.getItem("role") === "SysAdmin"
-                          ? `<button class="admin-action-btn delete" onclick="deleteItem(${item.id})">🗑️</button>`
-                          : ""
-                      }
-                    </td>
-                  </tr>
-                `
-                  )
-                  .join("")}
-              </tbody>
-            </table>
-          </div>
-        `;
+        // Render into the new DataTables + hook toolbar to this crate
+        renderCrateUi(selectedCrate, relatedItems);
+        initItemsEditorToolbar(selectedCrateId);
       });
     })
     .catch((err) => {

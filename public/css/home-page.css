@@ -10,10 +10,6 @@ html {
     background-size: cover;
 }
 
-* {
-  box-sizing: revert !important;
-}
-
 button,
 input,
 select,

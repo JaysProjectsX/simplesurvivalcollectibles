@@ -280,12 +280,8 @@ body {
 
 /* Child row (IP + Location) */
 .active-user-extra {
-  padding: 0.75rem 2.5rem 0.75rem 3.2rem;
-  background: #11131f;
+  padding: 0.75rem 0 0.75rem 2rem;
   border-radius: 0 0 12px 12px;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 2rem;
   font-size: 0.9rem;
   color: #d4dafb;
 }
@@ -344,6 +340,25 @@ body {
 .dataTables_wrapper .dataTables_paginate .paginate_button.disabled:hover {
   background: transparent;
   color: #555a79 !important;
+}
+
+#adminContent .dt-container nav[aria-label="pagination"],
+#adminContent .dt-container nav[aria-label="Pagination"] {
+  position: static;
+  top: auto;
+  width: auto;
+  padding: 0;
+  background: transparent;
+  backdrop-filter: none;
+  z-index: auto;
+}
+
+#activeUsersTable_wrapper {
+    padding: 0.5rem;
+}
+
+#adminContent div.dt-container select.dt-input {
+  margin: 6px;
 }
 
 /* Action buttons */
@@ -880,6 +895,13 @@ select {
   background-color: #444;
   margin: 20px auto;
   width: 50%;
+  opacity: 0.5;
+}
+.admin-main-divider {
+  height: 1px;
+  background-color: #444;
+  margin: 20px auto;
+  width: 100%;
   opacity: 0.5;
 }
 .modal-btn {

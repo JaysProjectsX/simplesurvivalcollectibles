@@ -176,78 +176,6 @@ body {
   margin-bottom: 0.25rem;
 }
 
-/* Responsive: stack sidebar above main on small screens */
-@media (max-width: 991.98px) {
-  .admin-dashboard-wrapper {
-    flex-direction: column;
-    padding-top: 80px;
-  }
-
-  .admin-sidebar {
-    flex: 0 0 auto;
-    max-width: 100%;
-    height: auto;
-    overflow: visible;
-  }
-
-  .admin-main {
-    height: auto;
-    overflow: visible;
-    margin-top: 0.5rem;
-  }
-}
-
-/* Treat <=1054px as "mobile" for the admin dashboard nav */
-@media (max-width: 1054px) {
-  #adminContent nav .nav-content {
-    max-width: 100%;
-    padding-inline: 1rem;
-    justify-content: flex-start;
-  }
-
-  #adminContent #mainNavbar {
-    width: 100%;
-    margin-top: 0.5rem;
-  }
-
-  #adminContent nav .nav-links,
-  #adminContent nav .nav-login {
-    position: static;
-    right: auto;
-    transform: none;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0.75rem;
-    margin: 0;
-    padding: 0;
-    margin-top: 0.75rem;
-    font-size: large;
-  }
-
-  #adminContent .navbar-expand-lg .navbar-toggler {
-    display: block;
-  }
-
-  #adminContent .navbar-expand-lg .navbar-collapse {
-    display: none !important;
-  }
-
-  #adminContent .navbar-expand-lg .navbar-collapse.show {
-    display: block !important;
-  }
-}
-
-@media (min-width: 1055px) {
-  #adminContent .navbar-expand-lg .navbar-toggler {
-    display: none;
-  }
-
-  #adminContent .navbar-expand-lg .navbar-collapse {
-    display: flex !important;
-    align-items: center;
-  }
-}
-
 .admin-main h1 {
   font-size: 1.75rem;
   font-weight: var(--font-weight-heavy);
@@ -274,6 +202,7 @@ body {
   overflow-x: auto;
 }
 
+/* Admin tables */
 .admin-table {
   width: 100%;
   border-collapse: collapse;
@@ -323,6 +252,98 @@ body {
 
 .confirmation-table tr:hover {
   background-color: var(--background-hover);
+}
+
+/* =========================================
+   Activity Tab – Active Users DataTable
+   ========================================= */
+
+/* Details-control cell (triangle icon) */
+#activeUsersTable.dataTable tbody td.details-control {
+  cursor: pointer;
+  width: 26px;
+}
+
+#activeUsersTable.dataTable tbody td.details-control::before {
+  content: '\25B6'; /* ► */
+  display: inline-block;
+  margin-right: 2px;
+  font-size: 0.8rem;
+  opacity: 0.8;
+  transition: transform 0.15s ease, opacity 0.15s ease;
+}
+
+#activeUsersTable.dataTable tbody tr.shown td.details-control::before {
+  transform: rotate(90deg); /* ▼ */
+  opacity: 1;
+}
+
+/* Child row (IP + Location) */
+.active-user-extra {
+  padding: 0.75rem 2.5rem 0.75rem 3.2rem;
+  background: #11131f;
+  border-radius: 0 0 12px 12px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2rem;
+  font-size: 0.9rem;
+  color: #d4dafb;
+}
+
+.active-user-extra div {
+  min-width: 200px;
+}
+
+/* DataTables controls – match dark theme */
+.dataTables_wrapper .dataTables_length label,
+.dataTables_wrapper .dataTables_filter label,
+.dataTables_wrapper .dataTables_info {
+  color: #9aa4c9;
+  font-size: 0.85rem;
+}
+
+.dataTables_wrapper .dataTables_length select,
+.dataTables_wrapper .dataTables_filter input {
+  background-color: #11131e;
+  border: 1px solid #2b324a;
+  color: #e2e5ff;
+  border-radius: 6px;
+  padding: 0.25rem 0.5rem;
+  font-size: 0.85rem;
+}
+
+.dataTables_wrapper .dataTables_filter input::placeholder {
+  color: #6c7598;
+}
+
+/* Pagination buttons */
+.dataTables_wrapper .dataTables_paginate {
+  margin-top: 0.5rem;
+}
+
+.dataTables_wrapper .dataTables_paginate .paginate_button {
+  border-radius: 999px;
+  border: none;
+  background: transparent;
+  color: #a7b1d9 !important;
+  padding: 0.2rem 0.6rem;
+  margin: 0 1px;
+}
+
+.dataTables_wrapper .dataTables_paginate .paginate_button.current {
+  background: #394165;
+  color: #ffffff !important;
+}
+
+.dataTables_wrapper .dataTables_paginate .paginate_button:hover {
+  background: #272d45;
+  color: #ffffff !important;
+}
+
+.dataTables_wrapper .dataTables_paginate .paginate_button.disabled,
+.dataTables_wrapper .dataTables_paginate .paginate_button.disabled:hover {
+  background: transparent;
+  color: #555a79 !important;
 }
 
 /* Action buttons */

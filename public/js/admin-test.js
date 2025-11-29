@@ -72,23 +72,124 @@ function initializeAdminPanel(role) {
   const tabButtons = document.querySelectorAll(".tab-btn");
   const tabContents = document.querySelectorAll(".tab-content");
 
+  // === Active Users DataTable ===
+  async function loadActiveUsersTable() {
+    const isSysAdmin = role === "SysAdmin";
+    const tableSelector = "#activeUsersTable";
+    const $table = window.jQuery ? window.jQuery(tableSelector) : null;
+
+    if (!$table || !$table.length) return;
+
+    try {
+      const res = await api('/admin/active-users');
+      if (!res.ok) throw new Error("Failed to fetch active users");
+      const users = await res.json();
+
+      // Helper to build the child-row HTML (SysAdmin only)
+      const createDetailsHtml = (u) => `
+        <div class="active-user-extra">
+          <div><strong>IP Address:</strong> ${escapeHTML(u.last_ip || "—")}</div>
+          <div><strong>Location:</strong> ${escapeHTML(u.last_location || "—")}</div>
+        </div>
+      `;
+
+      // If DataTable already exists, just refresh its data
+      if (window.jQuery.fn.dataTable.isDataTable(tableSelector)) {
+        const dt = $table.DataTable();
+        dt.clear();
+        dt.rows.add(users);
+        dt.draw();
+        return;
+      }
+
+      // First-time DataTable init
+      const dt = $table.DataTable({
+        data: users,
+        columns: [
+          {
+            className: isSysAdmin ? "details-control" : "",
+            orderable: false,
+            data: null,
+            defaultContent: isSysAdmin ? "" : "",
+            width: "20px"
+          },
+          { data: "username" },
+          {
+            data: "role",
+            render: function (data, type) {
+              if (type === "display") {
+                return `<span class="role-tag ${data}">${escapeHTML(data)}</span>`;
+              }
+              return data;
+            }
+          },
+          {
+            data: "last_login",
+            render: function (data, type) {
+              if (!data) return "";
+              const d = new Date(data);
+              if (isNaN(d.getTime())) return escapeHTML(String(data));
+              return type === "display" ? d.toLocaleString() : d.toISOString();
+            }
+          }
+        ],
+        order: [[1, "asc"]],
+        pageLength: 10,
+        lengthMenu: [10, 25, 50, 100],
+        autoWidth: false
+      });
+
+      // Only SysAdmins get the expandable details rows
+      if (isSysAdmin) {
+        $table
+          .find("tbody")
+          .on("click", "td.details-control", function () {
+            const tr = window.jQuery(this).closest("tr");
+            const row = dt.row(tr);
+
+            if (row.child.isShown()) {
+              row.child.hide();
+              tr.removeClass("shown");
+            } else {
+              row.child(createDetailsHtml(row.data())).show();
+              tr.addClass("shown");
+            }
+          });
+      }
+    } catch (err) {
+      console.error("Failed to load active users table:", err);
+    }
+  }
+
   tabButtons.forEach(btn => {
     btn.addEventListener("click", () => {
-      tabContents.forEach(tab => tab.style.display = "none");
+      tabContents.forEach(tab => (tab.style.display = "none"));
       tabButtons.forEach(b => b.classList.remove("active"));
-      const target = document.getElementById(btn.dataset.tab);
-      if (target) target.style.display = "block";
+
+      const targetId = btn.dataset.tab;
+      const target = document.getElementById(targetId);
+      if (target) {
+        target.style.display = "block";
+
+        // When Activity tab is shown, (re)load the DataTable
+        if (targetId === "usersTab") {
+          loadActiveUsersTable();
+        }
+      }
+
       btn.classList.add("active");
     });
   });
 
-  tabContents.forEach(tab => tab.style.display = "none");
+
+  tabContents.forEach(tab => (tab.style.display = "none"));
   tabButtons.forEach(b => b.classList.remove("active"));
   const activeUsersBtn = document.querySelector('[data-tab="usersTab"]');
   const activeUsersTab = document.getElementById("usersTab");
   if (activeUsersBtn && activeUsersTab) {
     activeUsersBtn.classList.add("active");
     activeUsersTab.style.display = "block";
+    loadActiveUsersTable();
   }
 
   if (role === "SysAdmin") {
@@ -578,23 +679,9 @@ function initializeAdminPanel(role) {
 
 
   // Load Active Users
-  api('/admin/active-users')
-    .then(res => res.json())
-    .then(data => {
-      const list = document.getElementById("activeUserList");
-      list.innerHTML = "";
-      data.forEach(user => {
-        const li = document.createElement("li");
-        li.innerHTML = role === "SysAdmin"
-          ? `${user.username} (IP: ${user.last_ip}, Location: ${user.last_location}) <span class="role-tag ${user.role}">${user.role}</span>`
-          : `${user.username} <span class="role-tag ${user.role}">${user.role}</span>`;
-        list.appendChild(li);
-      });
-    });
-
-    userRole = role;
-    setupChangelogForm();
-    loadChangelogEntries();
+  userRole = role;
+  setupChangelogForm();
+  loadChangelogEntries();
 }
 
 function loadCratesAndItems() {

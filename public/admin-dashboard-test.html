@@ -123,7 +123,7 @@
         <span class="sidebar-label">Tasks</span>
       </button>
 
-      <!-- Account Management (SysAdmin only – keep id) -->
+      <!-- Account Management -->
       <button class="tab-btn sidebar-link" data-tab="accountTab" id="sysadminTab" style="display: none;" type="button">
         <span class="sidebar-icon">
           <!-- User card icon -->
@@ -218,7 +218,23 @@
           <!-- Active Users -->
           <div class="tab-content" id="usersTab" style="display: block;">
             <h2>Currently Logged In Users</h2>
-            <ul id="activeUserList"></ul>
+
+            <div class="admin-table-container">
+              <table id="activeUsersTable"
+                    class="admin-table display nowrap"
+                    style="width:100%">
+                <thead>
+                  <tr>
+                    <!-- details column (for SysAdmin only) -->
+                    <th class="details-control-header"></th>
+                    <th>Username</th>
+                    <th>Role</th>
+                    <th>Login Date</th>
+                  </tr>
+                </thead>
+                <tbody></tbody>
+              </table>
+            </div>
           </div>
 
           <!-- Database Config -->

@@ -756,10 +756,9 @@ function updateItemsEditorButtons() {
   if (delBtn)  delBtn.disabled  = !hasSelection;
 }
 
-// DataTable for the ONE-row crate summary table (no paging/search)
 function initCrateSummaryDataTable() {
   const $ = window.jQuery;
-  const selector = "#crate-summary-table";
+  const selector = "#crateInfoTable";   // <--- updated
 
   if (!$ || !$(selector).length) return;
 
@@ -777,14 +776,12 @@ function initCrateSummaryDataTable() {
   });
 }
 
-// DataTable for the items table, with row-selection logic
 function initCrateItemsDataTable() {
   const $ = window.jQuery;
-  const selector = "#crate-items-table";
+  const selector = "#crateItemsTable";  // <--- updated
 
   if (!$ || !$(selector).length) return;
 
-  // Destroy previous instance (if any) + remove old handlers
   if ($.fn.dataTable.isDataTable(selector)) {
     $(selector).DataTable().destroy();
     $(selector).off("click", "tbody tr");
@@ -794,14 +791,13 @@ function initCrateItemsDataTable() {
     pageLength: 10,
     lengthMenu: [10, 25, 50, 100],
     autoWidth: false,
-    order: [[1, "asc"]], // sort by Name
+    order: [[1, "asc"]],
     columnDefs: [
-      { targets: 0, width: "60px" },   // ID
-      { targets: 3, width: "80px" }    // Icon
+      { targets: 0, width: "60px" },
+      { targets: 3, width: "80px" }
     ]
   });
 
-  // Row selection & button enabling
   $(selector).on("click", "tbody tr", function () {
     const $row = $(this);
 
@@ -822,25 +818,22 @@ function initCrateItemsDataTable() {
 
 // Hook up the "New / Edit / Delete" buttons under the items table header
 function initItemsEditorToolbar(selectedCrateId) {
-  const newBtn  = document.getElementById("itemsEditorNew");
-  const editBtn = document.getElementById("itemsEditorEdit");
-  const delBtn  = document.getElementById("itemsEditorDelete");
+  const newBtn  = document.getElementById("btnItemNew");
+  const editBtn = document.getElementById("btnItemEdit");
+  const delBtn  = document.getElementById("btnItemDelete");
 
   if (!newBtn || !editBtn || !delBtn) return;
 
-  // New item → open existing Add Item modal
   newBtn.onclick = () => {
     if (!selectedCrateId) return;
     openAddItemModal(selectedCrateId);
   };
 
-  // Edit item → use currently selected row
   editBtn.onclick = () => {
     if (!selectedItemId) return;
     editItem(selectedItemId);
   };
 
-  // Delete item → use currently selected row
   delBtn.onclick = () => {
     if (!selectedItemId) return;
     deleteItem(selectedItemId);
@@ -934,8 +927,7 @@ function loadCratesAndItems() {
   ])
     .then(([crates, items]) => {
       const selector = document.getElementById("crate-selector");
-      const form = document.getElementById("crate-edit-form");
-      if (!selector || !form) return;
+      if (!selector) return;
 
       // Populate crate dropdown
       selector.innerHTML =
@@ -949,13 +941,11 @@ function loadCratesAndItems() {
         selector.appendChild(option);
       });
 
-      // Attach event to update view based on selected crate
       selector.addEventListener("change", () => {
         const selectedCrateId = parseInt(selector.value, 10);
         const selectedCrate = crates.find((c) => c.id === selectedCrateId);
         const relatedItems = items.filter((i) => i.crate_id === selectedCrateId);
 
-        // Render into the new DataTables + hook toolbar to this crate
         renderCrateUi(selectedCrate, relatedItems);
         initItemsEditorToolbar(selectedCrateId);
       });

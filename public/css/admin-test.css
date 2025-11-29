@@ -658,7 +658,6 @@ body.sidebar-drawer-open .sidebar-drawer-toggle span:nth-child(3) {
 #crate-creation-panel,
 #changelog-entry-panel {
   margin-bottom: 2rem;
-  background: #1a1a1a;
   padding: 1.5rem;
   border-radius: 8px;
 }

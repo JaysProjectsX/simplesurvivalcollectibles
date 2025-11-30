@@ -5,7 +5,11 @@ const logsPerPage = 10;
 const api = (path, init) =>
 AUTH.fetchWithAuth(`${(window.backendUrl || "/api")}${path}`, init);
 
-// === View / Edit crates DataTables + editor-style toolbar ===
+let newCrateItemsDt = null;
+let newCrateItems = [];
+let newCrateSelectedIndex = null;
+
+
 let crateItemsDt = null;
 let crateSummaryDt = null;
 let currentCrateId = null;
@@ -975,6 +979,100 @@ function initCrateItemsDataTable() {
   });
 }
 
+// --- NEW: Create-New-Crate wizard items DataTable (Step 2) ---
+
+function initNewCrateItemsDataTable() {
+  const $ = window.jQuery;
+  const selector = "#newCrateItemsTable";
+
+  if (!$ || !$.fn.DataTable) return;
+  if (!$(selector).length) return;
+
+  // avoid re-initialising
+  if (newCrateItemsDt) return;
+
+  newCrateItemsDt = $(selector).DataTable({
+    paging: true,
+    searching: true,
+    ordering: true,
+    pageLength: 10,
+    deferRender: true,
+    autoWidth: false,
+    language: {
+      emptyTable: "No items have been added to this crate yet."
+    }
+  });
+
+  const $table = $(selector);
+
+  // row selection
+  $table.on("click", "tbody tr", function () {
+    const row = newCrateItemsDt.row(this);
+    const data = row.data();
+    if (!data) return;
+
+    const index = row.index();
+
+    if ($(this).hasClass("selected")) {
+      $(this).removeClass("selected");
+      newCrateSelectedIndex = null;
+    } else {
+      $table.find("tr.selected").removeClass("selected");
+      $(this).addClass("selected");
+      newCrateSelectedIndex = index;
+    }
+
+    updateNewCrateItemsToolbar();
+  });
+
+  newCrateItemsDt.on("draw", function () {
+    newCrateSelectedIndex = null;
+    $(selector).find("tr.selected").removeClass("selected");
+    updateNewCrateItemsToolbar();
+  });
+
+  // initial button state
+  updateNewCrateItemsToolbar();
+}
+
+function updateNewCrateItemsToolbar() {
+  const addBtn  = document.getElementById("addItemBtn");
+  const editBtn = document.getElementById("editItemBtn");
+  const delBtn  = document.getElementById("deleteItemBtn");
+
+  if (!addBtn || !editBtn || !delBtn) return;
+
+  const hasSelection =
+    newCrateItemsDt &&
+    newCrateSelectedIndex !== null &&
+    newCrateSelectedIndex < newCrateItemsDt.rows().count();
+
+  // “New” is always enabled
+  addBtn.disabled  = false;
+  editBtn.disabled = !hasSelection;
+  delBtn.disabled  = !hasSelection;
+}
+
+// Optional helper if you keep a newCrateItems[] array
+function refreshNewCrateItemsTable() {
+  if (!newCrateItemsDt) return;
+
+  newCrateItemsDt.clear();
+
+  const rows = newCrateItems.map(item => [
+    item.icon
+      ? `<img src="${escapeHTML(item.icon)}" class="item-icon" alt="icon" />`
+      : "",
+    escapeHTML(item.name || ""),
+    escapeHTML(item.set || ""),
+    escapeHTML(item.itemType || ""),
+    escapeHTML(item.tags || ""),
+    escapeHTML(item.tooltip || "")
+  ]);
+
+  newCrateItemsDt.rows.add(rows).draw();
+}
+
 // Hook up the "New / Edit / Delete" buttons under the items table header
 function initItemsEditorToolbar(selectedCrateId) {
   const newBtn  = document.getElementById("itemsEditorNew");
@@ -1851,6 +1949,10 @@ document.querySelectorAll(".db-subtab-btn").forEach((btn) => {
     document.querySelectorAll(".db-subtab-content").forEach((tab) => {
       tab.style.display = tab.id === `db-tab-${tabId}` ? "block" : "none";
     });
+
+    if (tabId === "create") {
+      initNewCrateItemsDataTable();
+    }
   });
 });
 

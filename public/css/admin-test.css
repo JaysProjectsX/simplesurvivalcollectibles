@@ -1179,14 +1179,58 @@ select {
   background-color: rgba(0, 0, 0, 0.5);
 }
 
-/* Crate Editor Wizard */
+/* New Crate Editor Wizard */
 .wizard-container {
-  color: #fff;
+  background: var(--card-bg, #1e1e1e);
+  border-radius: 12px;
   padding: 20px;
-  border-radius: 10px;
-  max-width: 700px;
-  margin: auto;
+  margin-top: 20px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.4);
 }
+.wizard-header {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+.wizard-steps {
+  display: flex;
+  list-style: none;
+  padding: 0;
+  gap: 30px;
+}
+.wizard-steps li {
+  position: relative;
+  font-weight: 500;
+  color: #aaa;
+}
+.wizard-steps li.active {
+  color: #fff;
+  font-weight: 600;
+}
+.wizard-step {
+  display: none;
+  animation: fadeIn 0.4s ease;
+}
+.wizard-step.active {
+  display: block;
+}
+.wizard-nav {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 20px;
+}
+.table-actions {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(5px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+
+/* Old Crate Editor Wizard */
 .wizard-step.hidden {
   display: none;
 }

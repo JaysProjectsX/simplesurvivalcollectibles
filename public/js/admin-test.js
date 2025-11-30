@@ -787,44 +787,56 @@ function initCrateSummaryDataTable() {
   });
 }
 
+// call this once when the View/Edit Crates tab is shown
 function initCrateItemsDataTable() {
   const $ = window.jQuery;
   const selector = "#crateItemsTable";
 
-  if (!$ || !$(selector).length) return;
+  if (!$.fn.DataTable) return;
+  if (!$(selector).length) return;
 
   if ($.fn.dataTable.isDataTable(selector)) {
-    $(selector).DataTable().destroy();
+    crateItemsDt.destroy();
     $(selector).off("click", "tbody tr");
   }
 
   crateItemsDt = $(selector).DataTable({
+    paging: true,
+    searching: true,
+    ordering: true,
     pageLength: 10,
-    lengthMenu: [10, 25, 50, 100],
-    autoWidth: false,
-    order: [[1, "asc"]],
-    columnDefs: [
-      { targets: 0, width: "60px" },
-      { targets: 3, width: "80px" }
-    ]
+    deferRender: true,
+    autoWidth: false
   });
 
-  $(selector).on("click", "tbody tr", function () {
-    const $row = $(this);
+  const $table = $(selector);
 
-    if ($row.hasClass("selected")) {
-      $row.removeClass("selected");
+  // Delegated click handler works for ALL pages + searches
+  $table.on("click", "tbody tr", function () {
+    const row = crateItemsDt.row(this);
+    const data = row.data();
+    if (!data) return;
+
+    const id = parseInt(data[0], 10);
+    if (isNaN(id)) return;
+
+    if ($(this).hasClass("selected")) {
+      $(this).removeClass("selected");
       selectedItemId = null;
     } else {
-      crateItemsDt.$("tr.selected").removeClass("selected");
-      $row.addClass("selected");
-      selectedItemId = parseInt($row.attr("data-item-id"), 10) || null;
+      $table.find("tr.selected").removeClass("selected");
+      $(this).addClass("selected");
+      selectedItemId = id;
     }
 
     updateItemsEditorButtons();
   });
 
-  updateItemsEditorButtons();
+  crateItemsDt.on("draw", function () {
+    selectedItemId = null;
+    $table.find("tr.selected").removeClass("selected");
+    updateItemsEditorButtons();
+  });
 }
 
 // Hook up the "New / Edit / Delete" buttons under the items table header

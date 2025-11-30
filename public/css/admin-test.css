@@ -697,7 +697,7 @@ body.sidebar-drawer-open .sidebar-drawer-toggle span:nth-child(3) {
 }
 
 .admin-button.save-btn {
-  background: linear-gradient(to right, #4083ff, #002fff);
+  background: #264dcc;
   color: white;
   padding: 10px 20px;
   font-weight: 600;
@@ -708,7 +708,7 @@ body.sidebar-drawer-open .sidebar-drawer-toggle span:nth-child(3) {
 }
 
 .admin-button.save-btn:hover {
-  transform: scale(1.05);
+  background: #2645ac;
 }
 
 #changelog-table-container {
@@ -844,14 +844,12 @@ body.sidebar-drawer-open .sidebar-drawer-toggle span:nth-child(3) {
 }
 
 #edit-crate-type {
-  padding: 0.5em 1em;
   margin-top: 5px;
-  font-size: 1rem;
   border: 1px solid #444;
   border-radius: 0.5rem;
   background-color: #1e1e1e;
   color: white;
-  width: 94%;
+  width: 100%;
 }
 
 #edit-crate-type:focus {
@@ -904,7 +902,27 @@ body.sidebar-drawer-open .sidebar-drawer-toggle span:nth-child(3) {
   font-size: 0.9rem;
 }
 
+/* --- Edit Crate modal layout --- */
+#editCrateModal .modal-content-admin {
+  max-width: 650px;
+  width: 100%;
+  margin: 0 auto;
+  overflow-x: hidden;
+}
 
+#editCrateModal .visibility-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+#editCrateModal .visibility-row label {
+  margin-bottom: 0;
+}
+
+#editCrateModal .visibility-row input[type="checkbox"] {
+  margin: 0;
+}
 
 /* Core “Editor-style” content box */
 .modal-content-admin {
@@ -1063,7 +1081,14 @@ body.sidebar-drawer-open .sidebar-drawer-toggle span:nth-child(3) {
   align-items: center;
   justify-content: space-between; 
   padding: 1rem 1.25rem;
+  margin-bottom: 1rem;
   border-bottom: 1px solid #252538;
+}
+
+.modal-footer-admin {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
 }
 
 .modal-header-admin h3 {

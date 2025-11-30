@@ -11,6 +11,87 @@ let crateSummaryDt = null;
 let currentCrateId = null;
 let selectedItemId = null;
 
+// Quick icon presets used in Add/Edit item modals
+const QUICK_ICONS = [
+  {
+    name: "Netherite Sword",
+    url: "https://mc.nerothe.com/img/1.21.5/minecraft_netherite_sword.png"
+  },
+  {
+    name: "Mace",
+    url: "https://mc.nerothe.com/img/1.21.5/minecraft_mace.png"
+  },
+  {
+    name: "Bow",
+    url: "https://mc.nerothe.com/img/1.21.5/minecraft_bow.png"
+  },
+  {
+    name: "Crossbow",
+    url: "https://mc.nerothe.com/img/1.21.5/minecraft_crossbow.png"
+  },
+  {
+    name: "Netherite Pickaxe",
+    url: "https://mc.nerothe.com/img/1.21.5/minecraft_netherite_pickaxe.png"
+  },
+  {
+    name: "Netherite Shovel",
+    url: "https://mc.nerothe.com/img/1.21.5/minecraft_netherite_shovel.png"
+  },
+  {
+    name: "Netherite Axe",
+    url: "https://mc.nerothe.com/img/1.21.5/minecraft_netherite_axe.png"
+  },
+  {
+    name: "Netherite Hoe",
+    url: "https://mc.nerothe.com/img/1.21.5/minecraft_netherite_hoe.png"
+  },
+  {
+    name: "Fishing Rod",
+    url: "https://mc.nerothe.com/img/1.21.5/minecraft_fishing_rod.png"
+  },
+  {
+    name: "Shears",
+    url: "https://mc.nerothe.com/img/1.21.5/minecraft_shears.png"
+  },
+  {
+    name: "Flint and Steel",
+    url: "https://mc.nerothe.com/img/1.21.5/minecraft_flint_and_steel.png"
+  },
+  {
+    name: "Elytra",
+    url: "https://mc.nerothe.com/img/1.21.5/minecraft_elytra.png"
+  },
+  {
+    name: "Trident",
+    url: "https://mc.nerothe.com/img/1.21.5/minecraft_trident.png"
+  },
+  {
+    name: "Paper",
+    url: "https://mc.nerothe.com/img/1.21.5/minecraft_paper.png"
+  },
+  {
+    name: "Turtle Helmet",
+    url: "https://mc.nerothe.com/img/1.21.5/minecraft_turtle_helmet.png"
+  },
+  {
+    name: "Netherite Helmet",
+    url: "https://mc.nerothe.com/img/1.21.5/minecraft_netherite_helmet.png"
+  },
+  {
+    name: "Netherite Chestplate",
+    url: "https://mc.nerothe.com/img/1.21.5/minecraft_netherite_chestplate.png"
+  },
+  {
+    name: "Netherite Leggings",
+    url: "https://mc.nerothe.com/img/1.21.5/minecraft_netherite_leggings.png"
+  },
+  {
+    name: "Netherite Boots",
+    url: "https://mc.nerothe.com/img/1.21.5/minecraft_netherite_boots.png"
+  },
+];
+
+
 async function softMe() {
   return fetch(`${backendUrl}/me`, { credentials: 'include' });
 }
@@ -39,6 +120,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     const adminContent = document.getElementById("adminContent");
     adminContent.style.display = "flex";
     initializeAdminPanel(user.role);
+
+    initIconPickers();
+    
   } catch (err) {
     console.error("Auth check failed:", err);
     document.body.innerHTML = "";
@@ -743,6 +827,54 @@ function initializeAdminPanel(role) {
   setupChangelogForm();
   loadChangelogEntries();
 }
+
+function initIconPickers() {
+  // builds the icon strip and click handler for a given modal
+  function setupPicker(toggleId, stripId, inputId) {
+    const toggle = document.getElementById(toggleId);
+    const strip = document.getElementById(stripId);
+    if (!toggle || !strip) return;
+
+    // Build icons only once
+    if (!strip.dataset.built) {
+      QUICK_ICONS.forEach(icon => {
+        const img = document.createElement("img");
+        img.src = icon.url;
+        img.alt = icon.name;
+        img.title = icon.name;
+
+        img.addEventListener("click", () => {
+          const input = document.getElementById(inputId);
+          if (input) {
+            input.value = icon.url;
+            // optional: close after selecting
+            // strip.classList.remove("open");
+            // strip.classList.add("hidden");
+            // toggle.textContent = toggle.textContent.replace("Hide", "Show").replace("▴", "▾");
+          }
+        });
+
+        strip.appendChild(img);
+      });
+
+      strip.dataset.built = "1";
+    }
+
+    // Toggle open/closed
+    toggle.addEventListener("click", () => {
+      const isOpen = strip.classList.toggle("open");
+      strip.classList.toggle("hidden", !isOpen);
+      toggle.textContent = isOpen
+        ? "Hide quick icons ▴"
+        : "Show quick icons ▾";
+    });
+  }
+
+  // Hook both modals
+  setupPicker("toggle-edit-icon-picker", "edit-icon-picker", "edit-icon-url");
+  setupPicker("toggle-add-icon-picker", "add-icon-picker", "add-icon-url");
+}
+
 
 // ===== Crate / Items DataTable wrappers =====
 

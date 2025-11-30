@@ -58,6 +58,10 @@ const QUICK_ICONS = [
     url: "https://mc.nerothe.com/img/1.21.5/minecraft_flint_and_steel.png"
   },
   {
+    name: "Shield",
+    url: "https://mc.nerothe.com/img/1.21.5/minecraft_shield.png"
+  },
+  {
     name: "Elytra",
     url: "https://mc.nerothe.com/img/1.21.5/minecraft_elytra.png"
   },
@@ -122,7 +126,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     initializeAdminPanel(user.role);
 
     initIconPickers();
-    
+
   } catch (err) {
     console.error("Auth check failed:", err);
     document.body.innerHTML = "";

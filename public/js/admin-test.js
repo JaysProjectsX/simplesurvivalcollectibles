@@ -752,13 +752,24 @@ function updateItemsEditorButtons() {
   const editBtn = document.getElementById("itemsEditorEdit");
   const delBtn  = document.getElementById("itemsEditorDelete");
 
-  if (editBtn) editBtn.disabled = !hasSelection;
-  if (delBtn)  delBtn.disabled  = !hasSelection;
+  if (editBtn) {
+    editBtn.disabled = !hasSelection;
+  }
+
+  if (delBtn) {
+    if (userRole === "SysAdmin") {
+      delBtn.style.display = "";
+      delBtn.disabled = !hasSelection;
+    } else {
+      // Admins never see the delete button
+      delBtn.style.display = "none";
+    }
+  }
 }
 
 function initCrateSummaryDataTable() {
   const $ = window.jQuery;
-  const selector = "#crateInfoTable";   // <--- updated
+  const selector = "#crateInfoTable";
 
   if (!$ || !$(selector).length) return;
 
@@ -778,7 +789,7 @@ function initCrateSummaryDataTable() {
 
 function initCrateItemsDataTable() {
   const $ = window.jQuery;
-  const selector = "#crateItemsTable";  // <--- updated
+  const selector = "#crateItemsTable";
 
   if (!$ || !$(selector).length) return;
 
@@ -818,9 +829,9 @@ function initCrateItemsDataTable() {
 
 // Hook up the "New / Edit / Delete" buttons under the items table header
 function initItemsEditorToolbar(selectedCrateId) {
-  const newBtn  = document.getElementById("btnItemNew");
-  const editBtn = document.getElementById("btnItemEdit");
-  const delBtn  = document.getElementById("btnItemDelete");
+  const newBtn  = document.getElementById("itemsEditorNew");
+  const editBtn = document.getElementById("itemsEditorEdit");
+  const delBtn  = document.getElementById("itemsEditorDelete");
 
   if (!newBtn || !editBtn || !delBtn) return;
 
@@ -899,25 +910,27 @@ function renderCrateUi(crate, items) {
     actionsHtml
   ]).draw(false);
 
-  // ---- Items table ----
+  // --- Items table (bulk) ---
   crateItemsDt.clear();
-  (items || []).forEach((item) => {
-    const rowNode = crateItemsDt.row.add([
-      item.id,
-      item.item_name,
-      item.set_name || "",
-      item.icon_url
-        ? `<img src="${item.icon_url}" alt="" class="item-icon" />`
-        : "",
-      (item.tags || []).join(", "),
-      item.tooltip || ""
-    ]).draw(false).node();
 
-    // store item id on row for selection logic
-    window.jQuery(rowNode).attr("data-item-id", item.id);
-  });
+  const rows = (items || []).map(item => [
+    item.id,
+    item.item_name,
+    item.set_name || "",
+    item.icon_url ? `<img src="${item.icon_url}" alt="" class="item-icon" />` : "",
+    (item.tags || []).join(", "),
+    item.tooltip || ""
+  ]);
 
+  crateItemsDt.rows.add(rows).draw(false);
   crateItemsDt.columns.adjust().draw(false);
+
+  // attach data-item-id for selection
+  crateItemsDt.rows().every(function () {
+    const data = this.data();
+    const node = this.node();
+    window.jQuery(node).attr("data-item-id", data[0]); // first col is ID
+  });
 }
 
 function loadCratesAndItems() {
@@ -929,7 +942,6 @@ function loadCratesAndItems() {
       const selector = document.getElementById("crate-selector");
       if (!selector) return;
 
-      // Populate crate dropdown
       selector.innerHTML =
         "<option disabled selected>Select a crate to edit</option>";
       selector.onchange = null;
@@ -941,13 +953,23 @@ function loadCratesAndItems() {
         selector.appendChild(option);
       });
 
+      const sections = [
+        document.getElementById("crate-info-wrapper"),
+        document.getElementById("crate-items-wrapper")
+      ];
+
       selector.addEventListener("change", () => {
         const selectedCrateId = parseInt(selector.value, 10);
         const selectedCrate = crates.find((c) => c.id === selectedCrateId);
         const relatedItems = items.filter((i) => i.crate_id === selectedCrateId);
 
-        renderCrateUi(selectedCrate, relatedItems);
-        initItemsEditorToolbar(selectedCrateId);
+        sections.forEach(s => s && s.classList.add("is-loading"));
+
+        requestAnimationFrame(() => {
+          renderCrateUi(selectedCrate, relatedItems);
+          initItemsEditorToolbar(selectedCrateId);
+          sections.forEach(s => s && s.classList.remove("is-loading"));
+        });
       });
     })
     .catch((err) => {
@@ -1081,7 +1103,7 @@ function openAddItemModal(crateId) {
   const crateName = selector.options[selector.selectedIndex].text;
   document.getElementById(
     "add-item-crate-label"
-  ).textContent = `Selected Crate: ${crateName}`;
+  ).textContent = `${crateName}`;
 
   const modal = document.getElementById("addItemModalAdmin");
   modal.classList.remove("hidden");

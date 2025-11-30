@@ -830,11 +830,8 @@ body.sidebar-drawer-open .sidebar-drawer-toggle span:nth-child(3) {
 }
 
 #crate-selector {
-  padding: 0.5em 1em;
-  font-size: 1rem;
   border: 1px solid #444;
-  border-radius: 0.5rem;
-  background-color: #1e1e1e;
+  background-color: #1e1e1e !important;
   color: white;
   width: 100%;
   max-width: 400px;
@@ -891,6 +888,24 @@ body.sidebar-drawer-open .sidebar-drawer-toggle span:nth-child(3) {
   display: none !important;
 }
 
+.dt-section {
+  position: relative;
+}
+
+.dt-section.is-loading::before {
+  content: "Loading…";
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(4, 6, 16, 0.8);
+  z-index: 5;
+  font-size: 0.9rem;
+}
+
+
+
 /* Core “Editor-style” content box */
 .modal-content-admin {
   position: relative;
@@ -940,9 +955,6 @@ body.sidebar-drawer-open .sidebar-drawer-toggle span:nth-child(3) {
   margin-right: -0.4rem; /* small “fake” gutter */
   padding-right: 0.4rem;
 }
-
-/* If you don’t have .modal-body-admin in HTML,
-   everything will still look fine, this just won’t apply. */
 
 /* Form rows – label left, control right style */
 .modal-content-admin .form-row-admin {
@@ -1046,6 +1058,33 @@ body.sidebar-drawer-open .sidebar-drawer-toggle span:nth-child(3) {
   animation: fadeOut 0.18s ease-out forwards;
 }
 
+.modal-header-admin {
+  display: flex;
+  align-items: center;
+  justify-content: space-between; 
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid #252538;
+}
+
+.modal-header-admin h3 {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.modal-close-admin {
+  background: transparent;
+  border: none;
+  color: #bfbfd8;
+  font-size: 1.4rem;
+  line-height: 1;
+  padding: 0;
+  cursor: pointer;
+}
+
+.modal-close-admin:hover {
+  color: #ffffff;
+}
 
 /* Regular Select Dropdown Styling */
 select {

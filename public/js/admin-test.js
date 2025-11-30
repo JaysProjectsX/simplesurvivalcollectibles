@@ -945,18 +945,21 @@ function renderCrateUi(crate, items) {
   });
 }
 
-function loadCratesAndItems() {
+function loadCratesAndItems(selectedCrateId) {
+  const previousCrateId =
+    typeof selectedCrateId === "number" ? selectedCrateId : currentCrateId;
+
   Promise.all([
-    api('/admin/crates').then(res => res.json()),
-    api('/admin/items').then(res => res.json()),
+    api("/admin/crates").then((res) => res.json()),
+    api("/admin/items").then((res) => res.json()),
   ])
     .then(([crates, items]) => {
       const selector = document.getElementById("crate-selector");
       if (!selector) return;
 
+      // Reset dropdown options
       selector.innerHTML =
-        "<option disabled selected>Select a crate to edit</option>";
-      selector.onchange = null;
+        '<option disabled selected>Select a crate to edit</option>';
 
       crates.forEach((crate) => {
         const option = document.createElement("option");
@@ -967,22 +970,48 @@ function loadCratesAndItems() {
 
       const sections = [
         document.getElementById("crate-info-wrapper"),
-        document.getElementById("crate-items-wrapper")
+        document.getElementById("crate-items-wrapper"),
       ];
 
-      selector.addEventListener("change", () => {
-        const selectedCrateId = parseInt(selector.value, 10);
-        const selectedCrate = crates.find((c) => c.id === selectedCrateId);
-        const relatedItems = items.filter((i) => i.crate_id === selectedCrateId);
+      const handleSelection = (crateId) => {
+        if (!crateId) return;
 
-        sections.forEach(s => s && s.classList.add("is-loading"));
+        const selectedCrate = crates.find((c) => c.id === crateId);
+        if (!selectedCrate) return;
+
+        const relatedItems = items.filter((i) => i.crate_id === crateId);
+
+        sections.forEach((s) => s && s.classList.add("is-loading"));
 
         requestAnimationFrame(() => {
           renderCrateUi(selectedCrate, relatedItems);
-          initItemsEditorToolbar(selectedCrateId);
-          sections.forEach(s => s && s.classList.remove("is-loading"));
+          initItemsEditorToolbar(crateId);
+          sections.forEach((s) => s && s.classList.remove("is-loading"));
         });
-      });
+      };
+
+      // Make sure we only ever have ONE change handler
+      selector.onchange = function () {
+        const selectedCrateId = parseInt(selector.value, 10);
+        handleSelection(selectedCrateId);
+      };
+
+      // Try to restore the previously selected crate (if it still exists)
+      const canRestore =
+        previousCrateId &&
+        crates.some((crate) => crate.id === previousCrateId);
+
+      if (canRestore) {
+        selector.value = String(previousCrateId);
+        handleSelection(previousCrateId);
+      } else {
+        // Previous crate was deleted or none selected → clear tables + state
+        currentCrateId = null;
+        selectedItemId = null;
+        if (crateSummaryDt) crateSummaryDt.clear().draw();
+        if (crateItemsDt) crateItemsDt.clear().draw();
+        updateItemsEditorButtons();
+      }
     })
     .catch((err) => {
       console.error("Failed to load crates or items:", err);

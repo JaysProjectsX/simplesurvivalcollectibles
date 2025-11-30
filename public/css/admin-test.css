@@ -902,26 +902,12 @@ body.sidebar-drawer-open .sidebar-drawer-toggle span:nth-child(3) {
   font-size: 0.9rem;
 }
 
-/* --- Edit Crate modal layout --- */
-#editCrateModal .modal-content-admin {
-  max-width: 650px;
-  width: 100%;
-  margin: 0 auto;
-  overflow-x: hidden;
-}
-
-#editCrateModal .visibility-row {
-  display: flex;
+/* Edit-crate visibility checkbox layout */
+#editCrateForm .inline-checkbox {
+  display: inline-flex;
   align-items: center;
-  gap: 8px;
-}
-
-#editCrateModal .visibility-row label {
-  margin-bottom: 0;
-}
-
-#editCrateModal .visibility-row input[type="checkbox"] {
-  margin: 0;
+  gap: 0.5rem;
+  white-space: nowrap;
 }
 
 /* Core “Editor-style” content box */
@@ -930,9 +916,7 @@ body.sidebar-drawer-open .sidebar-drawer-toggle span:nth-child(3) {
   width: min(720px, 96vw);
   max-height: 90vh;
   background: #181b24;
-  border: 1px solid #2b3040;
   border-radius: 8px;
-  box-shadow: 0 22px 60px rgba(0, 0, 0, 0.65);
   padding: 1.8rem 2rem 1.6rem;
   color: #e5e7f1;
   display: flex;
@@ -969,8 +953,6 @@ body.sidebar-drawer-open .sidebar-drawer-toggle span:nth-child(3) {
 /* Scrollable body area if form gets tall */
 .modal-content-admin .modal-body-admin {
   flex: 1 1 auto;
-  overflow-y: auto;
-  margin-right: -0.4rem; /* small “fake” gutter */
   padding-right: 0.4rem;
 }
 

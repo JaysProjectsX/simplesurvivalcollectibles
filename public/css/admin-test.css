@@ -956,6 +956,10 @@ body.sidebar-drawer-open .sidebar-drawer-toggle span:nth-child(3) {
   transform: scale(1.07);
 }
 
+table.dataTable thead>tr>th.dt-orderable-asc:hover, table.dataTable thead>tr>th.dt-orderable-desc:hover, table.dataTable thead>tr>td.dt-orderable-asc:hover, table.dataTable thead>tr>td.dt-orderable-desc:hover {
+    outline: 1px solid rgb(87 87 87) !important;
+}
+
 /* Core “Editor-style” content box */
 .modal-content-admin {
   position: relative;

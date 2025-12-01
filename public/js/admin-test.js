@@ -1024,13 +1024,15 @@ function initNewCrateItemsDataTable() {
 
   const $table = $(selector);
 
-  // row selection
+  // row selection (index based on first column so sorting/search still works)
   $table.on("click", "tbody tr", function () {
-    const row = newCrateItemsDt.row(this);
+    const row  = newCrateItemsDt.row(this);
     const data = row.data();
     if (!data) return;
 
-    const index = row.index();
+    // First column is the 1-based “#” we added in refreshNewCrateItemsTable()
+    const displayIndex = parseInt(data[0], 10) - 1;
+    if (isNaN(displayIndex) || displayIndex < 0) return;
 
     if ($(this).hasClass("selected")) {
       $(this).removeClass("selected");
@@ -1038,7 +1040,7 @@ function initNewCrateItemsDataTable() {
     } else {
       $table.find("tr.selected").removeClass("selected");
       $(this).addClass("selected");
-      newCrateSelectedIndex = index;
+      newCrateSelectedIndex = displayIndex;
     }
 
     updateNewCrateItemsToolbar();
@@ -1255,6 +1257,9 @@ setWizardStep(0);
 
 // Hook up navigation buttons
 nextStepBtn?.addEventListener("click", () => {
+  if (wizardCurrentStep === 0 && !validateCrateInfo()) return;
+  if (wizardCurrentStep === 1 && !validateWizardItems()) return;
+
   setWizardStep(wizardCurrentStep + 1);
 });
 
@@ -1608,98 +1613,101 @@ function closeWizardAddItemModal() {
 }
 
 function deleteWizardItem(index) {
-    if (!Array.isArray(wizardItems)) return;
+  if (!Array.isArray(newCrateItems)) return;
+  if (index == null || index < 0 || index >= newCrateItems.length) return;
 
-    wizardItems.splice(index, 1);
+  newCrateItems.splice(index, 1);
 
-    if (typeof renderWizardItems === "function") {
-        renderWizardItems();
-    }
+  if (typeof refreshNewCrateItemsTable === "function") {
+    refreshNewCrateItemsTable();
+  }
 
-    if (typeof buildStep3Review === "function") {
-        buildStep3Review();
-    }
+  if (wizardCurrentStep === 2 && typeof buildStep3Review === "function") {
+    buildStep3Review();
+  }
 }
 
 // Build the Step 3 review layout (crate table + DataTable of items)
 function buildStep3Review() {
-    const crateNameInput = document.getElementById("crateName");
-    const crateName = crateNameInput ? crateNameInput.value.trim() : "";
+  const crateNameInput = document.getElementById("new-crate-name");
+  const crateName = crateNameInput ? crateNameInput.value.trim() : "";
 
-    const crateTypeRadio = document.querySelector('input[name="crateType"]:checked');
-    const crateTypeValue = crateTypeRadio ? crateTypeRadio.value : "";
+  const crateTypeRadio = document.querySelector('input[name="crateType"]:checked');
+  const crateTypeValue = crateTypeRadio ? crateTypeRadio.value : "";
 
-    const visibilityRadio = document.querySelector('input[name="crateVisibility"]:checked');
-    const visibilityValue = visibilityRadio ? visibilityRadio.value : "";
+  const visibilityRadio = document.querySelector('input[name="crateVisibility"]:checked');
+  const visibilityValue = visibilityRadio ? visibilityRadio.value : "";
 
-    const crateType =
-        crateTypeValue === "cosmetic" ? "Cosmetic" : "Non-Cosmetic";
-    const visibility =
-        visibilityValue === "visible" ? "Visible" : "Hidden";
+  const crateTypeLabel = crateTypeValue === "noncosmetic" ? "Non-Cosmetic" : "Cosmetic";
+  const visibilityLabel = visibilityValue === "hidden" ? "Hidden" : "Visible";
 
-    const crateSummaryBody = document.getElementById("crate-summary-body");
-    if (crateSummaryBody) {
-        crateSummaryBody.innerHTML = `
-            <tr>
-                <td>${escapeHtml(crateName)}</td>
-                <td>${crateType}</td>
-                <td>${visibility}</td>
-            </tr>
+  // ---- Top summary table ----
+  const crateSummaryBody = document.getElementById("crate-summary-body");
+  if (crateSummaryBody) {
+    crateSummaryBody.innerHTML = `
+      <tr>
+        <td>${escapeHTML(crateName)}</td>
+        <td>${escapeHTML(crateTypeLabel)}</td>
+        <td>${escapeHTML(visibilityLabel)}</td>
+      </tr>
+    `;
+  }
+
+  // ---- Items table body ----
+  const itemsTbody = document.getElementById("crate-items-table-body");
+  if (!itemsTbody) return;
+
+  if (!Array.isArray(newCrateItems) || newCrateItems.length === 0) {
+    itemsTbody.innerHTML = `
+      <tr>
+        <td colspan="6" class="text-center text-muted">
+          No items have been added to this crate.
+        </td>
+      </tr>
+    `;
+  } else {
+    itemsTbody.innerHTML = newCrateItems
+      .map((item, idx) => {
+        const icon = item.icon || "";
+        return `
+          <tr>
+            <td>${idx + 1}</td>
+            <td>${escapeHTML(item.name || "")}</td>
+            <td>${escapeHTML(item.set || "")}</td>
+            <td>
+              ${
+                icon
+                  ? `<img src="${escapeHTML(icon)}" alt="" class="wizard-review-icon" />`
+                  : ""
+              }
+            </td>
+            <td>${escapeHTML(item.tags || "")}</td>
+            <td>${escapeHTML(item.tooltip || "")}</td>
+          </tr>
         `;
-    }
+      })
+      .join("");
+  }
 
-    // --- Items tbody (bottom) ---
-    const itemsTbody = document.getElementById("crate-items-table-body");
-    if (!itemsTbody) return;
+  // ---- DataTable init for the review table ----
+  const $ = window.jQuery;
+  const tableSelector = "#wizard-items-review-table";
 
-    if (!Array.isArray(wizardItems) || wizardItems.length === 0) {
-        itemsTbody.innerHTML = `
-            <tr>
-                <td colspan="6" class="text-center text-muted">
-                    No items have been added to this crate.
-                </td>
-            </tr>
-        `;
-    } else {
-        itemsTbody.innerHTML = wizardItems
-            .map((item, idx) => {
-                const icon = item.iconUrl || item.icon_url || item.icon || "";
-                return `
-                    <tr>
-                        <td>${idx + 1}</td>
-                        <td>${escapeHtml(item.name || item.itemName || "")}</td>
-                        <td>${escapeHtml(item.set || item.setName || "")}</td>
-                        <td>
-                            ${
-                                icon
-                                    ? `<img src="${escapeHtml(
-                                          icon
-                                      )}" alt="" class="wizard-review-icon">`
-                                    : ""
-                            }
-                        </td>
-                        <td>${escapeHtml(item.tags || "")}</td>
-                        <td>${escapeHtml(item.tooltip || "")}</td>
-                    </tr>
-                `;
-            })
-            .join("");
-    }
+  if (!$ || !$.fn.DataTable) return;
 
-    // --- DataTable init on the review table (no New/Edit/Delete buttons) ---
-    const tableSelector = "#wizard-items-review-table";
+  if ($.fn.DataTable.isDataTable(tableSelector)) {
+    $(tableSelector).DataTable().clear().destroy();
+  }
 
-    if ($.fn.DataTable.isDataTable(tableSelector)) {
-        $(tableSelector).DataTable().destroy();
-    }
-
-    $(tableSelector).DataTable({
-        paging: true,
-        searching: true,
-        info: true,
-        ordering: true,
-        lengthChange: true
-    });
+  $(tableSelector).DataTable({
+    paging: true,
+    searching: true,
+    info: true,
+    ordering: true,
+    lengthChange: true,
+    pageLength: 10,
+    autoWidth: false
+  });
 }
 
 function openWizardEditItemModal(index) {

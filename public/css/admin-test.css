@@ -1207,9 +1207,9 @@ select {
 .wizard-steps::before {
   content: "";
   position: absolute;
-  top: 16px;
+  top: 22px;
   left: 54px;
-  right: 16px;
+  right: 48px;
   height: 2px;
   background: #272a3a;
   z-index: 0;
@@ -1229,8 +1229,9 @@ select {
 
 /* circle with number */
 .wizard-steps .step-circle {
-    width: 36px;
-    height: 35px;
+    width: 46px;
+    height: 45px;
+    font-size: 1rem;
     border-radius: 50%;
     background: #121212;
     border: 1px solid #353535;
@@ -1322,13 +1323,13 @@ select {
   display: flex;
   justify-content: center;
   gap: 16px;
-  margin-top: 6px;
   color: #ddd;
 }
 .crate-type-options label {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 4px;
+  font-size: 0.95rem;
   font-weight: 400;
   cursor: pointer;
 }

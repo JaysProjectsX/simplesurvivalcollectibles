@@ -1184,7 +1184,7 @@ select {
   border-radius: 14px;
   padding: 24px 22px;
   margin-top: 20px;
-  box-shadow: 0 18px 45px rgba(0, 0, 0, 0.5);
+  box-shadow: 0px 1px 9px 11px rgb(0 0 0 / 33%);
 }
 
 /* top progress bar */
@@ -1199,7 +1199,7 @@ select {
   list-style: none;
   padding: 0;
   margin: 0;
-  gap: 48px;
+  gap: 8rem;
   position: relative;
 }
 
@@ -1207,8 +1207,8 @@ select {
 .wizard-steps::before {
   content: "";
   position: absolute;
-  top: 16px; /* vertical center of circles (32px height -> 16px) */
-  left: 16px;
+  top: 16px;
+  left: 54px;
   right: 16px;
   height: 2px;
   background: #272a3a;
@@ -1230,18 +1230,15 @@ select {
 
 /* circle with number */
 .wizard-steps .step-circle {
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  border: 2px solid #4b5563;
-  background: #111827;
-  color: #9ca3af;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 600;
-  margin-bottom: 6px;
-  transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease,
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    border: 1px solid #353535;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 6px;
+    transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease,
               transform 0.15s ease;
 }
 
@@ -1293,7 +1290,7 @@ select {
 
 @media (min-width: 768px) {
   .crate-form-grid {
-    grid-template-columns: 1.2fr 0.8fr;
+    grid-template-columns: 1fr;
   }
 }
 
@@ -1305,10 +1302,14 @@ select {
   margin-bottom: 4px;
 }
 
+.form-control {
+  line-height: 0 !important;
+}
+
 .crate-name-group .form-control,
 .crate-type-group .form-control {
-  background-color: #111827;
-  border: 1px solid #374151;
+  background-color: #0c0d10;
+  border: 1px solid #353535;
   color: #f9fafb;
 }
 .crate-name-group .form-control:focus,
@@ -1319,6 +1320,7 @@ select {
 
 .crate-type-options {
   display: flex;
+  justify-content: center;
   gap: 16px;
   margin-top: 6px;
   color: #ddd;
@@ -1399,12 +1401,15 @@ select {
 
 .wizard-nav {
   display: flex;
-  justify-content: space-between;
-  margin-top: 24px;
+  justify-content: flex-end;
+  gap: 16px;
 }
 
 .wizard-nav .btn {
-  min-width: 120px;
+  line-height: 14px;
+  font-size: 0.85rem;
+  padding: 8px;
+  min-width: 60px;
 }
 
 

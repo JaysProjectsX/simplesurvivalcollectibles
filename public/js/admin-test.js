@@ -1319,47 +1319,27 @@ function validateWizardItems() {
 
 // ===== Create New Crate Wizard: full reset back to Step 1 =====
 function resetCreateCrateWizard() {
-  // Track current step (if you use this elsewhere)
-  window.currentWizardStep = 0;
+  // 0. Drive the wizard UI back to step 0 using the central helper
+  if (typeof setWizardStep === "function") {
+    setWizardStep(0);  // this resets active panel, circles, buttons, AND progress line
+  } else {
+    // Fallback in case setWizardStep is ever missing
+    const wizard = document.getElementById("crateWizard");
+    if (wizard) {
+      const panels = wizard.querySelectorAll(".wizard-step");
+      panels.forEach((p) => p.classList.remove("active"));
+      const firstPanel = wizard.querySelector('.wizard-step[data-step="0"]');
+      if (firstPanel) firstPanel.classList.add("active");
 
-  // --- 1. Reset step bodies (0 = Crate Info) ---
-  const wizard = document.getElementById("crateWizard");
-  if (!wizard) return;
-
-  const steps = wizard.querySelectorAll(".wizard-step");
-  steps.forEach((step) => step.classList.remove("active"));
-
-  const firstStep = wizard.querySelector('.wizard-step[data-step="0"]');
-  if (firstStep) {
-    firstStep.classList.add("active");
+      const indicators = wizard.querySelectorAll(".wizard-steps li");
+      indicators.forEach((li, idx) => {
+        li.classList.toggle("active", idx === 0);
+        li.classList.remove("completed");
+      });
+    }
   }
 
-  // --- 2. Reset step indicators (the circles at the top) ---
-  const indicators = wizard.querySelectorAll(".wizard-steps li");
-  indicators.forEach((li) => {
-    li.classList.remove("active", "completed");
-  });
-
-  const firstIndicator = wizard.querySelector('.wizard-steps li[data-step="0"]');
-  if (firstIndicator) {
-    firstIndicator.classList.add("active");
-  }
-
-  // --- 3. Reset nav buttons (Previous disabled, Next visible, Submit hidden) ---
-  const prevBtn = document.getElementById("prevStepBtn");
-  const nextBtn = document.getElementById("nextStepBtn");
-  const submitBtn = document.getElementById("submitCrateBtn");
-
-  if (prevBtn) prevBtn.disabled = true;
-  if (nextBtn) {
-    nextBtn.style.display = "";
-    nextBtn.disabled = false;
-  }
-  if (submitBtn) {
-    submitBtn.style.display = "none";
-  }
-
-  // --- 4. Reset basic crate info fields (step 1) ---
+  // 1. Reset crate info fields (Step 1)
   const nameInput =
     document.getElementById("new-crate-name") ||
     document.getElementById("crate-name");
@@ -1383,35 +1363,22 @@ function resetCreateCrateWizard() {
     defaultVisRadio.checked = true;
   }
 
-  // --- 5. Clear the wizard's items array (step 2 data) ---
+  // 2. Clear the wizard's items array (Step 2 data)
   if (Array.isArray(window.newCrateItems)) {
     window.newCrateItems.length = 0;
   }
 
-  // --- 6. Reset Step 2 DataTable / table contents ---
-  // Prefer your own helper if it exists:
+  // 3. Reset Step 2 DataTable / table contents
   if (typeof refreshNewCrateItemsTable === "function") {
     refreshNewCrateItemsTable();
+  } else if (window.jQuery && $.fn.DataTable && $.fn.DataTable.isDataTable("#newCrateItemsTable")) {
+    $("#newCrateItemsTable").DataTable().clear().draw();
   } else {
-    // Fallback: clear manually, using DataTables if initialised
-    if (window.jQuery && $.fn.DataTable) {
-      if ($.fn.DataTable.isDataTable("#newCrateItemsTable")) {
-        $("#newCrateItemsTable").DataTable().clear().draw();
-      } else {
-        const step2Body = document.querySelector(
-          "#newCrateItemsTable tbody"
-        );
-        if (step2Body) step2Body.innerHTML = "";
-      }
-    } else {
-      const step2Body = document.querySelector(
-        "#newCrateItemsTable tbody"
-      );
-      if (step2Body) step2Body.innerHTML = "";
-    }
+    const step2Body = document.querySelector("#newCrateItemsTable tbody");
+    if (step2Body) step2Body.innerHTML = "";
   }
 
-  // --- 7. Clear Step 3 summary tables ---
+  // 4. Clear Step 3 summary tables
   const summaryBody = document.getElementById("crate-summary-body");
   if (summaryBody) summaryBody.innerHTML = "";
 
@@ -1419,10 +1386,8 @@ function resetCreateCrateWizard() {
   if (itemsBody) itemsBody.innerHTML = "";
 
   // If the review table is a DataTable, clear that as well
-  if (window.jQuery && $.fn.DataTable) {
-    if ($.fn.DataTable.isDataTable("#wizard-items-review-table")) {
-      $("#wizard-items-review-table").DataTable().clear().draw();
-    }
+  if (window.jQuery && $.fn.DataTable && $.fn.DataTable.isDataTable("#wizard-items-review-table")) {
+    $("#wizard-items-review-table").DataTable().clear().draw();
   }
 }
 

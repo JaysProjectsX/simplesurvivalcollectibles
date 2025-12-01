@@ -350,9 +350,9 @@
             <!-- Create New Crate -->
             <div class="db-subtab-content" id="db-tab-create" style="display: none;">
               <div class="admin-section" id="crate-creation-panel">
-                <h3>Create New Crate</h3>
 
                 <div id="crateWizard" class="wizard-container">
+                  <h3 class="uppercase ">Crate Setup Wizard</h3>
                   <div class="wizard-header">
                     <ul class="wizard-steps">
                       <li class="active" data-step="0">
@@ -374,19 +374,22 @@
                   <div class="wizard-step active" data-step="0">
                     <div class="step-inner">
                       <div class="crate-form-grid">
-                        <div class="crate-name-group mb-3">
-                          <label for="new-crate-name" class="form-label">Crate Name</label>
-                          <input
-                            type="text"
-                            class="form-control"
-                            id="new-crate-name"
-                            placeholder="Enter crate name"
-                          />
+                        
+                        <div class="crate-name-group mb-3 wizard-row">
+                          <label for="new-crate-name" class="form-label wizard-label">Crate Name</label>
+                          <div class="wizard-field">
+                            <input
+                              type="text"
+                              class="form-control"
+                              id="new-crate-name"
+                              placeholder="Enter crate name"
+                            />
+                          </div>
                         </div>
 
-                        <div class="crate-type-group mb-3">
-                          <label class="form-label">Crate Type</label>
-                          <div class="crate-type-options">
+                        <div class="crate-type-group mb-3 wizard-row">
+                          <label class="form-label wizard-label">Crate Type</label>
+                          <div class="crate-type-options wizard-field">
                             <label>
                               <input type="radio" name="crateType" value="cosmetic" checked />
                               Cosmetic
@@ -398,9 +401,9 @@
                           </div>
                         </div>
 
-                        <div class="crate-type-group mb-3">
-                          <label class="form-label">Visibility</label>
-                          <div class="crate-type-options">
+                        <div class="crate-type-group mb-3 wizard-row">
+                          <label class="form-label wizard-label">Visibility</label>
+                          <div class="crate-type-options wizard-field">
                             <label>
                               <input type="radio" name="crateVisibility" value="public" checked />
                               Visible
@@ -411,6 +414,7 @@
                             </label>
                           </div>
                         </div>
+
                       </div>
                     </div>
                   </div>
@@ -445,39 +449,41 @@
                   <!-- STEP 3: Confirm -->
                   <div class="wizard-step" data-step="2">
                     <div class="step-inner">
-                      <div class="item-dropdown">
-                        <button class="crate-dropdown-btn" id="crate-dropdown-btn">
-                          <span id="crate-dropdown-title">Crate Details</span>
-                          <span class="arrow">▼</span>
-                        </button>
-                        <div class="crate-dropdown-content" id="crate-dropdown-content">
-                          <table>
-                            <thead>
-                              <tr>
-                                <th>Crate Name</th>
-                                <th>Crate Type</th>
-                                <th>Visibility</th>
-                              </tr>
-                            </thead>
-                            <tbody id="crate-summary-body"></tbody>
-                          </table>
 
-                          <div class="crate-item-list-scroll mt-3">
-                            <table id="crate-items-summary-table">
-                              <thead>
-                                <tr>
-                                  <th>Name</th>
-                                  <th>Set</th>
-                                  <th>Icon</th>
-                                  <th>Tags</th>
-                                  <th>Tooltip</th>
-                                </tr>
-                              </thead>
-                              <tbody id="crate-items-table-body"></tbody>
-                            </table>
-                          </div>
-                        </div>
+                      <h2 class="wizard-step-title text-center mb-4">Confirm crate</h2>
+
+                      <div class="wizard-step3-crate-summary mb-4">
+                        <table class="crate-summary-table">
+                          <thead>
+                            <tr>
+                              <th>Crate Name</th>
+                              <th>Crate Type</th>
+                              <th>Visibility</th>
+                            </tr>
+                          </thead>
+                          <!-- this is still filled by your JS -->
+                          <tbody id="crate-summary-body"></tbody>
+                        </table>
                       </div>
+
+                      <div class="wizard-step3-items">
+                        <h5 class="text-center mb-3">Items in crate</h5>
+                        <table id="wizard-items-review-table">
+                          <thead>
+                            <tr>
+                              <th>ID</th>
+                              <th>Name</th>
+                              <th>Set</th>
+                              <th>Icon</th>
+                              <th>Tags</th>
+                              <th>Tooltip</th>
+                            </tr>
+                          </thead>
+                          <!-- this is still filled by your JS -->
+                          <tbody id="crate-items-table-body"></tbody>
+                        </table>
+                      </div>
+
                     </div>
                   </div>
 

@@ -1,6 +1,7 @@
 let currentPage = 1;
 let _crateUiInitialised = false;
 const logsPerPage = 10;
+let wizardCurrentStep = 0;
 
 const api = (path, init) =>
 AUTH.fetchWithAuth(`${(window.backendUrl || "/api")}${path}`, init);
@@ -1201,6 +1202,66 @@ function setupCreateCrateWizard() {
   updateStepUi();
 }
 
+const wizardStepPanels  = document.querySelectorAll(".wizard-step");
+const wizardHeaderSteps = document.querySelectorAll(".wizard-steps li");
+const wizardStepsUl     = document.querySelector(".wizard-steps");
+
+const prevStepBtn    = document.getElementById("prevStepBtn");
+const nextStepBtn    = document.getElementById("nextStepBtn");
+const submitCrateBtn = document.getElementById("submitCrateBtn");
+
+function setWizardStep(stepIndex) {
+  if (stepIndex < 0 || stepIndex >= wizardStepPanels.length) return;
+
+  wizardCurrentStep = stepIndex;
+
+  // Show only the current panel
+  wizardStepPanels.forEach(panel => {
+    const s = parseInt(panel.dataset.step, 10);
+    panel.classList.toggle("active", s === wizardCurrentStep);
+  });
+
+  // Header circles: mark active + completed
+  wizardHeaderSteps.forEach(li => {
+    const s = parseInt(li.dataset.step, 10);
+    li.classList.toggle("active", s === wizardCurrentStep);
+    li.classList.toggle("completed", s <  wizardCurrentStep);
+  });
+
+  // Connector progress line (0, 0.5, 1)
+  if (wizardStepsUl) {
+    let progress = 0;
+    if (wizardCurrentStep === 1)      progress = 0.5;
+    else if (wizardCurrentStep >= 2)  progress = 1;
+    wizardStepsUl.style.setProperty("--wizard-line-progress", progress);
+  }
+
+  // Button visibility
+  prevStepBtn.disabled      = (wizardCurrentStep === 0);
+  nextStepBtn.style.display = (wizardCurrentStep === wizardStepPanels.length - 1)
+    ? "none"
+    : "inline-block";
+  submitCrateBtn.style.display = (wizardCurrentStep === wizardStepPanels.length - 1)
+    ? "inline-block"
+    : "none";
+
+  // Build Step 3 review on last step
+  if (wizardCurrentStep === 2 && typeof buildStep3Review === "function") {
+    buildStep3Review();
+  }
+}
+
+setWizardStep(0);
+
+// Hook up navigation buttons
+nextStepBtn?.addEventListener("click", () => {
+  setWizardStep(wizardCurrentStep + 1);
+});
+
+prevStepBtn?.addEventListener("click", () => {
+  setWizardStep(wizardCurrentStep - 1);
+});
+
 function validateCrateInfo() {
   const nameInput = document.getElementById("new-crate-name");
   const typeRadio = document.querySelector('input[name="crateType"]:checked');
@@ -1544,6 +1605,101 @@ function closeWizardAddItemModal() {
   content.classList.remove("fadeIn");
   content.classList.add("fadeOut");
   setTimeout(() => modal.classList.add("hidden"), 300);
+}
+
+function deleteWizardItem(index) {
+    if (!Array.isArray(wizardItems)) return;
+
+    wizardItems.splice(index, 1);
+
+    if (typeof renderWizardItems === "function") {
+        renderWizardItems();
+    }
+
+    if (typeof buildStep3Review === "function") {
+        buildStep3Review();
+    }
+}
+
+// Build the Step 3 review layout (crate table + DataTable of items)
+function buildStep3Review() {
+    const crateNameInput = document.getElementById("crateName");
+    const crateName = crateNameInput ? crateNameInput.value.trim() : "";
+
+    const crateTypeRadio = document.querySelector('input[name="crateType"]:checked');
+    const crateTypeValue = crateTypeRadio ? crateTypeRadio.value : "";
+
+    const visibilityRadio = document.querySelector('input[name="crateVisibility"]:checked');
+    const visibilityValue = visibilityRadio ? visibilityRadio.value : "";
+
+    const crateType =
+        crateTypeValue === "cosmetic" ? "Cosmetic" : "Non-Cosmetic";
+    const visibility =
+        visibilityValue === "visible" ? "Visible" : "Hidden";
+
+    const crateSummaryBody = document.getElementById("crate-summary-body");
+    if (crateSummaryBody) {
+        crateSummaryBody.innerHTML = `
+            <tr>
+                <td>${escapeHtml(crateName)}</td>
+                <td>${crateType}</td>
+                <td>${visibility}</td>
+            </tr>
+        `;
+    }
+
+    // --- Items tbody (bottom) ---
+    const itemsTbody = document.getElementById("crate-items-table-body");
+    if (!itemsTbody) return;
+
+    if (!Array.isArray(wizardItems) || wizardItems.length === 0) {
+        itemsTbody.innerHTML = `
+            <tr>
+                <td colspan="6" class="text-center text-muted">
+                    No items have been added to this crate.
+                </td>
+            </tr>
+        `;
+    } else {
+        itemsTbody.innerHTML = wizardItems
+            .map((item, idx) => {
+                const icon = item.iconUrl || item.icon_url || item.icon || "";
+                return `
+                    <tr>
+                        <td>${idx + 1}</td>
+                        <td>${escapeHtml(item.name || item.itemName || "")}</td>
+                        <td>${escapeHtml(item.set || item.setName || "")}</td>
+                        <td>
+                            ${
+                                icon
+                                    ? `<img src="${escapeHtml(
+                                          icon
+                                      )}" alt="" class="wizard-review-icon">`
+                                    : ""
+                            }
+                        </td>
+                        <td>${escapeHtml(item.tags || "")}</td>
+                        <td>${escapeHtml(item.tooltip || "")}</td>
+                    </tr>
+                `;
+            })
+            .join("");
+    }
+
+    // --- DataTable init on the review table (no New/Edit/Delete buttons) ---
+    const tableSelector = "#wizard-items-review-table";
+
+    if ($.fn.DataTable.isDataTable(tableSelector)) {
+        $(tableSelector).DataTable().destroy();
+    }
+
+    $(tableSelector).DataTable({
+        paging: true,
+        searching: true,
+        info: true,
+        ordering: true,
+        lengthChange: true
+    });
 }
 
 function openWizardEditItemModal(index) {

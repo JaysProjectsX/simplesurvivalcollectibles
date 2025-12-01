@@ -1225,14 +1225,14 @@ select {
   font-size: 0.85rem;
   color: #9ca3af;
   text-transform: uppercase;
-  letter-spacing: 0.08em;
 }
 
 /* circle with number */
 .wizard-steps .step-circle {
-    width: 35px;
+    width: 36px;
     height: 35px;
     border-radius: 50%;
+    background: #121212;
     border: 1px solid #353535;
     display: flex;
     align-items: center;

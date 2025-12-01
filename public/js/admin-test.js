@@ -9,6 +9,7 @@ let newCrateItemsDt = null;
 let newCrateItems = [];
 let currentStep = 0;
 let newCrateSelectedIndex = null;
+let crateWizardInitialized = false;
 
 function escapeHTML(str = "") {
   return String(str).replace(/[&<>"']/g, (m) => ({
@@ -2014,6 +2015,11 @@ document.querySelectorAll(".db-subtab-btn").forEach((btn) => {
     });
 
     if (tabId === "create") {
+      if (!crateWizardInitialized) {
+        setupCreateCrateWizard();
+        crateWizardInitialized = true;
+      }
+
       initNewCrateItemsDataTable();
     }
   });

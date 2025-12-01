@@ -1316,104 +1316,213 @@ function validateWizardItems() {
   return true;
 }
 
-// ===== Create New Crate Wizard: submit handler =====
-async function submitNewCrate() {
-  const crateNameInput =
+// ===== Create New Crate Wizard: full reset back to Step 1 =====
+function resetCreateCrateWizard() {
+  // Track current step (if you use this elsewhere)
+  window.currentWizardStep = 0;
+
+  // --- 1. Reset step bodies (0 = Crate Info) ---
+  const wizard = document.getElementById("crateWizard");
+  if (!wizard) return;
+
+  const steps = wizard.querySelectorAll(".wizard-step");
+  steps.forEach((step) => step.classList.remove("active"));
+
+  const firstStep = wizard.querySelector('.wizard-step[data-step="0"]');
+  if (firstStep) {
+    firstStep.classList.add("active");
+  }
+
+  // --- 2. Reset step indicators (the circles at the top) ---
+  const indicators = wizard.querySelectorAll(".wizard-steps li");
+  indicators.forEach((li) => {
+    li.classList.remove("active", "completed");
+  });
+
+  const firstIndicator = wizard.querySelector('.wizard-steps li[data-step="0"]');
+  if (firstIndicator) {
+    firstIndicator.classList.add("active");
+  }
+
+  // --- 3. Reset nav buttons (Previous disabled, Next visible, Submit hidden) ---
+  const prevBtn = document.getElementById("prevStepBtn");
+  const nextBtn = document.getElementById("nextStepBtn");
+  const submitBtn = document.getElementById("submitCrateBtn");
+
+  if (prevBtn) prevBtn.disabled = true;
+  if (nextBtn) {
+    nextBtn.style.display = "";
+    nextBtn.disabled = false;
+  }
+  if (submitBtn) {
+    submitBtn.style.display = "none";
+  }
+
+  // --- 4. Reset basic crate info fields (step 1) ---
+  const nameInput =
     document.getElementById("new-crate-name") ||
     document.getElementById("crate-name");
+  if (nameInput) {
+    nameInput.value = "";
+  }
 
+  // Default crate type: cosmetic / is_cosmetic = 1
+  const defaultTypeRadio =
+    document.querySelector('input[name="crateType"][value="cosmetic"]') ||
+    document.querySelector('input[name="crate-type"][value="1"]');
+  if (defaultTypeRadio) {
+    defaultTypeRadio.checked = true;
+  }
+
+  // Default visibility: public / visible = 0
+  const defaultVisRadio =
+    document.querySelector('input[name="crateVisibility"][value="public"]') ||
+    document.querySelector('input[name="crate-visibility"][value="0"]');
+  if (defaultVisRadio) {
+    defaultVisRadio.checked = true;
+  }
+
+  // --- 5. Clear the wizard's items array (step 2 data) ---
+  if (Array.isArray(window.newCrateItems)) {
+    window.newCrateItems.length = 0;
+  }
+
+  // --- 6. Reset Step 2 DataTable / table contents ---
+  // Prefer your own helper if it exists:
+  if (typeof refreshNewCrateItemsTable === "function") {
+    refreshNewCrateItemsTable();
+  } else {
+    // Fallback: clear manually, using DataTables if initialised
+    if (window.jQuery && $.fn.DataTable) {
+      if ($.fn.DataTable.isDataTable("#newCrateItemsTable")) {
+        $("#newCrateItemsTable").DataTable().clear().draw();
+      } else {
+        const step2Body = document.querySelector(
+          "#newCrateItemsTable tbody"
+        );
+        if (step2Body) step2Body.innerHTML = "";
+      }
+    } else {
+      const step2Body = document.querySelector(
+        "#newCrateItemsTable tbody"
+      );
+      if (step2Body) step2Body.innerHTML = "";
+    }
+  }
+
+  // --- 7. Clear Step 3 summary tables ---
+  const summaryBody = document.getElementById("crate-summary-body");
+  if (summaryBody) summaryBody.innerHTML = "";
+
+  const itemsBody = document.getElementById("crate-items-table-body");
+  if (itemsBody) itemsBody.innerHTML = "";
+
+  // If the review table is a DataTable, clear that as well
+  if (window.jQuery && $.fn.DataTable) {
+    if ($.fn.DataTable.isDataTable("#wizard-items-review-table")) {
+      $("#wizard-items-review-table").DataTable().clear().draw();
+    }
+  }
+}
+
+// ===== Create New Crate Wizard: submit handler =====
+async function submitNewCrate() {
+  // --- crate info from wizard step 1 ---
+  const crateNameInput = document.getElementById("new-crate-name");
   const crateName = crateNameInput?.value.trim() || "";
 
-  // STEP 1: crate type + visibility radios (string → numeric flags)
   const crateTypeRadio =
     document.querySelector('input[name="crateType"]:checked') ||
     document.querySelector('input[name="crate-type"]:checked');
 
   const crateTypeValue = crateTypeRadio?.value || ""; // "cosmetic" | "noncosmetic" | "1" | "0"
+
+  const visibilityRadio =
+    document.querySelector('input[name="crateVisibility"]:checked') ||
+    document.querySelector('input[name="crate-visibility"]:checked');
+
+  const visValue = visibilityRadio?.value || ""; // "public" | "hidden" | "0" | "1"
+
+  // map string values -> numeric flags used in DB
   const isCosmetic =
     crateTypeValue === "cosmetic"
       ? 1
       : crateTypeValue === "noncosmetic"
       ? 0
-      : parseInt(crateTypeValue || "0", 10); // fallback if they are already "1"/"0"
+      : parseInt(crateTypeValue || "0", 10);
 
-  const crateVisibilityRadio =
-    document.querySelector('input[name="crateVisibility"]:checked') ||
-    document.querySelector('input[name="crate-visibility"]:checked');
-
-  const visValue = crateVisibilityRadio?.value || ""; // "public" | "hidden" | "0" | "1"
   const isHidden =
     visValue === "hidden"
       ? 1
       : visValue === "public"
       ? 0
-      : parseInt(visValue || "0", 10); // fallback
+      : parseInt(visValue || "0", 10);
 
-  // Basic front-end validation if custom validators aren't present
-  if (typeof validateCrateInfo === "function") {
-    if (!validateCrateInfo()) return;
+  // ---- validation (same idea as old submitCrate) ----
+  if (!crateName) {
+    showGlobalModal({
+      type: "error",
+      title: "Missing Crate Name",
+      message: "Please enter a crate name before submitting.",
+      buttons: [{ label: "OK", onClick: "fadeOutAndRemove('modal-crateName')" }],
+      id: "modal-crateName"
+    });
+    return;
   }
 
-  // STEP 2: collect items from wizard
+  if (!crateTypeValue) {
+    showGlobalModal({
+      type: "error",
+      title: "Missing Crate Type",
+      message: "Please select a crate type.",
+      buttons: [{ label: "OK", onClick: "fadeOutAndRemove('modal-crateType')" }],
+      id: "modal-crateType"
+    });
+    return;
+  }
+
+  // main wizard items array
   const itemsArray = Array.isArray(window.newCrateItems)
     ? window.newCrateItems
-    : Array.isArray(window.items)
-    ? window.items
     : [];
 
-  if (typeof validateWizardItems === "function") {
-    if (!validateWizardItems()) return;
-  } else if (typeof validateItems === "function") {
-    if (!validateItems()) return;
-  } else if (!itemsArray.length) {
+  if (!itemsArray.length) {
     showGlobalModal({
       type: "error",
       title: "No Items Added",
       message: "Please add at least one item before submitting the crate.",
-      buttons: [
-        {
-          label: "OK",
-          onClick: "fadeOutAndRemove('modal-noItems')"
-        }
-      ],
+      buttons: [{ label: "OK", onClick: "fadeOutAndRemove('modal-noItems')" }],
       id: "modal-noItems"
     });
     return;
   }
 
+  console.log("Submitting crate with items:", itemsArray); // DEBUG
+
   try {
-    // STEP 3: Create the crate
+    // --- create crate ---
     const crateRes = await api("/admin/crates", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         crate_name: crateName,
-        is_cosmetic: isCosmetic, // 1 = Cosmetic, 0 = Non-cosmetic
-        is_hidden: isHidden      // 0 = Visible, 1 = Hidden
+        is_cosmetic: isCosmetic,
+        is_hidden: isHidden
       })
     });
 
-    if (!crateRes.ok) {
-      throw new Error(`Crate creation failed (${crateRes.status})`);
-    }
-
     const crate = await crateRes.json();
+    const crateId = crate.id;
 
-    // Try all common property names for the new crate's id
-    const newCrateId =
-      crate.id ??
-      crate.crate_id ??
-      crate.crateId ??
-      crate.insertId;
+    console.log("New crate created:", crate); // DEBUG
 
-    if (!newCrateId) {
-      console.error("Create crate response:", crate);
-      throw new Error("Server did not return a new crate ID.");
+    if (!crateId) {
+      throw new Error("Server did not return a crate ID");
     }
 
-    // STEP 4: Create all items for this crate
-    const itemPromises = itemsArray.map(async (item, idx) => {
-      // Normalise tags → comma-separated string, like your existing Add Item code
+    // --- create all items for this crate ---
+    const promises = itemsArray.map((item) => {
+      // keep your original tags behaviour (array)
       const tagsArray = Array.isArray(item.tags)
         ? item.tags
         : String(item.tags || "")
@@ -1421,49 +1530,32 @@ async function submitNewCrate() {
             .map((t) => t.trim())
             .filter(Boolean);
 
-      const tagsString = tagsArray.join(", ");
-
-      const setName = item.set ?? item.setName ?? "";
-      const iconUrl = item.icon ?? item.iconUrl ?? "";
-
-      const itemRes = await api("/admin/items", {
+      return api("/admin/items", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          crate_id: newCrateId,
+          crate_id: crateId,
           item_name: item.name,
-          set_name: setName,
-          icon_url: iconUrl,
-          tags: tagsString,
-          tooltip: item.tooltip || ""
+          set_name: item.set,
+          icon_url: item.icon,
+          tags: tagsArray,
+          tooltip: item.tooltip
         })
+      }).then((res) => {
+        if (!res.ok) {
+          console.error("Item POST failed for", item, "status", res.status);
+        }
+        return res.json().catch(() => null);
       });
-
-      if (!itemRes.ok) {
-        // Try to pull an error message from the body, but don't crash if there's no JSON
-        let serverMsg = "";
-        try {
-          const body = await itemRes.json();
-          serverMsg = body?.error || "";
-        } catch (_) {}
-
-        throw new Error(
-          serverMsg ||
-            `Failed to create item "${item.name}" (status ${itemRes.status})`
-        );
-      }
-
-      // If you don't care about the created item data, you can skip reading json() here
-      return itemRes.json().catch(() => null);
     });
 
-    await Promise.all(itemPromises);
+    await Promise.all(promises);
 
-    // STEP 5: Success UI + reset wizard
+    // --- success + reset (very similar to old function) ---
     showGlobalModal({
       type: "success",
       title: "Crate Created",
-      message: "Your crate and all items were successfully saved!",
+      message: "Your crate and items were successfully saved!",
       buttons: [
         {
           label: "Close",
@@ -1473,45 +1565,34 @@ async function submitNewCrate() {
       id: "modal-crateSuccess"
     });
 
-    // Clear crate name
+    // reset step 1 fields
     if (crateNameInput) crateNameInput.value = "";
 
-    // Reset crate type back to cosmetic/public
     const defaultTypeRadio =
       document.querySelector('input[name="crateType"][value="cosmetic"]') ||
       document.querySelector('input[name="crate-type"][value="1"]');
     if (defaultTypeRadio) defaultTypeRadio.checked = true;
 
-    const defaultVisibilityRadio =
+    const defaultVisRadio =
       document.querySelector('input[name="crateVisibility"][value="public"]') ||
       document.querySelector('input[name="crate-visibility"][value="0"]');
-    if (defaultVisibilityRadio) defaultVisibilityRadio.checked = true;
+    if (defaultVisRadio) defaultVisRadio.checked = true;
 
-    // Clear wizard items array
+    // clear wizard items
     if (Array.isArray(window.newCrateItems)) {
       window.newCrateItems.length = 0;
-    } else if (Array.isArray(window.items)) {
-      window.items.length = 0;
     }
 
     if (typeof refreshNewCrateItemsTable === "function") {
       refreshNewCrateItemsTable();
     }
 
-    // Reset wizard back to step 1
+    // go back to step 1
     if (typeof resetCreateCrateWizard === "function") {
       resetCreateCrateWizard();
-    } else {
-      document.querySelectorAll(".wizard-step").forEach((s) => {
-        s.classList.add("hidden");
-      });
-      const firstStep =
-        document.querySelector('.wizard-step[data-step="0"]') ||
-        document.querySelector(".wizard-step");
-      if (firstStep) firstStep.classList.remove("hidden");
     }
 
-    // Refresh crates/items in the View / Edit tab so the new crate + items appear
+    // reload view/edit tab so the new crate and its items appear
     if (typeof loadCratesAndItems === "function") {
       loadCratesAndItems();
     } else if (typeof loadCrates === "function") {
@@ -1522,15 +1603,8 @@ async function submitNewCrate() {
     showGlobalModal({
       type: "error",
       title: "Submission Failed",
-      message:
-        err?.message ||
-        "There was an error creating the crate. Please try again.",
-      buttons: [
-        {
-          label: "Close",
-          onClick: "fadeOutAndRemove('modal-submitError')"
-        }
-      ],
+      message: "There was an error creating the crate. Please try again.",
+      buttons: [{ label: "Close", onClick: "fadeOutAndRemove('modal-submitError')" }],
       id: "modal-submitError"
     });
   }

@@ -1319,27 +1319,38 @@ function validateWizardItems() {
 
 // ===== Create New Crate Wizard: full reset back to Step 1 =====
 function resetCreateCrateWizard() {
-  // 0. Drive the wizard UI back to step 0 using the central helper
-  if (typeof setWizardStep === "function") {
-    setWizardStep(0);  // this resets active panel, circles, buttons, AND progress line
-  } else {
-    // Fallback in case setWizardStep is ever missing
-    const wizard = document.getElementById("crateWizard");
-    if (wizard) {
-      const panels = wizard.querySelectorAll(".wizard-step");
-      panels.forEach((p) => p.classList.remove("active"));
-      const firstPanel = wizard.querySelector('.wizard-step[data-step="0"]');
-      if (firstPanel) firstPanel.classList.add("active");
+  wizardCurrentStep = 0;
 
-      const indicators = wizard.querySelectorAll(".wizard-steps li");
-      indicators.forEach((li, idx) => {
-        li.classList.toggle("active", idx === 0);
-        li.classList.remove("completed");
-      });
-    }
+  if (typeof setWizardStep === "function") {
+    setWizardStep(0);
   }
 
-  // 1. Reset crate info fields (Step 1)
+  const wizard = document.getElementById("crateWizard");
+  if (wizard) {
+    const panels = wizard.querySelectorAll(".wizard-step");
+    panels.forEach((panel) => {
+      const isFirst =
+        panel.dataset.step === "0" ||
+        panel.getAttribute("data-step") === "0";
+
+      panel.classList.toggle("active", isFirst);
+      panel.style.display = isFirst ? "block" : "none";
+    });
+  }
+
+  if (wizardStepsUl) {
+    wizardStepsUl.style.setProperty("--wizard-line-progress", 0);
+  }
+
+  if (prevStepBtn) prevStepBtn.disabled = true;
+  if (nextStepBtn) {
+    nextStepBtn.style.display = "inline-block";
+    nextStepBtn.disabled = false;
+  }
+  if (submitCrateBtn) {
+    submitCrateBtn.style.display = "none";
+  }
+
   const nameInput =
     document.getElementById("new-crate-name") ||
     document.getElementById("crate-name");
@@ -1347,7 +1358,6 @@ function resetCreateCrateWizard() {
     nameInput.value = "";
   }
 
-  // Default crate type: cosmetic / is_cosmetic = 1
   const defaultTypeRadio =
     document.querySelector('input[name="crateType"][value="cosmetic"]') ||
     document.querySelector('input[name="crate-type"][value="1"]');
@@ -1355,7 +1365,6 @@ function resetCreateCrateWizard() {
     defaultTypeRadio.checked = true;
   }
 
-  // Default visibility: public / visible = 0
   const defaultVisRadio =
     document.querySelector('input[name="crateVisibility"][value="public"]') ||
     document.querySelector('input[name="crate-visibility"][value="0"]');
@@ -1363,12 +1372,10 @@ function resetCreateCrateWizard() {
     defaultVisRadio.checked = true;
   }
 
-  // 2. Clear the wizard's items array (Step 2 data)
   if (Array.isArray(window.newCrateItems)) {
     window.newCrateItems.length = 0;
   }
 
-  // 3. Reset Step 2 DataTable / table contents
   if (typeof refreshNewCrateItemsTable === "function") {
     refreshNewCrateItemsTable();
   } else if (window.jQuery && $.fn.DataTable && $.fn.DataTable.isDataTable("#newCrateItemsTable")) {
@@ -1378,14 +1385,12 @@ function resetCreateCrateWizard() {
     if (step2Body) step2Body.innerHTML = "";
   }
 
-  // 4. Clear Step 3 summary tables
   const summaryBody = document.getElementById("crate-summary-body");
   if (summaryBody) summaryBody.innerHTML = "";
 
   const itemsBody = document.getElementById("crate-items-table-body");
   if (itemsBody) itemsBody.innerHTML = "";
 
-  // If the review table is a DataTable, clear that as well
   if (window.jQuery && $.fn.DataTable && $.fn.DataTable.isDataTable("#wizard-items-review-table")) {
     $("#wizard-items-review-table").DataTable().clear().draw();
   }
@@ -1393,7 +1398,6 @@ function resetCreateCrateWizard() {
 
 // ===== Create New Crate Wizard: submit handler =====
 async function submitNewCrate() {
-  // --- crate info from wizard step 1 ---
   const crateNameInput = document.getElementById("new-crate-name");
   const crateName = crateNameInput?.value.trim() || "";
 
@@ -1401,15 +1405,14 @@ async function submitNewCrate() {
     document.querySelector('input[name="crateType"]:checked') ||
     document.querySelector('input[name="crate-type"]:checked');
 
-  const crateTypeValue = crateTypeRadio?.value || ""; // "cosmetic" | "noncosmetic" | "1" | "0"
+  const crateTypeValue = crateTypeRadio?.value || "";
 
   const visibilityRadio =
     document.querySelector('input[name="crateVisibility"]:checked') ||
     document.querySelector('input[name="crate-visibility"]:checked');
 
-  const visValue = visibilityRadio?.value || ""; // "public" | "hidden" | "0" | "1"
+  const visValue = visibilityRadio?.value || "";
 
-  // map string values -> numeric flags used in DB
   const isCosmetic =
     crateTypeValue === "cosmetic"
       ? 1
@@ -1424,7 +1427,6 @@ async function submitNewCrate() {
       ? 0
       : parseInt(visValue || "0", 10);
 
-  // ---- validation (same idea as old submitCrate) ----
   if (!crateName) {
     showGlobalModal({
       type: "error",
@@ -1450,19 +1452,6 @@ async function submitNewCrate() {
   // main wizard items array
   const itemsArray = newCrateItems;
 
-  if (!itemsArray.length) {
-    showGlobalModal({
-      type: "error",
-      title: "No Items Added",
-      message: "Please add at least one item before submitting the crate.",
-      buttons: [{ label: "OK", onClick: "fadeOutAndRemove('modal-noItems')" }],
-      id: "modal-noItems"
-    });
-    return;
-  }
-
-  console.log("Submitting crate with items:", itemsArray); // DEBUG
-
   try {
     // --- create crate ---
     const crateRes = await api("/admin/crates", {
@@ -1478,15 +1467,12 @@ async function submitNewCrate() {
     const crate = await crateRes.json();
     const crateId = crate.id;
 
-    console.log("New crate created:", crate); // DEBUG
-
     if (!crateId) {
       throw new Error("Server did not return a crate ID");
     }
 
     // --- create all items for this crate ---
     const promises = itemsArray.map((item) => {
-      // keep your original tags behaviour (array)
       const tagsArray = Array.isArray(item.tags)
         ? item.tags
         : String(item.tags || "")
@@ -1515,7 +1501,7 @@ async function submitNewCrate() {
 
     await Promise.all(promises);
 
-    // --- success + reset (very similar to old function) ---
+    // --- success + reset ---
     showGlobalModal({
       type: "success",
       title: "Crate Created",

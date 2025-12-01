@@ -7,7 +7,22 @@ AUTH.fetchWithAuth(`${(window.backendUrl || "/api")}${path}`, init);
 
 let newCrateItemsDt = null;
 let newCrateItems = [];
+let currentStep = 0;
 let newCrateSelectedIndex = null;
+
+function escapeHTML(str = "") {
+  return String(str).replace(/[&<>"']/g, (m) => ({
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': "&quot;",
+    "'": "&#39;"
+  }[m] || m));
+}
+
+function escapeAttr(str = "") {
+  return escapeHTML(str).replace(/`/g, "&#96;");
+}
 
 
 let crateItemsDt = null;
@@ -369,7 +384,7 @@ function initializeAdminPanel(role) {
     loadAccountList();
     document.getElementById('userFilter')?.addEventListener('change', () => loadAccountList());
 
-    // Keep Role Management list as-is (usually you DON'T want deleted users here)
+    // Keep Role Management list as-is
     api('/admin/all-users')
       .then(res => res.json())
       .then(data => {
@@ -634,8 +649,6 @@ function initializeAdminPanel(role) {
     });
   }
 
-  function escapeHTML(s=''){ return s.replace(/[&<>"']/g,m=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[m])); }
-
   window.closeTaskModal = function(){
     const bd = document.getElementById('taskModalBackdrop');
     const box = document.getElementById('taskModal');
@@ -881,6 +894,10 @@ function initIconPickers() {
   // Hook both modals
   setupPicker("toggle-edit-icon-picker", "edit-icon-picker", "edit-icon-url");
   setupPicker("toggle-add-icon-picker", "add-icon-picker", "add-icon-url");
+
+  // Hook wizard modals
+  setupPicker("wizard-toggle-add-icon-picker", "wizard-add-icon-picker", "wizard-add-icon-url");
+  setupPicker("wizard-toggle-edit-icon-picker", "wizard-edit-icon-picker", "wizard-edit-icon-url");
 }
 
 
@@ -1059,18 +1076,278 @@ function refreshNewCrateItemsTable() {
 
   newCrateItemsDt.clear();
 
-  const rows = newCrateItems.map(item => [
+  const rows = newCrateItems.map((item, index) => [
+    index + 1,
+    escapeHTML(item.name || ""),
+    escapeHTML(item.set || ""),
     item.icon
       ? `<img src="${escapeHTML(item.icon)}" class="item-icon" alt="icon" />`
       : "",
-    escapeHTML(item.name || ""),
-    escapeHTML(item.set || ""),
-    escapeHTML(item.itemType || ""),
     escapeHTML(item.tags || ""),
     escapeHTML(item.tooltip || "")
   ]);
 
   newCrateItemsDt.rows.add(rows).draw();
+}
+
+function setupCreateCrateWizard() {
+  const wizard = document.getElementById("crateWizard");
+  if (!wizard) return;
+
+  const steps     = Array.from(document.querySelectorAll(".wizard-step"));
+  const stepDots  = Array.from(document.querySelectorAll(".wizard-steps li"));
+  const prevBtn   = document.getElementById("prevStepBtn");
+  const nextBtn   = document.getElementById("nextStepBtn");
+  const submitBtn = document.getElementById("submitCrateBtn");
+
+  if (!steps.length || !prevBtn || !nextBtn || !submitBtn) return;
+
+  currentStep = 0;
+
+  function updateStepUi() {
+    // Show the current step, hide others
+    steps.forEach((stepEl, idx) => {
+      const isActive = idx === currentStep;
+      stepEl.classList.toggle("active", isActive);
+      stepEl.style.display = isActive ? "block" : "none";
+    });
+
+    // Update circles at top
+    stepDots.forEach((li, idx) => {
+      li.classList.toggle("active", idx === currentStep);
+      li.classList.toggle("completed", idx < currentStep);
+    });
+
+    // Nav buttons
+    prevBtn.disabled        = currentStep === 0;
+    nextBtn.style.display   = currentStep < steps.length - 1 ? "inline-block" : "none";
+    submitBtn.style.display = currentStep === steps.length - 1 ? "inline-block" : "none";
+  }
+
+  // expose if you ever want to jump programmatically
+  window.showWizardStep = function(step) {
+    const maxStep = steps.length - 1;
+    currentStep = Math.min(Math.max(step, 0), maxStep);
+    updateStepUi();
+  };
+
+  prevBtn.addEventListener("click", () => {
+    if (currentStep > 0) {
+      currentStep -= 1;
+      updateStepUi();
+    }
+  });
+
+  nextBtn.addEventListener("click", () => {
+    // Validate *before* moving forward
+    if (currentStep === 0) {
+      if (!validateCrateInfo()) return;
+    } else if (currentStep === 1) {
+      if (!validateWizardItems()) return;
+      populateConfirmationTables();
+    }
+
+    if (currentStep < steps.length - 1) {
+      currentStep += 1;
+      updateStepUi();
+    }
+  });
+
+  submitBtn.addEventListener("click", submitNewCrate);
+
+  // Step 3 dropdown toggle
+  const dropdownBtn     = document.getElementById("crate-dropdown-btn");
+  const dropdownContent = document.getElementById("crate-dropdown-content");
+  if (dropdownBtn && dropdownContent) {
+    dropdownContent.style.maxHeight = "0px";
+
+    dropdownBtn.addEventListener("click", () => {
+      const isOpen = dropdownContent.classList.toggle("open");
+      const arrow  = dropdownBtn.querySelector(".arrow");
+      dropdownContent.style.maxHeight = isOpen
+        ? dropdownContent.scrollHeight + "px"
+        : "0px";
+      if (arrow) arrow.classList.toggle("open", isOpen);
+    });
+  }
+
+  // Step 2 toolbar buttons
+  const addBtn    = document.getElementById("addItemBtn");
+  const editBtn   = document.getElementById("editItemBtn");
+  const deleteBtn = document.getElementById("deleteItemBtn");
+
+  if (addBtn) {
+    addBtn.addEventListener("click", () => {
+      openWizardAddItemModal();
+    });
+  }
+
+  if (editBtn) {
+    editBtn.addEventListener("click", () => {
+      if (newCrateSelectedIndex == null) return;
+      openWizardEditItemModal(newCrateSelectedIndex);
+    });
+  }
+
+  if (deleteBtn) {
+    deleteBtn.addEventListener("click", () => {
+      if (newCrateSelectedIndex == null) return;
+      deleteWizardItem(newCrateSelectedIndex);
+    });
+  }
+
+  // Initial state
+  updateStepUi();
+}
+
+function validateCrateInfo() {
+  const nameInput = document.getElementById("new-crate-name");
+  const typeRadio = document.querySelector('input[name="crateType"]:checked');
+  const visRadio  = document.querySelector('input[name="crateVisibility"]:checked');
+
+  const name = nameInput ? nameInput.value.trim() : "";
+
+  if (!name) {
+    const modalId = "modal-crateNameRequired";
+    showGlobalModal({
+      type: "error",
+      title: "Crate Name Required",
+      message: "Please enter a crate name before continuing.",
+      buttons: [{ label: "OK", onClick: `fadeOutAndRemove('${modalId}')` }],
+      id: modalId
+    });
+    return false;
+  }
+
+  if (!typeRadio || !visRadio) {
+    const modalId = "modal-crateOptionsRequired";
+    showGlobalModal({
+      type: "error",
+      title: "Missing Options",
+      message: "Please choose a crate type and visibility before continuing.",
+      buttons: [{ label: "OK", onClick: `fadeOutAndRemove('${modalId}')` }],
+      id: modalId
+    });
+    return false;
+  }
+
+  return true;
+}
+
+function validateWizardItems() {
+  if (!Array.isArray(newCrateItems) || newCrateItems.length === 0) {
+    const modalId = "modal-crateItemsRequired";
+    showGlobalModal({
+      type: "error",
+      title: "No Items Added",
+      message: "Please add at least one item to this crate before continuing.",
+      buttons: [{ label: "OK", onClick: `fadeOutAndRemove('${modalId}')` }],
+      id: modalId
+    });
+    return false;
+  }
+  return true;
+}
+
+function populateConfirmationTables() {
+  const summaryBody = document.getElementById("crate-summary-body");
+  const itemsBody   = document.getElementById("crate-items-table-body");
+
+  // Crate-level summary
+  if (summaryBody) {
+    summaryBody.innerHTML = "";
+
+    const name = document.getElementById("new-crate-name")?.value.trim() || "";
+    const typeVal = document.querySelector('input[name="crateType"]:checked')?.value;
+    const visVal  = document.querySelector('input[name="crateVisibility"]:checked')?.value;
+
+    const typeLabel = typeVal === "noncosmetic" ? "Non-Cosmetic" : "Cosmetic";
+    const visLabel  = visVal === "hidden" ? "Hidden" : "Visible";
+
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${escapeHTML(name)}</td>
+      <td>${escapeHTML(typeLabel)}</td>
+      <td>${escapeHTML(visLabel)}</td>
+    `;
+    summaryBody.appendChild(tr);
+  }
+
+  // Items summary
+  if (itemsBody) {
+    itemsBody.innerHTML = "";
+
+    newCrateItems.forEach((item) => {
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td>${escapeHTML(item.name || "")}</td>
+        <td>${escapeHTML(item.set || "")}</td>
+        <td>${item.icon ? `<img src="${escapeHTML(item.icon)}" class="item-icon" alt="icon" />` : ""}</td>
+        <td>${escapeHTML(item.tags || "")}</td>
+        <td>${escapeHTML(item.tooltip || "")}</td>
+      `;
+      itemsBody.appendChild(tr);
+    });
+  }
+}
+
+function openWizardAddItemModal() {
+  const modal = document.getElementById("wizardAddItemModal");
+  if (!modal) return;
+
+  // Clear fields
+  document.getElementById("wizard-add-item-name").value = "";
+  document.getElementById("wizard-add-set-name").value = "";
+  document.getElementById("wizard-add-icon-url").value = "";
+  document.getElementById("wizard-add-tags").value = "";
+  document.getElementById("wizard-add-tooltip").value = "";
+
+  modal.classList.remove("hidden");
+  const content = modal.querySelector(".modal-content-admin");
+  content.classList.remove("fadeOut");
+  content.classList.add("fadeIn");
+}
+
+function closeWizardAddItemModal() {
+  const modal = document.getElementById("wizardAddItemModal");
+  if (!modal) return;
+  const content = modal.querySelector(".modal-content-admin");
+  content.classList.remove("fadeIn");
+  content.classList.add("fadeOut");
+  setTimeout(() => modal.classList.add("hidden"), 300);
+}
+
+function openWizardEditItemModal(index) {
+  if (!Array.isArray(newCrateItems) || index == null) return;
+  const item = newCrateItems[index];
+  if (!item) return;
+
+  const modal = document.getElementById("wizardEditItemModal");
+  if (!modal) return;
+
+  // Store index in hidden field
+  document.getElementById("wizard-edit-item-index").value = index;
+
+  // Fill fields
+  document.getElementById("wizard-edit-item-name").value = item.name || "";
+  document.getElementById("wizard-edit-set-name").value = item.set || "";
+  document.getElementById("wizard-edit-icon-url").value = item.icon || "";
+  document.getElementById("wizard-edit-tags").value = item.tags || "";
+  document.getElementById("wizard-edit-tooltip").value = item.tooltip || "";
+
+  modal.classList.remove("hidden");
+  const content = modal.querySelector(".modal-content-admin");
+  content.classList.remove("fadeOut");
+  content.classList.add("fadeIn");
+}
+
+function closeWizardEditItemModal() {
+  const modal = document.getElementById("wizardEditItemModal");
+  if (!modal) return;
+  const content = modal.querySelector(".modal-content-admin");
+  content.classList.remove("fadeIn");
+  content.classList.add("fadeOut");
+  setTimeout(() => modal.classList.add("hidden"), 300);
 }
 
 // Hook up the "New / Edit / Delete" buttons under the items table header
@@ -1428,6 +1705,72 @@ document.getElementById("addItemForm").addEventListener("submit", function (e) {
     .catch(() => showToast("Failed to add item."));
 });
 
+// Create New Crate Wizard - Add Item form
+document.getElementById("wizardAddItemForm")?.addEventListener("submit", function (e) {
+  e.preventDefault();
+
+  const name    = document.getElementById("wizard-add-item-name").value.trim();
+  const set     = document.getElementById("wizard-add-set-name").value.trim();
+  const icon    = document.getElementById("wizard-add-icon-url").value.trim();
+  const tags    = document.getElementById("wizard-add-tags").value.trim();
+  const tooltip = document.getElementById("wizard-add-tooltip").value.trim();
+
+  if (!name || !set) {
+    showToast("Item name and set name are required.");
+    return;
+  }
+
+  if (!Array.isArray(newCrateItems)) {
+    newCrateItems = [];
+  }
+
+  newCrateItems.push({
+    name,
+    set,
+    icon,
+    tags,
+    tooltip
+  });
+
+  refreshNewCrateItemsTable();
+  closeWizardAddItemModal();
+});
+
+// Create New Crate Wizard - Edit Item form
+document.getElementById("wizardEditItemForm")?.addEventListener("submit", function (e) {
+  e.preventDefault();
+
+  const index = parseInt(
+    document.getElementById("wizard-edit-item-index").value,
+    10
+  );
+  if (!Array.isArray(newCrateItems) || isNaN(index) || !newCrateItems[index]) {
+    return;
+  }
+
+  const name    = document.getElementById("wizard-edit-item-name").value.trim();
+  const set     = document.getElementById("wizard-edit-set-name").value.trim();
+  const icon    = document.getElementById("wizard-edit-icon-url").value.trim();
+  const tags    = document.getElementById("wizard-edit-tags").value.trim();
+  const tooltip = document.getElementById("wizard-edit-tooltip").value.trim();
+
+  if (!name || !set) {
+    showToast("Item name and set name are required.");
+    return;
+  }
+
+  newCrateItems[index] = {
+    name,
+    set,
+    icon,
+    tags,
+    tooltip
+  };
+
+  refreshNewCrateItemsTable();
+  closeWizardEditItemModal();
+});
+
 function deleteCrate(crateId) {
   const modalId = `deleteCrateModal-${crateId}`;
   showGlobalModal({
@@ -1486,287 +1829,7 @@ function confirmDeleteItem(itemId, modalId) {
   });
 }
 
-let items = [];
 
-function nextStep(step) {
-  // Step 1: Validate crate name
-  if (step === 2) {
-    const crateName = document.getElementById("crate-name").value.trim();
-    if (!crateName) {
-      showGlobalModal({
-        type: "error",
-        title: "Incomplete Item",
-        message: "Please insert a crate name before proceeding.",
-        buttons: [{ label: "OK", onClick: "fadeOutAndRemove('modal-badItem')" }],
-        id: "modal-badItem"
-      });
-      return;
-    }
-  }
-
-  // Step 2 → Step 3: Validate item entries before showing summary
-if (step === 3) {
-  if (!validateItems()) return;
-
-  const crateName = document.getElementById("crate-name").value.trim();
-  document.getElementById("crate-dropdown-title").textContent = crateName;
-
-  const tableBody = document.getElementById("crate-items-table-body");
-  tableBody.innerHTML = "";
-
-  items.forEach(item => {
-    const row = document.createElement("tr");
-    row.innerHTML = `
-      <td>${item.name}</td>
-      <td>${item.set}</td>
-      <td><img src="${item.icon}" alt="icon" style="width: 20px; height: 20px;" /></td>
-      <td>${item.tags}</td>
-      <td>${item.tooltip || ""}</td>
-    `;
-    tableBody.appendChild(row);
-  });
-}
-
-  // Show target step
-  document.querySelectorAll(".wizard-step").forEach(el => el.classList.add("hidden"));
-  const target = document.getElementById(`step-${step}`);
-  if (target) target.classList.remove("hidden");
-}
-
-function prevStep(step) {
-  document.querySelectorAll('.wizard-step').forEach(el => el.classList.add('hidden'));
-  const prev = document.getElementById(`step-${step}`);
-  if (prev) prev.classList.remove('hidden');
-}
-
-function addItem() {
-  const itemsContainer = document.getElementById("items-container");
-  const id = Date.now();
-
-  const itemHTML = `
-    <div class="item-dropdown">
-      <button class="crate-dropdown-btn" onclick="toggleItemDropdown(${id})">
-        <span id="item-button-text-${id}">New Item</span>
-        <span class="arrow">▼</span>
-      </button>
-      <div class="crate-dropdown-content hidden" id="item-content-${id}">
-        <div class="nice-form-group">
-          <label>Item Name:</label>
-          <input type="text" name="itemName" placeholder="Enter item name"oninput="updateItemButtonText(${id}, this.value)" />
-        </div>
-        <div class="nice-form-group">
-          <label>Set Name:</label>
-          <input type="text" name="setName" placeholder="Enter set name"/>
-        </div>
-        <div class="nice-form-group">
-          <label>Icon:</label>
-          <input type="text" name="icon" placeholder="Enter icon URL"/>
-          <small class="hint-text icons-url" onclick="window.open('https://mc.nerothe.com/')">To view usable item icons, click here</small>
-        </div>
-        <div class="nice-form-group">
-          <label>Tags (comma-separated):</label>
-          <input type="text" name="tags" placeholder="Example: Cosmetic, Wings"/>
-        </div>
-        <div class="nice-form-group">
-          <label>Tooltip:</label>
-          <textarea name="tooltip" placeholder="Optional tooltip"></textarea>
-        </div>
-        <button class="modal-btn" onclick="this.closest('.item-dropdown').remove()">Remove Item</button>
-      </div>
-    </div>
-  `;
-
-  itemsContainer.insertAdjacentHTML("beforeend", itemHTML);
-
-    items.push({
-    id,
-    name: "",
-    set: "",
-    icon: "",
-    tags: "",
-    tooltip: ""
-  });
-}
-
-function toggleItemDropdown(id) {
-  const content = document.getElementById(`item-content-${id}`);
-  const arrow = document.querySelector(`#item-button-text-${id}`).nextElementSibling;
-
-  if (content.classList.contains("hidden")) {
-    content.classList.remove("hidden");
-    content.style.maxHeight = content.scrollHeight + "px";
-    arrow.style.transform = "rotate(180deg)";
-  } else {
-    content.style.maxHeight = "0";
-    arrow.style.transform = "rotate(0deg)";
-    setTimeout(() => content.classList.add("hidden"), 500);
-  }
-}
-
-function updateItemButtonText(id, value) {
-  document.getElementById(`item-button-text-${id}`).innerText = value || "New Item";
-}
-
-function removeItem(id) {
-  document.querySelector(`.item-form[data-id="${id}"]`)?.remove();
-}
-
-function toggleCrateDropdown() {
-  const content = document.getElementById("crate-dropdown-content-confirm");
-  const arrow = document.querySelector("#crate-dropdown-title + .arrow");
-
-  if (!content) return;
-
-  const isExpanded = !content.classList.contains("hidden") && content.style.maxHeight !== "0px";
-
-  if (isExpanded) {
-    content.style.maxHeight = "0";
-    if (arrow) arrow.style.transform = "rotate(0deg)";
-    setTimeout(() => {
-      content.classList.add("hidden");
-      content.removeAttribute("style");
-    }, 500);
-  } else {
-    content.classList.remove("hidden");
-    void content.offsetHeight; // Force reflow
-    content.style.maxHeight = content.scrollHeight + "px";
-    if (arrow) arrow.style.transform = "rotate(180deg)";
-  }
-}
-
-function validateItems() {
-  const step2 = document.getElementById("step-2");
-  const itemElements = step2.querySelectorAll(".item-dropdown");
-  items = [];
-
-  for (const el of itemElements) {
-    const get = name => el.querySelector(`[name="${name}"]`)?.value.trim() || "";
-    const item = {
-      name: get("itemName"),
-      set: get("setName"),
-      icon: get("icon"),
-      tags: get("tags"),
-      tooltip: get("tooltip")
-    };
-
-    if (!item.name || !item.set || !item.icon || !item.tags) {
-      showGlobalModal({
-        type: "error",
-        title: "Incomplete Item",
-        message: "Each item must have a name, set, icon, and tags. Tooltip is optional.",
-        buttons: [{ label: "OK", onClick: "fadeOutAndRemove('modal-badItem')" }],
-        id: "modal-badItem"
-      });
-      return false;
-    }
-
-    items.push(item);
-  }
-
-  return true;
-}
-
-function submitCrate() {
-  const crateName = document.getElementById("crate-name").value.trim();
-  const crateType = document.querySelector('input[name="crate-type"]:checked')?.value;
-  const isHidden = parseInt(
-    document.querySelector('input[name="crate-visibility"]:checked')?.value || "0",
-    10
-  );
-
-  // Validate crate name
-  if (!crateName) {
-    showGlobalModal({
-      type: "error",
-      title: "Missing Crate Name",
-      message: "Please enter a crate name before submitting.",
-      buttons: [{ label: "OK", onClick: "fadeOutAndRemove('modal-crateName')" }],
-      id: "modal-crateName"
-    });
-    return;
-  }
-
-  // Validate crate type
-  if (!crateType) {
-    showGlobalModal({
-      type: "error",
-      title: "Missing Crate Type",
-      message: "Please select a crate type.",
-      buttons: [{ label: "OK", onClick: "fadeOutAndRemove('modal-crateType')" }],
-      id: "modal-crateType"
-    });
-    return;
-  }
-
-  // Validate items
-  if (!validateItems()) return;
-
-  // Submit crate
-  api('/admin/crates', {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      crate_name: crateName,
-      is_cosmetic: parseInt(crateType),
-      is_hidden: isHidden
-    })
-  })
-    .then(res => res.json())
-    .then(crate => {
-      // Submit all items with the returned crate ID
-      const promises = items.map(item =>
-        api('/admin/items', {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            crate_id: crate.id,
-            item_name: item.name,
-            set_name: item.set,
-            icon_url: item.icon,
-            tags: item.tags.split(",").map(t => t.trim()),
-            tooltip: item.tooltip
-          })
-        })
-      );
-
-      return Promise.all(promises);
-    })
-    .then(() => {
-      showGlobalModal({
-        type: "success",
-        title: "Crate Created",
-        message: "Your crate and items were successfully saved!",
-        buttons: [{
-          label: "Close",
-          onClick: "fadeOutAndRemove('modal-crateSuccess')"
-        }],
-        id: "modal-crateSuccess"
-      });
-
-      // Reset wizard and clear data
-      document.getElementById("crate-name").value = "";
-      document.querySelector('input[name="crate-type"][value="1"]').checked = true;
-      document.getElementById("items-container").innerHTML = "";
-      items = [];
-
-      // Go back to step 1
-      document.querySelectorAll('.wizard-step').forEach(s => s.classList.add('hidden'));
-      document.getElementById("step-1").classList.remove("hidden");
-
-      // Optional: reload UI
-      loadCratesAndItems();
-    })
-    .catch(err => {
-      console.error("Crate creation failed:", err);
-      showGlobalModal({
-        type: "error",
-        title: "Submission Failed",
-        message: "There was an error creating the crate. Please try again.",
-        buttons: [{ label: "Close", onClick: "fadeOutAndRemove('modal-submitError')" }],
-        id: "modal-submitError"
-      });
-    });
-}
 
 function loadAuditLogs(page = 1) {
   api(`/admin/audit-logs?page=${page}&limit=10`)

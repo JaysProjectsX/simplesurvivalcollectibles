@@ -351,222 +351,142 @@
             <div class="db-subtab-content" id="db-tab-create" style="display: none;">
               <div class="admin-section" id="crate-creation-panel">
                 <h3>Create New Crate</h3>
-                <div id="newCrateWizard" class="wizard-container">
-                  <!-- Wizard step header (like the example screenshots) -->
+
+                <div id="crateWizard" class="wizard-container">
                   <div class="wizard-header">
                     <ul class="wizard-steps">
-                      <li class="active">
-                        <span class="step-circle">1</span>
-                        <span class="step-label">Crate Info</span>
+                      <li class="active" data-step="0">
+                        <div class="step-circle">1</div>
+                        <div class="step-label">Crate Info</div>
                       </li>
-                      <li>
-                        <span class="step-circle">2</span>
-                        <span class="step-label">Crate Items</span>
+                      <li data-step="1">
+                        <div class="step-circle">2</div>
+                        <div class="step-label">Items</div>
                       </li>
-                      <li>
-                        <span class="step-circle">3</span>
-                        <span class="step-label">Confirm &amp; Submit</span>
+                      <li data-step="2">
+                        <div class="step-circle">3</div>
+                        <div class="step-label">Confirm</div>
                       </li>
                     </ul>
                   </div>
 
-                  <form id="new-crate-form" class="wizard-form">
-                    <!-- STEP 1: Crate info -->
-                    <div class="wizard-step active" id="step1">
-                      <h5 class="tab-header">Step 1 - Name the crate</h5>
-                      <div class="divider"></div>
-
+                  <!-- STEP 1: Crate Info -->
+                  <div class="wizard-step active" data-step="0">
+                    <div class="step-inner">
                       <div class="crate-form-grid">
-                        <div class="nice-form-group">
-                          <label for="crate-name">Crate Name</label>
+                        <div class="crate-name-group mb-3">
+                          <label for="new-crate-name" class="form-label">Crate Name</label>
                           <input
                             type="text"
-                            id="crate-name"
-                            name="crate-name"
-                            class="icon-left icon-box"
-                            placeholder="e.g. gamesCrate"
-                            required
+                            class="form-control"
+                            id="new-crate-name"
+                            placeholder="Enter crate name"
                           />
-                          <small class="hint-text">
-                            Example crate format: valentinesCrate, springCrate
-                          </small>
                         </div>
 
-                        <div class="crate-type-group">
-                          <label>Crate Type:</label>
+                        <div class="crate-type-group mb-3">
+                          <label class="form-label">Crate Type</label>
                           <div class="crate-type-options">
-                            <!-- keep your original values (1/0) so backend logic still works -->
                             <label>
-                              <input type="radio" name="crate-type" value="1" checked />
+                              <input type="radio" name="crateType" value="cosmetic" checked />
                               Cosmetic
                             </label>
                             <label>
-                              <input type="radio" name="crate-type" value="0" />
+                              <input type="radio" name="crateType" value="noncosmetic" />
                               Non-Cosmetic
                             </label>
                           </div>
+                        </div>
 
-                          <div class="crate-type-options" style="margin-top: 12px">
+                        <div class="crate-type-group mb-3">
+                          <label class="form-label">Visibility</label>
+                          <div class="crate-type-options">
                             <label>
-                              <input
-                                type="radio"
-                                name="crate-visibility"
-                                value="0"
-                                checked
-                              />
+                              <input type="radio" name="crateVisibility" value="public" checked />
                               Visible
                             </label>
                             <label>
-                              <input type="radio" name="crate-visibility" value="1" />
+                              <input type="radio" name="crateVisibility" value="hidden" />
                               Hidden
                             </label>
                           </div>
                         </div>
                       </div>
+                    </div>
+                  </div>
 
-                      <div class="wizard-nav">
-                        <!-- no Previous on step 1 -->
-                        <span></span>
-                        <button type="button" class="wizard-next modal-btn primary">
-                          Next
-                        </button>
+                  <!-- STEP 2: Add Items -->
+                  <div class="wizard-step" data-step="1">
+                    <div class="step-inner">
+                      <div class="table-actions">
+                        <button id="addItemBtn" class="admin-action-btn add-item-btn">Add Item</button>
+                        <button id="editItemBtn" class="admin-action-btn" disabled>Edit</button>
+                        <button id="deleteItemBtn" class="admin-action-btn delete" disabled>Delete</button>
+                      </div>
+
+                      <div class="admin-table-container">
+                        <table id="newCrateItemsTable" class="admin-table display nowrap" style="width:100%">
+                          <thead>
+                            <tr>
+                              <th>ID</th>
+                              <th>Name</th>
+                              <th>Set</th>
+                              <th>Icon</th>
+                              <th>Tags</th>
+                              <th>Tooltip</th>
+                            </tr>
+                          </thead>
+                          <tbody></tbody>
+                        </table>
                       </div>
                     </div>
+                  </div>
 
-                    <!-- STEP 2: Items DataTable -->
-                    <div class="wizard-step" id="step2">
-                      <h5 class="tab-header">Step 2 - Add items to the crate (optional)</h5>
-                      <div class="divider"></div>
+                  <!-- STEP 3: Confirm -->
+                  <div class="wizard-step" data-step="2">
+                    <div class="step-inner">
+                      <div class="item-dropdown">
+                        <button class="crate-dropdown-btn" id="crate-dropdown-btn">
+                          <span id="crate-dropdown-title">Crate Details</span>
+                          <span class="arrow">▼</span>
+                        </button>
+                        <div class="crate-dropdown-content" id="crate-dropdown-content">
+                          <table>
+                            <thead>
+                              <tr>
+                                <th>Crate Name</th>
+                                <th>Crate Type</th>
+                                <th>Visibility</th>
+                              </tr>
+                            </thead>
+                            <tbody id="crate-summary-body"></tbody>
+                          </table>
 
-                      <div class="datatable-section">
-                        <div class="table-actions">
-                          <button
-                            type="button"
-                            id="addItemBtn"
-                            class="modal-btn primary icon-btn"
-                          >
-                            <svg
-                              xmlns="http://www.w3.org/2000/svg"
-                              class="icon-left"
-                              width="16"
-                              height="16"
-                              viewBox="0 0 24 24"
-                              fill="none"
-                              stroke="#fff"
-                              stroke-width="2"
-                              stroke-linecap="round"
-                              stroke-linejoin="round"
-                            >
-                              <line x1="12" y1="5" x2="12" y2="19" />
-                              <line x1="5" y1="12" x2="19" y2="12" />
-                            </svg>
-                            New Item
-                          </button>
-
-                          <button
-                            type="button"
-                            id="editItemBtn"
-                            class="modal-btn secondary"
-                          >
-                            Edit
-                          </button>
-
-                          <button
-                            type="button"
-                            id="deleteItemBtn"
-                            class="modal-btn danger"
-                          >
-                            Delete
-                          </button>
+                          <div class="crate-item-list-scroll mt-3">
+                            <table id="crate-items-summary-table">
+                              <thead>
+                                <tr>
+                                  <th>Name</th>
+                                  <th>Set</th>
+                                  <th>Icon</th>
+                                  <th>Tags</th>
+                                  <th>Tooltip</th>
+                                </tr>
+                              </thead>
+                              <tbody id="crate-items-table-body"></tbody>
+                            </table>
+                          </div>
                         </div>
-
-                        <!-- empty DataTable, populated via JS like View / Edit Crates -->
-                        <table
-                          id="newCrateItemsTable"
-                          class="display nowrap admin-datatable"
-                          style="width: 100%"
-                        >
-                          <thead>
-                            <tr>
-                              <th>Icon</th>
-                              <th>Name</th>
-                              <th>Set</th>
-                              <th>Item Type</th>
-                              <th>Tags</th>
-                              <th>Tooltip</th>
-                            </tr>
-                          </thead>
-                          <tbody></tbody>
-                        </table>
-                      </div>
-
-                      <div class="wizard-nav">
-                        <button type="button" class="wizard-prev modal-btn" id="prev-step-2">
-                          Previous
-                        </button>
-                        <button type="button" class="wizard-next modal-btn primary" id="next-step-2">
-                          Next
-                        </button>
                       </div>
                     </div>
+                  </div>
 
-                    <!-- STEP 3: Confirm & Submit (crate + items summary tables) -->
-                    <div class="wizard-step" id="step3">
-                      <h5 class="tab-header">Step 3 - Confirm crate name and items</h5>
-                      <div class="divider"></div>
-
-                      <div class="summary-tables">
-                        <h5 class="tab-header">Crate Overview</h5>
-                        <table
-                          id="crateSummaryTable"
-                          class="display nowrap admin-datatable"
-                          style="width: 100%"
-                        >
-                          <thead>
-                            <tr>
-                              <th>Crate Name</th>
-                              <th>Crate Type</th>
-                              <th>Visibility</th>
-                              <th>Item Count</th>
-                            </tr>
-                          </thead>
-                          <tbody></tbody>
-                        </table>
-
-                        <h5 class="tab-header" style="margin-top: 20px">Items in Crate</h5>
-                        <table
-                          id="crateItemsConfirmTable"
-                          class="display nowrap admin-datatable"
-                          style="width: 100%"
-                        >
-                          <thead>
-                            <tr>
-                              <th>Icon</th>
-                              <th>Name</th>
-                              <th>Set</th>
-                              <th>Item Type</th>
-                              <th>Tags</th>
-                              <th>Tooltip</th>
-                            </tr>
-                          </thead>
-                          <tbody></tbody>
-                        </table>
-                      </div>
-
-                      <div class="wizard-nav">
-                        <button type="button" class="wizard-prev modal-btn">
-                          Previous
-                        </button>
-                        <button
-                          type="submit"
-                          class="modal-btn primary"
-                          id="submit-crate-btn"
-                        >
-                          Submit Crate
-                        </button>
-                      </div>
-                    </div>
-                  </form>
+                  <!-- Wizard Navigation -->
+                  <div class="wizard-nav">
+                    <button id="prevStepBtn" class="btn btn-secondary" disabled>Previous</button>
+                    <button id="nextStepBtn" class="btn btn-primary">Next</button>
+                    <button id="submitCrateBtn" class="btn btn-success" style="display:none;">Submit</button>
+                  </div>
                 </div>
               </div>
             </div>
@@ -818,6 +738,214 @@
           <!-- buttons injected here depending on state -->
           <button class="kbm-btn" onclick="window.closeTaskModal()">Close</button>
         </div>
+      </div>
+    </div>
+
+    <!-- Wizard Add Item Modal (Create New Crate - Step 2) -->
+    <div id="wizardAddItemModal" class="modal-admin hidden">
+      <div class="modal-content-admin fadeIn">
+        <!-- Header -->
+        <div class="modal-header-admin">
+          <h3>Add new crate item</h3>
+          <button
+            type="button"
+            class="modal-close-admin"
+            aria-label="Close"
+            onclick="closeWizardAddItemModal()"
+          >
+            ×
+          </button>
+        </div>
+
+        <!-- Form -->
+        <form id="wizardAddItemForm">
+          <div class="modal-body-admin">
+            <div class="form-row-admin">
+              <label for="wizard-add-item-name">Item name:</label>
+              <input
+                type="text"
+                id="wizard-add-item-name"
+                class="admin-input"
+                required
+              />
+            </div>
+
+            <div class="form-row-admin">
+              <label for="wizard-add-set-name">Set name:</label>
+              <input
+                type="text"
+                id="wizard-add-set-name"
+                class="admin-input"
+                required
+              />
+            </div>
+
+            <div class="form-row-admin">
+              <label for="wizard-add-icon-url">Icon URL:</label>
+              <input
+                type="text"
+                id="wizard-add-icon-url"
+                class="admin-input"
+              />
+            </div>
+
+            <div class="form-row-admin">
+              <label></label>
+              <div class="icon-picker-wrapper">
+                <button
+                  type="button"
+                  id="wizard-toggle-add-icon-picker"
+                  class="admin-button secondary-btn icon-picker-toggle"
+                >
+                  Show quick icons ▾
+                </button>
+                <div id="wizard-add-icon-picker" class="icon-picker-strip hidden">
+                  <!-- Filled by JS -->
+                </div>
+              </div>
+            </div>
+
+            <div class="form-row-admin">
+              <label for="wizard-add-tags">Tags:</label>
+              <input
+                type="text"
+                id="wizard-add-tags"
+                class="admin-input"
+                placeholder="Comma-separated"
+              />
+            </div>
+
+            <div class="form-row-admin">
+              <label for="wizard-add-tooltip">Tooltip:</label>
+              <textarea
+                id="wizard-add-tooltip"
+                class="admin-textarea"
+              ></textarea>
+            </div>
+          </div>
+
+          <!-- Footer -->
+          <div class="modal-footer-admin">
+            <button
+              type="button"
+              class="admin-button cancel-btn"
+              onclick="closeWizardAddItemModal()"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              class="admin-button save-btn"
+            >
+              Add item
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Wizard Edit Item Modal (Create New Crate - Step 2) -->
+    <div id="wizardEditItemModal" class="modal-admin hidden">
+      <div class="modal-content-admin fadeIn">
+        <!-- Header -->
+        <div class="modal-header-admin">
+          <h3>Edit crate item</h3>
+          <button
+            type="button"
+            class="modal-close-admin"
+            aria-label="Close"
+            onclick="closeWizardEditItemModal()"
+          >
+            ×
+          </button>
+        </div>
+
+        <!-- Form -->
+        <form id="wizardEditItemForm">
+          <div class="modal-body-admin">
+            <input type="hidden" id="wizard-edit-item-index" />
+
+            <div class="form-row-admin">
+              <label for="wizard-edit-item-name">Item name:</label>
+              <input
+                type="text"
+                id="wizard-edit-item-name"
+                class="admin-input"
+                required
+              />
+            </div>
+
+            <div class="form-row-admin">
+              <label for="wizard-edit-set-name">Set name:</label>
+              <input
+                type="text"
+                id="wizard-edit-set-name"
+                class="admin-input"
+                required
+              />
+            </div>
+
+            <div class="form-row-admin">
+              <label for="wizard-edit-icon-url">Icon URL:</label>
+              <input
+                type="text"
+                id="wizard-edit-icon-url"
+                class="admin-input"
+              />
+            </div>
+
+            <div class="form-row-admin">
+              <label></label>
+              <div class="icon-picker-wrapper">
+                <button
+                  type="button"
+                  id="wizard-toggle-edit-icon-picker"
+                  class="admin-button secondary-btn icon-picker-toggle"
+                >
+                  Show quick icons ▾
+                </button>
+                <div id="wizard-edit-icon-picker" class="icon-picker-strip hidden">
+                  <!-- Filled by JS -->
+                </div>
+              </div>
+            </div>
+
+            <div class="form-row-admin">
+              <label for="wizard-edit-tags">Tags:</label>
+              <input
+                type="text"
+                id="wizard-edit-tags"
+                class="admin-input"
+                placeholder="Comma-separated"
+              />
+            </div>
+
+            <div class="form-row-admin">
+              <label for="wizard-edit-tooltip">Tooltip:</label>
+              <textarea
+                id="wizard-edit-tooltip"
+                class="admin-textarea"
+              ></textarea>
+            </div>
+          </div>
+
+          <!-- Footer -->
+          <div class="modal-footer-admin">
+            <button
+              type="button"
+              class="admin-button cancel-btn"
+              onclick="closeWizardEditItemModal()"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              class="admin-button save-btn"
+            >
+              Save changes
+            </button>
+          </div>
+        </form>
       </div>
     </div>
 
@@ -1125,8 +1253,6 @@
     <script defer src="/js/auth.js"></script>
     <script defer src="/js/admin-test.js"></script>
     <script src="/js/scripts.js"></script>
-
   </div>
-
 </body>
 </html>

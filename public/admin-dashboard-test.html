@@ -452,36 +452,52 @@
 
                       <h2 class="wizard-step-title text-center mb-4">Confirm crate</h2>
 
-                      <div class="wizard-step3-crate-summary mb-4">
-                        <table class="crate-summary-table">
-                          <thead>
-                            <tr>
-                              <th>Crate Name</th>
-                              <th>Crate Type</th>
-                              <th>Visibility</th>
-                            </tr>
-                          </thead>
-                          <!-- this is still filled by your JS -->
-                          <tbody id="crate-summary-body"></tbody>
-                        </table>
+                      <!-- Crate details table (matches View/Edit top table layout) -->
+                      <div class="wizard-step3-crate-summary dt-section mb-4">
+                        <h5 class="text-light mb-2">Crate Details</h5>
+                        <div class="admin-table-container">
+                          <table
+                            class="admin-table display nowrap"
+                            id="wizard-crate-summary-table"
+                            style="width:100%"
+                          >
+                            <thead>
+                              <tr>
+                                <th>Crate Name</th>
+                                <th>Crate Type</th>
+                                <th>Visibility</th>
+                              </tr>
+                            </thead>
+                            <!-- JS still targets this tbody ID -->
+                            <tbody id="crate-summary-body"></tbody>
+                          </table>
+                        </div>
                       </div>
 
-                      <div class="wizard-step3-items">
-                        <h5 class="text-center mb-3">Items in crate</h5>
-                        <table id="wizard-items-review-table">
-                          <thead>
-                            <tr>
-                              <th>ID</th>
-                              <th>Name</th>
-                              <th>Set</th>
-                              <th>Icon</th>
-                              <th>Tags</th>
-                              <th>Tooltip</th>
-                            </tr>
-                          </thead>
-                          <!-- this is still filled by your JS -->
-                          <tbody id="crate-items-table-body"></tbody>
-                        </table>
+                      <!-- Items in crate table (matches View/Edit items table layout) -->
+                      <div class="wizard-step3-items dt-section">
+                        <h5 class="text-light mb-2 text-center">Items in Crate</h5>
+
+                        <div class="admin-table-container">
+                          <table
+                            id="wizard-items-review-table"
+                            class="admin-table display nowrap"
+                            style="width:100%"
+                          >
+                            <thead>
+                              <tr>
+                                <th>ID</th>
+                                <th>Name</th>
+                                <th>Set</th>
+                                <th>Icon</th>
+                                <th>Tags</th>
+                                <th>Tooltip</th>
+                              </tr>
+                            </thead>
+                            <!-- JS still targets this tbody ID -->
+                            <tbody id="crate-items-table-body"></tbody>
+                          </table>
+                        </div>
                       </div>
 
                     </div>

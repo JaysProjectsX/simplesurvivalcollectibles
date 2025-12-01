@@ -1627,86 +1627,85 @@ function deleteWizardItem(index) {
   }
 }
 
-// Build the Step 3 review layout (crate table + DataTable of items)
+// ===== STEP 3: BUILD CONFIRM REVIEW =====
 function buildStep3Review() {
+  // --- 1) Crate summary (top table) ---
   const crateNameInput = document.getElementById("new-crate-name");
   const crateName = crateNameInput ? crateNameInput.value.trim() : "";
 
-  const crateTypeRadio = document.querySelector('input[name="crateType"]:checked');
-  const crateTypeValue = crateTypeRadio ? crateTypeRadio.value : "";
+  const typeRadio = document.querySelector('input[name="crateType"]:checked');
+  const crateType =
+    typeRadio && typeRadio.value === "cosmetic"
+      ? "Cosmetic"
+      : typeRadio && typeRadio.value === "noncosmetic"
+      ? "Non-Cosmetic"
+      : "—";
 
-  const visibilityRadio = document.querySelector('input[name="crateVisibility"]:checked');
-  const visibilityValue = visibilityRadio ? visibilityRadio.value : "";
+  const visRadio = document.querySelector('input[name="crateVisibility"]:checked');
+  const visibility =
+    visRadio && visRadio.value === "public"
+      ? "Visible"
+      : visRadio && visRadio.value === "hidden"
+      ? "Hidden"
+      : "—";
 
-  const crateTypeLabel = crateTypeValue === "noncosmetic" ? "Non-Cosmetic" : "Cosmetic";
-  const visibilityLabel = visibilityValue === "hidden" ? "Hidden" : "Visible";
-
-  // ---- Top summary table ----
-  const crateSummaryBody = document.getElementById("crate-summary-body");
-  if (crateSummaryBody) {
-    crateSummaryBody.innerHTML = `
+  const summaryBody = document.getElementById("crate-summary-body");
+  if (summaryBody) {
+    summaryBody.innerHTML = `
       <tr>
-        <td>${escapeHTML(crateName)}</td>
-        <td>${escapeHTML(crateTypeLabel)}</td>
-        <td>${escapeHTML(visibilityLabel)}</td>
+        <td>${crateName || "—"}</td>
+        <td>${crateType}</td>
+        <td>${visibility}</td>
       </tr>
     `;
   }
 
-  // ---- Items table body ----
-  const itemsTbody = document.getElementById("crate-items-table-body");
-  if (!itemsTbody) return;
+  // --- 2) Items in crate (copy rows from Step 2 DataTable) ---
+  const itemsBody = document.getElementById("crate-items-table-body");
+  if (!itemsBody) return;
+  itemsBody.innerHTML = "";
 
-  if (!Array.isArray(newCrateItems) || newCrateItems.length === 0) {
-    itemsTbody.innerHTML = `
-      <tr>
-        <td colspan="6" class="text-center text-muted">
-          No items have been added to this crate.
-        </td>
-      </tr>
-    `;
+  let step2Data = [];
+
+  // Prefer DataTables API if the Step 2 table is initialised
+  if ($.fn.dataTable && $.fn.dataTable.isDataTable("#newCrateItemsTable")) {
+    const dt = $("#newCrateItemsTable").DataTable();
+    step2Data = dt.rows().data().toArray();
   } else {
-    itemsTbody.innerHTML = newCrateItems
-      .map((item, idx) => {
-        const icon = item.icon || "";
-        return `
-          <tr>
-            <td>${idx + 1}</td>
-            <td>${escapeHTML(item.name || "")}</td>
-            <td>${escapeHTML(item.set || "")}</td>
-            <td>
-              ${
-                icon
-                  ? `<img src="${escapeHTML(icon)}" alt="" class="wizard-review-icon" />`
-                  : ""
-              }
-            </td>
-            <td>${escapeHTML(item.tags || "")}</td>
-            <td>${escapeHTML(item.tooltip || "")}</td>
-          </tr>
-        `;
-      })
-      .join("");
+    // Fallback: copy raw DOM rows
+    document
+      .querySelectorAll("#newCrateItemsTable tbody tr")
+      .forEach((row) => {
+        const cells = Array.from(row.children).map((td) => td.innerHTML);
+        step2Data.push(cells);
+      });
   }
 
-  // ---- DataTable init for the review table ----
-  const $ = window.jQuery;
-  const tableSelector = "#wizard-items-review-table";
+  step2Data.forEach((row) => {
+    const tr = document.createElement("tr");
+    row.forEach((cellHtml) => {
+      const td = document.createElement("td");
+      td.innerHTML = cellHtml;
+      tr.appendChild(td);
+    });
+    itemsBody.appendChild(tr);
+  });
 
-  if (!$ || !$.fn.DataTable) return;
-
-  if ($.fn.DataTable.isDataTable(tableSelector)) {
-    $(tableSelector).DataTable().clear().destroy();
+  // --- 3) (Re)initialise DataTable on the Step 3 review table ---
+  if ($.fn.dataTable && $.fn.dataTable.isDataTable("#wizard-items-review-table")) {
+    $("#wizard-items-review-table").DataTable().destroy();
   }
 
-  $(tableSelector).DataTable({
+  $("#wizard-items-review-table").DataTable({
     paging: true,
-    searching: true,
-    info: true,
-    ordering: true,
-    lengthChange: true,
     pageLength: 10,
-    autoWidth: false
+    lengthChange: true,
+    searching: true,
+    ordering: true,
+    info: true,
+    autoWidth: false,
+    responsive: false,
+    dom: "lrtip",
   });
 }
 

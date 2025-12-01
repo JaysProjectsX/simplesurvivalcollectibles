@@ -7,7 +7,8 @@ const api = (path, init) =>
 AUTH.fetchWithAuth(`${(window.backendUrl || "/api")}${path}`, init);
 
 let newCrateItemsDt = null;
-let newCrateItems = [];
+window.newCrateItems = window.newCrateItems || [];
+let newCrateItems = window.newCrateItems;
 let currentStep = 0;
 let newCrateSelectedIndex = null;
 let crateWizardInitialized = false;
@@ -1482,9 +1483,7 @@ async function submitNewCrate() {
   }
 
   // main wizard items array
-  const itemsArray = Array.isArray(window.newCrateItems)
-    ? window.newCrateItems
-    : [];
+  const itemsArray = newCrateItems;
 
   if (!itemsArray.length) {
     showGlobalModal({
@@ -2178,9 +2177,10 @@ document.getElementById("wizardAddItemForm")?.addEventListener("submit", functio
     return;
   }
 
-  if (!Array.isArray(newCrateItems)) {
-    newCrateItems = [];
+  if (!Array.isArray(window.newCrateItems)) {
+    window.newCrateItems = [];
   }
+  newCrateItems = window.newCrateItems;
 
   newCrateItems.push({
     name,

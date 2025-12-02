@@ -1432,8 +1432,8 @@ async function submitNewCrate() {
       type: "error",
       title: "Missing Crate Name",
       message: "Please enter a crate name before submitting.",
-      buttons: [{ label: "OK", onClick: "fadeOutAndRemove('modal-crateName')" }],
-      id: "modal-crateName"
+      buttons: [{ label: "OK", onClick: "fadeOutAndRemove('modal-crateName-Review')" }],
+      id: "modal-crateName-Review"
     });
     return;
   }

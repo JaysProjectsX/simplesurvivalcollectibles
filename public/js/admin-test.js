@@ -272,6 +272,7 @@ function initializeAdminPanel(role) {
           {
             className: isSysAdmin ? "details-control" : "",
             orderable: false,
+            responsive: true,
             data: null,
             defaultContent: isSysAdmin ? "" : "",
             width: "20px"
@@ -943,6 +944,7 @@ function initCrateSummaryDataTable() {
     info: false,
     lengthChange: false,
     ordering: false,
+    responsive: true,
     autoWidth: false
   });
 }
@@ -966,6 +968,7 @@ function initCrateItemsDataTable() {
     ordering: true,
     pageLength: 10,
     deferRender: true,
+    responsive: true,
     autoWidth: false
   });
 
@@ -1017,6 +1020,7 @@ function initNewCrateItemsDataTable() {
     ordering: true,
     pageLength: 10,
     deferRender: true,
+    responsive: true,
     autoWidth: false,
     language: {
       emptyTable: "No items have been added to this crate yet."
@@ -1720,7 +1724,7 @@ function buildStep3Review() {
     ordering: true,
     info: true,
     autoWidth: false,
-    responsive: false,
+    responsive: true,
     dom: "lrtip",
   });
 }

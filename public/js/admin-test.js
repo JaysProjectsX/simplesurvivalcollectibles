@@ -16,6 +16,32 @@ let crateWizardInitialized = false;
 let cosmeticChangelogDt = null;
 let otherChangelogDt = null;
 
+function initChangelogTables() {
+  if (!$.fn.dataTable.isDataTable("#changelog-cosmetic-table")) {
+    cosmeticChangelogDt = $("#changelog-cosmetic-table").DataTable({
+      paging: true,
+      searching: true,
+      ordering: true,
+      pageLength: 10,
+      deferRender: true,
+      responsive: true,
+      autoWidth: false
+    });
+  }
+
+  if (!$.fn.dataTable.isDataTable("#changelog-other-table")) {
+    otherChangelogDt = $("#changelog-other-table").DataTable({
+      paging: true,
+      searching: true,
+      ordering: true,
+      pageLength: 10,
+      deferRender: true,
+      responsive: true,
+      autoWidth: false
+    });
+  }
+}
+
 function escapeHTML(str = "") {
   return String(str).replace(/[&<>"']/g, (m) => ({
     "&": "&amp;",
@@ -845,13 +871,14 @@ function initializeAdminPanel(role) {
 
     modal.classList.remove('fadeIn');
     modal.classList.add('fadeOut');
-    setTimeout(() => backdrop.remove(), 220); // match your fadeOut duration
+    setTimeout(() => backdrop.remove(), 220);
   }
 
 
 
   // Load Active Users
   userRole = role;
+  initChangelogTables();
   setupChangelogForm();
   loadChangelogEntries();
 }
@@ -2651,11 +2678,16 @@ function setupChangelogForm() {
         panel.classList.toggle("active", panel.id === targetId);
       });
 
-      // load correct changelog page when a list tab is opened
       if (targetId === "changelog-cosmetic-tab") {
-        loadChangelogPage("cosmetic");
+          loadChangelogPage("cosmetic");
+          setTimeout(() => {
+            cosmeticChangelogDt.columns.adjust().draw(false);
+          }, 50);
       } else if (targetId === "changelog-other-tab") {
-        loadChangelogPage("noncosmetic");
+          loadChangelogPage("noncosmetic");
+          setTimeout(() => {
+            otherChangelogDt.columns.adjust().draw(false);
+          }, 50);
       }
     });
   });
@@ -2829,28 +2861,20 @@ function renderChangelogTable(entries, page) {
       .join("");
   }
 
-  // Initialize / re-initialize DataTable for this tab
+  // Push the new rows into the already-initialised DataTables
   if (window.jQuery && $.fn.DataTable) {
     const $ = window.jQuery;
 
-    if ($.fn.dataTable.isDataTable(tableSelector)) {
-      $(tableSelector).DataTable().clear().destroy();
-    }
-
-    const dt = $(tableSelector).DataTable({
-      paging: true,
-      searching: true,
-      ordering: true,
-      pageLength: 10,
-      deferRender: true,
-      responsive: true,
-      autoWidth: false,
-    });
-
     if (isCosmetic) {
-      cosmeticChangelogDt = dt;
+      if (!cosmeticChangelogDt) return;          // safety guard
+      cosmeticChangelogDt.clear();
+      cosmeticChangelogDt.rows.add($(tbody).find("tr"));
+      cosmeticChangelogDt.draw(false);
     } else {
-      otherChangelogDt = dt;
+      if (!otherChangelogDt) return;             // safety guard
+      otherChangelogDt.clear();
+      otherChangelogDt.rows.add($(tbody).find("tr"));
+      otherChangelogDt.draw(false);
     }
   }
 }

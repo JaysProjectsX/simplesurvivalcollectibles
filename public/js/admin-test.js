@@ -2624,13 +2624,17 @@ document.addEventListener("click", function (e) {
 });
 
 // ------------------- CHANGELOG MANAGEMENT -------------------
+/**
+ * Sets up the create form and the three inner tabs
+ * (Create Changelog / Cosmetic Changelogs / Other Changelogs).
+ */
 function setupChangelogForm() {
   const form = document.getElementById("changelog-form");
   const messageInput = document.getElementById("changelog-message");
 
   if (!form || !messageInput) return;
 
-  // ----- Inner horizontal subtabs -----
+  // ----- inner horizontal subtabs -----
   const tabButtons = document.querySelectorAll(".changelog-subtab-btn");
   const tabPanels = document.querySelectorAll(".changelog-inner-tab");
 
@@ -2638,16 +2642,16 @@ function setupChangelogForm() {
     btn.addEventListener("click", () => {
       const targetId = btn.getAttribute("data-inner-tab");
 
-      // activate clicked button
+      // active button
       tabButtons.forEach((b) => b.classList.remove("active"));
       btn.classList.add("active");
 
-      // show/hide panels
+      // active panel
       tabPanels.forEach((panel) => {
         panel.classList.toggle("active", panel.id === targetId);
       });
 
-      // when switching into list tabs, (re)load the relevant changelog page
+      // load correct changelog page when a list tab is opened
       if (targetId === "changelog-cosmetic-tab") {
         loadChangelogPage("cosmetic");
       } else if (targetId === "changelog-other-tab") {
@@ -2656,7 +2660,7 @@ function setupChangelogForm() {
     });
   });
 
-  // ----- Create Changelog form submission -----
+  // ----- create changelog submission -----
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
 
@@ -2709,8 +2713,8 @@ function setupChangelogForm() {
         id: "modal-changelogSuccess",
       });
 
-      // refresh both tables so the new entry appears if relevant
-      loadChangelogEntries();
+      // refresh both tables so they stay up-to-date
+      reloadAllChangelogTables();
     } catch (err) {
       console.error(err);
       showGlobalModal({
@@ -2730,16 +2734,20 @@ function setupChangelogForm() {
 }
 
 /**
- * Convenience wrapper used throughout the file.
- * Loads BOTH cosmetic and noncosmetic pages into their DataTables.
+ * Called from initializeAdminPanel(role)
+ * – load initial data (cosmetic + noncosmetic).
  */
 function loadChangelogEntries() {
+  reloadAllChangelogTables();
+}
+
+function reloadAllChangelogTables() {
   loadChangelogPage("cosmetic");
   loadChangelogPage("noncosmetic");
 }
 
 /**
- * Load entries for a single page: 'cosmetic' or 'noncosmetic'
+ * Fetch and render a single page: "cosmetic" or "noncosmetic"
  */
 async function loadChangelogPage(page) {
   const isCosmetic = page === "cosmetic";
@@ -2753,7 +2761,6 @@ async function loadChangelogPage(page) {
   try {
     const res = await api(`/changelog?page=${page}`);
     if (!res.ok) throw new Error("Failed to load changelog entries");
-
     const entries = await res.json();
     renderChangelogTable(entries, page);
   } catch (err) {
@@ -2764,8 +2771,7 @@ async function loadChangelogPage(page) {
 }
 
 /**
- * Render entries into the appropriate table + (re)initialize DataTables.
- * This uses the same DataTables-style options as your View / Edit Crates tab.
+ * Render into the correct table and (re)init DataTable.
  */
 function renderChangelogTable(entries, page) {
   const isCosmetic = page === "cosmetic";
@@ -2823,10 +2829,12 @@ function renderChangelogTable(entries, page) {
       .join("");
   }
 
-  // Init or re-init the DataTable for this tab
+  // Initialize / re-initialize DataTable for this tab
   if (window.jQuery && $.fn.DataTable) {
+    const $ = window.jQuery;
+
     if ($.fn.dataTable.isDataTable(tableSelector)) {
-      $(tableSelector).DataTable().destroy();
+      $(tableSelector).DataTable().clear().destroy();
     }
 
     const dt = $(tableSelector).DataTable({
@@ -2847,10 +2855,7 @@ function renderChangelogTable(entries, page) {
   }
 }
 
-/* ------------------------------------------------------------------
-   The edit / delete functions below are your existing logic, unchanged,
-   just moved under the new renderChangelogTable.
--------------------------------------------------------------------*/
+/* ---------- Edit / Delete logic (same as before) ---------- */
 
 function editChangelog(id) {
   const span = document.querySelector(`.changelog-message[data-id="${id}"]`);
@@ -2872,7 +2877,6 @@ function editChangelog(id) {
     id: modalId,
   });
 
-  // 💡 apply .changelog-edit-modal to the active modal
   const modal = document.querySelector(`#${modalId} .global-modal`);
   if (modal) {
     modal.classList.add("changelog-edit-modal");
@@ -2905,7 +2909,7 @@ function confirmEditChangelog(id, modalId) {
         ],
         id: "modal-changelogUpdated",
       });
-      loadChangelogEntries();
+      reloadAllChangelogTables();
     })
     .catch(() => {
       showGlobalModal({
@@ -2956,7 +2960,7 @@ function confirmDeleteChangelog(id, modalId) {
         ],
         id: "modal-changelogDeleted",
       });
-      loadChangelogEntries();
+      reloadAllChangelogTables();
     })
     .catch(() => {
       showGlobalModal({

@@ -794,54 +794,53 @@ body.sidebar-drawer-open .sidebar-drawer-toggle span:nth-child(3) {
   background-color: #c0392b;
 }
 
-/* Changelog inner horizontal tabs */
-.changelog-subtabs {
-  display: flex;
-  gap: 0.5rem;
-  margin-bottom: 1.5rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+#db-tab-changelog .changelog-subtabs {
+    display: flex;
+    gap: 0.75rem;
+    padding: 0.75rem 0;
+    margin-bottom: 1.25rem;
+    border-bottom: 1px solid rgba(255,255,255,0.15);
 }
 
-.changelog-subtab-btn {
-  background: transparent;
-  border: none;
-  padding: 0.75rem 1.25rem;
-  color: #cfd4ff;
-  font-weight: 500;
-  cursor: pointer;
-  position: relative;
-  transition: color 0.2s ease, background 0.2s ease;
+#db-tab-changelog .changelog-subtab-btn {
+    background: #1b1b28;
+    border: 1px solid #2a2a3d;
+    padding: 0.55rem 1.25rem;
+    border-radius: 6px 6px 0 0;
+    color: #d7d7ff;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: 0.2s ease;
 }
 
-.changelog-subtab-btn:hover {
-  color: #ffffff;
+#db-tab-changelog .changelog-subtab-btn:hover {
+    background: #262638;
+    color: white;
 }
 
-.changelog-subtab-btn.active {
-  color: #ffffff;
+#db-tab-changelog .changelog-subtab-btn.active {
+    background: #2d2d3f;
+    color: #ffffff;
+    border-bottom-color: transparent;
 }
 
-.changelog-subtab-btn.active::after {
-  content: "";
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: -1px;
-  height: 3px;
-  background: linear-gradient(90deg, #536dff, #8f6bff);
-  border-radius: 999px 999px 0 0;
+#db-tab-changelog .changelog-subtab-btn.active::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -2px;
+    height: 3px;
+    background: linear-gradient(90deg,#536dff,#8f6bff);
+    border-radius: 10px;
 }
 
-.changelog-inner-tabs-wrapper {
-  margin-top: 0.5rem;
+#db-tab-changelog .changelog-inner-tab {
+    display: none;
 }
 
-.changelog-inner-tab {
-  display: none;
-}
-
-.changelog-inner-tab.active {
-  display: block;
+#db-tab-changelog .changelog-inner-tab.active {
+    display: block;
 }
 
 .db-subtabs {

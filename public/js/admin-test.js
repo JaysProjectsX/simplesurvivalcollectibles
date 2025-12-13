@@ -13,6 +13,9 @@ let currentStep = 0;
 let newCrateSelectedIndex = null;
 let crateWizardInitialized = false;
 
+let cosmeticChangelogDt = null;
+let otherChangelogDt = null;
+
 function escapeHTML(str = "") {
   return String(str).replace(/[&<>"']/g, (m) => ({
     "&": "&amp;",
@@ -2621,46 +2624,92 @@ document.addEventListener("click", function (e) {
 });
 
 // ------------------- CHANGELOG MANAGEMENT -------------------
-const changelogForm = document.getElementById("changelog-form");
-const changelogTableBody = document.getElementById("changelog-entries-body");
-const changelogPageRadios = document.querySelectorAll('input[name="changelog-page-filter"]');
-
-// Handle form submission
 function setupChangelogForm() {
-  if (!changelogForm) return;
+  const form = document.getElementById("changelog-form");
+  const messageInput = document.getElementById("changelog-message");
 
-  changelogForm.addEventListener("submit", async (e) => {
+  if (!form || !messageInput) return;
+
+  // ----- Inner horizontal subtabs -----
+  const tabButtons = document.querySelectorAll(".changelog-subtab-btn");
+  const tabPanels = document.querySelectorAll(".changelog-inner-tab");
+
+  tabButtons.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const targetId = btn.getAttribute("data-inner-tab");
+
+      // activate clicked button
+      tabButtons.forEach((b) => b.classList.remove("active"));
+      btn.classList.add("active");
+
+      // show/hide panels
+      tabPanels.forEach((panel) => {
+        panel.classList.toggle("active", panel.id === targetId);
+      });
+
+      // when switching into list tabs, (re)load the relevant changelog page
+      if (targetId === "changelog-cosmetic-tab") {
+        loadChangelogPage("cosmetic");
+      } else if (targetId === "changelog-other-tab") {
+        loadChangelogPage("noncosmetic");
+      }
+    });
+  });
+
+  // ----- Create Changelog form submission -----
+  form.addEventListener("submit", async (e) => {
     e.preventDefault();
-    const message = document.getElementById("changelog-message").value.trim();
-    const page = document.querySelector('input[name="changelog-page"]:checked')?.value;
+
+    const message = messageInput.value.trim();
+    const page =
+      form.querySelector('input[name="changelog-page"]:checked')?.value;
 
     if (!message || !page) {
       showGlobalModal({
         type: "error",
         title: "Missing Info",
         message: "Please provide a message and select a target page.",
-        buttons: [{ label: "OK", onClick: "fadeOutAndRemove('modal-changelogEmpty')" }],
-        id: "modal-changelogEmpty"
+        buttons: [
+          {
+            label: "OK",
+            onClick: "fadeOutAndRemove('modal-changelogEmpty')",
+          },
+        ],
+        id: "modal-changelogEmpty",
       });
       return;
     }
 
     try {
-      const res = await api('/admin/changelog', {
+      const res = await api("/admin/changelog", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message, page })
+        body: JSON.stringify({ message, page }),
       });
 
       if (!res.ok) throw new Error("Failed to save entry");
-      document.getElementById("changelog-message").value = "";
+
+      // reset form
+      messageInput.value = "";
+      const defaultRadio = form.querySelector(
+        'input[name="changelog-page"][value="cosmetic"]'
+      );
+      if (defaultRadio) defaultRadio.checked = true;
+
       showGlobalModal({
         type: "success",
         title: "Changelog Added",
         message: "Your changelog entry has been saved.",
-        buttons: [{ label: "Close", onClick: "fadeOutAndRemove('modal-changelogSuccess')" }],
-        id: "modal-changelogSuccess"
+        buttons: [
+          {
+            label: "Close",
+            onClick: "fadeOutAndRemove('modal-changelogSuccess')",
+          },
+        ],
+        id: "modal-changelogSuccess",
       });
+
+      // refresh both tables so the new entry appears if relevant
       loadChangelogEntries();
     } catch (err) {
       console.error(err);
@@ -2668,63 +2717,140 @@ function setupChangelogForm() {
         type: "error",
         title: "Error",
         message: "Failed to save changelog entry.",
-        buttons: [{ label: "Close", onClick: "fadeOutAndRemove('modal-changelogFail')" }],
-        id: "modal-changelogFail"
+        buttons: [
+          {
+            label: "Close",
+            onClick: "fadeOutAndRemove('modal-changelogFail')",
+          },
+        ],
+        id: "modal-changelogFail",
       });
     }
   });
 }
 
-// Load changelogs based on selected page
-changelogPageRadios.forEach(radio => {
-  radio.addEventListener("change", () => {
-    loadChangelogEntries();
-  });
-});
+/**
+ * Convenience wrapper used throughout the file.
+ * Loads BOTH cosmetic and noncosmetic pages into their DataTables.
+ */
+function loadChangelogEntries() {
+  loadChangelogPage("cosmetic");
+  loadChangelogPage("noncosmetic");
+}
 
-async function loadChangelogEntries() {
-  const page = document.querySelector('input[name="changelog-page-filter"]:checked')?.value || "cosmetic";
+/**
+ * Load entries for a single page: 'cosmetic' or 'noncosmetic'
+ */
+async function loadChangelogPage(page) {
+  const isCosmetic = page === "cosmetic";
+  const tbodyId = isCosmetic
+    ? "changelog-cosmetic-body"
+    : "changelog-other-body";
+  const tbody = document.getElementById(tbodyId);
+
+  if (!tbody) return;
 
   try {
     const res = await api(`/changelog?page=${page}`);
+    if (!res.ok) throw new Error("Failed to load changelog entries");
 
     const entries = await res.json();
-    renderChangelogTable(entries);
+    renderChangelogTable(entries, page);
   } catch (err) {
     console.error("Error loading changelog entries:", err);
-    changelogTableBody.innerHTML = `<tr><td colspan="6">Failed to load changelog entries.</td></tr>`;
+    tbody.innerHTML =
+      '<tr><td colspan="5" style="text-align:center;">Failed to load changelog entries.</td></tr>';
   }
 }
 
-function renderChangelogTable(entries) {
+/**
+ * Render entries into the appropriate table + (re)initialize DataTables.
+ * This uses the same DataTables-style options as your View / Edit Crates tab.
+ */
+function renderChangelogTable(entries, page) {
+  const isCosmetic = page === "cosmetic";
+  const tbodyId = isCosmetic
+    ? "changelog-cosmetic-body"
+    : "changelog-other-body";
+  const tableSelector = isCosmetic
+    ? "#changelog-cosmetic-table"
+    : "#changelog-other-table";
+
+  const tbody = document.getElementById(tbodyId);
+  if (!tbody) return;
+
   if (!entries || entries.length === 0) {
-    changelogTableBody.innerHTML = `<tr><td colspan="6">No entries found.</td></tr>`;
-    return;
+    tbody.innerHTML =
+      '<tr><td colspan="5" style="text-align:center;">No entries found.</td></tr>';
+  } else {
+    tbody.innerHTML = entries
+      .map((entry) => {
+        const date = entry.timestamp
+          ? new Date(entry.timestamp).toLocaleString()
+          : "";
+        const username = entry.username || "Unknown";
+        const role = entry.role || "User";
+        const message = escapeHTML(entry.message || "");
+
+        return `
+          <tr>
+            <td>${entry.id}</td>
+            <td>
+              ${username}
+              <span class="role-tag ${role}">${role}</span>
+            </td>
+            <td>
+              <span class="changelog-message" data-id="${entry.id}">
+                ${message}
+              </span>
+            </td>
+            <td>${date}</td>
+            <td>
+              ${
+                userRole === "Admin" || userRole === "SysAdmin"
+                  ? `<button class="admin-action-btn" onclick="editChangelog(${entry.id})">✏️</button>`
+                  : ""
+              }
+              ${
+                userRole === "SysAdmin"
+                  ? `<button class="admin-action-btn delete" onclick="deleteChangelog(${entry.id})">🗑️</button>`
+                  : ""
+              }
+            </td>
+          </tr>
+        `;
+      })
+      .join("");
   }
 
-  changelogTableBody.innerHTML = entries.map(entry => {
-    const date = new Date(entry.timestamp).toLocaleString();
-    return `
-      <tr>
-        <td>${entry.id}</td>
-        <td>
-          ${entry.username || "Unknown"} 
-          <span class="role-tag ${entry.role}">${entry.role}</span>
-        </td>
-        <td><span class="changelog-message" data-id="${entry.id}">${entry.message}</span></td>
-        <td>${date}</td>
-        <td>
-          ${userRole === "Admin" || userRole === "SysAdmin" ? `
-            <button class="admin-action-btn" onclick="editChangelog(${entry.id})">✏️</button>
-          ` : ""}
-          ${userRole === "SysAdmin" ? `
-            <button class="admin-action-btn delete" onclick="deleteChangelog(${entry.id})">🗑️</button>
-          ` : ""}
-        </td>
-      </tr>
-    `;
-  }).join("");
+  // Init or re-init the DataTable for this tab
+  if (window.jQuery && $.fn.DataTable) {
+    if ($.fn.dataTable.isDataTable(tableSelector)) {
+      $(tableSelector).DataTable().destroy();
+    }
+
+    const dt = $(tableSelector).DataTable({
+      paging: true,
+      searching: true,
+      ordering: true,
+      pageLength: 10,
+      deferRender: true,
+      responsive: true,
+      autoWidth: false,
+    });
+
+    if (isCosmetic) {
+      cosmeticChangelogDt = dt;
+    } else {
+      otherChangelogDt = dt;
+    }
+  }
 }
+
+/* ------------------------------------------------------------------
+   The edit / delete functions below are your existing logic, unchanged,
+   just moved under the new renderChangelogTable.
+-------------------------------------------------------------------*/
 
 function editChangelog(id) {
   const span = document.querySelector(`.changelog-message[data-id="${id}"]`);
@@ -2741,12 +2867,12 @@ function editChangelog(id) {
     `,
     buttons: [
       { label: "Cancel", onClick: `fadeOutAndRemove('${modalId}')` },
-      { label: "Save", onClick: `confirmEditChangelog(${id}, '${modalId}')` }
+      { label: "Save", onClick: `confirmEditChangelog(${id}, '${modalId}')` },
     ],
-    id: modalId
+    id: modalId,
   });
 
-  // 💡 ADD THIS: apply .changelog-edit-modal to the active modal
+  // 💡 apply .changelog-edit-modal to the active modal
   const modal = document.querySelector(`#${modalId} .global-modal`);
   if (modal) {
     modal.classList.add("changelog-edit-modal");
@@ -2754,23 +2880,30 @@ function editChangelog(id) {
 }
 
 function confirmEditChangelog(id, modalId) {
-  const message = document.getElementById("editChangelogTextarea")?.value.trim();
+  const message = document
+    .getElementById("editChangelogTextarea")
+    ?.value.trim();
   if (!message) return;
 
-    api(`/admin/changelog/${id}`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ message })
-    })
-    .then(res => res.json())
+  api(`/admin/changelog/${id}`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ message }),
+  })
+    .then((res) => res.json())
     .then(() => {
       fadeOutAndRemove(modalId);
       showGlobalModal({
         type: "success",
         title: "Updated",
         message: "Changelog message updated.",
-        buttons: [{ label: "Close", onClick: `fadeOutAndRemove('modal-changelogUpdated')` }],
-        id: "modal-changelogUpdated"
+        buttons: [
+          {
+            label: "Close",
+            onClick: `fadeOutAndRemove('modal-changelogUpdated')`,
+          },
+        ],
+        id: "modal-changelogUpdated",
       });
       loadChangelogEntries();
     })
@@ -2779,8 +2912,13 @@ function confirmEditChangelog(id, modalId) {
         type: "error",
         title: "Update Failed",
         message: "Could not update changelog.",
-        buttons: [{ label: "Close", onClick: `fadeOutAndRemove('modal-changelogUpdateFail')` }],
-        id: "modal-changelogUpdateFail"
+        buttons: [
+          {
+            label: "Close",
+            onClick: `fadeOutAndRemove('modal-changelogUpdateFail')`,
+          },
+        ],
+        id: "modal-changelogUpdateFail",
       });
     });
 }
@@ -2793,9 +2931,12 @@ function deleteChangelog(id) {
     message: "Are you sure you want to delete this changelog entry?",
     buttons: [
       { label: "Cancel", onClick: `fadeOutAndRemove('${modalId}')` },
-      { label: "Delete", onClick: `confirmDeleteChangelog(${id}, '${modalId}')` }
+      {
+        label: "Delete",
+        onClick: `confirmDeleteChangelog(${id}, '${modalId}')`,
+      },
     ],
-    id: modalId
+    id: modalId,
   });
 }
 
@@ -2807,8 +2948,13 @@ function confirmDeleteChangelog(id, modalId) {
         type: "success",
         title: "Deleted",
         message: "Changelog entry deleted successfully.",
-        buttons: [{ label: "Close", onClick: `fadeOutAndRemove('modal-changelogDeleted')` }],
-        id: "modal-changelogDeleted"
+        buttons: [
+          {
+            label: "Close",
+            onClick: `fadeOutAndRemove('modal-changelogDeleted')`,
+          },
+        ],
+        id: "modal-changelogDeleted",
       });
       loadChangelogEntries();
     })
@@ -2817,8 +2963,13 @@ function confirmDeleteChangelog(id, modalId) {
         type: "error",
         title: "Delete Failed",
         message: "Could not delete changelog entry.",
-        buttons: [{ label: "Close", onClick: `fadeOutAndRemove('modal-changelogDeleteFail')` }],
-        id: "modal-changelogDeleteFail"
+        buttons: [
+          {
+            label: "Close",
+            onClick: `fadeOutAndRemove('modal-changelogDeleteFail')`,
+          },
+        ],
+        id: "modal-changelogDeleteFail",
       });
     });
 }

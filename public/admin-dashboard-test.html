@@ -511,53 +511,151 @@
               </div>
             </div>
 
-            <!-- Changelog Submission -->
+            <!-- Changelog Options -->
             <div class="db-subtab-content" id="db-tab-changelog" style="display: none;">
-              <div class="admin-section" id="changelog-entry-panel">
-                <h3>Submit Crate Changelog</h3>
-                <form id="changelog-form" class="admin-form">
-                  <label for="changelog-message">Change Description:</label>
-                  <textarea id="changelog-message" class="admin-textarea" required></textarea>
+              <div class="admin-section">
 
-                  <div class="radio-group">
-                    <label><input type="radio" name="changelog-page" value="cosmetic" checked /> Cosmetic</label>
-                    <label><input type="radio" name="changelog-page" value="noncosmetic" /> Non-Cosmetic</label>
-                  </div>
-
-                  <div class="form-actions">
-                    <button type="submit" class="modal-btn primary">Submit Changelog</button>
-                  </div>
-                </form>
-              </div>
-
-              <div class="divider"></div>
-
-              <div id="changelog-table-wrapper" class="admin-section" style="margin-top: 20px;">
-                <h3>All Crate Changelog Entries</h3>
-                <div id="changelog-controls" class="radio-group entries">
-                  <label>
-                    <input type="radio" name="changelog-page-filter" value="cosmetic" checked />
-                    Cosmetic
-                  </label>
-                  <label>
-                    <input type="radio" name="changelog-page-filter" value="noncosmetic" />
-                    Non-Cosmetic
-                  </label>
+                <!-- Inner horizontal tabs -->
+                <div class="changelog-subtabs">
+                  <button
+                    type="button"
+                    class="changelog-subtab-btn active"
+                    data-inner-tab="changelog-create-tab"
+                  >
+                    Create Changelog
+                  </button>
+                  <button
+                    type="button"
+                    class="changelog-subtab-btn"
+                    data-inner-tab="changelog-cosmetic-tab"
+                  >
+                    Cosmetic Changelogs
+                  </button>
+                  <button
+                    type="button"
+                    class="changelog-subtab-btn"
+                    data-inner-tab="changelog-other-tab"
+                  >
+                    Other Changelogs
+                  </button>
                 </div>
 
-                <table class="admin-table" id="changelog-table">
-                  <thead>
-                    <tr>
-                      <th>ID</th>
-                      <th>User</th>
-                      <th>Message</th>
-                      <th>Timestamp</th>
-                      <th>Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody id="changelog-entries-body">
-                  </tbody>
-                </table>
+                <!-- Inner tab panels -->
+                <div class="changelog-inner-tabs-wrapper">
+
+                  <!-- Create Changelog (tab 1)     -->
+                  <div
+                    id="changelog-create-tab"
+                    class="changelog-inner-tab active"
+                  >
+                    <div class="admin-section" id="changelog-entry-panel">
+                      <h3>Submit Crate Changelog</h3>
+
+                      <form id="changelog-form" class="admin-form">
+                        <label for="changelog-message">Change Description:</label>
+                        <textarea
+                          id="changelog-message"
+                          class="admin-textarea"
+                          required
+                        ></textarea>
+
+                        <div class="radio-group">
+                          <label>
+                            <input
+                              type="radio"
+                              name="changelog-page"
+                              value="cosmetic"
+                              checked
+                            />
+                            Cosmetic
+                          </label>
+                          <label>
+                            <input
+                              type="radio"
+                              name="changelog-page"
+                              value="noncosmetic"
+                            />
+                            Non-Cosmetic
+                          </label>
+                        </div>
+
+                        <div class="form-actions">
+                          <button
+                            type="submit"
+                            class="modal-btn primary"
+                          >
+                            Submit Changelog
+                          </button>
+                        </div>
+                      </form>
+                    </div>
+                  </div>
+
+                  <!-- Cosmetic Changelogs (tab 2)  -->
+                  <div
+                    id="changelog-cosmetic-tab"
+                    class="changelog-inner-tab"
+                    style="display:none;"
+                  >
+                    <div id="changelog-cosmetic-wrapper" class="dt-section">
+                      <h3 class="mb-3">Cosmetic Changelog Entries</h3>
+
+                      <div class="admin-table-container">
+                        <table
+                          id="changelog-cosmetic-table"
+                          class="admin-table display nowrap"
+                          style="width:100%"
+                        >
+                          <thead>
+                            <tr>
+                              <th>ID</th>
+                              <th>User</th>
+                              <th>Message</th>
+                              <th>Timestamp</th>
+                              <th>Actions</th>
+                            </tr>
+                          </thead>
+                          <tbody id="changelog-cosmetic-body">
+                            <!-- filled from JS -->
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Other Changelogs (tab 3)-->
+                  <div
+                    id="changelog-other-tab"
+                    class="changelog-inner-tab"
+                    style="display:none;"
+                  >
+                    <div id="changelog-other-wrapper" class="dt-section">
+                      <h3 class="mb-3">Other (Non-Cosmetic) Changelog Entries</h3>
+
+                      <div class="admin-table-container">
+                        <table
+                          id="changelog-other-table"
+                          class="admin-table display nowrap"
+                          style="width:100%"
+                        >
+                          <thead>
+                            <tr>
+                              <th>ID</th>
+                              <th>User</th>
+                              <th>Message</th>
+                              <th>Timestamp</th>
+                              <th>Actions</th>
+                            </tr>
+                          </thead>
+                          <tbody id="changelog-other-body">
+                            <!-- filled from JS -->
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  </div>
+
+                </div>
               </div>
             </div>
           </div>

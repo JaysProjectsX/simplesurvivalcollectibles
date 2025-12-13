@@ -133,7 +133,6 @@ body {
   width: 26px;
   height: 26px;
   border-radius: 8px;
-  background: #101012;
 }
 
 .sidebar-link .sidebar-icon svg {
@@ -161,10 +160,6 @@ body {
 .sidebar-link.active {
   background: #202025;
   color: #ffffff;
-}
-
-.sidebar-link.active .sidebar-icon {
-  background: #101012;
 }
 
 /* rotate arrow when accordion open */
@@ -309,7 +304,6 @@ body.sidebar-drawer-open .sidebar-drawer-toggle span:nth-child(3) {
   }
 }
 
-/* Hide the old horizontal DB subtabs row (we now use sidebar buttons) */
 .db-subtabs {
   display: none !important;
 }
@@ -798,6 +792,56 @@ body.sidebar-drawer-open .sidebar-drawer-toggle span:nth-child(3) {
 
 .cancel-btn:hover {
   background-color: #c0392b;
+}
+
+/* Changelog inner horizontal tabs */
+.changelog-subtabs {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.changelog-subtab-btn {
+  background: transparent;
+  border: none;
+  padding: 0.75rem 1.25rem;
+  color: #cfd4ff;
+  font-weight: 500;
+  cursor: pointer;
+  position: relative;
+  transition: color 0.2s ease, background 0.2s ease;
+}
+
+.changelog-subtab-btn:hover {
+  color: #ffffff;
+}
+
+.changelog-subtab-btn.active {
+  color: #ffffff;
+}
+
+.changelog-subtab-btn.active::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -1px;
+  height: 3px;
+  background: linear-gradient(90deg, #536dff, #8f6bff);
+  border-radius: 999px 999px 0 0;
+}
+
+.changelog-inner-tabs-wrapper {
+  margin-top: 0.5rem;
+}
+
+.changelog-inner-tab {
+  display: none;
+}
+
+.changelog-inner-tab.active {
+  display: block;
 }
 
 .db-subtabs {

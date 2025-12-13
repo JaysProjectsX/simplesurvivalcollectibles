@@ -2655,6 +2655,33 @@ document.addEventListener("click", function (e) {
  * Sets up the create form and the three inner tabs
  * (Create Changelog / Cosmetic Changelogs / Other Changelogs).
  */
+
+  const editSvg = `
+    <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M4 20h4l10-10-4-4L4 16v4z"
+            fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linejoin="round"/>
+      <path d="M14 6l4 4"
+            fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round"/>
+    </svg>`;
+
+  const trashSvg = `
+    <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M5 7h14"
+            fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round"/>
+      <path d="M10 11v6M14 11v6"
+            fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round"/>
+      <path d="M9 7V5h6v2"
+            fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round"/>
+      <path d="M6 7l1 12h10l1-12"
+            fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linejoin="round"/>
+    </svg>`;
+
 function setupChangelogForm() {
   const form = document.getElementById("changelog-form");
   const messageInput = document.getElementById("changelog-message");
@@ -2839,8 +2866,8 @@ function renderChangelogTable(entries, page) {
       const message = escapeHTML(entry.message || "");
 
       const userCell = `
-        ${username}
         <span class="role-tag ${role}">${role}</span>
+        <span class="ms-2">${username}</span>
       `;
 
       const msgCell = `
@@ -2851,10 +2878,10 @@ function renderChangelogTable(entries, page) {
 
       const actionsCell =
         (userRole === "Admin" || userRole === "SysAdmin"
-          ? `<button class="admin-action-btn" onclick="editChangelog(${entry.id})">✏️</button>`
+          ? `<button class="btn btn-sm btn-outline-light me-1" onclick="editChangelog(${entry.id})">${editSvg}</button>`
           : "") +
         (userRole === "SysAdmin"
-          ? `<button class="admin-action-btn delete" onclick="deleteChangelog(${entry.id})">🗑️</button>`
+          ? `<button class="btn btn-sm btn-outline-danger" onclick="deleteChangelog(${entry.id})">${trashSvg}</button>`
           : "");
 
       dt.row.add([
@@ -2943,6 +2970,7 @@ function confirmEditChangelog(id, modalId) {
 }
 
 function deleteChangelog(id) {
+  if (userRole !== "SysAdmin") return;
   const modalId = `deleteChangelogModal-${id}`;
   showGlobalModal({
     type: "warning",
@@ -2960,6 +2988,7 @@ function deleteChangelog(id) {
 }
 
 function confirmDeleteChangelog(id, modalId) {
+  if (userRole !== "SysAdmin") return;
   api(`/admin/changelog/${id}`, { method: "DELETE" })
     .then(() => {
       fadeOutAndRemove(modalId);

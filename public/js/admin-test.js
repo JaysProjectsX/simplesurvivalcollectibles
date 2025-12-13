@@ -2675,19 +2675,25 @@ function setupChangelogForm() {
 
       // active panel
       tabPanels.forEach((panel) => {
-        panel.classList.toggle("active", panel.id === targetId);
+        const isTarget = panel.id === targetId;
+        panel.classList.toggle("active", isTarget);
+        panel.style.display = isTarget ? "block" : "none";
       });
 
       if (targetId === "changelog-cosmetic-tab") {
-          loadChangelogPage("cosmetic");
-          setTimeout(() => {
+        loadChangelogPage("cosmetic");
+        setTimeout(() => {
+          if (cosmeticChangelogDt) {
             cosmeticChangelogDt.columns.adjust().draw(false);
-          }, 50);
+          }
+        }, 50);
       } else if (targetId === "changelog-other-tab") {
-          loadChangelogPage("noncosmetic");
-          setTimeout(() => {
+        loadChangelogPage("noncosmetic");
+        setTimeout(() => {
+          if (otherChangelogDt) {
             otherChangelogDt.columns.adjust().draw(false);
-          }, 50);
+          }
+        }, 50);
       }
     });
   });
@@ -2802,81 +2808,66 @@ async function loadChangelogPage(page) {
   }
 }
 
-/**
- * Render into the correct table and (re)init DataTable.
- */
+
 function renderChangelogTable(entries, page) {
   const isCosmetic = page === "cosmetic";
-  const tbodyId = isCosmetic
-    ? "changelog-cosmetic-body"
-    : "changelog-other-body";
-  const tableSelector = isCosmetic
-    ? "#changelog-cosmetic-table"
-    : "#changelog-other-table";
+  const dt = isCosmetic ? cosmeticChangelogDt : otherChangelogDt;
 
-  const tbody = document.getElementById(tbodyId);
-  if (!tbody) return;
+  if (!dt) {
+    // DataTable not initialised yet – just bail
+    return;
+  }
+
+  dt.clear();
 
   if (!entries || entries.length === 0) {
-    tbody.innerHTML =
-      '<tr><td colspan="5" style="text-align:center;">No entries found.</td></tr>';
+    // Show a single “no entries” row
+    dt.row.add([
+      "—",
+      "—",
+      '<span style="opacity:.7;">No entries found.</span>',
+      "—",
+      ""
+    ]);
   } else {
-    tbody.innerHTML = entries
-      .map((entry) => {
-        const date = entry.timestamp
-          ? new Date(entry.timestamp).toLocaleString()
-          : "";
-        const username = entry.username || "Unknown";
-        const role = entry.role || "User";
-        const message = escapeHTML(entry.message || "");
+    entries.forEach((entry) => {
+      const date = entry.timestamp
+        ? new Date(entry.timestamp).toLocaleString()
+        : "";
+      const username = entry.username || "Unknown";
+      const role = entry.role || "User";
+      const message = escapeHTML(entry.message || "");
 
-        return `
-          <tr>
-            <td>${entry.id}</td>
-            <td>
-              ${username}
-              <span class="role-tag ${role}">${role}</span>
-            </td>
-            <td>
-              <span class="changelog-message" data-id="${entry.id}">
-                ${message}
-              </span>
-            </td>
-            <td>${date}</td>
-            <td>
-              ${
-                userRole === "Admin" || userRole === "SysAdmin"
-                  ? `<button class="admin-action-btn" onclick="editChangelog(${entry.id})">✏️</button>`
-                  : ""
-              }
-              ${
-                userRole === "SysAdmin"
-                  ? `<button class="admin-action-btn delete" onclick="deleteChangelog(${entry.id})">🗑️</button>`
-                  : ""
-              }
-            </td>
-          </tr>
-        `;
-      })
-      .join("");
+      const userCell = `
+        ${username}
+        <span class="role-tag ${role}">${role}</span>
+      `;
+
+      const msgCell = `
+        <span class="changelog-message" data-id="${entry.id}">
+          ${message}
+        </span>
+      `;
+
+      const actionsCell =
+        (userRole === "Admin" || userRole === "SysAdmin"
+          ? `<button class="admin-action-btn" onclick="editChangelog(${entry.id})">✏️</button>`
+          : "") +
+        (userRole === "SysAdmin"
+          ? `<button class="admin-action-btn delete" onclick="deleteChangelog(${entry.id})">🗑️</button>`
+          : "");
+
+      dt.row.add([
+        entry.id,
+        userCell,
+        msgCell,
+        date,
+        actionsCell
+      ]);
+    });
   }
 
-  // Push the new rows into the already-initialised DataTables
-  if (window.jQuery && $.fn.DataTable) {
-    const $ = window.jQuery;
-
-    if (isCosmetic) {
-      if (!cosmeticChangelogDt) return;          // safety guard
-      cosmeticChangelogDt.clear();
-      cosmeticChangelogDt.rows.add($(tbody).find("tr"));
-      cosmeticChangelogDt.draw(false);
-    } else {
-      if (!otherChangelogDt) return;             // safety guard
-      otherChangelogDt.clear();
-      otherChangelogDt.rows.add($(tbody).find("tr"));
-      otherChangelogDt.draw(false);
-    }
-  }
+  dt.draw(false);
 }
 
 /* ---------- Edit / Delete logic (same as before) ---------- */

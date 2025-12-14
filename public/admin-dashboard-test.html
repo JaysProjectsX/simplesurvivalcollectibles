@@ -262,7 +262,7 @@
           <div class="tab-content" id="dbTab" style="display: none;">
             <h2>Database Options</h2>
 
-            <!-- Horizontal tab buttons (still present but hidden via CSS) -->
+            <!-- Horizontal tab buttons -->
             <div class="db-subtabs">
               <button class="db-subtab-btn active" data-tab="view-edit">View & Edit Crates</button>
               <button class="db-subtab-btn" data-tab="create">Create New Crate</button>
@@ -536,7 +536,7 @@
                     class="changelog-subtab-btn"
                     data-inner-tab="changelog-other-tab"
                   >
-                    Other Changelogs
+                    Non-Cosmetic Changelogs
                   </button>
                 </div>
 
@@ -602,12 +602,13 @@
                       <div class="admin-table-container">
                         <table
                           id="changelog-cosmetic-table"
-                          class="admin-table display nowrap"
+                          class="admin-table display"
                           style="width:100%"
                         >
                           <thead>
                             <tr>
                               <th>ID</th>
+                              <th>Role</th>
                               <th>User</th>
                               <th>Message</th>
                               <th>Timestamp</th>
@@ -628,17 +629,18 @@
                     class="changelog-inner-tab"
                   >
                     <div id="changelog-other-wrapper" class="dt-section">
-                      <h3 class="mb-3">Other (Non-Cosmetic) Changelog Entries</h3>
+                      <h3 class="mb-3">Non-Cosmetic Changelog Entries</h3>
 
                       <div class="admin-table-container">
                         <table
                           id="changelog-other-table"
-                          class="admin-table display nowrap"
+                          class="admin-table display"
                           style="width:100%"
                         >
                           <thead>
                             <tr>
                               <th>ID</th>
+                              <th>Role</th>
                               <th>User</th>
                               <th>Message</th>
                               <th>Timestamp</th>

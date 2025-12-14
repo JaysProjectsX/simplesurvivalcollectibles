@@ -2841,14 +2841,12 @@ function renderChangelogTable(entries, page) {
   const dt = isCosmetic ? cosmeticChangelogDt : otherChangelogDt;
 
   if (!dt) {
-    // DataTable not initialised yet – just bail
     return;
   }
 
   dt.clear();
 
   if (!entries || entries.length === 0) {
-    // Show a single “no entries” row
     dt.row.add([
       "—",
       "—",
@@ -2864,11 +2862,8 @@ function renderChangelogTable(entries, page) {
       const username = entry.username || "Unknown";
       const role = entry.role || "User";
       const message = escapeHTML(entry.message || "");
-
-      const userCell = `
-        <span class="role-tag ${role}">${role}</span>
-        <span class="ms-2">${username}</span>
-      `;
+      const roleCell = `<span class="role-tag ${role}">${role}</span>`;
+      const userCell = `<span class="ms-2">${username}</span>`;
 
       const msgCell = `
         <span class="changelog-message" data-id="${entry.id}">
@@ -2886,6 +2881,7 @@ function renderChangelogTable(entries, page) {
 
       dt.row.add([
         entry.id,
+        roleCell,
         userCell,
         msgCell,
         date,

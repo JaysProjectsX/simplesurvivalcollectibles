@@ -826,13 +826,6 @@ body.sidebar-drawer-open .sidebar-drawer-toggle span:nth-child(3) {
 
 #db-tab-changelog .changelog-subtab-btn.active::after {
     content: "";
-    position: absolute;
-    left: 0;
-    right: 0;
-    bottom: -2px;
-    height: 3px;
-    background: linear-gradient(90deg,#536dff,#8f6bff);
-    border-radius: 10px;
 }
 
 #db-tab-changelog .changelog-inner-tab {

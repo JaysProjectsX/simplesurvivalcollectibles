@@ -183,6 +183,7 @@ body {
   text-align: left;
   padding: 0.45rem 0.4rem;
   border-radius: 6px;
+  margin-bottom: 2px;
   cursor: pointer;
   transition: background 0.2s ease, color 0.2s ease;
 }
@@ -794,46 +795,95 @@ body.sidebar-drawer-open .sidebar-drawer-toggle span:nth-child(3) {
   background-color: #c0392b;
 }
 
-#db-tab-changelog .changelog-subtabs {
-    display: flex;
-    gap: 0.75rem;
-    padding: 0.75rem 0;
-    margin-bottom: 1.25rem;
-    border-bottom: 1px solid rgba(255,255,255,0.15);
+/* ================================
+   Changelog inner subtabs (video-style)
+================================ */
+#db-tab-changelog {
+  --changelog-accent: #365CF5;
 }
 
+/* Tab row */
+#db-tab-changelog .changelog-subtabs {
+  display: flex;
+  gap: 22px;
+  align-items: center;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.10);
+  margin-bottom: 16px;
+  padding-bottom: 10px;
+}
+
+/* Tab button */
 #db-tab-changelog .changelog-subtab-btn {
-    background: #1b1b28;
-    border: 1px solid #2a2a3d;
-    padding: 0.55rem 1.25rem;
-    border-radius: 6px 6px 0 0;
-    color: #d7d7ff;
-    font-size: 0.95rem;
-    cursor: pointer;
-    transition: 0.2s ease;
+  position: relative;
+  border: none;
+  background: transparent;
+  color: #cfd3ff;
+  font-size: 15px;
+  font-weight: 600;
+  padding: 10px 14px;
+  border-radius: 10px;
+  cursor: pointer;
+
+  transition: color 0.25s ease, background 0.25s ease;
+}
+
+/* Animated underline */
+#db-tab-changelog .changelog-subtab-btn::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -11px;
+  width: 100%;
+  height: 2px;
+  border-radius: 999px;
+  background: var(--changelog-accent);
+
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.3s ease;
 }
 
 #db-tab-changelog .changelog-subtab-btn:hover {
-    background: #262638;
-    color: white;
+  color: var(--changelog-accent);
+  background: rgba(54, 92, 245, 0.10);
 }
 
+#db-tab-changelog .changelog-subtab-btn:hover::after {
+  transform: scaleX(1);
+}
+
+/* Active */
 #db-tab-changelog .changelog-subtab-btn.active {
-    background: #2d2d3f;
-    color: #ffffff;
-    border-bottom-color: transparent;
+  color: var(--changelog-accent);
 }
 
 #db-tab-changelog .changelog-subtab-btn.active::after {
-    content: "";
+  transform: scaleX(1);
+}
+
+#db-tab-changelog .changelog-subtab-btn:focus-visible {
+  outline: 2px solid rgba(54, 92, 245, 0.6);
+  outline-offset: 2px;
+}
+
+#db-tab-changelog .changelog-inner-tabs-wrapper {
+  position: relative;
 }
 
 #db-tab-changelog .changelog-inner-tab {
-    display: none;
+  display: none;
+  opacity: 0;
+  transform: translateY(6px);
+  transition: opacity 0.2s ease, transform 0.2s ease;
 }
 
 #db-tab-changelog .changelog-inner-tab.active {
-    display: block;
+  display: block;
+}
+
+#db-tab-changelog .changelog-inner-tab.active.show {
+  opacity: 1;
+  transform: translateY(0);
 }
 
 .db-subtabs {
@@ -1552,6 +1602,16 @@ select {
   display: flex;
   flex-direction: column;
   width: 100%;
+}
+
+#changelog-cosmetic-wrapper {
+  margin-bottom: 2rem;
+  padding: 1.5rem;
+}
+
+#changelog-other-wrapper {
+  padding: 1.5rem;
+  margin-bottom: 2rem;
 }
 
 .changelog-edit-modal textarea#editChangelogTextarea {

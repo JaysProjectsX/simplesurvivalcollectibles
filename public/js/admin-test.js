@@ -2689,38 +2689,54 @@ function setupChangelogForm() {
   if (!form || !messageInput) return;
 
   // ----- inner horizontal subtabs -----
-  const tabButtons = document.querySelectorAll(".changelog-subtab-btn");
-  const tabPanels = document.querySelectorAll(".changelog-inner-tab");
+  const tabButtons = document.querySelectorAll("#db-tab-changelog .changelog-subtab-btn");
+  const tabPanels = document.querySelectorAll("#db-tab-changelog .changelog-inner-tab");
+  const FADE_MS = 200; // must match CSS transition time
+
+  const activateInnerTab = (targetId) => {
+    const nextPanel = document.getElementById(targetId);
+    if (!nextPanel) return;
+
+    // Buttons
+    tabButtons.forEach((b) => b.classList.toggle("active", b.getAttribute("data-inner-tab") === targetId));
+
+    // Fade out current
+    const currentPanel = document.querySelector("#db-tab-changelog .changelog-inner-tab.active");
+    if (currentPanel && currentPanel !== nextPanel) {
+      currentPanel.classList.remove("show");
+      setTimeout(() => currentPanel.classList.remove("active"), FADE_MS);
+    }
+
+    // Show + fade in next
+    nextPanel.classList.add("active");
+    requestAnimationFrame(() => nextPanel.classList.add("show"));
+  };
+
+  // Ensure initial active panel fades in (on page load)
+  const initialBtn = document.querySelector("#db-tab-changelog .changelog-subtab-btn.active");
+  if (initialBtn) activateInnerTab(initialBtn.getAttribute("data-inner-tab"));
 
   tabButtons.forEach((btn) => {
     btn.addEventListener("click", () => {
       const targetId = btn.getAttribute("data-inner-tab");
+      if (!targetId) return;
 
-      // active button
-      tabButtons.forEach((b) => b.classList.remove("active"));
-      btn.classList.add("active");
+      // If already active, do nothing
+      if (btn.classList.contains("active")) return;
 
-      // active panel
-      tabPanels.forEach((panel) => {
-        const isTarget = panel.id === targetId;
-        panel.classList.toggle("active", isTarget);
-        panel.style.display = isTarget ? "block" : "none";
-      });
+      activateInnerTab(targetId);
 
+      // Load/update DataTables only when relevant tab is shown
       if (targetId === "changelog-cosmetic-tab") {
-        loadChangelogPage("cosmetic");
+        loadChangelogPage("cosmetic", 1);
         setTimeout(() => {
-          if (cosmeticChangelogDt) {
-            cosmeticChangelogDt.columns.adjust().draw(false);
-          }
-        }, 50);
+          if (cosmeticChangelogDt) cosmeticChangelogDt.columns.adjust().draw(false);
+        }, FADE_MS + 50);
       } else if (targetId === "changelog-other-tab") {
-        loadChangelogPage("noncosmetic");
+        loadChangelogPage("noncosmetic", 1);
         setTimeout(() => {
-          if (otherChangelogDt) {
-            otherChangelogDt.columns.adjust().draw(false);
-          }
-        }, 50);
+          if (otherChangelogDt) otherChangelogDt.columns.adjust().draw(false);
+        }, FADE_MS + 50);
       }
     });
   });

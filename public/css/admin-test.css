@@ -818,10 +818,11 @@ body.sidebar-drawer-open .sidebar-drawer-toggle span:nth-child(3) {
   border: none;
   background: transparent;
   color: #cfd3ff;
-  font-size: 15px;
+  font-size: 0.85rem;
+  text-transform: uppercase;
   font-weight: 600;
   padding: 10px 14px;
-  border-radius: 10px;
+  border-radius: 2px;
   cursor: pointer;
 
   transition: color 0.25s ease, background 0.25s ease;
@@ -854,6 +855,7 @@ body.sidebar-drawer-open .sidebar-drawer-toggle span:nth-child(3) {
 
 /* Active */
 #db-tab-changelog .changelog-subtab-btn.active {
+  background: #0e1633;
   color: var(--changelog-accent);
 }
 

@@ -2889,7 +2889,7 @@ function renderChangelogTable(entries, page) {
 
       const actionsCell =
         (userRole === "Admin" || userRole === "SysAdmin"
-          ? `<button class="btn btn-sm btn-outline-light me-1" onclick="editChangelog(${entry.id})">${editSvg}</button>`
+          ? `<button class="btn btn-sm btn-outline-light me-2" onclick="editChangelog(${entry.id})">${editSvg}</button>`
           : "") +
         (userRole === "SysAdmin"
           ? `<button class="btn btn-sm btn-outline-danger" onclick="deleteChangelog(${entry.id})">${trashSvg}</button>`

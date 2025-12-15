@@ -1141,59 +1141,6 @@ function setupCreateCrateWizard() {
 
   if (!steps.length || !prevBtn || !nextBtn || !submitBtn) return;
 
-  currentStep = 0;
-
-  function updateStepUi() {
-    // Show the current step, hide others
-    steps.forEach((stepEl, idx) => {
-      const isActive = idx === currentStep;
-      stepEl.classList.toggle("active", isActive);
-      stepEl.style.display = isActive ? "block" : "none";
-    });
-
-    // Update circles at top
-    stepDots.forEach((li, idx) => {
-      li.classList.toggle("active", idx === currentStep);
-      li.classList.toggle("completed", idx < currentStep);
-    });
-
-    // Nav buttons
-    prevBtn.disabled        = currentStep === 0;
-    nextBtn.style.display   = currentStep < steps.length - 1 ? "inline-block" : "none";
-    submitBtn.style.display = currentStep === steps.length - 1 ? "inline-block" : "none";
-  }
-
-  // expose if you ever want to jump programmatically
-  window.showWizardStep = function(step) {
-    const maxStep = steps.length - 1;
-    currentStep = Math.min(Math.max(step, 0), maxStep);
-    updateStepUi();
-  };
-
-  prevBtn.addEventListener("click", () => {
-    if (currentStep > 0) {
-      currentStep -= 1;
-      updateStepUi();
-    }
-  });
-
-  nextBtn.addEventListener("click", () => {
-    // Validate *before* moving forward
-    if (currentStep === 0) {
-      if (!validateCrateInfo()) return;
-    } else if (currentStep === 1) {
-      if (!validateWizardItems()) return;
-      populateConfirmationTables();
-    }
-
-    if (currentStep < steps.length - 1) {
-      currentStep += 1;
-      updateStepUi();
-    }
-  });
-
-  submitBtn.addEventListener("click", submitNewCrate);
-
   // Step 3 dropdown toggle
   const dropdownBtn     = document.getElementById("crate-dropdown-btn");
   const dropdownContent = document.getElementById("crate-dropdown-content");

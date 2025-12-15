@@ -1675,16 +1675,25 @@ function buildStep3Review() {
     $("#wizard-items-review-table").DataTable().destroy();
   }
 
-  $("#wizard-items-review-table").DataTable({
-    paging: true,
-    pageLength: 10,
-    lengthChange: true,
-    searching: true,
-    ordering: true,
-    info: true,
-    autoWidth: false,
-    responsive: true,
-    dom: "lfrtip",
+    $("#wizard-items-review-table").DataTable({
+      paging: true,
+      pageLength: 10,
+      lengthChange: true,
+      searching: true,
+      ordering: false,
+      info: true,
+      autoWidth: false,
+      responsive: true,
+      language: {
+      emptyTable: "No items have been added to this crate yet."
+    },
+
+    layout: {
+      topStart: "pageLength",
+      topEnd: "search",
+      bottomStart: "info",
+      bottomEnd: "paging"
+    }
   });
 }
 

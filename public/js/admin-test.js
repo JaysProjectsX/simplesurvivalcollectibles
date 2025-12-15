@@ -1138,13 +1138,19 @@ function refreshWizardReviewTable() {
     wizardReviewDt = $(selector).DataTable({
       paging: true,
       searching: true,
-      ordering: false,
+      ordering: true,
       pageLength: 10,
       lengthMenu: [10, 25, 50, 100],
       deferRender: true,
       responsive: true,
       autoWidth: false,
-      language: { emptyTable: "No items have been added to this crate yet." }
+      language: { emptyTable: "No items have been added to this crate yet." },
+      layout: {
+        topStart: "pageLength",
+        topEnd: "search",
+        bottomStart: "info",
+        bottomEnd: "paging"
+      }
     });
   }
 
@@ -1220,7 +1226,7 @@ function setupCreateCrateWizard() {
 
     // If we just showed Step 3, rebuild the confirmation tables every time
     if (currentStep === 2) {
-      populateConfirmationTables();
+      buildStep3Review();
     }
 
     // If we just showed Step 2, make sure the DT recalculates widths
@@ -1265,10 +1271,6 @@ function setupCreateCrateWizard() {
       if (currentStep < steps.length - 1) {
         currentStep += 1;
         updateStepUi();
-
-        if (currentStep === 2) {
-          buildStep3Review();
-        }
       }
     });
   }
@@ -1650,93 +1652,32 @@ function deleteWizardItem(index) {
 
 // ===== STEP 3: BUILD CONFIRM REVIEW =====
 function buildStep3Review() {
-  // --- 1) Crate summary (top table) ---
-  const crateNameInput = document.getElementById("new-crate-name");
-  const crateName = crateNameInput ? crateNameInput.value.trim() : "";
+  // --- Crate summary (top table) ---
+  const crateName = document.getElementById("new-crate-name")?.value.trim() || "";
 
-  const typeRadio = document.querySelector('input[name="crateType"]:checked');
+  const typeVal = document.querySelector('input[name="crateType"]:checked')?.value;
   const crateType =
-    typeRadio && typeRadio.value === "cosmetic"
-      ? "Cosmetic"
-      : typeRadio && typeRadio.value === "noncosmetic"
-      ? "Non-Cosmetic"
-      : "—";
+    typeVal === "cosmetic" ? "Cosmetic" :
+    typeVal === "noncosmetic" ? "Non-Cosmetic" : "—";
 
-  const visRadio = document.querySelector('input[name="crateVisibility"]:checked');
+  const visVal = document.querySelector('input[name="crateVisibility"]:checked')?.value;
   const visibility =
-    visRadio && visRadio.value === "public"
-      ? "Visible"
-      : visRadio && visRadio.value === "hidden"
-      ? "Hidden"
-      : "—";
+    visVal === "public" ? "Visible" :
+    visVal === "hidden" ? "Hidden" : "—";
 
   const summaryBody = document.getElementById("crate-summary-body");
   if (summaryBody) {
     summaryBody.innerHTML = `
       <tr>
-        <td>${crateName || "—"}</td>
-        <td>${crateType}</td>
-        <td>${visibility}</td>
+        <td>${escapeHTML(crateName || "—")}</td>
+        <td>${escapeHTML(crateType)}</td>
+        <td>${escapeHTML(visibility)}</td>
       </tr>
     `;
   }
 
-  // --- 2) Items in crate (copy rows from Step 2 DataTable) ---
-  const itemsBody = document.getElementById("crate-items-table-body");
-  if (!itemsBody) return;
-  itemsBody.innerHTML = "";
-
-  let step2Data = [];
-
-  // Prefer DataTables API if the Step 2 table is initialised
-  if ($.fn.dataTable && $.fn.dataTable.isDataTable("#newCrateItemsTable")) {
-    const dt = $("#newCrateItemsTable").DataTable();
-    step2Data = dt.rows().data().toArray();
-  } else {
-    // Fallback: copy raw DOM rows
-    document
-      .querySelectorAll("#newCrateItemsTable tbody tr")
-      .forEach((row) => {
-        const cells = Array.from(row.children).map((td) => td.innerHTML);
-        step2Data.push(cells);
-      });
-  }
-
-  step2Data.forEach((row) => {
-    const tr = document.createElement("tr");
-    row.forEach((cellHtml) => {
-      const td = document.createElement("td");
-      td.innerHTML = cellHtml;
-      tr.appendChild(td);
-    });
-    itemsBody.appendChild(tr);
-  });
-
-  // --- 3) (Re)initialise DataTable on the Step 3 review table ---
-  if ($.fn.dataTable && $.fn.dataTable.isDataTable("#wizard-items-review-table")) {
-    $("#wizard-items-review-table").DataTable().destroy();
-  }
-
-    $("#wizard-items-review-table").DataTable({
-      paging: true,
-      pageLength: 10,
-      lengthChange: true,
-      searching: true,
-      ordering: true,
-      info: true,
-      autoWidth: false,
-      responsive: true,
-      language: {
-      emptyTable: "No items have been added to this crate yet."
-    },
-
-    layout: {
-      topStart: "pageLength",
-      topEnd: "search",
-      bottomStart: "info",
-      bottomEnd: "paging"
-    }
-  });
+  // --- Items review table ---
+  refreshWizardReviewTable();
 }
 
 function openWizardEditItemModal(index) {

@@ -12,6 +12,7 @@ let newCrateItems = window.newCrateItems;
 let currentStep = 0;
 let newCrateSelectedIndex = null;
 let crateWizardInitialized = false;
+let wizardReviewDt = null;
 
 let cosmeticChangelogDt = null;
 let otherChangelogDt = null;
@@ -1047,7 +1048,7 @@ function initNewCrateItemsDataTable() {
   newCrateItemsDt = $(selector).DataTable({
     paging: true,
     searching: true,
-    ordering: false,
+    ordering: true,
     pageLength: 10,
     deferRender: true,
     responsive: true,
@@ -1125,6 +1126,48 @@ function refreshNewCrateItemsTable() {
   newCrateItemsDt.rows.add(rows).draw();
 }
 
+function refreshWizardReviewTable() {
+  const $ = window.jQuery;
+  const selector = "#wizard-items-review-table";
+
+  if (!$ || !$.fn.DataTable) return;
+  if (!$(selector).length) return;
+
+  // init once
+  if (!wizardReviewDt) {
+    wizardReviewDt = $(selector).DataTable({
+      paging: true,
+      searching: true,
+      ordering: false,
+      pageLength: 10,
+      lengthMenu: [10, 25, 50, 100],
+      deferRender: true,
+      responsive: true,
+      autoWidth: false,
+      language: { emptyTable: "No items have been added to this crate yet." }
+    });
+  }
+
+  // rebuild rows from the REAL source of truth
+  const rows = (newCrateItems || []).map((item) => [
+    escapeHTML(item.name || ""),
+    escapeHTML(item.set || ""),
+    item.icon
+      ? `<img src="${escapeHTML(item.icon)}" class="item-icon" alt="icon" />`
+      : "",
+    escapeHTML(item.tags || ""),
+    escapeHTML(item.tooltip || "")
+  ]);
+
+  wizardReviewDt.clear();
+  wizardReviewDt.rows.add(rows).draw(false);
+
+  // if the step was hidden and just became visible, DT needs a nudge
+  setTimeout(() => {
+    wizardReviewDt.columns.adjust();
+    if (wizardReviewDt.responsive) wizardReviewDt.responsive.recalc();
+  }, 0);
+}
 
 function setupCreateCrateWizard() {
   const wizard = document.getElementById("crateWizard");
@@ -1174,6 +1217,19 @@ function setupCreateCrateWizard() {
     prevBtn.disabled        = currentStep === 0;
     nextBtn.style.display   = currentStep < steps.length - 1 ? "inline-block" : "none";
     submitBtn.style.display = currentStep === steps.length - 1 ? "inline-block" : "none";
+
+    // If we just showed Step 3, rebuild the confirmation tables every time
+    if (currentStep === 2) {
+      populateConfirmationTables();
+    }
+
+    // If we just showed Step 2, make sure the DT recalculates widths
+    if (currentStep === 1 && newCrateItemsDt) {
+      setTimeout(() => {
+        newCrateItemsDt.columns.adjust();
+        if (newCrateItemsDt.responsive) newCrateItemsDt.responsive.recalc();
+      }, 0);
+    }
 
     wizardCurrentStep = currentStep;
   }
@@ -1547,22 +1603,8 @@ function populateConfirmationTables() {
     summaryBody.appendChild(tr);
   }
 
-  // Items summary
-  if (itemsBody) {
-    itemsBody.innerHTML = "";
-
-    newCrateItems.forEach((item) => {
-      const tr = document.createElement("tr");
-      tr.innerHTML = `
-        <td>${escapeHTML(item.name || "")}</td>
-        <td>${escapeHTML(item.set || "")}</td>
-        <td>${item.icon ? `<img src="${escapeHTML(item.icon)}" class="item-icon" alt="icon" />` : ""}</td>
-        <td>${escapeHTML(item.tags || "")}</td>
-        <td>${escapeHTML(item.tooltip || "")}</td>
-      `;
-      itemsBody.appendChild(tr);
-    });
-  }
+  // Items summary (DataTables-managed in Step 3)
+  refreshWizardReviewTable();
 }
 
 function openWizardAddItemModal() {
@@ -1680,7 +1722,7 @@ function buildStep3Review() {
       pageLength: 10,
       lengthChange: true,
       searching: true,
-      ordering: false,
+      ordering: true,
       info: true,
       autoWidth: false,
       responsive: true,

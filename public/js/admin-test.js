@@ -1174,6 +1174,8 @@ function setupCreateCrateWizard() {
     prevBtn.disabled        = currentStep === 0;
     nextBtn.style.display   = currentStep < steps.length - 1 ? "inline-block" : "none";
     submitBtn.style.display = currentStep === steps.length - 1 ? "inline-block" : "none";
+
+    wizardCurrentStep = currentStep;
   }
 
   window.showWizardStep = function(step) {
@@ -1196,19 +1198,21 @@ function setupCreateCrateWizard() {
   if (!nextBtn.dataset.bound) {
     nextBtn.dataset.bound = "1";
     nextBtn.addEventListener("click", () => {
-      // Validate *before* moving forward
       if (currentStep === 0) {
         if (!validateCrateInfo()) return;
-      } else if (currentStep === 1) {
-        if (!validateWizardItems()) return;
+      }
 
-        // Build confirmation tables when entering step 3
-        populateConfirmationTables();
+      if (currentStep === 1) {
+        if (!validateWizardItems()) return;
       }
 
       if (currentStep < steps.length - 1) {
         currentStep += 1;
         updateStepUi();
+
+        if (currentStep === 2) {
+          buildStep3Review();
+        }
       }
     });
   }
@@ -1680,7 +1684,7 @@ function buildStep3Review() {
     info: true,
     autoWidth: false,
     responsive: true,
-    dom: "lrtip",
+    dom: "lfrtip",
   });
 }
 

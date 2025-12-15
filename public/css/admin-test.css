@@ -1385,8 +1385,12 @@ select {
 }
 
 .wizard-step .step-inner {
-  max-width: 720px;
+  max-width: 840px;
   margin: 0 auto;
+}
+
+#wizard-items-review-table {
+  margin-bottom: 1rem;
 }
 
 #crateWizard .crate-form-grid {

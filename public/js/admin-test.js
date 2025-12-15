@@ -1059,15 +1059,14 @@ function initNewCrateItemsDataTable() {
 
   const $table = $(selector);
 
-  // row selection (index based on first column so sorting/search still works)
+  // row selection (use DataTables internal row index so sorting/search still works)
   $table.on("click", "tbody tr", function () {
-    const row  = newCrateItemsDt.row(this);
+    const row = newCrateItemsDt.row(this);
     const data = row.data();
     if (!data) return;
 
-    // First column is the 1-based “#” we added in refreshNewCrateItemsTable()
-    const displayIndex = parseInt(data[0], 10) - 1;
-    if (isNaN(displayIndex) || displayIndex < 0) return;
+    const idx = row.index(); // <-- maps to the insertion order (matches newCrateItems after refresh)
+    if (idx == null || idx < 0) return;
 
     if ($(this).hasClass("selected")) {
       $(this).removeClass("selected");
@@ -1075,7 +1074,7 @@ function initNewCrateItemsDataTable() {
     } else {
       $table.find("tr.selected").removeClass("selected");
       $(this).addClass("selected");
-      newCrateSelectedIndex = displayIndex;
+      newCrateSelectedIndex = idx;
     }
 
     updateNewCrateItemsToolbar();
@@ -1113,8 +1112,7 @@ function refreshNewCrateItemsTable() {
 
   newCrateItemsDt.clear();
 
-  const rows = newCrateItems.map((item, index) => [
-    index + 1,
+  const rows = newCrateItems.map((item) => [
     escapeHTML(item.name || ""),
     escapeHTML(item.set || ""),
     item.icon
@@ -1126,6 +1124,7 @@ function refreshNewCrateItemsTable() {
 
   newCrateItemsDt.rows.add(rows).draw();
 }
+
 
 function setupCreateCrateWizard() {
   const wizard = document.getElementById("crateWizard");

@@ -171,39 +171,6 @@
     <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
     <script src="/js/scripts.js"></script>
     <script src="/js/auth.js"></script>
-    <script>
-      let currentIndex = 0;
-      const slides = document.querySelectorAll('.slide');
-      const slider = document.getElementById('slider');
-      const dotsContainer = document.getElementById('dots');
-
-      function showSlide(index) {
-        if (index >= slides.length) currentIndex = 0;
-        else if (index < 0) currentIndex = slides.length - 1;
-        else currentIndex = index;
-
-        slider.style.transform = `translateX(-${currentIndex * 100}%)`;
-        updateDots();
-      }
-
-      function moveSlide(step) {
-        showSlide(currentIndex + step);
-      }
-
-      function updateDots() {
-        dotsContainer.innerHTML = '';
-        slides.forEach((_, i) => {
-          const dot = document.createElement('span');
-          dot.classList.toggle('active', i === currentIndex);
-          dot.addEventListener('click', () => showSlide(i));
-          dotsContainer.appendChild(dot);
-        });
-      }
-
-      setInterval(() => moveSlide(1), 6000);
-      window.addEventListener('DOMContentLoaded', () => {
-        showSlide(0);
-      });
-    </script>
+    <script src="/js/slideshow-dynamic.js"></script>
   </body>
 </html>

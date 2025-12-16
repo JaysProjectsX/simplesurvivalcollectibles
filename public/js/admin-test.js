@@ -242,6 +242,30 @@ function initializeAdminPanel(role) {
     }
   }
 
+  const dbSubtabButtons = document.querySelectorAll(".db-subtab-btn");
+  const dbSubtabPanels = document.querySelectorAll(".db-subtab-content");
+
+  dbSubtabButtons.forEach(btn => {
+    btn.addEventListener("click", () => {
+      const tabId = btn.dataset.tab;
+
+      // active button state
+      dbSubtabButtons.forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+
+      // hide all panels
+      dbSubtabPanels.forEach(p => (p.style.display = "none"));
+
+      // show selected panel
+      const panel = document.getElementById(`db-tab-${tabId}`);
+      if (panel) panel.style.display = "block";
+
+      // ✅ add THIS here (your line, corrected)
+      if (tabId === "slideshow") window.initSlideshowTab?.();
+    });
+  });
+
+
   // === Sidebar drawer (mobile / tablet) ===
   const sidebar = document.querySelector(".admin-sidebar");
   const drawerToggle = document.getElementById("sidebarDrawerToggle");
@@ -2385,6 +2409,9 @@ document.querySelectorAll(".db-subtab-btn").forEach((btn) => {
 
       initNewCrateItemsDataTable();
     }
+
+    if (tabId === "slideshow") window.initSlideshowUploader?.();
+
   });
 });
 
@@ -2954,3 +2981,309 @@ function confirmDeleteChangelog(id, modalId) {
       });
     });
 }
+
+// ==============================
+// Crate Slideshow Options (DB subtab)
+// Uses: #slideshowDropzone, #slideshowFileInput, #slideshowQueueTbody, #slideshowExistingTbody, etc.
+// Backend: GET /admin/slideshow, POST /admin/slideshow/upload (FormData key "files"), DELETE /admin/slideshow/:id
+// ==============================
+(function () {
+  let _slideshowBound = false;
+  let _queue = [];
+
+  const esc = (s) =>
+    String(s ?? "")
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+      .replaceAll('"', "&quot;")
+      .replaceAll("'", "&#39;");
+
+  const fmtBytes = (bytes) => {
+    const n = Number(bytes || 0);
+    if (!n) return "0 B";
+    const units = ["B", "KB", "MB", "GB"];
+    const i = Math.min(Math.floor(Math.log(n) / Math.log(1024)), units.length - 1);
+    const v = n / Math.pow(1024, i);
+    return `${v.toFixed(v >= 10 || i === 0 ? 0 : 1)} ${units[i]}`;
+  };
+
+  function getEls() {
+    const root = document.getElementById("db-tab-slideshow");
+    if (!root) return null;
+
+    return {
+      root,
+      dz: document.getElementById("slideshowDropzone"),
+      input: document.getElementById("slideshowFileInput"),
+      uploadBtn: document.getElementById("slideshowUploadBtn"),
+      clearBtn: document.getElementById("slideshowClearBtn"),
+      queueCount: document.getElementById("slideshowQueueCount"),
+      queueTbody: document.getElementById("slideshowQueueTbody"),
+      refreshBtn: document.getElementById("slideshowRefreshBtn"),
+      existingTbody: document.getElementById("slideshowExistingTbody"),
+    };
+  }
+
+  function gmError(title, message, id = "modal-slideshowErr") {
+    if (typeof showGlobalModal !== "function") return;
+    showGlobalModal({
+      type: "error",
+      title,
+      message,
+      buttons: [{ label: "Close", onClick: `fadeOutAndRemove('${id}')` }],
+      id,
+    });
+  }
+
+  function gmSuccess(title, message, id = "modal-slideshowOk") {
+    if (typeof showGlobalModal !== "function") return;
+    showGlobalModal({
+      type: "success",
+      title,
+      message,
+      buttons: [{ label: "Close", onClick: `fadeOutAndRemove('${id}')` }],
+      id,
+    });
+  }
+
+  function renderQueue(els) {
+    if (!els.queueTbody || !els.queueCount) return;
+    els.queueCount.textContent = String(_queue.length);
+
+    if (_queue.length === 0) {
+      els.queueTbody.innerHTML = `<tr><td colspan="4" class="text-muted">No files queued.</td></tr>`;
+      return;
+    }
+
+    els.queueTbody.innerHTML = _queue
+      .map(
+        (f, idx) => `
+        <tr>
+          <td>${esc(f.name)}</td>
+          <td>${esc(f.type || "unknown")}</td>
+          <td>${esc(fmtBytes(f.size))}</td>
+          <td>
+            <button type="button" class="btn btn-sm btn-outline-danger" data-qremove="${idx}">
+              Remove
+            </button>
+          </td>
+        </tr>
+      `
+      )
+      .join("");
+
+    els.queueTbody.querySelectorAll("[data-qremove]").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const i = Number(btn.getAttribute("data-qremove"));
+        _queue.splice(i, 1);
+        renderQueue(els);
+      });
+    });
+  }
+
+  function addFiles(els, files) {
+    const arr = Array.from(files || []);
+    if (!arr.length) return;
+
+    const rejected = [];
+    for (const f of arr) {
+      // Accept image/*, plus a fallback for some browsers that leave type empty
+      const okType =
+        (f.type && f.type.startsWith("image/")) ||
+        (!f.type && /\.(png|jpg|jpeg|webp|gif)$/i.test(f.name));
+
+      if (!okType) {
+        rejected.push(`${f.name} (not an image)`);
+        continue;
+      }
+
+      _queue.push(f);
+    }
+
+    // Limit to 20 to match backend multer array("files", 20)
+    if (_queue.length > 20) _queue = _queue.slice(0, 20);
+
+    renderQueue(els);
+
+    if (rejected.length) {
+      gmError(
+        "Some files were skipped",
+        `These files were rejected:\n\n${rejected.join("\n")}`,
+        "modal-slideshowRejected"
+      );
+    }
+  }
+
+  async function loadExisting(els) {
+    if (!els.existingTbody) return;
+
+    try {
+      const res = await api("/admin/slideshow", { method: "GET" });
+      const rows = Array.isArray(res) ? res : [];
+
+      if (!rows.length) {
+        els.existingTbody.innerHTML = `<tr><td colspan="6" class="text-muted">No slideshow images uploaded yet.</td></tr>`;
+        return;
+      }
+
+      const role = (window.userRole || "").trim();
+      const canDelete = role === "SysAdmin";
+
+      els.existingTbody.innerHTML = rows
+        .map((img) => {
+          const id = img.id;
+          const name = img.original_name || "image";
+          const type = img.mime_type || "image/*";
+          const size = fmtBytes(img.size_bytes || 0);
+          const created = img.created_at ? new Date(img.created_at).toLocaleString() : "";
+          const url = img.url || "";
+
+          return `
+            <tr>
+              <td>${esc(name)}</td>
+              <td>${esc(type)}</td>
+              <td>${esc(size)}</td>
+              <td>${esc(created)}</td>
+              <td>
+                ${
+                  url
+                    ? `<a class="btn btn-sm btn-outline-primary" href="${esc(url)}" target="_blank" rel="noopener">View</a>`
+                    : `<span class="text-muted">—</span>`
+                }
+              </td>
+              <td>
+                <button type="button"
+                        class="btn btn-sm btn-outline-danger"
+                        data-sdel="${esc(id)}"
+                        ${canDelete ? "" : "disabled"}
+                        title="${canDelete ? "Delete" : "SysAdmin only"}">
+                  Delete
+                </button>
+              </td>
+            </tr>
+          `;
+        })
+        .join("");
+
+      els.existingTbody.querySelectorAll("[data-sdel]").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const id = btn.getAttribute("data-sdel");
+          if (!id) return;
+
+          const role = (window.userRole || "").trim();
+          if (role !== "SysAdmin") return;
+
+          const modalId = `modal-slideDeleteConfirm-${id}`;
+          showGlobalModal({
+            type: "warning",
+            title: "Delete slideshow image?",
+            message: "This will remove the image from the homepage slideshow.",
+            buttons: [
+              { label: "Cancel", onClick: `fadeOutAndRemove('${modalId}')` },
+              { label: "Delete", onClick: `window.__deleteSlideshowImage('${id}', '${modalId}')` },
+            ],
+            id: modalId,
+          });
+        });
+      });
+    } catch (e) {
+      els.existingTbody.innerHTML = `<tr><td colspan="6" class="text-muted">Failed to load slideshow images.</td></tr>`;
+      gmError("Load Failed", "Could not load existing slideshow images.", "modal-slideshowLoadFail");
+    }
+  }
+
+  window.__deleteSlideshowImage = async function __deleteSlideshowImage(id, modalId) {
+    try {
+      await api(`/admin/slideshow/${id}`, { method: "DELETE" });
+      if (modalId) fadeOutAndRemove(modalId);
+      gmSuccess("Deleted", "Slideshow image deleted successfully.", "modal-slideshowDeleted");
+
+      const els = getEls();
+      if (els) await loadExisting(els);
+    } catch (e) {
+      gmError("Delete Failed", "Could not delete slideshow image.", "modal-slideshowDeleteFail");
+    }
+  };
+
+  async function uploadQueue(els) {
+    if (!_queue.length) {
+      gmError("Nothing to upload", "Add images to the queue first.", "modal-slideshowEmptyQueue");
+      return;
+    }
+
+    try {
+      const fd = new FormData();
+      _queue.forEach((f) => fd.append("files", f)); // IMPORTANT: backend expects "files"
+
+      await api("/admin/slideshow/upload", {
+        method: "POST",
+        body: fd,
+      });
+
+      _queue = [];
+      renderQueue(els);
+      gmSuccess("Uploaded", "Slideshow images uploaded successfully.", "modal-slideshowUploaded");
+
+      await loadExisting(els);
+    } catch (e) {
+      gmError("Upload Failed", "Could not upload slideshow images.", "modal-slideshowUploadFail");
+    }
+  }
+
+  window.initSlideshowTab = function initSlideshowTab() {
+    const els = getEls();
+    if (!els) return;
+
+    // render immediately every time tab opens (keeps count accurate)
+    renderQueue(els);
+
+    // Bind only once
+    if (_slideshowBound) {
+      loadExisting(els);
+      return;
+    }
+    _slideshowBound = true;
+
+    if (!els.dz || !els.input || !els.uploadBtn || !els.clearBtn || !els.refreshBtn) {
+      gmError("Slideshow Tab Error", "Required slideshow elements are missing in the HTML.", "modal-slideshowMissingEls");
+      return;
+    }
+
+    // Dropzone behavior
+    const stop = (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+    };
+
+    ["dragenter", "dragover"].forEach((ev) => {
+      els.dz.addEventListener(ev, (e) => {
+        stop(e);
+        els.dz.classList.add("is-dragover");
+      });
+    });
+
+    ["dragleave", "drop"].forEach((ev) => {
+      els.dz.addEventListener(ev, (e) => {
+        stop(e);
+        els.dz.classList.remove("is-dragover");
+      });
+    });
+
+    els.dz.addEventListener("drop", (e) => addFiles(els, e.dataTransfer.files));
+    els.input.addEventListener("change", () => addFiles(els, els.input.files));
+
+    // Buttons
+    els.uploadBtn.addEventListener("click", () => uploadQueue(els));
+    els.clearBtn.addEventListener("click", () => {
+      _queue = [];
+      renderQueue(els);
+    });
+    els.refreshBtn.addEventListener("click", () => loadExisting(els));
+
+    // Initial load
+    loadExisting(els);
+  };
+})();
+
+

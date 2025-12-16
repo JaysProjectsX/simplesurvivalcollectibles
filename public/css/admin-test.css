@@ -1389,6 +1389,10 @@ select {
   margin: 0 auto;
 }
 
+.step-inner .sm-width {
+  max-width: 480px;
+}
+
 #wizard-items-review-table {
   margin-bottom: 1rem;
 }
@@ -1852,4 +1856,46 @@ select {
 }
 @media (max-width: 780px) {
   .kanban { grid-template-columns: 1fr; }
+}
+
+/* Slideshow dropzone (scoped) */
+#db-tab-slideshow .ssc-dropzone {
+  border: 2px dashed rgba(255,255,255,.18);
+  border-radius: 14px;
+  padding: 24px;
+  background: rgba(255,255,255,.03);
+  transition: border-color .15s ease, background-color .15s ease, transform .15s ease;
+  cursor: pointer;
+  user-select: none;
+}
+
+#db-tab-slideshow .ssc-dropzone:focus {
+  outline: none;
+  box-shadow: 0 0 0 .25rem rgba(13,110,253,.25);
+}
+
+#db-tab-slideshow .ssc-dropzone-inner {
+  text-align: center;
+}
+
+#db-tab-slideshow .ssc-dropzone-icon {
+  font-size: 28px;
+  line-height: 1;
+  opacity: .9;
+}
+
+/* When user drags files over it (your JS adds is-dragover) */
+#db-tab-slideshow .ssc-dropzone.is-dragover {
+  border-color: rgba(13,110,253,.75);
+  background: rgba(13,110,253,.08);
+  transform: translateY(-1px);
+}
+
+/* Preview image inside existing table */
+#db-tab-slideshow .ssc-preview {
+  width: 72px;
+  height: 42px;
+  border-radius: 10px;
+  object-fit: cover;
+  display: block;
 }

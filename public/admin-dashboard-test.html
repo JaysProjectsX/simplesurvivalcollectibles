@@ -375,7 +375,7 @@
 
                   <!-- STEP 1: Crate Info -->
                   <div class="wizard-step active" data-step="0">
-                    <div class="step-inner">
+                    <div class="step-inner sm-width">
                       <div class="crate-form-grid">
                         
                         <div class="crate-name-group mb-3 wizard-row">
@@ -659,6 +659,131 @@
                 </div>
               </div>
             </div>
+
+            <div id="db-tab-slideshow" class="db-subtab-content">
+              <div class="d-flex flex-column flex-md-row align-items-start align-items-md-center justify-content-between gap-2 mb-3">
+                <div>
+                  <h4 class="mb-1">Crate Slideshow Options</h4>
+                  <p class="text-muted mb-0 small">
+                    Upload images used by the homepage slideshow. Drag & drop or select multiple files.
+                  </p>
+                </div>
+              </div>
+
+              <div class="row g-3">
+                <!-- LEFT: Upload / Queue -->
+                <div class="col-12 col-xl-5">
+                  <div class="card h-100">
+                    <div class="card-body">
+                      <h5 class="card-title mb-3">Upload Images</h5>
+
+                      <!-- Dropzone -->
+                      <div id="slideshowDropzone" class="ssc-dropzone mb-3" role="button" tabindex="0" aria-label="Slideshow image dropzone">
+                        <div class="ssc-dropzone-inner">
+                          <div class="ssc-dropzone-icon mb-2">
+                            <i class="bi bi-cloud-arrow-up"></i>
+                          </div>
+                          <div class="fw-semibold">Drop images here</div>
+                          <div class="text-muted small">or use the file picker below</div>
+                        </div>
+                      </div>
+
+                      <!-- File input -->
+                      <div class="mb-3">
+                        <label for="slideshowFileInput" class="form-label">Choose files</label>
+                        <input class="form-control" type="file" id="slideshowFileInput" multiple accept="image/*">
+                        <div class="form-text">Supported: PNG, JPG, WEBP, GIF (max size enforced server-side).</div>
+                      </div>
+
+                      <!-- Actions -->
+                      <div class="d-flex flex-wrap gap-2">
+                        <button class="btn btn-primary" type="button" id="slideshowUploadBtn">
+                          <i class="bi bi-upload me-1"></i> Upload Selected
+                        </button>
+
+                        <button class="btn btn-outline-secondary" type="button" id="slideshowClearBtn">
+                          <i class="bi bi-x-circle me-1"></i> Clear Selection
+                        </button>
+                      </div>
+
+                      <hr class="my-4">
+
+                      <!-- Queue -->
+                      <div class="d-flex align-items-center justify-content-between mb-2">
+                        <h6 class="mb-0">Queued Files</h6>
+                        <span class="badge text-bg-secondary" id="slideshowQueueCount">0</span>
+                      </div>
+
+                      <div class="table-responsive">
+                        <table class="table table-sm align-middle mb-0">
+                          <thead class="table-light">
+                            <tr>
+                              <th>Filename</th>
+                              <th class="d-none d-md-table-cell">Type</th>
+                              <th class="text-end">Size</th>
+                              <th class="text-end"></th>
+                            </tr>
+                          </thead>
+                          <tbody id="slideshowQueueTbody">
+                            <tr>
+                              <td colspan="4" class="text-muted">No files selected yet.</td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+
+                      <div class="text-muted small mt-2">
+                        Tip: You can drag & drop multiple files at once.
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- RIGHT: Existing uploads -->
+                <div class="col-12 col-xl-7">
+                  <div class="card h-100">
+                    <div class="card-body">
+                      <div class="d-flex flex-column flex-md-row align-items-start align-items-md-center justify-content-between gap-2 mb-3">
+                        <div>
+                          <h5 class="card-title mb-0">Current Slideshow Images</h5>
+                          <div class="text-muted small">Delete is SysAdmin-only.</div>
+                        </div>
+
+                        <button class="btn btn-outline-primary btn-sm" type="button" id="slideshowRefreshBtn">
+                          <i class="bi bi-arrow-clockwise me-1"></i> Refresh
+                        </button>
+                      </div>
+
+                      <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                          <thead class="table-light">
+                            <tr>
+                              <th style="width: 90px;">Preview</th>
+                              <th>Filename</th>
+                              <th class="d-none d-lg-table-cell">Type</th>
+                              <th class="d-none d-md-table-cell text-end">Size</th>
+                              <th class="d-none d-xl-table-cell">Uploaded</th>
+                              <th class="text-end"></th>
+                            </tr>
+                          </thead>
+                          <tbody id="slideshowExistingTbody">
+                            <tr>
+                              <td colspan="6" class="text-muted">Loading…</td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+
+                      <div class="alert alert-info mt-3 mb-0 small">
+                        <i class="bi bi-info-circle me-1"></i>
+                        These images are served from your backend <code>/uploads/slideshow</code> directory and listed from MySQL.
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
           </div>
 
           <!-- Tasks / Kanban Board -->

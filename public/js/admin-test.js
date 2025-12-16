@@ -3116,25 +3116,35 @@ function confirmDeleteChangelog(id, modalId) {
     els.queueCount.textContent = String(_queue.length);
 
     if (_queue.length === 0) {
-      els.queueTbody.innerHTML = `<tr><td colspan="4" class="text-muted">No files queued.</td></tr>`;
+      els.queueTbody.innerHTML =
+        `<tr><td colspan="3" class="text-muted">No files queued.</td></tr>`;
       return;
     }
 
     els.queueTbody.innerHTML = _queue
-      .map(
-        (f, idx) => `
+      .map((f, idx) => {
+        const name = esc(f.name);
+        const type = esc(f.type || "image/*");
+        const size = esc(fmtBytes(f.size));
+
+        // Put Remove button INSIDE the Size cell so header/body stay aligned (3 cols)
+        return `
           <tr>
-            <td class="text-truncate">${esc(f.name)}</td>
-            <td class="d-none d-md-table-cell">${esc(f.type || "unknown")}</td>
-            <td class="text-end">${esc(fmtBytes(f.size))}</td>
-            <td class="text-end">
-              <button type="button" class="btn btn-sm btn-outline-danger" data-qremove="${idx}">
-                Remove
-              </button>
+            <td class="text-truncate">${name}</td>
+            <td class="d-none d-md-table-cell">${type}</td>
+            <td>
+              <div class="d-flex align-items-center justify-content-between gap-2">
+                <span class="ms-auto">${size}</span>
+                <button type="button"
+                        class="btn btn-sm btn-outline-danger"
+                        data-qremove="${idx}">
+                  Remove
+                </button>
+              </div>
             </td>
           </tr>
-        `
-      )
+        `;
+      })
       .join("");
 
     els.queueTbody.querySelectorAll("[data-qremove]").forEach((btn) => {
@@ -3146,31 +3156,51 @@ function confirmDeleteChangelog(id, modalId) {
     });
   }
 
+  function addFiles(els, files) {
+    const accepted = validateSlideshowFiles(files);
+    if (!accepted.length) return;
 
-function addFiles(els, files) {
-  const accepted = validateSlideshowFiles(files);
-  if (!accepted.length) return;
+    const existing = new Set(_queue.map((f) => `${f.name}:${f.size}:${f.lastModified}`));
 
-  // Add accepted files to queue
-  for (const f of accepted) {
-    _queue.push(f);
+    for (const f of accepted) {
+      const key = `${f.name}:${f.size}:${f.lastModified}`;
+      if (existing.has(key)) continue;
+      _queue.push(f);
+      existing.add(key);
+    }
+
+    if (_queue.length > 20) _queue = _queue.slice(0, 20);
+
+    renderQueue(els);
   }
-
-  // Limit to 20 to match backend multer array("files", 20)
-  if (_queue.length > 20) _queue = _queue.slice(0, 20);
-
-  renderQueue(els);
-}
 
   async function loadExisting(els) {
     if (!els.existingTbody) return;
 
+    // Existing table header is 5 cols (Preview | Filename | Type | Size | Uploaded)
+    els.existingTbody.innerHTML =
+      `<tr><td colspan="5" class="text-muted">Loading...</td></tr>`;
+
     try {
       const res = await api("/admin/slideshow", { method: "GET" });
-      const rows = Array.isArray(res) ? res : [];
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+      const data = await res.json();
+
+      // Accept either an array OR wrapped shapes like { images: [...] }
+      const rows = Array.isArray(data)
+        ? data
+        : Array.isArray(data?.images)
+          ? data.images
+          : Array.isArray(data?.rows)
+            ? data.rows
+            : Array.isArray(data?.data)
+              ? data.data
+              : [];
 
       if (!rows.length) {
-        els.existingTbody.innerHTML = `<tr><td colspan="6" class="text-muted">No slideshow images uploaded yet.</td></tr>`;
+        els.existingTbody.innerHTML =
+          `<tr><td colspan="5" class="text-muted">No slideshow images uploaded yet.</td></tr>`;
         return;
       }
 
@@ -3179,49 +3209,66 @@ function addFiles(els, files) {
 
       els.existingTbody.innerHTML = rows
         .map((img) => {
+          // Support your MySQL schema fields + a few fallbacks
           const id = img.id;
-          const name = img.original_name || img.filename || "image";
-          const type = img.mime_type || "image/*";
-          const size = fmtBytes(img.size_bytes || 0);
-          const created = img.created_at ? new Date(img.created_at).toLocaleString() : "—";
-          const url = img.url || "";
+          const originalName = img.original_name ?? img.originalName ?? "";
+          const fileName = img.file_name ?? img.fileName ?? img.filename ?? "";
+          const type = img.mime_type ?? img.mimeType ?? img.type ?? "image/*";
+          const sizeBytes = img.size_bytes ?? img.sizeBytes ?? img.size ?? 0;
+          const urlPath =
+            img.url_path ??
+            img.urlPath ??
+            img.url ??
+            (fileName ? `/uploads/slideshow/${fileName}` : "");
 
-          const role = (window.userRole || "").trim();
-          const canDelete = role === "SysAdmin";
+          const uploadedRaw =
+            img.uploaded_at ?? img.uploadedAt ?? img.created_at ?? img.createdAt ?? null;
 
-          const previewCell = url
-            ? `<img src="${esc(url)}" alt="${esc(name)}" class="ssc-slide-thumb" loading="lazy">`
+          const uploaded = uploadedRaw ? new Date(uploadedRaw).toLocaleString() : "—";
+
+          const previewCell = urlPath
+            ? `<img src="${esc(urlPath)}"
+                    alt="${esc(originalName || fileName)}"
+                    class="ssc-slide-thumb"
+                    loading="lazy">`
             : `<span class="text-muted">—</span>`;
 
-          const viewBtn = url
-            ? `<a class="btn btn-sm btn-outline-primary" href="${esc(url)}" target="_blank" rel="noopener">View</a>`
-            : `<span class="text-muted">—</span>`;
+          const viewBtn = urlPath
+            ? `<a class="btn btn-sm btn-outline-primary"
+                   href="${esc(urlPath)}"
+                   target="_blank"
+                   rel="noopener">View</a>`
+            : ``;
+
+          const deleteBtn = canDelete
+            ? `<button type="button"
+                      class="btn btn-sm btn-outline-danger"
+                      data-sdel="${esc(id)}">
+                 Delete
+               </button>`
+            : ``;
 
           return `
             <tr>
               <td class="slideshow-preview-col">${previewCell}</td>
-              <td class="text-truncate">${esc(name)}</td>
-              <td class="d-none d-lg-table-cell">${esc(type)}</td>
-              <td class="d-none d-md-table-cell text-end">${esc(size)}</td>
-              <td class="d-none d-xl-table-cell">${esc(created)}</td>
-              <td class="text-end">
-                <div class="d-flex gap-2 justify-content-end">
-                  ${viewBtn}
-                  <button type="button"
-                          class="btn btn-sm btn-outline-danger"
-                          data-sdel="${esc(id)}"
-                          ${canDelete ? "" : "disabled"}
-                          title="${canDelete ? "Delete" : "SysAdmin only"}">
-                    Delete
-                  </button>
+              <td class="text-truncate">
+                <div class="d-flex align-items-center justify-content-between gap-2">
+                  <span>${esc(originalName || fileName || "image")}</span>
+                  <div class="d-flex gap-2 justify-content-end">
+                    ${viewBtn}
+                    ${deleteBtn}
+                  </div>
                 </div>
               </td>
+              <td class="d-none d-lg-table-cell">${esc(type)}</td>
+              <td class="text-end">${esc(fmtBytes(sizeBytes))}</td>
+              <td class="d-none d-xl-table-cell">${esc(uploaded)}</td>
             </tr>
           `;
         })
         .join("");
 
-
+      // Bind delete buttons (SysAdmin only)
       els.existingTbody.querySelectorAll("[data-sdel]").forEach((btn) => {
         btn.addEventListener("click", () => {
           const id = btn.getAttribute("data-sdel");
@@ -3237,15 +3284,23 @@ function addFiles(els, files) {
             message: "This will remove the image from the homepage slideshow.",
             buttons: [
               { label: "Cancel", onClick: `fadeOutAndRemove('${modalId}')` },
-              { label: "Delete", onClick: `window.__deleteSlideshowImage('${id}', '${modalId}')` },
+              {
+                label: "Delete",
+                onClick: `window.__deleteSlideshowImage('${id}', '${modalId}')`,
+              },
             ],
             id: modalId,
           });
         });
       });
     } catch (e) {
-      els.existingTbody.innerHTML = `<tr><td colspan="6" class="text-muted">Failed to load slideshow images.</td></tr>`;
-      gmError("Load Failed", "Could not load existing slideshow images.", "modal-slideshowLoadFail");
+      els.existingTbody.innerHTML =
+        `<tr><td colspan="5" class="text-muted">Failed to load slideshow images.</td></tr>`;
+      gmError(
+        "Load Failed",
+        "Could not load existing slideshow images.",
+        "modal-slideshowLoadFail"
+      );
     }
   }
 

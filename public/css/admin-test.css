@@ -1914,9 +1914,9 @@ input#slideshowFileInput {
    Targets ONLY #db-tab-slideshow so other tabs remain untouched
    ========================================================= */
 #db-tab-slideshow .card {
-  background: #11131b;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 14px;
+  background: #0c0d12;
+  box-shadow: 0px 0px 20px 0px rgb(0 0 0);
+  border-radius: 6px;
 }
 
 #db-tab-slideshow .card-body {
@@ -2015,4 +2015,16 @@ input#slideshowFileInput {
 /* Optional: remove inline <th style="width: 90px;"> by using a class later */
 #db-tab-slideshow .w-90px {
   width: 90px;
+}
+
+.slideshow-preview-col {
+  width: 90px;
+}
+
+.ssc-slide-thumb {
+  width: 64px;
+  height: 64px;
+  object-fit: cover;
+  border-radius: 10px;
+  display: block;
 }

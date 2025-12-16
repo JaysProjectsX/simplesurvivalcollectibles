@@ -3025,6 +3025,70 @@ function confirmDeleteChangelog(id, modalId) {
     };
   }
 
+  // === Slideshow upload constraints ===
+  const SLIDESHOW_MAX_BYTES = 5 * 1024 * 1024; // 5MB
+  const SLIDESHOW_ALLOWED_TYPES = new Set([
+    "image/png",
+    "image/jpeg",
+    "image/webp",
+    "image/gif",
+  ]);
+
+  function showSlideshowUploadError(title, message) {
+    showGlobalModal({
+      type: "error",
+      title,
+      message,
+      buttons: [
+        {
+          label: "Close",
+          onClick: `fadeOutAndRemove('modal-slideshowUploadError')`,
+        },
+      ],
+      id: "modal-slideshowUploadError",
+    });
+  }
+
+  // UPDATED: supports browsers where file.type is empty (fallback to extension)
+  function validateSlideshowFiles(fileList) {
+    const files = Array.from(fileList || []);
+    const accepted = [];
+    const rejected = [];
+
+    const extOk = (name) => /\.(png|jpe?g|webp|gif)$/i.test(name || "");
+
+    for (const f of files) {
+      const type = (f.type || "").toLowerCase();
+
+      // type check (mime OR extension fallback)
+      const okType = type
+        ? SLIDESHOW_ALLOWED_TYPES.has(type)
+        : extOk(f.name);
+
+      if (!okType) {
+        rejected.push(`${f.name} (unsupported type: ${f.type || "unknown"})`);
+        continue;
+      }
+
+      // size check
+      if (f.size > SLIDESHOW_MAX_BYTES) {
+        rejected.push(`${f.name} (${fmtBytes(f.size)} — max is 5 MB)`);
+        continue;
+      }
+
+      accepted.push(f);
+    }
+
+    if (rejected.length) {
+      showSlideshowUploadError(
+        "File(s) Rejected",
+        `Some files were not added:\n\n- ${rejected.join("\n- ")}`
+      );
+    }
+
+    return accepted;
+  }
+
   function gmError(title, message, id = "modal-slideshowErr") {
     if (typeof showGlobalModal !== "function") return;
     showGlobalModal({
@@ -3059,17 +3123,17 @@ function confirmDeleteChangelog(id, modalId) {
     els.queueTbody.innerHTML = _queue
       .map(
         (f, idx) => `
-        <tr>
-          <td>${esc(f.name)}</td>
-          <td>${esc(f.type || "unknown")}</td>
-          <td>${esc(fmtBytes(f.size))}</td>
-          <td>
-            <button type="button" class="btn btn-sm btn-outline-danger" data-qremove="${idx}">
-              Remove
-            </button>
-          </td>
-        </tr>
-      `
+          <tr>
+            <td class="text-truncate">${esc(f.name)}</td>
+            <td class="d-none d-md-table-cell">${esc(f.type || "unknown")}</td>
+            <td class="text-end">${esc(fmtBytes(f.size))}</td>
+            <td class="text-end">
+              <button type="button" class="btn btn-sm btn-outline-danger" data-qremove="${idx}">
+                Remove
+              </button>
+            </td>
+          </tr>
+        `
       )
       .join("");
 
@@ -3082,38 +3146,21 @@ function confirmDeleteChangelog(id, modalId) {
     });
   }
 
-  function addFiles(els, files) {
-    const arr = Array.from(files || []);
-    if (!arr.length) return;
 
-    const rejected = [];
-    for (const f of arr) {
-      // Accept image/*, plus a fallback for some browsers that leave type empty
-      const okType =
-        (f.type && f.type.startsWith("image/")) ||
-        (!f.type && /\.(png|jpg|jpeg|webp|gif)$/i.test(f.name));
+function addFiles(els, files) {
+  const accepted = validateSlideshowFiles(files);
+  if (!accepted.length) return;
 
-      if (!okType) {
-        rejected.push(`${f.name} (not an image)`);
-        continue;
-      }
-
-      _queue.push(f);
-    }
-
-    // Limit to 20 to match backend multer array("files", 20)
-    if (_queue.length > 20) _queue = _queue.slice(0, 20);
-
-    renderQueue(els);
-
-    if (rejected.length) {
-      gmError(
-        "Some files were skipped",
-        `These files were rejected:\n\n${rejected.join("\n")}`,
-        "modal-slideshowRejected"
-      );
-    }
+  // Add accepted files to queue
+  for (const f of accepted) {
+    _queue.push(f);
   }
+
+  // Limit to 20 to match backend multer array("files", 20)
+  if (_queue.length > 20) _queue = _queue.slice(0, 20);
+
+  renderQueue(els);
+}
 
   async function loadExisting(els) {
     if (!els.existingTbody) return;
@@ -3133,38 +3180,47 @@ function confirmDeleteChangelog(id, modalId) {
       els.existingTbody.innerHTML = rows
         .map((img) => {
           const id = img.id;
-          const name = img.original_name || "image";
+          const name = img.original_name || img.filename || "image";
           const type = img.mime_type || "image/*";
           const size = fmtBytes(img.size_bytes || 0);
-          const created = img.created_at ? new Date(img.created_at).toLocaleString() : "";
+          const created = img.created_at ? new Date(img.created_at).toLocaleString() : "—";
           const url = img.url || "";
+
+          const role = (window.userRole || "").trim();
+          const canDelete = role === "SysAdmin";
+
+          const previewCell = url
+            ? `<img src="${esc(url)}" alt="${esc(name)}" class="ssc-slide-thumb" loading="lazy">`
+            : `<span class="text-muted">—</span>`;
+
+          const viewBtn = url
+            ? `<a class="btn btn-sm btn-outline-primary" href="${esc(url)}" target="_blank" rel="noopener">View</a>`
+            : `<span class="text-muted">—</span>`;
 
           return `
             <tr>
-              <td>${esc(name)}</td>
-              <td>${esc(type)}</td>
-              <td>${esc(size)}</td>
-              <td>${esc(created)}</td>
-              <td>
-                ${
-                  url
-                    ? `<a class="btn btn-sm btn-outline-primary" href="${esc(url)}" target="_blank" rel="noopener">View</a>`
-                    : `<span class="text-muted">—</span>`
-                }
-              </td>
-              <td>
-                <button type="button"
-                        class="btn btn-sm btn-outline-danger"
-                        data-sdel="${esc(id)}"
-                        ${canDelete ? "" : "disabled"}
-                        title="${canDelete ? "Delete" : "SysAdmin only"}">
-                  Delete
-                </button>
+              <td class="slideshow-preview-col">${previewCell}</td>
+              <td class="text-truncate">${esc(name)}</td>
+              <td class="d-none d-lg-table-cell">${esc(type)}</td>
+              <td class="d-none d-md-table-cell text-end">${esc(size)}</td>
+              <td class="d-none d-xl-table-cell">${esc(created)}</td>
+              <td class="text-end">
+                <div class="d-flex gap-2 justify-content-end">
+                  ${viewBtn}
+                  <button type="button"
+                          class="btn btn-sm btn-outline-danger"
+                          data-sdel="${esc(id)}"
+                          ${canDelete ? "" : "disabled"}
+                          title="${canDelete ? "Delete" : "SysAdmin only"}">
+                    Delete
+                  </button>
+                </div>
               </td>
             </tr>
           `;
         })
         .join("");
+
 
       els.existingTbody.querySelectorAll("[data-sdel]").forEach((btn) => {
         btn.addEventListener("click", () => {

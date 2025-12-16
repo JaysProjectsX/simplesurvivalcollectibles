@@ -1,12 +1,10 @@
-// slideshow-dynamic.js
 (() => {
-  const SLIDESHOW_ENDPOINT = "/slideshow"; // served under /api => /api/slideshow
+  const SLIDESHOW_ENDPOINT = "/slideshow";
 
   const api = (path, init = {}) => {
     const base = "/api";
     const url = `${base}${path.startsWith("/") ? path : `/${path}`}`;
 
-    // Prefer your authenticated helper if it's present (same pattern as admin-test.js)
     if (window.AUTH && typeof window.AUTH.fetchWithAuth === "function") {
       return window.AUTH.fetchWithAuth(url, init);
     }
@@ -19,7 +17,6 @@
     });
   };
 
-  // Minimal escaping helpers (avoid breaking markup / basic safety)
   const escAttr = (s) =>
     String(s ?? "")
       .replaceAll("&", "&amp;")
@@ -33,7 +30,6 @@
       .replaceAll("<", "&lt;")
       .replaceAll(">", "&gt;");
 
-  // Your slideshow logic (keeps your same IDs/classes + exposes window.moveSlide)
   window.initHomeSlideshow = function initHomeSlideshow() {
     let currentIndex = 0;
 
@@ -41,7 +37,6 @@
     const dotsContainer = document.getElementById("dots");
     if (!slider || !dotsContainer) return;
 
-    // IMPORTANT: query slides from the DOM (dynamic-friendly)
     const getSlides = () => Array.from(document.querySelectorAll(".slide"));
 
     // Prevent multiple timers if re-initialized
@@ -76,7 +71,6 @@
 
     const moveSlide = (step) => showSlide(currentIndex + step);
 
-    // Expose for your existing onclick="moveSlide(...)"
     window.moveSlide = moveSlide;
 
     // Init
@@ -96,9 +90,7 @@
 
       const images = await res.json();
 
-      // Expected: [{ url, caption?, alt? }, ...]
       if (!Array.isArray(images) || images.length === 0) {
-        // No backend images -> keep existing hardcoded slides
         window.initHomeSlideshow?.();
         return;
       }
@@ -119,7 +111,6 @@
 
       window.initHomeSlideshow?.();
     } catch (err) {
-      // If backend is down, fallback to existing hardcoded slides
       console.error("[slideshow] Failed to load backend slideshow:", err);
       window.initHomeSlideshow?.();
     }

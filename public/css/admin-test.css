@@ -1899,3 +1899,120 @@ select {
   object-fit: cover;
   display: block;
 }
+
+button#slideshowUploadBtn {
+    font-size: 0.85rem;
+    line-height: 14px;
+}
+
+input#slideshowFileInput {
+    line-height: normal !important;
+}
+
+/* =========================================================
+   Slideshow Options Tab - Dark Theme Overrides (Bootstrap)
+   Targets ONLY #db-tab-slideshow so other tabs remain untouched
+   ========================================================= */
+#db-tab-slideshow .card {
+  background: #11131b;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+}
+
+#db-tab-slideshow .card-body {
+  color: rgba(255, 255, 255, 0.92);
+}
+
+#db-tab-slideshow .card-title,
+#db-tab-slideshow h4,
+#db-tab-slideshow h5 {
+  color: rgba(255, 255, 255, 0.95);
+}
+
+#db-tab-slideshow .text-muted,
+#db-tab-slideshow .form-text,
+#db-tab-slideshow .small {
+  color: rgba(255, 255, 255, 0.62) !important;
+}
+
+/* Dropzone */
+#db-tab-slideshow .ssc-dropzone,
+#db-tab-slideshow #slideshowDropzone {
+  background: #0c0f16;
+  border: 1px dashed rgba(255, 255, 255, 0.18) !important;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+#db-tab-slideshow .ssc-dropzone.dragover,
+#db-tab-slideshow #slideshowDropzone.dragover {
+  background: rgba(59, 130, 246, 0.10);
+  border-color: rgba(59, 130, 246, 0.55) !important;
+}
+
+/* Inputs */
+#db-tab-slideshow .form-control,
+#db-tab-slideshow .form-select {
+  background: #0c0f16;
+  color: rgba(255, 255, 255, 0.90);
+  border-color: rgba(255, 255, 255, 0.14);
+}
+
+#db-tab-slideshow .form-control:focus,
+#db-tab-slideshow .form-select:focus {
+  border-color: rgba(59, 130, 246, 0.55);
+  box-shadow: 0 0 0 0.2rem rgba(59, 130, 246, 0.15);
+}
+
+/* File input button */
+#db-tab-slideshow input[type="file"].form-control::file-selector-button {
+  background: rgba(255, 255, 255, 0.10);
+  color: rgba(255, 255, 255, 0.92);
+  border: 0;
+  margin-right: 12px;
+}
+
+#db-tab-slideshow input[type="file"].form-control:hover::file-selector-button {
+  background: rgba(255, 255, 255, 0.16);
+}
+
+/* Tables (Bootstrap .table + your current table-light header) */
+#db-tab-slideshow .table {
+  color: rgba(255, 255, 255, 0.90);
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+#db-tab-slideshow .table > :not(caption) > * > * {
+  background: transparent;
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+/* Override Bootstrap's .table-light header inside this tab */
+#db-tab-slideshow .table thead.table-light,
+#db-tab-slideshow .table-light {
+  background: #1a1d2a !important;
+  color: rgba(255, 255, 255, 0.92) !important;
+}
+
+#db-tab-slideshow .table thead th {
+  border-bottom-color: rgba(255, 255, 255, 0.10);
+}
+
+#db-tab-slideshow .table-hover tbody tr:hover {
+  background: rgba(255, 255, 255, 0.04);
+}
+
+/* Alert (info callout) */
+#db-tab-slideshow .alert.alert-info {
+  background: rgba(56, 189, 248, 0.10);
+  border-color: rgba(56, 189, 248, 0.22);
+  color: rgba(224, 242, 254, 0.95);
+}
+
+#db-tab-slideshow .alert.alert-info code {
+  color: rgba(253, 164, 175, 0.95);
+}
+
+/* Optional: remove inline <th style="width: 90px;"> by using a class later */
+#db-tab-slideshow .w-90px {
+  width: 90px;
+}

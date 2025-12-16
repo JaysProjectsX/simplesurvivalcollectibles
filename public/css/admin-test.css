@@ -1900,7 +1900,7 @@ select {
   display: block;
 }
 
-button#slideshowUploadBtn {
+#slideshowUploadBtn, #slideshowClearBtn {
     font-size: 0.85rem;
     line-height: 14px;
 }

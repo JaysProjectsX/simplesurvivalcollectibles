@@ -7,6 +7,7 @@
 /api/logout             https://simplesurvivalcollectibles.site/logout             200!
 /api/refresh            https://simplesurvivalcollectibles.site/refresh            200!
 /api/me                 https://simplesurvivalcollectibles.site/me                 200!
+/api/slideshow          https://simplesurvivalcollectibles.site/slideshow          200!
 /api/verify/*           https://simplesurvivalcollectibles.site/verify/:splat      200!
 
 /api/forgot-password    https://simplesurvivalcollectibles.site/forgot-password    200!

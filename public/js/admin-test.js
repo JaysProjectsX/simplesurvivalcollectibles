@@ -21,6 +21,7 @@ let flaggedCommentsDt = null;
 let muteOptionsDt = null;
 let commentLogsDt = null;
 let commentAuditDt = null;
+let currentUserRole = null;
 
 function initChangelogTables() {
   if (!$.fn.dataTable.isDataTable("#changelog-cosmetic-table")) {
@@ -90,6 +91,8 @@ async function loadFlaggedCommentsTable() {
             className: "text-end",
             render: (row) => {
               const disabled = row.resolved ? "disabled" : "";
+              const isSysAdmin = userRole === "SysAdmin";
+
               return `
                 <div class="d-inline-flex gap-2">
                   <button class="btn btn-sm btn-outline-warning fc-unmute" ${disabled}
@@ -105,11 +108,24 @@ async function loadFlaggedCommentsTable() {
                     <i class="bi bi-hourglass-split"></i>
                   </button>
 
-                  <button class="btn btn-sm btn-outline-danger fc-delete" ${disabled}
+                  <!-- Resolve -->
+                  <button class="btn btn-sm btn-outline-success fc-resolve" ${disabled}
                     data-alert-id="${escapeAttr(row.id)}"
                     title="Resolve alert">
                     <i class="bi bi-check2-circle"></i>
                   </button>
+
+                  ${
+                    isSysAdmin
+                      ? `
+                        <button class="btn btn-sm btn-outline-danger fc-delete-alert"
+                          data-alert-id="${escapeAttr(row.id)}"
+                          title="Delete alert">
+                          <i class="bi bi-trash3"></i>
+                        </button>
+                      `
+                      : ""
+                  }
                 </div>
               `;
             }
@@ -140,7 +156,7 @@ async function loadFlaggedCommentsTable() {
       });
 
       // "Delete" in your spec (for alerts) maps to "Resolve alert"
-      $("#flaggedCommentsTable tbody").on("click", "button.fc-delete", async function () {
+      $("#flaggedCommentsTable tbody").on("click", "button.fc-resolve", async function () {
         const alertId = Number(this.dataset.alertId);
 
         const ok = await api(`/admin/comment-alerts/${alertId}/resolve`, {
@@ -149,6 +165,30 @@ async function loadFlaggedCommentsTable() {
 
         if (!ok) return showGlobalModal({ type: "error", title: "Resolve failed", message: "Could not resolve this alert." });
         showGlobalModal({ type: "success", title: "Resolved", message: "Flagged alert has been resolved." });
+        loadFlaggedCommentsTable();
+      });
+
+      $("#flaggedCommentsTable tbody").on("click", "button.fc-delete-alert", async function () {
+        const alertId = Number(this.dataset.alertId);
+        if (!alertId) return;
+
+        const ok = await api(`/admin/comment-alerts/${alertId}`, { method: "DELETE" })
+          .then(r => r.ok);
+
+        if (!ok) {
+          return showGlobalModal({
+            type: "error",
+            title: "Delete failed",
+            message: "Could not delete this alert."
+          });
+        }
+
+        showGlobalModal({
+          type: "success",
+          title: "Deleted",
+          message: "Alert removed."
+        });
+
         loadFlaggedCommentsTable();
       });
 
@@ -208,10 +248,10 @@ async function loadMuteOptionsTable() {
                   <button class="btn btn-sm btn-outline-info dropdown-toggle" data-bs-toggle="dropdown">
                     <i class="bi bi-volume-mute"></i> Mute
                   </button>
-                  <ul class="dropdown-menu dropdown-menu-end">
+                  <ul class="dropdown-menu bg-dark dropdown-menu-end">
                     <li><button class="dropdown-item mu-mute" data-user-id="${escapeAttr(row.id)}" data-duration="1h">Mute 1h</button></li>
                     <li><button class="dropdown-item mu-mute" data-user-id="${escapeAttr(row.id)}" data-duration="24h">Mute 24h</button></li>
-                    <li><button class="dropdown-item mu-mute" data-user-id="${escapeAttr(row.id)}" data-duration="indef">Mute Indefinite</button></li>
+                    <li><button class="dropdown-item mu-mute" data-user-id="${escapeAttr(row.id)}" data-duration="indef">Mute Indefinitely</button></li>
                   </ul>
                 </div>
               `;

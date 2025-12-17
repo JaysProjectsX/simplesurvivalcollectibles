@@ -229,6 +229,8 @@ async function applyCommentMuteGate() {
   const expiresAt     = data?.expires_at ?? data?.expiresAt ?? null;
   const durationHours = data?.duration_hours ?? data?.durationHours ?? null;
   const reason        = data?.reason ?? "";
+  const crateName     = data?.crate_name ?? data?.crateName ?? null;
+  const itemName      = data?.item_name  ?? data?.itemName  ?? null;
 
   // Not muted → let the normal gate handle linked/unlinked
   if (!isMuted) {
@@ -1881,7 +1883,7 @@ function openPriceEditModal(field) {
 }
 
 // ===== MUTE MODAL HANDLERS (Admin/SysAdmin only) =====
-window.openMuteModal = function ({ userId, userRole, username, mc, active, reason, expires }) {
+window.openMuteModal = function ({ userId, userRole, username, mc, active, reason, expires, itemId = null, commentId = null }) {
   if (!PC_ME || !["Admin","SysAdmin"].includes(PC_ME.role)) return;
 
   if (PC_ME.role === "Admin" && userRole === "SysAdmin") {
@@ -1896,6 +1898,10 @@ window.openMuteModal = function ({ userId, userRole, username, mc, active, reaso
   }
 
   const id = `modal-mute-${userId}`;
+  window.__pcModerationCtx[id] = {
+    itemId: itemId != null ? Number(itemId) : (currentItem?.id != null ? Number(currentItem.id) : null),
+    commentId: commentId != null ? Number(commentId) : null
+  };
   const existing = document.getElementById(id);
   if (existing) existing.remove();
 
@@ -1959,11 +1965,15 @@ window.muteUser = async function (userId, modalId) {
   const duration = sel ? sel.value : "24h";
   const reason = (reasonEl?.value || "").trim();
 
+  const ctx = window.__pcModerationCtx?.[modalId] || {};
+  const itemId = ctx.itemId ?? (currentItem?.id != null ? Number(currentItem.id) : null);
+  const commentId = ctx.commentId ?? null;
+
   const res = await fetch(`${backendUrl}/admin/comment-mute`, {
     method: "POST",
     credentials: "include",
     headers: { "Content-Type":"application/json" },
-    body: JSON.stringify({ userId, duration, reason })
+    body: JSON.stringify({ userId, duration, reason, itemId, commentId })
   });
 
   if (res.ok) {

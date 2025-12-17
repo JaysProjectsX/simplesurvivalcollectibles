@@ -113,6 +113,9 @@
         <button class="sidebar-sublink" id="commentLogsBtn" type="button">
           Comment Logs
         </button>
+        <button class="sidebar-sublink" id="commentAuditBtn" type="button">
+          Comment Audit Log
+        </button>
       </div>
 
       <!-- Tasks -->
@@ -701,7 +704,7 @@
                         <input class="form-control" type="file" id="slideshowFileInput" accept="image/*" multiple="">
                         </div>
                         <div class="form-text">
-                          Supported: PNG, JPG, WEBP, GIF.
+                          Supported Formats: PNG, JPG, WEBP, GIF.
                         </div>
                       </div>
 
@@ -714,7 +717,7 @@
                         </button>
                       </div>
 
-                      <hr class="my-3" />
+                      <hr class="my-5 light-divider" />
 
                       <div class="d-flex align-items-center justify-content-between mb-2">
                         <h5 class="mb-0">Queued Files</h5>
@@ -787,7 +790,7 @@
 
                       <div class="alert alert-info mt-3 mb-0 small">
                         <i class="bi bi-info-circle me-1"></i>
-                        These images are served from the backend <code>/uploads/slideshow</code> directory and listed from MySQL.
+                        These images serve as the active slideshow images for the homepage. They are served from the backend <code>/uploads/slideshow</code> directory.
                       </div>
                     </div>
                   </div>

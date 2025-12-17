@@ -1862,7 +1862,8 @@ select {
 #db-tab-slideshow .ssc-dropzone {
   border: 2px dashed rgba(255,255,255,.18);
   border-radius: 14px;
-  padding: 24px;
+  margin: 0 4rem;
+  padding: 2rem;
   background: rgba(255,255,255,.03);
   transition: border-color .15s ease, background-color .15s ease, transform .15s ease;
   cursor: pointer;
@@ -2133,4 +2134,11 @@ input#slideshowFileInput {
 
 .w-50 {
   margin: auto;
+}
+
+.light-divider {
+  border: none;
+  height: 1px;
+  background: linear-gradient(to right, transparent, rgba(87, 87, 87, 0.856), transparent);
+  margin: 20px 0 30px;
 }

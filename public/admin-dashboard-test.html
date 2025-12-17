@@ -83,7 +83,7 @@
         </button>
       </div>
 
-      <!-- User Comments accordion (UI only for now) -->
+      <!-- User Comments accordion -->
       <button
         class="tab-btn sidebar-link sidebar-toggle collapsed"
         type="button"
@@ -797,7 +797,110 @@
                 </div>
               </div>
             </div>
+          </div>
 
+          <!-- Flagged Comments -->
+          <div class="tab-content" id="flaggedCommentsTab" style="display:none;">
+            <h2>Flagged Comments</h2>
+            <div class="admin-main-divider"></div>
+
+            <div class="admin-table-container">
+              <table id="flaggedCommentsTable" class="admin-table" style="width:100%">
+                <thead>
+                  <tr>
+                    <th>Crate</th>
+                    <th>Item</th>
+                    <th>Username</th>
+                    <th>Economy</th>
+                    <th>Comment</th>
+                    <th>Created At</th>
+                    <th>Resolved</th>
+                    <th class="text-end">Actions</th>
+                  </tr>
+                </thead>
+                <tbody></tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Mute Options -->
+          <div class="tab-content" id="muteOptionsTab" style="display:none;">
+            <h2>Mute Options</h2>
+            <div class="admin-main-divider"></div>
+
+            <div class="admin-table-container">
+              <table id="muteOptionsTable" class="admin-table" style="width:100%">
+                <thead>
+                  <tr>
+                    <th>Username</th>
+                    <th>Minecraft Username</th>
+                    <th>Muted</th>
+                    <th class="text-end">Actions</th>
+                  </tr>
+                </thead>
+                <tbody></tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Comment Logs -->
+          <div class="tab-content" id="commentLogsTab" style="display:none;">
+            <h2>Comment Logs</h2>
+            <div class="admin-main-divider"></div>
+
+            <div class="admin-table-container">
+              <table id="commentLogsTable" class="admin-table" style="width:100%">
+                <thead>
+                  <tr>
+                    <th>Crate</th>
+                    <th>Item</th>
+                    <th>Username</th>
+                    <th>Minecraft Username</th>
+                    <th>Economy</th>
+                    <th>Comment</th>
+                    <th>Created At</th>
+                  </tr>
+                </thead>
+                <tbody></tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Comment Audit Log (SysAdmin only) -->
+          <div class="tab-content" id="commentAuditTab" style="display:none;">
+            <h2>Comment Audit Log</h2>
+            <div class="admin-main-divider"></div>
+
+            <div class="admin-table-container">
+              <table id="commentAuditTable" class="admin-table" style="width:100%">
+                <thead>
+                  <tr>
+                    <th>Created At</th>
+                    <th>Actor</th>
+                    <th>Role</th>
+                    <th>Action</th>
+                    <th>Target</th>
+                    <th>Crate</th>
+                    <th>Item</th>
+                    <th>Details</th>
+                  </tr>
+                </thead>
+                <tbody></tbody>
+              </table>
+            </div>
+
+            <div class="d-flex flex-wrap gap-2 justify-content-end mt-3">
+              <button id="exportCommentAuditCsvBtn" class="btn btn-outline-light btn-sm">
+                <i class="bi bi-filetype-csv me-1"></i>Export CSV
+              </button>
+              <button id="clearCommentAuditBtn" class="btn btn-danger btn-sm">
+                <i class="bi bi-trash3 me-1"></i>Clear Log
+              </button>
+            </div>
+
+            <p class="text-muted small mt-2 mb-0">
+              Only SysAdmins can view or clear this log.
+            </p>
           </div>
 
           <!-- Tasks / Kanban Board -->

@@ -17,6 +17,11 @@ let wizardReviewDt = null;
 let cosmeticChangelogDt = null;
 let otherChangelogDt = null;
 
+let flaggedCommentsDt = null;
+let muteOptionsDt = null;
+let commentLogsDt = null;
+let commentAuditDt = null;
+
 function initChangelogTables() {
   if (!$.fn.dataTable.isDataTable("#changelog-cosmetic-table")) {
     cosmeticChangelogDt = $("#changelog-cosmetic-table").DataTable({
@@ -43,6 +48,335 @@ function initChangelogTables() {
   }
 }
 
+async function loadFlaggedCommentsTable() {
+  try {
+    const res = await api("/admin/comment-alerts");
+    const rows = await res.json();
+
+    if (!$.fn.dataTable.isDataTable("#flaggedCommentsTable")) {
+      flaggedCommentsDt = $("#flaggedCommentsTable").DataTable({
+        paging: true,
+        searching: true,
+        ordering: true,
+        responsive: true,
+        pageLength: 10,
+        lengthMenu: [10, 25, 50, 100],
+        autoWidth: false,
+        data: rows,
+        columns: [
+          { data: "crate_name", defaultContent: "" },
+          { data: "item_name", defaultContent: "" },
+          { data: "offender_username", defaultContent: "" },
+          { data: "economy", defaultContent: "" },
+          {
+            data: "comment_excerpt",
+            render: (d) => {
+              const full = String(d ?? "");
+              return `<span title="${escapeAttr(full)}">${escapeHTML(truncateText(full, 80))}</span>`;
+            }
+          },
+          { data: "created_at", render: (d) => fmtDateTime(d) },
+          {
+            data: "resolved",
+            render: (d) =>
+              d
+                ? `<span class="badge bg-success">true</span>`
+                : `<span class="badge bg-warning text-dark">false</span>`
+          },
+          {
+            data: null,
+            orderable: false,
+            searchable: false,
+            className: "text-end",
+            render: (row) => {
+              const disabled = row.resolved ? "disabled" : "";
+              return `
+                <div class="d-inline-flex gap-2">
+                  <button class="btn btn-sm btn-outline-warning fc-unmute" ${disabled}
+                    data-user-id="${escapeAttr(row.offender_user_id)}"
+                    title="Unmute">
+                    <i class="bi bi-volume-up"></i>
+                  </button>
+
+                  <button class="btn btn-sm btn-outline-info fc-extend" ${disabled}
+                    data-user-id="${escapeAttr(row.offender_user_id)}"
+                    data-alert-id="${escapeAttr(row.id)}"
+                    title="Extend mute (24h)">
+                    <i class="bi bi-hourglass-split"></i>
+                  </button>
+
+                  <button class="btn btn-sm btn-outline-danger fc-delete" ${disabled}
+                    data-alert-id="${escapeAttr(row.id)}"
+                    title="Resolve alert">
+                    <i class="bi bi-check2-circle"></i>
+                  </button>
+                </div>
+              `;
+            }
+          }
+        ]
+      });
+
+      $("#flaggedCommentsTable tbody").on("click", "button.fc-unmute", async function () {
+        const userId = Number(this.dataset.userId);
+        const ok = await api(`/admin/comment-mute/${userId}`, { method: "DELETE" }).then(r => r.ok);
+        if (!ok) return showGlobalModal({ type: "error", title: "Unmute failed", message: "Could not unmute this user." });
+        showGlobalModal({ type: "success", title: "Unmuted", message: "User has been unmuted." });
+        loadFlaggedCommentsTable();
+      });
+
+      $("#flaggedCommentsTable tbody").on("click", "button.fc-extend", async function () {
+        const userId = Number(this.dataset.userId);
+
+        const ok = await api(`/admin/comment-mute/extend`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ userId, duration: "24h", reason: "flagged-comments-extend" })
+        }).then(r => r.ok);
+
+        if (!ok) return showGlobalModal({ type: "error", title: "Extend failed", message: "Could not extend mute." });
+        showGlobalModal({ type: "success", title: "Mute extended", message: "Mute extended by 24 hours." });
+        loadFlaggedCommentsTable();
+      });
+
+      // "Delete" in your spec (for alerts) maps to "Resolve alert"
+      $("#flaggedCommentsTable tbody").on("click", "button.fc-delete", async function () {
+        const alertId = Number(this.dataset.alertId);
+
+        const ok = await api(`/admin/comment-alerts/${alertId}/resolve`, {
+          method: "PUT"
+        }).then(r => r.ok);
+
+        if (!ok) return showGlobalModal({ type: "error", title: "Resolve failed", message: "Could not resolve this alert." });
+        showGlobalModal({ type: "success", title: "Resolved", message: "Flagged alert has been resolved." });
+        loadFlaggedCommentsTable();
+      });
+
+    } else {
+      flaggedCommentsDt.clear().rows.add(rows).draw();
+    }
+  } catch (e) {
+    console.error(e);
+    showGlobalModal({ type: "error", title: "Error", message: "Failed to load flagged comments." });
+  }
+}
+
+async function loadMuteOptionsTable() {
+  try {
+    const res = await api("/admin/comment-mute/users");
+    const rows = await res.json();
+
+    if (!$.fn.dataTable.isDataTable("#muteOptionsTable")) {
+      muteOptionsDt = $("#muteOptionsTable").DataTable({
+        paging: true,
+        searching: true,
+        ordering: true,
+        responsive: true,
+        pageLength: 10,
+        lengthMenu: [10, 25, 50, 100],
+        autoWidth: false,
+        data: rows,
+        columns: [
+          { data: "username", defaultContent: "" },
+          { data: "minecraft_username", defaultContent: "" },
+          {
+            data: "muted",
+            render: (d, t, row) => {
+              if (!d) return `<span class="badge bg-secondary">false</span>`;
+              const exp = row.mute_expires_at ? fmtDateTime(row.mute_expires_at) : "Indefinite";
+              return `<span class="badge bg-danger">true</span> <span class="text-muted small ms-1">(${escapeHTML(exp)})</span>`;
+            }
+          },
+          {
+            data: null,
+            orderable: false,
+            searchable: false,
+            className: "text-end",
+            render: (row) => {
+              if (row.muted) {
+                return `
+                  <button class="btn btn-sm btn-outline-warning mu-unmute"
+                    data-user-id="${escapeAttr(row.id)}">
+                    <i class="bi bi-volume-up"></i> Unmute
+                  </button>
+                `;
+              }
+
+              // Mute dropdown (keeps your "Mute" action button requirement, but lets you pick duration)
+              return `
+                <div class="btn-group">
+                  <button class="btn btn-sm btn-outline-info dropdown-toggle" data-bs-toggle="dropdown">
+                    <i class="bi bi-volume-mute"></i> Mute
+                  </button>
+                  <ul class="dropdown-menu dropdown-menu-end">
+                    <li><button class="dropdown-item mu-mute" data-user-id="${escapeAttr(row.id)}" data-duration="1h">Mute 1h</button></li>
+                    <li><button class="dropdown-item mu-mute" data-user-id="${escapeAttr(row.id)}" data-duration="24h">Mute 24h</button></li>
+                    <li><button class="dropdown-item mu-mute" data-user-id="${escapeAttr(row.id)}" data-duration="indef">Mute Indefinite</button></li>
+                  </ul>
+                </div>
+              `;
+            }
+          }
+        ]
+      });
+
+      $("#muteOptionsTable tbody").on("click", "button.mu-unmute", async function () {
+        const userId = Number(this.dataset.userId);
+        const ok = await api(`/admin/comment-mute/${userId}`, { method: "DELETE" }).then(r => r.ok);
+        if (!ok) return showGlobalModal({ type: "error", title: "Unmute failed", message: "Could not unmute this user." });
+        showGlobalModal({ type: "success", title: "Unmuted", message: "User has been unmuted." });
+        loadMuteOptionsTable();
+      });
+
+      $("#muteOptionsTable tbody").on("click", "button.mu-mute", async function () {
+        const userId = Number(this.dataset.userId);
+        const duration = String(this.dataset.duration);
+
+        const payload = {
+          userId,
+          duration: duration === "indef" ? "indefinite" : duration,
+          reason: "manual-admin-mute"
+        };
+
+        // Backend expects duration: '1h' | '24h' | (anything else -> indefinite by your code)
+        payload.duration = duration === "indef" ? "indefinite" : duration;
+
+        const ok = await api(`/admin/comment-mute`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        }).then(r => r.ok);
+
+        if (!ok) return showGlobalModal({ type: "error", title: "Mute failed", message: "Could not mute this user." });
+        showGlobalModal({ type: "success", title: "Muted", message: "Mute applied successfully." });
+        loadMuteOptionsTable();
+      });
+
+    } else {
+      muteOptionsDt.clear().rows.add(rows).draw();
+    }
+  } catch (e) {
+    console.error(e);
+    showGlobalModal({ type: "error", title: "Error", message: "Failed to load mute options." });
+  }
+}
+
+async function loadCommentLogsTable() {
+  try {
+    const res = await api("/admin/comments?limit=500");
+    const rows = await res.json();
+
+    if (!$.fn.dataTable.isDataTable("#commentLogsTable")) {
+      commentLogsDt = $("#commentLogsTable").DataTable({
+        paging: true,
+        searching: true,
+        ordering: true,
+        responsive: true,
+        pageLength: 10,
+        lengthMenu: [10, 25, 50, 100],
+        autoWidth: false,
+        data: rows,
+        columns: [
+          { data: "crate_name", defaultContent: "" },
+          { data: "item_name", defaultContent: "" },
+          { data: "username", defaultContent: "" },
+          { data: "minecraft_username", defaultContent: "" },
+          { data: "economy", defaultContent: "" },
+          {
+            data: "comment",
+            render: (d) => {
+              const full = String(d ?? "");
+              return `<span title="${escapeAttr(full)}">${escapeHTML(truncateText(full, 90))}</span>`;
+            }
+          },
+          { data: "created_at", render: (d) => fmtDateTime(d) }
+        ]
+      });
+    } else {
+      commentLogsDt.clear().rows.add(rows).draw();
+    }
+  } catch (e) {
+    console.error(e);
+    showGlobalModal({ type: "error", title: "Error", message: "Failed to load comment logs." });
+  }
+}
+
+async function loadCommentAuditTable() {
+  try {
+    const res = await api("/admin/comment-audit?limit=2000");
+    const rows = await res.json();
+
+    if (!$.fn.dataTable.isDataTable("#commentAuditTable")) {
+      commentAuditDt = $("#commentAuditTable").DataTable({
+        paging: true,
+        searching: true,
+        ordering: true,
+        responsive: true,
+        pageLength: 10,
+        lengthMenu: [10, 25, 50, 100],
+        autoWidth: false,
+        data: rows,
+        columns: [
+          { data: "created_at", render: (d) => fmtDateTime(d) },
+          { data: "actor_username", defaultContent: "" },
+          { data: "actor_role", defaultContent: "" },
+          { data: "action", defaultContent: "" },
+          { data: "target_username", defaultContent: "" },
+          { data: "crate_name", defaultContent: "" },
+          { data: "item_name", defaultContent: "" },
+          {
+            data: "details",
+            render: (d) => {
+              if (!d) return "";
+              const text = typeof d === "string" ? d : JSON.stringify(d);
+              return `<span title="${escapeAttr(text)}">${escapeHTML(truncateText(text, 70))}</span>`;
+            }
+          }
+        ]
+      });
+
+      document.getElementById("exportCommentAuditCsvBtn")?.addEventListener("click", () => {
+        if (!commentAuditDt) return;
+
+        const data = commentAuditDt.rows().data().toArray();
+        const headers = ["created_at","actor_username","actor_role","action","target_username","crate_name","item_name","details"];
+        const lines = [headers.join(",")];
+
+        data.forEach(r => {
+          const details = r.details ? (typeof r.details === "string" ? r.details : JSON.stringify(r.details)) : "";
+          const row = [
+            fmtDateTime(r.created_at),
+            r.actor_username || "",
+            r.actor_role || "",
+            r.action || "",
+            r.target_username || "",
+            r.crate_name || "",
+            r.item_name || "",
+            details
+          ].map(v => `"${String(v).replace(/"/g, '""')}"`);
+
+          lines.push(row.join(","));
+        });
+
+        downloadCsv(`comment-audit-log-${new Date().toISOString().slice(0,10)}.csv`, lines.join("\n"));
+      });
+
+      document.getElementById("clearCommentAuditBtn")?.addEventListener("click", async () => {
+        const ok = await api("/admin/comment-audit", { method: "DELETE" }).then(r => r.ok);
+        if (!ok) return showGlobalModal({ type: "error", title: "Clear failed", message: "Could not clear the audit log." });
+        showGlobalModal({ type: "success", title: "Cleared", message: "Comment audit log has been cleared." });
+        loadCommentAuditTable();
+      });
+
+    } else {
+      commentAuditDt.clear().rows.add(rows).draw();
+    }
+  } catch (e) {
+    console.error(e);
+    showGlobalModal({ type: "error", title: "Error", message: "Failed to load comment audit logs." });
+  }
+}
+
 function escapeHTML(str = "") {
   return String(str).replace(/[&<>"']/g, (m) => ({
     "&": "&amp;",
@@ -57,6 +391,29 @@ function escapeAttr(str = "") {
   return escapeHTML(str).replace(/`/g, "&#96;");
 }
 
+function truncateText(str = "", max = 90) {
+  const s = String(str ?? "");
+  return s.length > max ? s.slice(0, max - 1) + "…" : s;
+}
+
+function fmtDateTime(val) {
+  if (!val) return "";
+  const d = new Date(val);
+  if (isNaN(d.getTime())) return escapeHTML(String(val));
+  return d.toLocaleString();
+}
+
+function downloadCsv(filename, csvText) {
+  const blob = new Blob([csvText], { type: "text/csv;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+}
 
 let crateItemsDt = null;
 let crateSummaryDt = null;
@@ -416,6 +773,49 @@ function initializeAdminPanel(role) {
     });
   });
 
+  // ==========================
+  // Comment sidebar sublinks
+  // ==========================
+  const commentSublinks = Array.from(document.querySelectorAll("#commentsCollapse .sidebar-sublink"));
+
+  function clearAllNavActive() {
+    tabButtons.forEach(b => b.classList.remove("active"));
+    commentSublinks.forEach(b => b.classList.remove("active"));
+  }
+
+  function showPanel(panelId, activeBtn) {
+    tabContents.forEach(t => { t.style.display = "none"; });
+    clearAllNavActive();
+
+    const panel = document.getElementById(panelId);
+    if (panel) panel.style.display = "block";
+    if (activeBtn) activeBtn.classList.add("active");
+  }
+
+  if (role !== "SysAdmin") {
+    document.getElementById("commentAuditBtn")?.style.setProperty("display", "none");
+    document.getElementById("commentAuditTab")?.style.setProperty("display", "none");
+  }
+
+  document.getElementById("flaggedCommentsBtn")?.addEventListener("click", () => {
+    showPanel("flaggedCommentsTab", document.getElementById("flaggedCommentsBtn"));
+    loadFlaggedCommentsTable();
+  });
+
+  document.getElementById("muteOptionsBtn")?.addEventListener("click", () => {
+    showPanel("muteOptionsTab", document.getElementById("muteOptionsBtn"));
+    loadMuteOptionsTable();
+  });
+
+  document.getElementById("commentLogsBtn")?.addEventListener("click", () => {
+    showPanel("commentLogsTab", document.getElementById("commentLogsBtn"));
+    loadCommentLogsTable();
+  });
+
+  document.getElementById("commentAuditBtn")?.addEventListener("click", () => {
+    showPanel("commentAuditTab", document.getElementById("commentAuditBtn"));
+    loadCommentAuditTable();
+  });
 
   tabContents.forEach(tab => (tab.style.display = "none"));
   tabButtons.forEach(b => b.classList.remove("active"));

@@ -3099,96 +3099,90 @@ function confirmDeleteChangelog(id, modalId) {
     return s.replace(/\.[a-z0-9]+$/i, "").replaceAll("_", " ").trim();
   }
 
-  function renderQueue(els) {
-    if (!els.queueTbody || !els.queueCount) return;
-    els.queueCount.textContent = String(_queue.length);
+function renderQueue(els) {
+  if (!els.queueTbody || !els.queueCount) return;
+  els.queueCount.textContent = String(_queue.length);
 
-    if (_queue.length === 0) {
-      // MUST match your updated <thead> column count (5)
-      els.queueTbody.innerHTML = `<tr><td colspan="5" class="text-muted">No files selected yet.</td></tr>`;
-      return;
-    }
-
-    // 5 columns: Filename | Caption Title | Caption Subtitle | Type | Size(+Remove)
-    els.queueTbody.innerHTML = _queue
-      .map((entry, idx) => {
-        const f = entry.file;
-        const name = esc(f.name);
-        const type = esc(f.type || "image/*");
-        const size = esc(fmtBytes(f.size));
-
-        const capTitle = esc(entry.captionTitle || "");
-        const capSub = esc(entry.captionSubtitle || "");
-
-        return `
-          <tr>
-            <td class="text-truncate">${name}</td>
-
-            <td>
-              <input
-                type="text"
-                class="form-control form-control-sm"
-                placeholder="e.g., Christmas Crate"
-                value="${capTitle}"
-                data-cap-title="${idx}"
-              />
-            </td>
-
-            <td>
-              <input
-                type="text"
-                class="form-control form-control-sm"
-                placeholder="e.g., Page 1"
-                value="${capSub}"
-                data-cap-sub="${idx}"
-              />
-            </td>
-
-            <td class="d-none d-md-table-cell">${type}</td>
-
-            <td>
-              <div class="d-flex align-items-center justify-content-between gap-2">
-                <span class="ms-auto">${size}</span>
-                <button
-                  type="button"
-                  class="btn btn-sm btn-outline-danger"
-                  data-qremove="${idx}"
-                >
-                  Remove
-                </button>
-              </div>
-            </td>
-          </tr>
-        `;
-      })
-      .join("");
-
-    // bind remove
-    els.queueTbody.querySelectorAll("[data-qremove]").forEach((btn) => {
-      btn.addEventListener("click", () => {
-        const i = Number(btn.getAttribute("data-qremove"));
-        _queue.splice(i, 1);
-        renderQueue(els);
-      });
-    });
-
-    // bind caption inputs -> keep _queue updated
-    els.queueTbody.querySelectorAll("[data-cap-title]").forEach((inp) => {
-      inp.addEventListener("input", () => {
-        const i = Number(inp.getAttribute("data-cap-title"));
-        if (!_queue[i]) return;
-        _queue[i].captionTitle = inp.value;
-      });
-    });
-
-    els.queueTbody.querySelectorAll("[data-cap-sub]").forEach((inp) => {
-      inp.addEventListener("input", () => {
-        const i = Number(inp.getAttribute("data-cap-sub"));
-        if (!_queue[i]) return;
-        _queue[i].captionSubtitle = inp.value;
-      });
-    });
+  if (_queue.length === 0) {
+    // MUST match your <thead> column count (6)
+    els.queueTbody.innerHTML = `<tr><td colspan="6" class="text-muted">No files selected yet.</td></tr>`;
+    return;
   }
+
+  // 6 columns: Filename | Title | Subtitle | Type | Size | Action
+  els.queueTbody.innerHTML = _queue
+    .map((entry, idx) => {
+      const f = entry.file;
+
+      const name = esc(f.name);
+      const type = esc(f.type || "image/*");
+      const size = esc(fmtBytes(f.size));
+
+      const capTitle = esc(entry.captionTitle || "");
+      const capSub = esc(entry.captionSubtitle || "");
+
+      return `
+        <tr>
+          <td class="text-truncate">${name}</td>
+
+          <td>
+            <input type="text"
+                   class="form-control form-control-sm"
+                   value="${capTitle}"
+                   placeholder="e.g., Christmas Rewards"
+                   data-cap-title="${idx}">
+          </td>
+
+          <td>
+            <input type="text"
+                   class="form-control form-control-sm"
+                   value="${capSub}"
+                   placeholder="e.g., Page 1"
+                   data-cap-sub="${idx}">
+          </td>
+
+          <td class="d-none d-md-table-cell">${type}</td>
+
+          <td class="text-end">${size}</td>
+
+          <td class="text-end">
+            <button type="button"
+                    class="btn btn-sm btn-outline-danger"
+                    data-qremove="${idx}">
+              Remove
+            </button>
+          </td>
+        </tr>
+      `.trim();
+    })
+    .join("");
+
+  // bind remove
+  els.queueTbody.querySelectorAll("[data-qremove]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const i = Number(btn.getAttribute("data-qremove"));
+      _queue.splice(i, 1);
+      renderQueue(els);
+    });
+  });
+
+  // bind caption inputs -> keep _queue updated
+  els.queueTbody.querySelectorAll("[data-cap-title]").forEach((inp) => {
+    inp.addEventListener("input", () => {
+      const i = Number(inp.getAttribute("data-cap-title"));
+      if (!_queue[i]) return;
+      _queue[i].captionTitle = inp.value;
+    });
+  });
+
+  els.queueTbody.querySelectorAll("[data-cap-sub]").forEach((inp) => {
+    inp.addEventListener("input", () => {
+      const i = Number(inp.getAttribute("data-cap-sub"));
+      if (!_queue[i]) return;
+      _queue[i].captionSubtitle = inp.value;
+    });
+  });
+}
 
   function addFiles(els, files) {
     const accepted = validateSlideshowFiles(files);
@@ -3205,7 +3199,7 @@ function confirmDeleteChangelog(id, modalId) {
 
       _queue.push({
         file: f,
-        captionTitle: defaultTitleFromFileName(f.name), // you can set "" if you don't want defaults
+        captionTitle: defaultTitleFromFileName(f.name),
         captionSubtitle: "",
       });
 
@@ -3218,12 +3212,14 @@ function confirmDeleteChangelog(id, modalId) {
     renderQueue(els);
   }
 
-  // NOTE: your existing loadExisting() can stay, but you may want to show captions there too.
-  // If your backend returns caption_title/caption_subtitle in /admin/slideshow, you can surface them in view modal/buttons.
   async function loadExisting(els) {
     if (!els.existingTbody) return;
 
-    els.existingTbody.innerHTML = `<tr><td colspan="6" class="text-muted">Loading…</td></tr>`;
+    // Must match the preview table <thead> column count:
+    // Preview | Filename | Type | Title | Subtitle | Size | Uploaded by | Uploaded | (blank actions)
+    const COLS = 9;
+
+    els.existingTbody.innerHTML = `<tr><td colspan="${COLS}" class="text-muted">Loading…</td></tr>`;
 
     try {
       const res = await api("/admin/slideshow", { method: "GET" });
@@ -3241,11 +3237,14 @@ function confirmDeleteChangelog(id, modalId) {
               : [];
 
       if (!rows.length) {
-        els.existingTbody.innerHTML = `<tr><td colspan="6" class="text-muted">No slideshow images uploaded yet.</td></tr>`;
+        els.existingTbody.innerHTML = `<tr><td colspan="${COLS}" class="text-muted">No slideshow images uploaded yet.</td></tr>`;
         return;
       }
 
-      const role = (window.userRole || "").trim();
+      // IMPORTANT: your file uses global `userRole` (not window.userRole reliably)
+      const role =
+        (window.userRole || (typeof userRole !== "undefined" ? userRole : "") || "").trim();
+
       const canDelete = role === "SysAdmin";
 
       els.existingTbody.innerHTML = rows
@@ -3271,6 +3270,16 @@ function confirmDeleteChangelog(id, modalId) {
           const capTitle = img.caption_title ?? img.captionTitle ?? "";
           const capSub = img.caption_subtitle ?? img.captionSubtitle ?? "";
 
+          const uploaderId = img.uploaded_by ?? img.uploadedBy ?? null;
+          const uploaderUsername =
+            img.uploaded_by_username ?? img.uploadedByUsername ?? "";
+
+          const uploadedBy = uploaderUsername
+            ? uploaderUsername
+            : uploaderId
+              ? `User #${uploaderId}`
+              : "—";
+
           const previewCell = urlPath
             ? `<img src="${esc(urlPath)}"
                     alt="${esc(originalName || fileName)}"
@@ -3278,21 +3287,20 @@ function confirmDeleteChangelog(id, modalId) {
                     loading="lazy">`
             : `<span class="text-muted">—</span>`;
 
-          // Replace href view with modal view if you want:
           const viewBtn = urlPath
             ? `<button type="button"
-                       class="btn btn-sm btn-outline-primary"
-                       data-sview="${esc(urlPath)}"
-                       data-sview-title="${esc(capTitle)}"
-                       data-sview-sub="${esc(capSub)}">
+                      class="btn btn-sm btn-outline-primary"
+                      data-sview="${esc(urlPath)}"
+                      data-sview-title="${esc(capTitle)}"
+                      data-sview-sub="${esc(capSub)}">
                   View
                 </button>`
             : ``;
 
           const deleteBtn = canDelete
             ? `<button type="button"
-                       class="btn btn-sm btn-outline-danger"
-                       data-sdel="${esc(id)}">
+                      class="btn btn-sm btn-outline-danger"
+                      data-sdel="${esc(id)}">
                   Delete
                 </button>`
             : ``;
@@ -3300,6 +3308,7 @@ function confirmDeleteChangelog(id, modalId) {
           return `
             <tr>
               <td class="slideshow-preview-col">${previewCell}</td>
+
               <td class="text-truncate">
                 <div class="d-flex align-items-center justify-content-between gap-2">
                   <span>${esc(originalName || fileName || "image")}</span>
@@ -3309,36 +3318,41 @@ function confirmDeleteChangelog(id, modalId) {
                   </div>
                 </div>
               </td>
+
               <td class="d-none d-lg-table-cell">${esc(type)}</td>
+
+              <td class="d-none d-xl-table-cell">${esc(capTitle)}</td>
+              <td class="d-none d-xl-table-cell">${esc(capSub)}</td>
+
               <td class="d-none d-md-table-cell text-end">${esc(fmtBytes(sizeBytes))}</td>
+
+              <td class="d-none d-xl-table-cell">${esc(uploadedBy)}</td>
               <td class="d-none d-xl-table-cell">${esc(uploaded)}</td>
+
               <td class="text-end"></td>
             </tr>
           `;
         })
         .join("");
 
-      // bind view buttons -> openSlideshowViewModal(url, title, subtitle)
+      // bind view buttons -> open image in a new tab
       els.existingTbody.querySelectorAll("[data-sview]").forEach((btn) => {
         btn.addEventListener("click", () => {
           const url = btn.getAttribute("data-sview") || "";
-          const t = btn.getAttribute("data-sview-title") || "";
-          const s = btn.getAttribute("data-sview-sub") || "";
-          if (typeof openSlideshowViewModal === "function") openSlideshowViewModal(url, t, s);
-          else window.open(url, "_blank", "noopener");
+          if (!url) return;
+          window.open(url, "_blank", "noopener,noreferrer");
         });
       });
 
-      // bind delete (same as your existing pattern)
+
+      // bind delete buttons
       els.existingTbody.querySelectorAll("[data-sdel]").forEach((btn) => {
         btn.addEventListener("click", () => {
           const id = btn.getAttribute("data-sdel");
           if (!id) return;
 
-          const role = (window.userRole || "").trim();
-          if (role !== "SysAdmin") return;
+          const modalId = `modal-slideshowDel-${id}`;
 
-          const modalId = `modal-slideDeleteConfirm-${id}`;
           showGlobalModal({
             type: "warning",
             title: "Delete slideshow image?",
@@ -3352,10 +3366,11 @@ function confirmDeleteChangelog(id, modalId) {
         });
       });
     } catch (e) {
-      els.existingTbody.innerHTML = `<tr><td colspan="6" class="text-muted">Failed to load slideshow images.</td></tr>`;
-      gmError("Load Failed", "Could not load existing slideshow images.", "modal-slideshowLoadFail");
+      els.existingTbody.innerHTML = `<tr><td colspan="${COLS}" class="text-muted">Failed to load slideshow images.</td></tr>`;
+      gmError("Load Failed", "Could not load slideshow images.", "modal-slideshowLoadFail");
     }
   }
+
 
   window.__deleteSlideshowImage = async function __deleteSlideshowImage(id, modalId) {
     try {

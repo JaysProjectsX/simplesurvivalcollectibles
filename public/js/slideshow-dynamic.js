@@ -95,14 +95,24 @@
         return;
       }
 
-      slider.innerHTML = images
-        .map((img) => {
-          const url = escAttr(img.url || img.url_path || "");
-          const alt = escAttr(img.alt || img.original_name || "");
+      const sorted = [...images].sort((a, b) => {
+        const ao = Number(a.sortOrder ?? a.sort_order ?? 0);
+        const bo = Number(b.sortOrder ?? b.sort_order ?? 0);
+        if (ao !== bo) return ao - bo;
 
-          // Pull from backend
-          const title = escText(img.caption_title || "");
-          const subtitle = escText(img.caption_subtitle || "");
+        const aid = Number(a.id ?? 0);
+        const bid = Number(b.id ?? 0);
+        return aid - bid;
+      });
+
+      slider.innerHTML = sorted
+        .map((img) => {
+          const url = escAttr(img.url || img.urlPath || img.url_path || "");
+          const alt = escAttr(img.originalName || img.original_name || img.fileName || "");
+
+          // Support BOTH backend styles
+          const title = escText(img.captionTitle ?? img.caption_title ?? "");
+          const subtitle = escText(img.captionSubtitle ?? img.caption_subtitle ?? "");
 
           return `
             <div class="slide">
@@ -115,6 +125,7 @@
           `.trim();
         })
         .join("");
+
 
       window.initHomeSlideshow?.();
     } catch (err) {

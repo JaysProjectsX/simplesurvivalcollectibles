@@ -704,7 +704,7 @@
                           multiple
                         />
                         <div class="form-text">
-                          Supported: PNG, JPG, WEBP, GIF (max size enforced server-side).
+                          Supported: PNG, JPG, WEBP, GIF.
                         </div>
                       </div>
 
@@ -771,13 +771,12 @@
                             <tr>
                               <th class="slideshow-preview-col">Preview</th>
                               <th>Filename</th>
-                              <th class="d-none d-lg-table-cell">Type</th>
-
                               <th class="d-none d-xl-table-cell">Title</th>
                               <th class="d-none d-xl-table-cell">Subtitle</th>
-
+                              <th class="d-none d-lg-table-cell">Type</th>
                               <th class="d-none d-md-table-cell text-end">Size</th>
                               <th class="d-none d-xl-table-cell">Uploaded</th>
+                              <th class="d-none d-xl-table-cell">Uploaded by</th>
                               <th class="text-end"></th>
                             </tr>
                           </thead>
@@ -1500,24 +1499,6 @@
             </button>
           </div>
         </form>
-      </div>
-    </div>
-
-    <!-- Slideshow View Modal -->
-    <div id="slideshowViewModal" class="ssc-sview-modal" aria-hidden="true">
-      <div class="ssc-sview-backdrop" data-slideshow-close></div>
-
-      <div class="ssc-sview-dialog" role="dialog" aria-modal="true" aria-labelledby="slideshowViewTitle">
-        <button class="ssc-sview-close" type="button" aria-label="Close" data-slideshow-close>✕</button>
-
-        <div class="ssc-sview-body">
-          <img id="slideshowViewImg" class="ssc-sview-img" alt="Slideshow preview" />
-
-          <div class="ssc-sview-caption">
-            <h5 id="slideshowViewTitle" class="mb-1"></h5>
-            <p id="slideshowViewSubtitle" class="mb-0 text-muted"></p>
-          </div>
-        </div>
       </div>
     </div>
 

@@ -3143,9 +3143,9 @@ function renderQueue(els) {
 
           <td class="d-none d-md-table-cell">${type}</td>
 
-          <td class="text-end">${size}</td>
+          <td>${size}</td>
 
-          <td class="text-end">
+          <td>
             <button type="button"
                     class="btn btn-sm btn-outline-danger"
                     data-qremove="${idx}">
@@ -3310,26 +3310,24 @@ function renderQueue(els) {
               <td class="slideshow-preview-col">${previewCell}</td>
 
               <td class="text-truncate">
-                <div class="d-flex align-items-center justify-content-between gap-2">
-                  <span>${esc(originalName || fileName || "image")}</span>
-                  <div class="d-flex gap-2 justify-content-end">
-                    ${viewBtn}
-                    ${deleteBtn}
-                  </div>
-                </div>
+                ${esc(originalName || fileName || "image")}
               </td>
-
-              <td class="d-none d-lg-table-cell">${esc(type)}</td>
 
               <td class="d-none d-xl-table-cell">${esc(capTitle)}</td>
               <td class="d-none d-xl-table-cell">${esc(capSub)}</td>
 
-              <td class="d-none d-md-table-cell text-end">${esc(fmtBytes(sizeBytes))}</td>
+              <td class="d-none d-lg-table-cell">${esc(type)}</td>
+              <td class="d-none d-md-table-cell">${esc(fmtBytes(sizeBytes))}</td>
 
-              <td class="d-none d-xl-table-cell">${esc(uploadedBy)}</td>
               <td class="d-none d-xl-table-cell">${esc(uploaded)}</td>
+              <td class="d-none d-xl-table-cell">${esc(uploadedBy)}</td>
 
-              <td class="text-end"></td>
+              <td class="slideshow-action-col">
+                <div class="slideshow-actions">
+                  ${viewBtn}
+                  ${deleteBtn}
+                </div>
+              </td>
             </tr>
           `;
         })

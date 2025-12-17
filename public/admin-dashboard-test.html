@@ -729,14 +729,16 @@
                           <thead>
                             <tr>
                               <th>Filename</th>
+                              <th>Title</th>
+                              <th>Subtitle</th>
                               <th class="d-none d-md-table-cell">Type</th>
                               <th class="text-end">Size</th>
-                              <th class="text-end"></th>
+                              <th class="text-end">Action</th>
                             </tr>
                           </thead>
                           <tbody id="slideshowQueueTbody">
                             <tr>
-                              <td colspan="4" class="text-muted">No files selected yet.</td>
+                              <td colspan="6" class="text-muted">No files selected yet.</td>
                             </tr>
                           </tbody>
                         </table>
@@ -749,14 +751,13 @@
                   </div>
                 </div>
 
-                <!-- Existing uploads (FULL WIDTH, STACKED BELOW) -->
+                <!-- Existing uploads -->
                 <div class="col-12">
                   <div class="card h-100">
                     <div class="card-body">
                       <div class="d-flex flex-column flex-md-row align-items-start align-items-md-center justify-content-between gap-2 mb-3">
                         <div>
                           <h5 class="card-title mb-0">Current Slideshow Images</h5>
-                          <div class="text-muted small">Delete is SysAdmin-only.</div>
                         </div>
 
                         <button class="btn btn-outline-primary btn-sm" type="button" id="slideshowRefreshBtn">
@@ -771,6 +772,10 @@
                               <th class="slideshow-preview-col">Preview</th>
                               <th>Filename</th>
                               <th class="d-none d-lg-table-cell">Type</th>
+
+                              <th class="d-none d-xl-table-cell">Title</th>
+                              <th class="d-none d-xl-table-cell">Subtitle</th>
+
                               <th class="d-none d-md-table-cell text-end">Size</th>
                               <th class="d-none d-xl-table-cell">Uploaded</th>
                               <th class="text-end"></th>
@@ -778,7 +783,7 @@
                           </thead>
                           <tbody id="slideshowExistingTbody">
                             <tr>
-                              <td colspan="6" class="text-muted">Loading…</td>
+                              <td colspan="8" class="text-muted">Loading…</td>
                             </tr>
                           </tbody>
                         </table>
@@ -1495,6 +1500,24 @@
             </button>
           </div>
         </form>
+      </div>
+    </div>
+
+    <!-- Slideshow View Modal -->
+    <div id="slideshowViewModal" class="ssc-sview-modal" aria-hidden="true">
+      <div class="ssc-sview-backdrop" data-slideshow-close></div>
+
+      <div class="ssc-sview-dialog" role="dialog" aria-modal="true" aria-labelledby="slideshowViewTitle">
+        <button class="ssc-sview-close" type="button" aria-label="Close" data-slideshow-close>✕</button>
+
+        <div class="ssc-sview-body">
+          <img id="slideshowViewImg" class="ssc-sview-img" alt="Slideshow preview" />
+
+          <div class="ssc-sview-caption">
+            <h5 id="slideshowViewTitle" class="mb-1"></h5>
+            <p id="slideshowViewSubtitle" class="mb-0 text-muted"></p>
+          </div>
+        </div>
       </div>
     </div>
 

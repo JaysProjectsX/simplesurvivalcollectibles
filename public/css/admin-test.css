@@ -1938,7 +1938,7 @@ input#slideshowFileInput {
 /* Dropzone */
 #db-tab-slideshow .ssc-dropzone,
 #db-tab-slideshow #slideshowDropzone {
-  background: #0c0f16;
+  background: #0c0d12;
   border: 1px dashed rgba(255, 255, 255, 0.18) !important;
   color: rgba(255, 255, 255, 0.85);
 }
@@ -1952,7 +1952,7 @@ input#slideshowFileInput {
 /* Inputs */
 #db-tab-slideshow .form-control,
 #db-tab-slideshow .form-select {
-  background: #0c0f16;
+  background: #0c0d12;
   color: rgba(255, 255, 255, 0.90);
   border-color: rgba(255, 255, 255, 0.14);
 }
@@ -2027,4 +2027,107 @@ input#slideshowFileInput {
   object-fit: cover;
   border-radius: 10px;
   display: block;
+}
+
+.ssc-view-modal {
+  position: fixed;
+  inset: 0;
+  display: none;
+  z-index: 9999;
+}
+
+.ssc-view-modal.is-open { display: block; }
+
+.ssc-view-modal__backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,.65);
+  opacity: 0;
+  animation: sscFadeIn .18s ease forwards;
+}
+
+.ssc-view-modal__dialog {
+  position: relative;
+  width: min(900px, calc(100% - 32px));
+  margin: 64px auto;
+  border-radius: 14px;
+  background: #0f1420;
+  border: 1px solid rgba(255,255,255,.08);
+  box-shadow: 0 18px 60px rgba(0,0,0,.55);
+  transform: translateY(8px);
+  opacity: 0;
+  animation: sscPopIn .18s ease forwards;
+}
+
+.ssc-view-modal__close {
+  position: absolute;
+  top: 10px;
+  right: 12px;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  border: 1px solid rgba(255,255,255,.12);
+  background: rgba(255,255,255,.06);
+  color: #fff;
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.ssc-view-modal__content { padding: 22px; }
+
+.ssc-view-modal__title {
+  margin: 0 44px 4px 0;
+  font-weight: 700;
+}
+
+.ssc-view-modal__subtitle {
+  margin: 0 44px 14px 0;
+  opacity: .85;
+}
+
+.ssc-view-modal__img {
+  width: 100%;
+  height: auto;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,.08);
+  display: block;
+}
+
+@keyframes sscFadeIn { to { opacity: 1; } }
+@keyframes sscPopIn { to { opacity: 1; transform: translateY(0); } }
+
+
+/* Slideshow tab admin table styles */
+
+/* Only affect admin tables inside the Slideshow Options tab */
+#db-tab-slideshow .admin-table {
+  width: 100%;
+  table-layout: fixed;
+}
+
+#db-tab-slideshow .admin-table th,
+#db-tab-slideshow .admin-table td {
+  vertical-align: middle;
+}
+
+/* if your last column is actions (Remove/Delete button) */
+#db-tab-slideshow .admin-table th:last-child,
+#db-tab-slideshow .admin-table td:last-child {
+  text-align: right;
+  white-space: nowrap;
+}
+
+/* keep cells aligned + prevent header/body mismatch */
+#db-tab-slideshow .admin-table th,
+#db-tab-slideshow .admin-table td {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Optional: ensure buttons don’t force weird sizing */
+#db-tab-slideshow .admin-table .btn,
+#db-tab-slideshow .admin-table button {
+  white-space: nowrap;
 }

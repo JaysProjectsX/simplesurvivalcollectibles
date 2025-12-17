@@ -2982,13 +2982,13 @@ function confirmDeleteChangelog(id, modalId) {
     });
 }
 
-// ==============================
-// Crate Slideshow Options (DB subtab)
-// Uses: #slideshowDropzone, #slideshowFileInput, #slideshowQueueTbody, #slideshowExistingTbody, etc.
-// Backend: GET /admin/slideshow, POST /admin/slideshow/upload (FormData key "files"), DELETE /admin/slideshow/:id
-// ==============================
+// Slideshow Upload System
+// Slideshow Upload System (with per-image captions)
 (function () {
   let _slideshowBound = false;
+
+  // IMPORTANT: queue entries now store captions too
+  // { file: File, captionTitle: string, captionSubtitle: string }
   let _queue = [];
 
   const esc = (s) =>
@@ -3027,67 +3027,7 @@ function confirmDeleteChangelog(id, modalId) {
 
   // === Slideshow upload constraints ===
   const SLIDESHOW_MAX_BYTES = 5 * 1024 * 1024; // 5MB
-  const SLIDESHOW_ALLOWED_TYPES = new Set([
-    "image/png",
-    "image/jpeg",
-    "image/webp",
-    "image/gif",
-  ]);
-
-  function showSlideshowUploadError(title, message) {
-    showGlobalModal({
-      type: "error",
-      title,
-      message,
-      buttons: [
-        {
-          label: "Close",
-          onClick: `fadeOutAndRemove('modal-slideshowUploadError')`,
-        },
-      ],
-      id: "modal-slideshowUploadError",
-    });
-  }
-
-  // UPDATED: supports browsers where file.type is empty (fallback to extension)
-  function validateSlideshowFiles(fileList) {
-    const files = Array.from(fileList || []);
-    const accepted = [];
-    const rejected = [];
-
-    const extOk = (name) => /\.(png|jpe?g|webp|gif)$/i.test(name || "");
-
-    for (const f of files) {
-      const type = (f.type || "").toLowerCase();
-
-      // type check (mime OR extension fallback)
-      const okType = type
-        ? SLIDESHOW_ALLOWED_TYPES.has(type)
-        : extOk(f.name);
-
-      if (!okType) {
-        rejected.push(`${f.name} (unsupported type: ${f.type || "unknown"})`);
-        continue;
-      }
-
-      // size check
-      if (f.size > SLIDESHOW_MAX_BYTES) {
-        rejected.push(`${f.name} (${fmtBytes(f.size)} — max is 5 MB)`);
-        continue;
-      }
-
-      accepted.push(f);
-    }
-
-    if (rejected.length) {
-      showSlideshowUploadError(
-        "File(s) Rejected",
-        `Some files were not added:\n\n- ${rejected.join("\n- ")}`
-      );
-    }
-
-    return accepted;
-  }
+  const SLIDESHOW_ALLOWED_TYPES = new Set(["image/png", "image/jpeg", "image/webp", "image/gif"]);
 
   function gmError(title, message, id = "modal-slideshowErr") {
     if (typeof showGlobalModal !== "function") return;
@@ -3111,33 +3051,109 @@ function confirmDeleteChangelog(id, modalId) {
     });
   }
 
+  function showSlideshowUploadError(title, message) {
+    showGlobalModal({
+      type: "error",
+      title,
+      message,
+      buttons: [{ label: "Close", onClick: `fadeOutAndRemove('modal-slideshowUploadError')` }],
+      id: "modal-slideshowUploadError",
+    });
+  }
+
+  // supports browsers where file.type is empty (fallback to extension)
+  function validateSlideshowFiles(fileList) {
+    const files = Array.from(fileList || []);
+    const accepted = [];
+    const rejected = [];
+
+    const extOk = (name) => /\.(png|jpe?g|webp|gif)$/i.test(name || "");
+
+    for (const f of files) {
+      const type = (f.type || "").toLowerCase();
+      const okType = type ? SLIDESHOW_ALLOWED_TYPES.has(type) : extOk(f.name);
+
+      if (!okType) {
+        rejected.push(`${f.name} (unsupported type: ${f.type || "unknown"})`);
+        continue;
+      }
+
+      if (f.size > SLIDESHOW_MAX_BYTES) {
+        rejected.push(`${f.name} (${fmtBytes(f.size)} — max is 5 MB)`);
+        continue;
+      }
+
+      accepted.push(f);
+    }
+
+    if (rejected.length) {
+      showSlideshowUploadError("File(s) Rejected", `Some files were not added:\n\n- ${rejected.join("\n- ")}`);
+    }
+
+    return accepted;
+  }
+
+  // Optional convenience: derive a default title from filename (no extension)
+  function defaultTitleFromFileName(name) {
+    const s = String(name || "");
+    return s.replace(/\.[a-z0-9]+$/i, "").replaceAll("_", " ").trim();
+  }
+
   function renderQueue(els) {
     if (!els.queueTbody || !els.queueCount) return;
     els.queueCount.textContent = String(_queue.length);
 
     if (_queue.length === 0) {
-      els.queueTbody.innerHTML =
-        `<tr><td colspan="3" class="text-muted">No files queued.</td></tr>`;
+      // MUST match your updated <thead> column count (5)
+      els.queueTbody.innerHTML = `<tr><td colspan="5" class="text-muted">No files selected yet.</td></tr>`;
       return;
     }
 
+    // 5 columns: Filename | Caption Title | Caption Subtitle | Type | Size(+Remove)
     els.queueTbody.innerHTML = _queue
-      .map((f, idx) => {
+      .map((entry, idx) => {
+        const f = entry.file;
         const name = esc(f.name);
         const type = esc(f.type || "image/*");
         const size = esc(fmtBytes(f.size));
 
-        // Put Remove button INSIDE the Size cell so header/body stay aligned (3 cols)
+        const capTitle = esc(entry.captionTitle || "");
+        const capSub = esc(entry.captionSubtitle || "");
+
         return `
           <tr>
             <td class="text-truncate">${name}</td>
+
+            <td>
+              <input
+                type="text"
+                class="form-control form-control-sm"
+                placeholder="e.g., Christmas Crate"
+                value="${capTitle}"
+                data-cap-title="${idx}"
+              />
+            </td>
+
+            <td>
+              <input
+                type="text"
+                class="form-control form-control-sm"
+                placeholder="e.g., Page 1"
+                value="${capSub}"
+                data-cap-sub="${idx}"
+              />
+            </td>
+
             <td class="d-none d-md-table-cell">${type}</td>
+
             <td>
               <div class="d-flex align-items-center justify-content-between gap-2">
                 <span class="ms-auto">${size}</span>
-                <button type="button"
-                        class="btn btn-sm btn-outline-danger"
-                        data-qremove="${idx}">
+                <button
+                  type="button"
+                  class="btn btn-sm btn-outline-danger"
+                  data-qremove="${idx}"
+                >
                   Remove
                 </button>
               </div>
@@ -3147,11 +3163,29 @@ function confirmDeleteChangelog(id, modalId) {
       })
       .join("");
 
+    // bind remove
     els.queueTbody.querySelectorAll("[data-qremove]").forEach((btn) => {
       btn.addEventListener("click", () => {
         const i = Number(btn.getAttribute("data-qremove"));
         _queue.splice(i, 1);
         renderQueue(els);
+      });
+    });
+
+    // bind caption inputs -> keep _queue updated
+    els.queueTbody.querySelectorAll("[data-cap-title]").forEach((inp) => {
+      inp.addEventListener("input", () => {
+        const i = Number(inp.getAttribute("data-cap-title"));
+        if (!_queue[i]) return;
+        _queue[i].captionTitle = inp.value;
+      });
+    });
+
+    els.queueTbody.querySelectorAll("[data-cap-sub]").forEach((inp) => {
+      inp.addEventListener("input", () => {
+        const i = Number(inp.getAttribute("data-cap-sub"));
+        if (!_queue[i]) return;
+        _queue[i].captionSubtitle = inp.value;
       });
     });
   }
@@ -3160,34 +3194,42 @@ function confirmDeleteChangelog(id, modalId) {
     const accepted = validateSlideshowFiles(files);
     if (!accepted.length) return;
 
-    const existing = new Set(_queue.map((f) => `${f.name}:${f.size}:${f.lastModified}`));
+    // de-dupe by name+size+lastModified
+    const existing = new Set(
+      _queue.map((q) => `${q.file.name}:${q.file.size}:${q.file.lastModified}`)
+    );
 
     for (const f of accepted) {
       const key = `${f.name}:${f.size}:${f.lastModified}`;
       if (existing.has(key)) continue;
-      _queue.push(f);
+
+      _queue.push({
+        file: f,
+        captionTitle: defaultTitleFromFileName(f.name), // you can set "" if you don't want defaults
+        captionSubtitle: "",
+      });
+
       existing.add(key);
     }
 
+    // Limit to 20 to match backend multer array("files", 20)
     if (_queue.length > 20) _queue = _queue.slice(0, 20);
 
     renderQueue(els);
   }
 
+  // NOTE: your existing loadExisting() can stay, but you may want to show captions there too.
+  // If your backend returns caption_title/caption_subtitle in /admin/slideshow, you can surface them in view modal/buttons.
   async function loadExisting(els) {
     if (!els.existingTbody) return;
 
-    // Existing table header is 5 cols (Preview | Filename | Type | Size | Uploaded)
-    els.existingTbody.innerHTML =
-      `<tr><td colspan="5" class="text-muted">Loading...</td></tr>`;
+    els.existingTbody.innerHTML = `<tr><td colspan="6" class="text-muted">Loading…</td></tr>`;
 
     try {
       const res = await api("/admin/slideshow", { method: "GET" });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
       const data = await res.json();
-
-      // Accept either an array OR wrapped shapes like { images: [...] }
       const rows = Array.isArray(data)
         ? data
         : Array.isArray(data?.images)
@@ -3199,8 +3241,7 @@ function confirmDeleteChangelog(id, modalId) {
               : [];
 
       if (!rows.length) {
-        els.existingTbody.innerHTML =
-          `<tr><td colspan="5" class="text-muted">No slideshow images uploaded yet.</td></tr>`;
+        els.existingTbody.innerHTML = `<tr><td colspan="6" class="text-muted">No slideshow images uploaded yet.</td></tr>`;
         return;
       }
 
@@ -3209,12 +3250,13 @@ function confirmDeleteChangelog(id, modalId) {
 
       els.existingTbody.innerHTML = rows
         .map((img) => {
-          // Support your MySQL schema fields + a few fallbacks
           const id = img.id;
+
           const originalName = img.original_name ?? img.originalName ?? "";
           const fileName = img.file_name ?? img.fileName ?? img.filename ?? "";
           const type = img.mime_type ?? img.mimeType ?? img.type ?? "image/*";
           const sizeBytes = img.size_bytes ?? img.sizeBytes ?? img.size ?? 0;
+
           const urlPath =
             img.url_path ??
             img.urlPath ??
@@ -3226,6 +3268,9 @@ function confirmDeleteChangelog(id, modalId) {
 
           const uploaded = uploadedRaw ? new Date(uploadedRaw).toLocaleString() : "—";
 
+          const capTitle = img.caption_title ?? img.captionTitle ?? "";
+          const capSub = img.caption_subtitle ?? img.captionSubtitle ?? "";
+
           const previewCell = urlPath
             ? `<img src="${esc(urlPath)}"
                     alt="${esc(originalName || fileName)}"
@@ -3233,19 +3278,23 @@ function confirmDeleteChangelog(id, modalId) {
                     loading="lazy">`
             : `<span class="text-muted">—</span>`;
 
+          // Replace href view with modal view if you want:
           const viewBtn = urlPath
-            ? `<a class="btn btn-sm btn-outline-primary"
-                   href="${esc(urlPath)}"
-                   target="_blank"
-                   rel="noopener">View</a>`
+            ? `<button type="button"
+                       class="btn btn-sm btn-outline-primary"
+                       data-sview="${esc(urlPath)}"
+                       data-sview-title="${esc(capTitle)}"
+                       data-sview-sub="${esc(capSub)}">
+                  View
+                </button>`
             : ``;
 
           const deleteBtn = canDelete
             ? `<button type="button"
-                      class="btn btn-sm btn-outline-danger"
-                      data-sdel="${esc(id)}">
-                 Delete
-               </button>`
+                       class="btn btn-sm btn-outline-danger"
+                       data-sdel="${esc(id)}">
+                  Delete
+                </button>`
             : ``;
 
           return `
@@ -3261,14 +3310,26 @@ function confirmDeleteChangelog(id, modalId) {
                 </div>
               </td>
               <td class="d-none d-lg-table-cell">${esc(type)}</td>
-              <td class="text-end">${esc(fmtBytes(sizeBytes))}</td>
+              <td class="d-none d-md-table-cell text-end">${esc(fmtBytes(sizeBytes))}</td>
               <td class="d-none d-xl-table-cell">${esc(uploaded)}</td>
+              <td class="text-end"></td>
             </tr>
           `;
         })
         .join("");
 
-      // Bind delete buttons (SysAdmin only)
+      // bind view buttons -> openSlideshowViewModal(url, title, subtitle)
+      els.existingTbody.querySelectorAll("[data-sview]").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const url = btn.getAttribute("data-sview") || "";
+          const t = btn.getAttribute("data-sview-title") || "";
+          const s = btn.getAttribute("data-sview-sub") || "";
+          if (typeof openSlideshowViewModal === "function") openSlideshowViewModal(url, t, s);
+          else window.open(url, "_blank", "noopener");
+        });
+      });
+
+      // bind delete (same as your existing pattern)
       els.existingTbody.querySelectorAll("[data-sdel]").forEach((btn) => {
         btn.addEventListener("click", () => {
           const id = btn.getAttribute("data-sdel");
@@ -3284,23 +3345,15 @@ function confirmDeleteChangelog(id, modalId) {
             message: "This will remove the image from the homepage slideshow.",
             buttons: [
               { label: "Cancel", onClick: `fadeOutAndRemove('${modalId}')` },
-              {
-                label: "Delete",
-                onClick: `window.__deleteSlideshowImage('${id}', '${modalId}')`,
-              },
+              { label: "Delete", onClick: `window.__deleteSlideshowImage('${id}', '${modalId}')` },
             ],
             id: modalId,
           });
         });
       });
     } catch (e) {
-      els.existingTbody.innerHTML =
-        `<tr><td colspan="5" class="text-muted">Failed to load slideshow images.</td></tr>`;
-      gmError(
-        "Load Failed",
-        "Could not load existing slideshow images.",
-        "modal-slideshowLoadFail"
-      );
+      els.existingTbody.innerHTML = `<tr><td colspan="6" class="text-muted">Failed to load slideshow images.</td></tr>`;
+      gmError("Load Failed", "Could not load existing slideshow images.", "modal-slideshowLoadFail");
     }
   }
 
@@ -3317,25 +3370,55 @@ function confirmDeleteChangelog(id, modalId) {
     }
   };
 
+  function validateCaptionsBeforeUpload() {
+    // enforce BOTH fields (change if you want optional)
+    const missing = [];
+    _queue.forEach((q, idx) => {
+      const t = String(q.captionTitle || "").trim();
+      const s = String(q.captionSubtitle || "").trim();
+      if (!t || !s) missing.push(idx + 1);
+    });
+    return missing;
+  }
+
   async function uploadQueue(els) {
     if (!_queue.length) {
       gmError("Nothing to upload", "Add images to the queue first.", "modal-slideshowEmptyQueue");
       return;
     }
 
+    const missing = validateCaptionsBeforeUpload();
+    if (missing.length) {
+      gmError(
+        "Captions required",
+        `Please fill in Caption Title and Caption Subtitle for all queued images.\n\nMissing on row(s): ${missing.join(", ")}`,
+        "modal-slideshowMissingCaptions"
+      );
+      return;
+    }
+
     try {
       const fd = new FormData();
-      _queue.forEach((f) => fd.append("files", f)); // IMPORTANT: backend expects "files"
 
-      await api("/admin/slideshow/upload", {
+      // IMPORTANT: keep order consistent across files + captions
+      _queue.forEach((q) => {
+        fd.append("files", q.file);
+        fd.append("caption_title", String(q.captionTitle || ""));
+        fd.append("caption_subtitle", String(q.captionSubtitle || ""));
+      });
+
+      const res = await api("/admin/slideshow/upload", {
         method: "POST",
         body: fd,
       });
 
-      _queue = [];
-      renderQueue(els);
-      gmSuccess("Uploaded", "Slideshow images uploaded successfully.", "modal-slideshowUploaded");
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
+      _queue = [];
+      if (els.input) els.input.value = "";
+      renderQueue(els);
+
+      gmSuccess("Uploaded", "Slideshow images uploaded successfully.", "modal-slideshowUploaded");
       await loadExisting(els);
     } catch (e) {
       gmError("Upload Failed", "Could not upload slideshow images.", "modal-slideshowUploadFail");
@@ -3346,10 +3429,8 @@ function confirmDeleteChangelog(id, modalId) {
     const els = getEls();
     if (!els) return;
 
-    // render immediately every time tab opens (keeps count accurate)
     renderQueue(els);
 
-    // Bind only once
     if (_slideshowBound) {
       loadExisting(els);
       return;
@@ -3361,7 +3442,6 @@ function confirmDeleteChangelog(id, modalId) {
       return;
     }
 
-    // Dropzone behavior
     const stop = (e) => {
       e.preventDefault();
       e.stopPropagation();
@@ -3384,17 +3464,18 @@ function confirmDeleteChangelog(id, modalId) {
     els.dz.addEventListener("drop", (e) => addFiles(els, e.dataTransfer.files));
     els.input.addEventListener("change", () => addFiles(els, els.input.files));
 
-    // Buttons
     els.uploadBtn.addEventListener("click", () => uploadQueue(els));
     els.clearBtn.addEventListener("click", () => {
       _queue = [];
+      if (els.input) els.input.value = "";
       renderQueue(els);
     });
+
     els.refreshBtn.addEventListener("click", () => loadExisting(els));
 
-    // Initial load
     loadExisting(els);
   };
 })();
+
 
 

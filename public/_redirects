@@ -23,5 +23,7 @@
 # --- Everything that ALREADY has /api on the server ---
 /api/*                  https://simplesurvivalcollectibles.site/api/:splat         200!
 
+/uploads/*              https://simplesurvivalcollectibles.site/uploads/:splat     200!
+
 # --- SPA fallback (must be LAST) ---
 /*                      /index.html                                                200

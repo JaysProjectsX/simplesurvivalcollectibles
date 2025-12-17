@@ -97,13 +97,20 @@
 
       slider.innerHTML = images
         .map((img) => {
-          const url = escAttr(img.url);
-          const alt = escAttr(img.alt || "");
-          const caption = escText(img.caption || "");
+          const url = escAttr(img.url || img.url_path || "");
+          const alt = escAttr(img.alt || img.original_name || "");
+
+          // Pull from backend
+          const title = escText(img.caption_title || "");
+          const subtitle = escText(img.caption_subtitle || "");
+
           return `
             <div class="slide">
               <img src="${url}" alt="${alt}">
-              <div class="caption">${caption}</div>
+              <div class="caption">
+                <h3>${title}</h3>
+                <p>${subtitle}</p>
+              </div>
             </div>
           `.trim();
         })

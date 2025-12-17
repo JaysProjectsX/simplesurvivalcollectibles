@@ -2130,3 +2130,7 @@ input#slideshowFileInput {
 #db-tab-slideshow .admin-table button {
   white-space: nowrap;
 }
+
+.w-50 {
+  margin: auto;
+}

@@ -3145,7 +3145,7 @@ function renderQueue(els) {
 
           <td>${size}</td>
 
-          <td>
+          <td class="text-start">
             <button type="button"
                     class="btn btn-sm btn-outline-danger"
                     data-qremove="${idx}">
@@ -3322,7 +3322,7 @@ function renderQueue(els) {
               <td class="d-none d-xl-table-cell">${esc(uploaded)}</td>
               <td class="d-none d-xl-table-cell">${esc(uploadedBy)}</td>
 
-              <td class="slideshow-action-col">
+              <td class="slideshow-action-col text-start">
                 <div class="slideshow-actions">
                   ${viewBtn}
                   ${deleteBtn}

@@ -2114,7 +2114,7 @@ input#slideshowFileInput {
 /* if your last column is actions (Remove/Delete button) */
 #db-tab-slideshow .admin-table th:last-child,
 #db-tab-slideshow .admin-table td:last-child {
-  text-align: right;
+  text-align: center;
   white-space: nowrap;
 }
 
@@ -2123,7 +2123,6 @@ input#slideshowFileInput {
 #db-tab-slideshow .admin-table td {
   overflow: hidden;
   text-overflow: ellipsis;
-  white-space: nowrap;
 }
 
 /* Optional: ensure buttons don’t force weird sizing */

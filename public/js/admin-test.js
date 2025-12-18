@@ -224,7 +224,7 @@ async function loadMuteOptionsTable() {
             render: (d, t, row) => {
               if (!d) return `<span class="badge bg-secondary">false</span>`;
               const exp = row.mute_expires_at ? fmtDateTime(row.mute_expires_at) : "Indefinite";
-              return `<span class="badge bg-danger">true</span> <span class="text-muted small ms-1">(${escapeHTML(exp)})</span>`;
+              return `<span class="badge bg-danger">true</span> <span class="small ms-1">(${escapeHTML(exp)})</span>`;
             }
           },
           {

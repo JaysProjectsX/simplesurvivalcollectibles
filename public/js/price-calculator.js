@@ -1897,6 +1897,8 @@ window.openMuteModal = function ({ userId, userRole, username, mc, active, reaso
     return;
   }
 
+  window.__pcModerationCtx = window.__pcModerationCtx || {};
+
   const id = `modal-mute-${userId}`;
   window.__pcModerationCtx[id] = {
     itemId: itemId != null ? Number(itemId) : (currentItem?.id != null ? Number(currentItem.id) : null),

@@ -16,7 +16,6 @@
   </head>
   <body>
 
-    <!-- Preloader overlay -->
     <div id="preloader">
       <div class="loader"></div>
     </div>
@@ -29,7 +28,6 @@
           </a>
         </div>
 
-        <!-- Mobile toggle button -->
         <button
           class="navbar-toggler ms-auto"
           type="button"
@@ -42,7 +40,6 @@
           <span class="navbar-toggler-icon"></span>
         </button>
 
-        <!-- Collapsible area -->
         <div class="collapse navbar-collapse" id="mainNavbar">
           <ul class="nav-links mb-2 mb-lg-0">
             <li><a href="/">Home</a></li>
@@ -53,7 +50,6 @@
           </ul>
 
           <ul class="nav-login ms-lg-auto mb-2 mb-lg-0" id="navLogin">
-            <!-- Will be updated by auth.js -->
             <li id="loginItem"><a href="/login">Login</a></li>
           </ul>
         </div>
@@ -62,17 +58,18 @@
 
     <main>
     <section class="advent-page">
-    <div class="advent-wrap">  <!-- NEW WRAPPER -->
+    <div class="advent-wrap">
         <aside class="advent-sidebar">
         <h2>Calendar Years</h2>
-        <button class="year-btn active" data-year="2024">2024</button>
+        <button class="year-btn active" data-year="2025">2025</button>
+        <button class="year-btn" data-year="2024">2024</button>
         <button class="year-btn" data-year="2023">2023</button>
         <button class="year-btn" data-year="2022">2022</button>
         <p class="hint">Choose a year to view rewards.</p>
         </aside>
 
         <div class="advent-content">
-        <h1 id="adventTitle">December 2024</h1>
+        <h1 id="adventTitle">December 2025</h1>
         <p class="advent-subtitle">SimpleSurvival Advent Calendar Items</p>
         <ul id="adventGrid" class="advent-grid" aria-live="polite"></ul>
         </div>

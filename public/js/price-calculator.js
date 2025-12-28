@@ -773,12 +773,26 @@ function makeCrateGroup(list) {
   return group;
 }
 
+function isBanned(item) {
+  const pool = []
+    .concat(item.tags || [])
+    .concat(item.tag_names || [])
+    .concat(item.tag_name ? [item.tag_name] : []);
+  return pool.some(t => String(t).trim().toLowerCase() === "banned item");
+}
+
+function filterBanned(items) {
+  return (items || []).filter(it => !isBanned(it));
+}
+
 async function loadItems(crateId) {
   const res = await fetch(`${backendUrl}/crates/${crateId}/items`, {
     credentials: "include",
   });
   if (!res.ok) return [];
-  return await res.json();
+
+  const items = await res.json();
+  return filterBanned(items);
 }
 
 // ================== SEARCH (Enhanced) ==================

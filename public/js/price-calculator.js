@@ -612,40 +612,26 @@ function initSettingsUI() {
 // ================== AUTH & INIT ==================
 (async function init() {
   try {
-    const res = await fetch(`${backendUrl}/me`, { credentials: "include" });
-    if (!res.ok) return redirectHome();
-    const user = await res.json();
-    PC_ME = user;
-    const WHITELIST = [
-     "KingenWalle",
-     "bluestcheez",
-     "YooEm2",
-     "WakingGibbon516",
-     "7Gale"
-    ].map(s => s.toLowerCase());
-    const uName = (user.username || "").toLowerCase();
-    const isAdmin = (user.role === "Admin" || user.role === "SysAdmin");
-    const isWhitelisted = WHITELIST.includes(uName);
-    if (!isAdmin && !isWhitelisted) return redirectHome();
+    // If not signed in, PC_ME will remain null.
+    await pcFetchMe();
 
     document.body.hidden = false;
-
-
 
     pcInstallGuardOverlay();
     initSettingsUI();
     maybeShowPriceDisclaimer();
     await loadCrates();
+
   } catch (err) {
     console.error("Initialization failed:", err);
-    redirectHome();
+    document.body.hidden = false;
+    
   } finally {
     hidePreloader();
   }
 })();
 
-// === Price Calculator: Admin Notify toggle wiring ===========================
-// Requirements: window.AdminNotify.setEnabled(on) exists (from auth.js above)
+// === Price Calculator: Admin Notify toggle wiring ===
 
 (function wirePcAdminNotifyToggle() {
 

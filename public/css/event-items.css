@@ -1,4 +1,3 @@
-/* Optional: pixel-ish font for the tooltip feel */
 @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
 
 .event-items-container{
@@ -7,7 +6,6 @@
   margin: 3.5rem auto 6rem;
 }
 
-/* Panel base: match your crate-main / sidebar blocks */
 .event-panel{
   border-color: rgb(2, 2, 30);
   background: rgb(20, 20, 45);
@@ -44,7 +42,6 @@
   font-size: 0.9rem;
 }
 
-/* DataTables styling to better match your dark theme */
 .event-table thead th{
   background: rgba(255, 255, 255, 0.08) !important;
   color: white !important;
@@ -52,7 +49,6 @@
 }
 
 .event-table tbody td{
-  color: white !important;
   border-top: 1px solid rgba(255,255,255,0.08) !important;
 }
 
@@ -65,21 +61,18 @@
   cursor: pointer;
 }
 
-/* Selected row glow */
 tr.row-selected{
   outline: 2px solid rgba(110, 168, 255, 0.7);
   outline-offset: -2px;
   background: rgba(110, 168, 255, 0.08) !important;
 }
 
-/* Icon cell */
 .event-item-icon{
   width: 32px;
   height: 32px;
   image-rendering: pixelated;
 }
 
-/* Tags: reuse your vibe */
 .event-tag{
   display: inline-block;
   padding: 4px 10px;
@@ -93,7 +86,6 @@ tr.row-selected{
   white-space: nowrap;
 }
 
-/* DataTables controls (search, pagination) */
 div.dataTables_wrapper .dataTables_filter input{
   border-radius: 6px;
   border: none;
@@ -122,9 +114,88 @@ div.dataTables_wrapper .dataTables_paginate .page-item.active .page-link{
   color: rgba(255,255,255,0.65);
 }
 
-/* ------------------------------ */
+
+#eventItemsTable {
+  background: transparent !important;
+}
+
+#eventItemsTable thead th {
+  background: rgba(255, 255, 255, 0.08) !important;
+  color: #fff !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12) !important;
+}
+
+#eventItemsTable tbody,
+#eventItemsTable tbody tr,
+#eventItemsTable tbody td {
+  background: rgba(20, 20, 45, 0.65) !important;
+  color: #fff !important;
+}
+
+#eventItemsTable tbody tr:hover td {
+  background: rgba(255, 255, 255, 0.05) !important;
+}
+
+#eventItemsTable tbody tr.row-selected td {
+  background: rgba(110, 168, 255, 0.10) !important;
+}
+
+#eventItemsTable.table-striped > tbody > tr:nth-of-type(odd) > * {
+  background: rgba(20, 20, 45, 0.65) !important;
+}
+
+#eventItemsTable tbody td {
+  border-top: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+
+div.dataTables_wrapper .dataTables_filter label,
+div.dataTables_wrapper .dataTables_info {
+  color: rgba(255, 255, 255, 0.75) !important;
+}
+
+div.dataTables_wrapper .dataTables_filter input {
+  background: rgba(255, 255, 255, 0.08) !important;
+  color: #fff !important;
+  border: 1px solid rgba(255, 255, 255, 0.10) !important;
+  outline: none !important;
+}
+
+div.dataTables_wrapper .dataTables_filter input::placeholder {
+  color: rgba(255, 255, 255, 0.55) !important;
+}
+
+div.dataTables_wrapper .dataTables_paginate .page-link {
+  background: rgba(255, 255, 255, 0.06) !important;
+  color: rgba(255, 255, 255, 0.85) !important;
+  border: 1px solid rgba(255, 255, 255, 0.10) !important;
+}
+
+div.dataTables_wrapper .dataTables_paginate .page-item.disabled .page-link {
+  opacity: 0.45;
+}
+
+div.dataTables_wrapper .dataTables_paginate .page-item.active .page-link {
+  background: linear-gradient(to right, #4083ff, #002fff) !important;
+  border-color: transparent !important;
+  color: #fff !important;
+}
+
+table.dataTable thead .sorting:before,
+table.dataTable thead .sorting:after,
+table.dataTable thead .sorting_asc:before,
+table.dataTable thead .sorting_asc:after,
+table.dataTable thead .sorting_desc:before,
+table.dataTable thead .sorting_desc:after {
+  color: rgba(255, 255, 255, 0.55) !important;
+}
+
+#eventItemsTable td,
+#eventItemsTable th {
+  box-shadow: none !important;
+}
+
+
 /* Minecraft-style tooltip card   */
-/* ------------------------------ */
 
 .tooltip-stage{
   display: flex;
@@ -133,7 +204,7 @@ div.dataTables_wrapper .dataTables_paginate .page-item.active .page-link{
 }
 
 .mc-tooltip{
-  background: rgba(31, 16, 53, 0.92); /* deep purple */
+  background: rgba(31, 16, 53, 0.92);
   border-radius: 10px;
   padding: 14px 14px 12px;
   position: relative;
@@ -245,9 +316,4 @@ div.dataTables_wrapper .dataTables_paginate .page-item.active .page-link{
 .mc-line.warn{
   color: #ffd38a;
   font-weight: 700;
-}
-
-.tooltip-help{
-  font-size: 0.85rem;
-  color: rgba(255,255,255,0.65);
 }

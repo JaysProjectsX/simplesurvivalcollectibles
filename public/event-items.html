@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Event Items - SimpleSurvival Collectibles</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="/css/home-page.css" />
+    <link rel="stylesheet" href="/css/globalModal.css" />
+    <link rel="stylesheet" href="/css/event-items.css" />
+    <link href="https://unpkg.com/boxicons@2.1.1/css/boxicons.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/2.0.8/css/dataTables.bootstrap5.min.css" />
+
+    <link rel="icon" href="/favicon.png" type="image/png" />
+  </head>
+
+  <body>
+    <div id="preloader">
+      <div class="loader"></div>
+    </div>
+
+    <nav class="navbar navbar-expand-lg navbar-dark">
+      <div class="container-fluid nav-content">
+        <div class="nav-logo">
+          <a href="/">
+            <img src="/assets/Logo.png" alt="SimpleSurvival Collectibles Logo" />
+          </a>
+        </div>
+
+        <button
+          class="navbar-toggler ms-auto"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#mainNavbar"
+          aria-controls="mainNavbar"
+          aria-expanded="false"
+          aria-label="Toggle navigation"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="mainNavbar">
+          <ul class="nav-links mb-2 mb-lg-0">
+            <li><a href="/">Home</a></li>
+            <li><a href="/info">About</a></li>
+            <li><a href="/crates">Cosmetic Crates</a></li>
+            <li><a href="/othercrates">Other Crates</a></li>
+            <li><a href="/advent-calendars">Advent Calendars</a></li>
+          </ul>
+
+          <ul class="nav-login ms-lg-auto mb-2 mb-lg-0" id="navLogin">
+            <!-- Updated by auth.js -->
+            <li id="loginItem"><a href="/login">Login</a></li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <main>
+      <section class="home">
+        <div class="text">Event Items</div>
+
+        <div class="container event-items-container">
+          <div class="row g-4 align-items-start">
+            <div class="col-12 col-lg-7">
+              <div class="event-panel">
+                <div class="event-panel-header">
+                  <div class="event-panel-title">
+                    <i class="bx bx-list-ul"></i>
+                    <span>Browse Items</span>
+                  </div>
+                  <div class="event-panel-subtitle">
+                    Click a row to inspect the item on the right.
+                  </div>
+                </div>
+
+                <div class="table-responsive">
+                  <table id="eventItemsTable" class="table table-borderless align-middle event-table w-100">
+                    <thead>
+                      <tr>
+                        <th style="width:64px;">Icon</th>
+                        <th>Item</th>
+                        <th>Event</th>
+                        <th style="width:170px;">Tags</th>
+                      </tr>
+                    </thead>
+                    <tbody><!-- injected by DataTables --></tbody>
+                  </table>
+                </div>
+
+                <div class="event-hint">
+                  Tip: use the search box above the table to quickly find an item.
+                </div>
+              </div>
+            </div>
+
+            <div class="col-12 col-lg-5">
+              <div class="event-panel">
+                <div class="event-panel-header">
+                  <div class="event-panel-title">
+                    <i class="bx bx-search-alt-2"></i>
+                    <span>Item Inspector</span>
+                  </div>
+                  <div class="event-panel-subtitle">
+                    Minecraft-style tooltip info for the selected row.
+                  </div>
+                </div>
+
+                <div class="tooltip-stage">
+                  <div id="mcTooltip" class="mc-tooltip" aria-live="polite">
+                    <!-- Populated by JS -->
+                    <div class="mc-title-row">
+                      <img class="mc-icon" src="/assets/placeholder.png" alt="" />
+                      <div class="mc-title-wrap">
+                        <div class="mc-title">Select an item</div>
+                        <div class="mc-sub">Click an item from the table.</div>
+                      </div>
+                      <span class="mc-pill">INFO</span>
+                    </div>
+
+                    <div class="mc-divider"></div>
+
+                    <div class="mc-lines">
+                      <div class="mc-line muted">No item selected.</div>
+                    </div>
+                  </div>
+
+                  <div class="tooltip-help">
+                    This box is intentionally styled like an in-game tooltip card (dark, bordered, compact lines).
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <div class="footer-creator">
+        <p>Created by YooEm</p>
+      </div>
+      <div class="footer-links">
+        <p><strong>Disclaimer:</strong> This is a fan-made website and is not affiliated with or endorsed by the SimpleSurvival Minecraft server or its owners.</p>
+        <p><a href="/privacy">Privacy Policy</a> | <a href="/terms">Terms of Use</a> | <a href="/info#faq">FAQ</a></p>
+      </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.datatables.net/2.0.8/js/dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/2.0.8/js/dataTables.bootstrap5.min.js"></script>
+    <script defer src="/js/globalModal.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
+    <script src="/js/auth.js"></script>
+    <script src="/js/eventItemsData.js"></script>
+    <script src="/js/event-items.js"></script>
+  </body>
+</html>

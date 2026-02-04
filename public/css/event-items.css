@@ -1,0 +1,253 @@
+/* Optional: pixel-ish font for the tooltip feel */
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+
+.event-items-container{
+  width: 90%;
+  max-width: 1200px;
+  margin: 3.5rem auto 6rem;
+}
+
+/* Panel base: match your crate-main / sidebar blocks */
+.event-panel{
+  border-color: rgb(2, 2, 30);
+  background: rgb(20, 20, 45);
+  backdrop-filter: blur(20px);
+  border-radius: 6px;
+  padding: 20px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+  text-align: left;
+}
+
+.event-panel-header{
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 14px;
+}
+
+.event-panel-title{
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 1.05rem;
+}
+
+.event-panel-title i{
+  font-size: 1.25rem;
+  color: #6ea8ff;
+}
+
+.event-panel-subtitle{
+  color: rgba(255,255,255,0.70);
+  font-size: 0.9rem;
+}
+
+/* DataTables styling to better match your dark theme */
+.event-table thead th{
+  background: rgba(255, 255, 255, 0.08) !important;
+  color: white !important;
+  border-bottom: 1px solid rgba(255,255,255,0.12) !important;
+}
+
+.event-table tbody td{
+  color: white !important;
+  border-top: 1px solid rgba(255,255,255,0.08) !important;
+}
+
+.event-table tbody tr{
+  background: transparent !important;
+}
+
+.event-table tbody tr:hover{
+  background: rgba(255,255,255,0.04) !important;
+  cursor: pointer;
+}
+
+/* Selected row glow */
+tr.row-selected{
+  outline: 2px solid rgba(110, 168, 255, 0.7);
+  outline-offset: -2px;
+  background: rgba(110, 168, 255, 0.08) !important;
+}
+
+/* Icon cell */
+.event-item-icon{
+  width: 32px;
+  height: 32px;
+  image-rendering: pixelated;
+}
+
+/* Tags: reuse your vibe */
+.event-tag{
+  display: inline-block;
+  padding: 4px 10px;
+  margin: 2px 4px 2px 0;
+  background: linear-gradient(135deg, #6ea8ff, #9f7aea);
+  color: white;
+  border-radius: 12px;
+  font-size: 0.70rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+/* DataTables controls (search, pagination) */
+div.dataTables_wrapper .dataTables_filter input{
+  border-radius: 6px;
+  border: none;
+  padding: 8px 10px;
+  margin-left: 8px;
+}
+
+div.dataTables_wrapper .dataTables_filter label,
+div.dataTables_wrapper .dataTables_info{
+  color: rgba(255,255,255,0.75) !important;
+}
+
+div.dataTables_wrapper .dataTables_paginate .page-link{
+  border: none;
+  margin: 0 4px;
+  border-radius: 8px;
+}
+
+div.dataTables_wrapper .dataTables_paginate .page-item.active .page-link{
+  background: linear-gradient(to right, #4083ff, #002fff);
+}
+
+.event-hint{
+  margin-top: 10px;
+  font-size: 0.85rem;
+  color: rgba(255,255,255,0.65);
+}
+
+/* ------------------------------ */
+/* Minecraft-style tooltip card   */
+/* ------------------------------ */
+
+.tooltip-stage{
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.mc-tooltip{
+  background: rgba(31, 16, 53, 0.92); /* deep purple */
+  border-radius: 10px;
+  padding: 14px 14px 12px;
+  position: relative;
+  overflow: hidden;
+  border: 2px solid rgba(168, 120, 255, 0.35);
+  box-shadow: 0 20px 60px rgba(0,0,0,0.35);
+}
+
+.mc-tooltip::before{
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 10px;
+  padding: 2px;
+  background: linear-gradient(135deg,
+    rgba(255, 184, 110, 0.55),
+    rgba(163, 92, 255, 0.55),
+    rgba(110, 168, 255, 0.55)
+  );
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+          mask-composite: exclude;
+  pointer-events: none;
+}
+
+.mc-title-row{
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.mc-icon{
+  width: 40px;
+  height: 40px;
+  image-rendering: pixelated;
+  border-radius: 8px;
+  background: rgba(255,255,255,0.06);
+  padding: 6px;
+}
+
+.mc-title-wrap{
+  flex: 1;
+  min-width: 0;
+}
+
+.mc-title{
+  font-family: 'Press Start 2P', system-ui, sans-serif;
+  font-size: 0.78rem;
+  color: #ffffff;
+  line-height: 1.35;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.mc-sub{
+  margin-top: 6px;
+  font-size: 0.85rem;
+  color: rgba(255,255,255,0.70);
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.mc-pill{
+  font-family: 'Press Start 2P', system-ui, sans-serif;
+  font-size: 0.6rem;
+  padding: 6px 8px;
+  border-radius: 8px;
+  background: rgba(110,168,255,0.20);
+  border: 1px solid rgba(110,168,255,0.35);
+  color: #cfe2ff;
+  white-space: nowrap;
+}
+
+.mc-divider{
+  height: 1px;
+  background: rgba(255,255,255,0.12);
+  margin: 12px 0;
+}
+
+.mc-lines{
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.mc-line{
+  font-size: 0.9rem;
+  color: rgba(255,255,255,0.92);
+  line-height: 1.35;
+}
+
+.mc-line.muted{
+  color: rgba(255,255,255,0.65);
+}
+
+.mc-line.accent{
+  color: #6ea8ff;
+  font-weight: 700;
+}
+
+.mc-line.good{
+  color: #9ef7a5;
+  font-weight: 700;
+}
+
+.mc-line.warn{
+  color: #ffd38a;
+  font-weight: 700;
+}
+
+.tooltip-help{
+  font-size: 0.85rem;
+  color: rgba(255,255,255,0.65);
+}

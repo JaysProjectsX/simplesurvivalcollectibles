@@ -6,7 +6,7 @@ window.EVENT_ITEMS = [
     rarity: "Rare",
     type: "Weapon",
     itemId: "simplesurvival:sweetheart_sword",
-    tags: ["Sword", "Sweetheart"],
+    tags: ["Sword"],
     iconUrl: "https://mc.nerothe.com/img/1.21.5/minecraft_netherite_sword.png",
     description: "A romantic blade forged for limited-time celebrations.",
     obtainedFrom: "Valentine’s Crate",

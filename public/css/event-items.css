@@ -1,8 +1,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
 
 .event-items-container{
-  width: 90%;
-  max-width: 1200px;
+  width: 100%;
   margin: 3.5rem auto 6rem;
 }
 

@@ -331,7 +331,7 @@ function openPriceDisclaimerModal() {
         typical item values by economy. It does <b>not</b> set defined prices.
       </p>
       <p style="margin:0 0 10px 0;font-size:0.95rem;">
-        <b>YooEm</b> and <b>FleaMeKnee</b> are <b>not responsible</b> for the values shown or for any
+        We are <b>not responsible</b> for the values shown or for any
         in-game transactions that may occur based on those values. Use this tool solely
         as a general reference.
       </p>
